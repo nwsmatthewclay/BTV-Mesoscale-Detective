@@ -69,7 +69,7 @@ jobs:
           model_manifest = json.loads(Path("mesoscale/data/model_manifest.json").read_text(encoding="utf-8"))
           archive_path = Path("mesoscale/data/fields/forecast/forecast_manifest.json")
           existing = json.loads(archive_path.read_text(encoding="utf-8")) if archive_path.exists() else None
-          needs_update, target_cycle = archive_needs_update(model_manifest, existing, (0, 3, 6, 9))
+          needs_update, target_cycle = archive_needs_update(model_manifest, existing, (0, 3, 6, 9, 12, 15))
           if os.environ.get("EVENT_NAME") == "workflow_dispatch":
               needs_update = True
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
@@ -81,7 +81,7 @@ jobs:
         run: python mesoscale/validate_rap_ingestion.py
       - name: Build verified multi-hour RAP forecast archive
         if: steps.freshness.outputs.needs_update == 'true'
-        run: python mesoscale/build_rap_forecast_archive.py --hours 0,3,6,9
+        run: python mesoscale/build_rap_forecast_archive.py --hours 0,3,6,9,12,15
       - name: Publish verified RAP fields and KBTV profile
         id: publish
         if: steps.freshness.outputs.needs_update == 'true'

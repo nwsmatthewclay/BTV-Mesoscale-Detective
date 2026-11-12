@@ -30,7 +30,7 @@ STATIONS = {
     "KMPV": (44.2035, -72.5623), "KRUT": (43.5294, -72.9496),
     "1V4": (44.4193, -72.0194), "KEFK": (44.8888, -72.2292),
 }
-HOURS = (0, 3, 6, 9)
+HOURS = (0, 3, 6, 9, 12, 15)
 HYBRID_FILENAME_RE = re.compile(r"rap\.t\d{2}z\.awp130bgrbf\d{2,3}\.grib2$")
 MAX_BYTES = 180_000_000
 
@@ -117,7 +117,7 @@ def download(url: str, destination: Path, session: requests.Session) -> int:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--hours", default="0,3,6,9")
+    parser.add_argument("--hours", default="0,3,6,9,12,15")
     args = parser.parse_args()
     hours = tuple(sorted({int(v) for v in args.hours.split(",") if v.strip()}))
     if not hours or any(h < 0 or h > 21 for h in hours):

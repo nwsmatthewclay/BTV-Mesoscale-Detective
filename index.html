@@ -48,7 +48,7 @@ select,input[type=range]{width:100%}select{background:#071827;color:var(--text);
 </div></div>
 <div class="field"><label>Selected point</label><div id="pointReadout" class="detail-line"><span>Location</span><b>KBTV</b></div><div id="coords" style="color:var(--muted);font-size:11px;margin-top:5px">44.4719°N, 73.1533°W</div></div>
 <button class="btn primary" id="reset">Reset map / KBTV</button>
-</div><div class="notice">RAP profiles are published for KBTV, KPBG, KMSS, KSLK, KMPV, KRUT, 1V4 and KEFK. HRRR surface grids are published for F00/F03/F06/F09; vertical profiles remain RAP-only. RRFS is discovery-only.</div></aside>
+</div><div class="notice">RAP profiles are published for KBTV, KPBG, KMSS, KSLK, KMPV, KRUT, 1V4 and KEFK. HRRR surface grids are published at three-hour intervals with valid-time matching to RAP; vertical profiles remain RAP-only. RRFS is discovery-only.</div></aside>
 <section class="panel"><h2 id="mapTitle">Environment · Surface observations</h2><div class="map-wrap"><div id="map"></div><div class="map-chip" id="mapChip">BTV CWA · Click map to interrogate a point</div><div class="map-legend">Map base: OpenStreetMap · RAP full-column and HRRR surface grids available for point sampling</div></div><div class="map-actions"><button class="btn" id="drawTransect">Draw cross-section line</button><button class="btn" id="clearTransect">Clear line</button><button class="btn" id="locateBtv">Select KBTV</button><span style="margin-left:auto;color:var(--muted);font-size:11px;align-self:center" id="selectionStatus">Selected: KBTV</span></div></section>
 <aside class="rightcol" style="display:flex;flex-direction:column;gap:10px">
 <section class="panel"><h2>Selected Point · Diagnostics</h2><div class="metrics" id="metrics">

@@ -62,7 +62,7 @@ def test_archive_requires_every_requested_hour_from_one_cycle():
 
 
 
-def published_rap_archive(cycle, hours=(0, 3, 6, 9), quality="passed"):
+def published_rap_archive(cycle, hours=(0, 3, 6, 9, 12, 15), quality="passed"):
     return {
         "model": "RAP",
         "model_cycle_utc": cycle,
@@ -84,11 +84,11 @@ def test_rap_freshness_keeps_complete_archive_when_newer_cycle_is_still_filling(
         product("2026-11-12T17:00:00Z", 0),
         product("2026-11-12T17:00:00Z", 3),
         product("2026-11-12T17:00:00Z", 6),
-        *[product(complete, hour) for hour in (0, 3, 6, 9)],
+        *[product(complete, hour) for hour in (0, 3, 6, 9, 12, 15)],
     ]}}}
 
     needs_update, target = archive_needs_update(
-        manifest, published_rap_archive(complete), (0, 3, 6, 9)
+        manifest, published_rap_archive(complete), (0, 3, 6, 9, 12, 15)
     )
 
     assert target == complete
@@ -99,11 +99,11 @@ def test_rap_freshness_requests_update_for_a_newer_complete_cycle():
     current = "2026-11-12T16:00:00Z"
     newer = "2026-11-12T17:00:00Z"
     manifest = {"models": {"RAP": {"latest_products": [
-        *[product(newer, hour) for hour in (0, 3, 6, 9)],
+        *[product(newer, hour) for hour in (0, 3, 6, 9, 12, 15)],
     ]}}}
 
     needs_update, target = archive_needs_update(
-        manifest, published_rap_archive(current), (0, 3, 6, 9)
+        manifest, published_rap_archive(current), (0, 3, 6, 9, 12, 15)
     )
 
     assert target == newer
@@ -113,13 +113,44 @@ def test_rap_freshness_requests_update_for_a_newer_complete_cycle():
 def test_rap_freshness_rebuilds_missing_or_failed_archives():
     cycle = "2026-11-12T16:00:00Z"
     manifest = {"models": {"RAP": {"latest_products": [
-        *[product(cycle, hour) for hour in (0, 3, 6, 9)],
+        *[product(cycle, hour) for hour in (0, 3, 6, 9, 12, 15)],
     ]}}}
 
-    assert archive_needs_update(manifest, None, (0, 3, 6, 9))[0] is True
+    assert archive_needs_update(manifest, None, (0, 3, 6, 9, 12, 15))[0] is True
     assert archive_needs_update(
-        manifest, published_rap_archive(cycle, quality="failed"), (0, 3, 6, 9)
+        manifest, published_rap_archive(cycle, quality="failed"), (0, 3, 6, 9, 12, 15)
     )[0] is True
     assert archive_needs_update(
-        manifest, published_rap_archive(cycle, hours=(0, 3, 6)), (0, 3, 6, 9)
+        manifest, published_rap_archive(cycle, hours=(0, 3, 6, 9, 12)), (0, 3, 6, 9, 12, 15)
     )[0] is True
+
+
+
+def test_archive_selects_six_three_hourly_forecast_points_from_one_cycle():
+    hours = (0, 3, 6, 9, 12, 15)
+    cycle = "2026-11-12T17:00:00Z"
+    manifest = {"models": {"RAP": {"latest_products": [
+        *[product(cycle, hour) for hour in hours],
+        product("2026-11-12T16:00:00Z", 0),
+        product("2026-11-12T16:00:00Z", 3),
+    ]}}}
+
+    selected_cycle, selected = choose_cycle_products(manifest, hours)
+
+    assert selected_cycle == cycle
+    assert [item["forecast_hour"] for item in selected] == list(hours)
+
+
+def test_archive_rebuilds_four_hour_archive_to_add_f12_and_f15():
+    hours = (0, 3, 6, 9, 12, 15)
+    cycle = "2026-11-12T17:00:00Z"
+    manifest = {"models": {"RAP": {"latest_products": [
+        *[product(cycle, hour) for hour in hours],
+    ]}}}
+
+    needs_update, target = archive_needs_update(
+        manifest, published_rap_archive(cycle, hours=(0, 3, 6, 9)), hours
+    )
+
+    assert target == cycle
+    assert needs_update is True

@@ -215,3 +215,26 @@ def test_hrrr_freshness_accepts_archive_aligned_to_rap_valid_times():
 
     assert target_cycle == cycle
     assert needs_update is False
+
+
+
+def test_hrrr_archive_aligns_six_forecast_points_to_rap_valid_times():
+    targets = (
+        "2026-11-12T17:00:00Z",
+        "2026-11-12T20:00:00Z",
+        "2026-11-12T23:00:00Z",
+        "2026-11-13T02:00:00Z",
+        "2026-11-13T05:00:00Z",
+        "2026-11-13T08:00:00Z",
+    )
+    hours = (0, 3, 6, 9, 12, 15)
+    cycle = "20261112T17:00:00Z"
+    manifest = {"models": {"HRRR": {"latest_products": [
+        *[product(cycle, hour) for hour in hours],
+        *[product("20261112T18:00:00Z", hour) for hour in (0, 1, 2)],
+    ]}}}
+
+    selected_cycle, selected = choose_cycle_products_for_valid_times(manifest, targets)
+
+    assert selected_cycle == cycle
+    assert [item["forecast_hour"] for item in selected] == list(hours)

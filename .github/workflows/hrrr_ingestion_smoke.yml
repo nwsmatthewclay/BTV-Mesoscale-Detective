@@ -58,8 +58,8 @@ jobs:
               raise SystemExit("A verified published RAP archive is required for HRRR valid-time alignment")
           rap_hours = rap_archive.get("hours") or []
           target_valid_times = [item.get("valid_time_utc") for item in rap_hours]
-          if len(target_valid_times) != 4 or any(not value for value in target_valid_times):
-              raise SystemExit("RAP archive must provide four valid times for HRRR alignment")
+          if len(target_valid_times) < 4 or any(not value for value in target_valid_times):
+              raise SystemExit("RAP archive must provide at least four valid times for HRRR alignment")
           archive_path = Path("mesoscale/data/fields/hrrr/hrrr_forecast_manifest.json")
           existing = json.loads(archive_path.read_text(encoding="utf-8")) if archive_path.exists() else None
           needs_update, target_cycle = archive_needs_update(
@@ -132,7 +132,7 @@ jobs:
           )
           rap_valid_times = [item.get("valid_time_utc") for item in (rap_manifest.get("hours") or [])]
           alignment = manifest.get("valid_time_alignment") or {}
-          if len(hours) != 4 or len(rap_valid_times) != 4 or any(not value for value in rap_valid_times):
+          if len(hours) < 4 or len(hours) != len(rap_valid_times) or any(not value for value in rap_valid_times):
               raise SystemExit("Refusing to publish an incomplete RAP/HRRR valid-time set")
           if [item.get("valid_time_utc") for item in hours] != rap_valid_times:
               raise SystemExit("Refusing to publish HRRR grids that do not match RAP valid times")

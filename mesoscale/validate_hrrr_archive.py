@@ -178,7 +178,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", default=str(DEFAULT_MANIFEST))
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT))
-    parser.add_argument("--hours", default="0,3,6,9")
+    parser.add_argument("--hours", default="0,3,6,9,12,15")
     parser.add_argument(
         "--valid-times",
         default="",
