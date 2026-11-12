@@ -207,7 +207,7 @@ function findRapSurfaceField(payload,names){
 function sampleRapSurface(payload,names,lat,lon){
   const field=findRapSurfaceField(payload,names);if(!field)return null;
   const grid=payload.grids[field.grid_id];if(!grid)return null;
-  const pt=nearestRapGridPoint(grid,lat,lon),value=field.data[pt.y]?.[pt.x];
+  const pt=nearestRapGridPoint(grid,lat,lon),data=squeezeRap2D(field.data),value=data?.[pt.y]?.[pt.x];
   return Number.isFinite(value)?{value,units:field.units,short_name:field.short_name,distance_km:pt.d}:null;
 }
 function updateRegionalDiagnostics(p,payload){
