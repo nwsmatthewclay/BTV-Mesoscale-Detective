@@ -15,7 +15,7 @@ def test_hourly_model_refresh_is_owned_by_rap_ingestion():
     assert "  schedule:" not in discovery
 
 
-def test_pages_deployments_are_serialized_and_wait_for_artifact_metadata():
+def test_pages_deployments_are_serialized_and_use_attempt_scoped_artifacts():
     workflow_jobs = (
         ("rap_ingestion_smoke.yml", "deploy-pages"),
         ("hrrr_ingestion_smoke.yml", "deploy-pages"),
@@ -28,11 +28,21 @@ def test_pages_deployments_are_serialized_and_wait_for_artifact_metadata():
         assert "cancel-in-progress: false" in deploy
         assert "name: Wait for GitHub Pages artifact metadata" in deploy
         assert "run: sleep 10" in deploy
+        upload = deploy.split("uses: actions/upload-pages-artifact@v3", 1)[1].split("\n      - name:", 1)[0]
+        deploy_step = deploy.split("uses: actions/deploy-pages@v4", 1)[1]
+        artifact_name = "github-pages-${{ github.run_id }}-${{ github.run_attempt }}"
+        assert f"name: {artifact_name}" in upload
+        assert f"artifact_name: {artifact_name}" in deploy_step
 
     standalone = (ROOT / ".github/workflows/deploy_pages.yml").read_text(encoding="utf-8")
     assert "group: github-pages" in standalone
     assert "name: Wait for GitHub Pages artifact metadata" in standalone
     assert "run: sleep 10" in standalone
+    upload = standalone.split("uses: actions/upload-pages-artifact@v3", 1)[1].split("\n      - name:", 1)[0]
+    deploy_step = standalone.split("uses: actions/deploy-pages@v4", 1)[1]
+    artifact_name = "github-pages-${{ github.run_id }}-${{ github.run_attempt }}"
+    assert f"name: {artifact_name}" in upload
+    assert f"artifact_name: {artifact_name}" in deploy_step
 
 
 def test_hrRR_browser_smoke_is_independent_of_pages_deployment():
