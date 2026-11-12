@@ -173,7 +173,7 @@ def archive_needs_update(
         if archive_root is None:
             return True
         path = archive_root / relative
-        if not path.is_file() or path.stat().st_size < 1000:
+        if not path.is_file() or path.stat().st_size < 100:
             return False
         try:
             with gzip.open(path, "rt", encoding="utf-8") as stream:
@@ -200,7 +200,7 @@ def archive_needs_update(
                 and required_groups.issubset(set(recorded_groups))
                 and required_groups.issubset(set(report.get("required_field_groups", {})))
             )
-        except (OSError, EOFError, zlib.error, UnicodeError, ValueError, TypeError, KeyError, AttributeError):
+        except (OSError, EOFError, zlib.error, UnicodeError, ValueError, TypeError, KeyError, AttributeError, RuntimeError):
             return False
 
     files_complete = (
