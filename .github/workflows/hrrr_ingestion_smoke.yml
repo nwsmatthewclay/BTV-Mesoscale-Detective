@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "mesoscale/validate_hrrr_ingestion.py"
+      - "mesoscale/validate_hrrr_archive.py"
       - "mesoscale/download_subset.py"
       - "mesoscale/process_grib.py"
       - "mesoscale/hrrr_tests/**"
@@ -46,8 +47,8 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: pytest -q mesoscale/tests mesoscale/hrrr_tests
-      - name: Download and validate latest HRRR BTV surface subset
-        run: python mesoscale/validate_hrrr_ingestion.py --forecast-hour 0
+      - name: Download and validate four HRRR BTV surface forecast hours
+        run: python mesoscale/validate_hrrr_archive.py --hours 0,3,6,9
       - name: Upload non-publishing HRRR smoke-test artifacts
         if: always()
         uses: actions/upload-artifact@v4
