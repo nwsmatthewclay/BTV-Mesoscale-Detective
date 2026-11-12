@@ -72,7 +72,7 @@ def test_hrrr_surface_parameter_and_hour_switching():
             "hour => window.hrrrGridPayload && "
             "Number(window.hrrrGridPayload.forecast_hour) === hour && "
             "document.querySelector('#mapChip').textContent.includes('F' + String(hour).padStart(2, '0'))",
-            aligned_hour,
+            arg=aligned_hour,
             timeout=30000,
         )
         assert page.evaluate(
