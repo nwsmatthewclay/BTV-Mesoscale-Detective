@@ -41,3 +41,13 @@ def test_inline_dashboard_javascript_parses_with_node_when_available():
         assert result.returncode == 0, result.stderr
     finally:
         Path(path).unlink(missing_ok=True)
+
+
+def test_rap_ingestion_refreshes_discovery_before_validating_and_archiving():
+    workflow = (ROOT / ".github" / "workflows" / "rap_ingestion_smoke.yml").read_text(encoding="utf-8")
+    discover = workflow.index("python mesoscale/discover_models.py --days-back 2 --index-latest")
+    validate = workflow.index("python mesoscale/validate_rap_ingestion.py")
+    archive = workflow.index("python mesoscale/build_rap_forecast_archive.py")
+    assert discover < validate < archive
+    assert "git add mesoscale/data/model_manifest.json" in workflow
+    assert 'git commit -m "Refresh RAP, HRRR and RRFS model manifest"' in workflow
