@@ -19,6 +19,8 @@ concurrency:
 jobs:
   rap-ingestion:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    outputs:
+      published: ${{ steps.publish.outputs.published }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -53,11 +55,36 @@ jobs:
             git pull --rebase origin main
             git push
           fi
+      - name: Check whether a newer complete RAP cycle needs publication
+        id: freshness
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from mesoscale.build_rap_forecast_archive import archive_needs_update
+
+          model_manifest = json.loads(Path("mesoscale/data/model_manifest.json").read_text(encoding="utf-8"))
+          archive_path = Path("mesoscale/data/fields/forecast/forecast_manifest.json")
+          existing = json.loads(archive_path.read_text(encoding="utf-8")) if archive_path.exists() else None
+          needs_update, target_cycle = archive_needs_update(model_manifest, existing, (0, 3, 6, 9))
+          if os.environ.get("EVENT_NAME") == "workflow_dispatch":
+              needs_update = True
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"needs_update={'true' if needs_update else 'false'}\n")
+          print(f"Latest complete RAP cycle: {target_cycle}; archive update required: {needs_update}")
+          PY
       - name: Download and decode current RAP hybrid-level product
+        if: steps.freshness.outputs.needs_update == 'true'
         run: python mesoscale/validate_rap_ingestion.py
       - name: Build verified multi-hour RAP forecast archive
+        if: steps.freshness.outputs.needs_update == 'true'
         run: python mesoscale/build_rap_forecast_archive.py --hours 0,3,6,9
       - name: Publish verified RAP fields and KBTV profile
+        id: publish
+        if: steps.freshness.outputs.needs_update == 'true'
         run: |
           # Rebase before staging generated outputs. This avoids binary merge
           # conflicts when a queued hourly run checked out an older gzip grid.
@@ -75,11 +102,13 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A mesoscale/data/fields/
           if git diff --cached --quiet; then
+            echo "published=false" >> "$GITHUB_OUTPUT"
             echo "Published RAP data unchanged."
             exit 0
           fi
           git commit -m "Publish verified latest RAP BTV fields"
           git push
+          echo "published=true" >> "$GITHUB_OUTPUT"
       - name: Upload ingestion report
         if: always()
         uses: actions/upload-artifact@v4
@@ -90,6 +119,7 @@ jobs:
 
   deploy-pages:
     needs: rap-ingestion
+    if: needs.rap-ingestion.outputs.published == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: read

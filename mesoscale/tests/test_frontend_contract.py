@@ -74,6 +74,11 @@ def test_model_discovery_orchestrates_rap_and_hrrr_ingestion_and_pages():
     assert "needs.discover.outputs.manifest_changed == 'true'" in discovery
     assert 'echo "changed=true"' in discovery
     assert "actions/deploy-pages@v4" in discovery
+    assert "archive_needs_update" in rap
+    assert "steps.freshness.outputs.needs_update == 'true'" in rap
+    assert "needs.rap-ingestion.outputs.published == 'true'" in rap
+    assert "archive_needs_update" in hrrr
+    assert "needs.hrrr-smoke.outputs.needs_update == 'true'" in hrrr
 
 
 def test_rap_grid_payload_must_match_the_published_archive_cycle():

@@ -11,6 +11,9 @@ on:
       - "mesoscale/extract_profile.py"
       - "mesoscale/diagnostics.py"
       - "mesoscale/download_subset.py"
+      - "mesoscale/validate_hrrr_ingestion.py"
+      - "mesoscale/validate_hrrr_archive.py"
+      - "mesoscale/hrrr_tests/**"
       - "mesoscale/data/model_manifest.json"
       - "mesoscale/tests/**"
       - ".github/workflows/mesoscale_model_discovery.yml"
@@ -45,7 +48,7 @@ jobs:
       - name: Run mesoscale unit tests
         env:
           PYTHONPATH: ${{ github.workspace }}
-        run: pytest -q mesoscale/tests
+        run: pytest -q mesoscale/tests mesoscale/hrrr_tests
 
   discover:
     needs: validate

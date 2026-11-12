@@ -60,6 +60,42 @@ def choose_cycle_products(manifest: dict, hours: tuple[int, ...]) -> tuple[str, 
     )
 
 
+def archive_needs_update(manifest: dict, existing_archive: dict | None,
+                         hours: tuple[int, ...]) -> tuple[bool, str]:
+    """Skip a rebuild when the published HRRR archive covers the newest complete cycle."""
+    target_cycle, _ = choose_cycle_products(manifest, hours)
+    expected_hours = tuple(sorted(int(hour) for hour in hours))
+    if not isinstance(existing_archive, dict):
+        return True, target_cycle
+
+    entries = existing_archive.get("hours") or []
+    try:
+        archived_hours = tuple(sorted(int(item["forecast_hour"]) for item in entries))
+    except (KeyError, TypeError, ValueError):
+        return True, target_cycle
+
+    required_groups = {"2-m temperature", "10-m u wind", "10-m v wind"}
+    files_complete = (
+        len(entries) == len(expected_hours)
+        and all(item.get("grid_file") for item in entries)
+        and all(required_groups.issubset(set((item.get("required_field_groups") or {}).keys()))
+                for item in entries)
+    )
+    quality_passed = (existing_archive.get("quality") or {}).get("status") == "passed"
+    existing_cycle = existing_archive.get("model_cycle_utc")
+    archive_is_current = (
+        existing_archive.get("model") == "HRRR"
+        and existing_archive.get("product") == "surface"
+        and existing_archive.get("publishing") is True
+        and isinstance(existing_cycle, str)
+        and existing_cycle >= target_cycle
+        and archived_hours == expected_hours
+        and files_complete
+        and quality_passed
+    )
+    return not archive_is_current, target_cycle
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", default=str(DEFAULT_MANIFEST))

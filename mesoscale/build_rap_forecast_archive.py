@@ -57,6 +57,37 @@ def choose_cycle_products(manifest: dict, hours: tuple[int, ...]) -> tuple[str, 
     )
 
 
+def archive_needs_update(manifest: dict, existing_archive: dict | None,
+                         hours: tuple[int, ...]) -> tuple[bool, str]:
+    """Skip a rebuild when the published archive already covers the newest complete cycle."""
+    target_cycle, _ = choose_cycle_products(manifest, hours)
+    expected_hours = tuple(sorted(int(hour) for hour in hours))
+    if not isinstance(existing_archive, dict):
+        return True, target_cycle
+
+    entries = existing_archive.get("hours") or []
+    try:
+        archived_hours = tuple(sorted(int(item["forecast_hour"]) for item in entries))
+    except (KeyError, TypeError, ValueError):
+        return True, target_cycle
+
+    files_complete = (
+        len(entries) == len(expected_hours)
+        and all(item.get("grid_file") and item.get("station_file") for item in entries)
+    )
+    quality_passed = (existing_archive.get("quality") or {}).get("status") == "passed"
+    existing_cycle = existing_archive.get("model_cycle_utc")
+    archive_is_current = (
+        existing_archive.get("model") == "RAP"
+        and isinstance(existing_cycle, str)
+        and existing_cycle >= target_cycle
+        and archived_hours == expected_hours
+        and files_complete
+        and quality_passed
+    )
+    return not archive_is_current, target_cycle
+
+
 def download(url: str, destination: Path, session: requests.Session) -> int:
     if destination.exists() and destination.stat().st_size >= 100_000:
         return destination.stat().st_size

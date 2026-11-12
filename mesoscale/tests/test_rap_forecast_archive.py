@@ -1,4 +1,4 @@
-from mesoscale.build_rap_forecast_archive import choose_cycle_products
+from mesoscale.build_rap_forecast_archive import archive_needs_update, choose_cycle_products
 
 
 def product(cycle, hour, family="hybrid_levels_conus_13km"):
@@ -59,3 +59,67 @@ def test_archive_requires_every_requested_hour_from_one_cycle():
     import pytest
     with pytest.raises(RuntimeError, match="contains all requested"):
         choose_cycle_products(manifest, (0, 3, 6))
+
+
+
+def published_rap_archive(cycle, hours=(0, 3, 6, 9), quality="passed"):
+    return {
+        "model": "RAP",
+        "model_cycle_utc": cycle,
+        "hours": [
+            {
+                "forecast_hour": hour,
+                "grid_file": f"fields/rap_f{hour:02d}.json.gz",
+                "station_file": f"fields/rap_f{hour:02d}_stations.json",
+            }
+            for hour in hours
+        ],
+        "quality": {"status": quality, "hours_verified": len(hours)},
+    }
+
+
+def test_rap_freshness_keeps_complete_archive_when_newer_cycle_is_still_filling():
+    complete = "2026-11-12T16:00:00Z"
+    manifest = {"models": {"RAP": {"latest_products": [
+        product("2026-11-12T17:00:00Z", 0),
+        product("2026-11-12T17:00:00Z", 3),
+        product("2026-11-12T17:00:00Z", 6),
+        *[product(complete, hour) for hour in (0, 3, 6, 9)],
+    ]}}}
+
+    needs_update, target = archive_needs_update(
+        manifest, published_rap_archive(complete), (0, 3, 6, 9)
+    )
+
+    assert target == complete
+    assert needs_update is False
+
+
+def test_rap_freshness_requests_update_for_a_newer_complete_cycle():
+    current = "2026-11-12T16:00:00Z"
+    newer = "2026-11-12T17:00:00Z"
+    manifest = {"models": {"RAP": {"latest_products": [
+        *[product(newer, hour) for hour in (0, 3, 6, 9)],
+    ]}}}
+
+    needs_update, target = archive_needs_update(
+        manifest, published_rap_archive(current), (0, 3, 6, 9)
+    )
+
+    assert target == newer
+    assert needs_update is True
+
+
+def test_rap_freshness_rebuilds_missing_or_failed_archives():
+    cycle = "2026-11-12T16:00:00Z"
+    manifest = {"models": {"RAP": {"latest_products": [
+        *[product(cycle, hour) for hour in (0, 3, 6, 9)],
+    ]}}}
+
+    assert archive_needs_update(manifest, None, (0, 3, 6, 9))[0] is True
+    assert archive_needs_update(
+        manifest, published_rap_archive(cycle, quality="failed"), (0, 3, 6, 9)
+    )[0] is True
+    assert archive_needs_update(
+        manifest, published_rap_archive(cycle, hours=(0, 3, 6)), (0, 3, 6, 9)
+    )[0] is True

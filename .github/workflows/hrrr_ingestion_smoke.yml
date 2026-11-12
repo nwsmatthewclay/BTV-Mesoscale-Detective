@@ -1,12 +1,6 @@
 name: HRRR BTV Surface Ingestion and Archive
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "mesoscale/validate_hrrr_ingestion.py"
-      - "mesoscale/validate_hrrr_archive.py"
-      - "mesoscale/hrrr_tests/**"
   workflow_run:
     workflows: ["RAP BTV Ingestion and Forecast Archive"]
     types: [completed]
@@ -23,6 +17,8 @@ concurrency:
 jobs:
   hrrr-smoke:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    outputs:
+      needs_update: ${{ steps.freshness.outputs.needs_update }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
@@ -42,10 +38,32 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: pytest -q mesoscale/tests mesoscale/hrrr_tests
+      - name: Check whether a newer complete HRRR cycle needs publication
+        id: freshness
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from mesoscale.validate_hrrr_archive import archive_needs_update
+
+          model_manifest = json.loads(Path("mesoscale/data/model_manifest.json").read_text(encoding="utf-8"))
+          archive_path = Path("mesoscale/data/fields/hrrr/hrrr_forecast_manifest.json")
+          existing = json.loads(archive_path.read_text(encoding="utf-8")) if archive_path.exists() else None
+          needs_update, target_cycle = archive_needs_update(model_manifest, existing, (0, 3, 6, 9))
+          if os.environ.get("EVENT_NAME") == "workflow_dispatch":
+              needs_update = True
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"needs_update={'true' if needs_update else 'false'}\n")
+          print(f"Latest complete HRRR cycle: {target_cycle}; archive update required: {needs_update}")
+          PY
       - name: Download and validate four HRRR BTV surface forecast hours
+        if: steps.freshness.outputs.needs_update == 'true'
         run: python mesoscale/validate_hrrr_archive.py --hours 0,3,6,9
       - name: Upload verified HRRR surface archive artifact
-        if: always()
+        if: always() && steps.freshness.outputs.needs_update == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: hrrr-btv-ingestion-smoke
@@ -55,6 +73,7 @@ jobs:
 
   publish-hrrr:
     needs: hrrr-smoke
+    if: needs.hrrr-smoke.outputs.needs_update == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
