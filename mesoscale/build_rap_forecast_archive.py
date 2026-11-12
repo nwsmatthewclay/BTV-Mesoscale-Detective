@@ -31,7 +31,7 @@ STATIONS = {
     "1V4": (44.4193, -72.0194), "KEFK": (44.8888, -72.2292),
 }
 HOURS = (0, 3, 6, 9)
-HYBRID_FILENAME_RE = re.compile(r"rap\\.t\\d{2}z\\.awp130bgrbf\\d{2,3}\\.grib2$")
+HYBRID_FILENAME_RE = re.compile(r"rap\.t\d{2}z\.awp130bgrbf\d{2,3}\.grib2$")
 MAX_BYTES = 180_000_000
 
 

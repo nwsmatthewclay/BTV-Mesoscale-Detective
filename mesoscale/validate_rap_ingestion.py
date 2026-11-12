@@ -27,7 +27,7 @@ def choose_product(manifest: dict) -> dict:
         p for p in products
         if p.get("index", {}).get("message_count", 0) > 0
         and re.fullmatch(
-            r"rap\\.t\\d{2}z\\.awp130bgrbf\\d{2,3}\\.grib2",
+            r"rap\.t\d{2}z\.awp130bgrbf\d{2,3}\.grib2",
             p.get("filename", ""),
         )
     ]
