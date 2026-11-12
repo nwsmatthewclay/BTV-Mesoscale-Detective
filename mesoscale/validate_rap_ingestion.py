@@ -168,6 +168,22 @@ def main() -> None:
         if not required_fields.issubset(extracted_short_names):
             passed = False
             processed["error"] = "One or more required upper-air fields were not extracted"
+        else:
+            profile_path = OUT / "rap_kbtv_profile.json"
+            profile = extract_profile(payload, 44.4719, -73.1533, "KBTV")
+            profile_path.write_text(json.dumps(profile, indent=2, allow_nan=False) + "\\n", encoding="utf-8")
+            processed["kbtv_profile"] = {
+                "output_file": profile_path.name,
+                "levels": profile["quality"]["levels"],
+                "sampled_grid_point": profile["sampled_grid_point"],
+                "quality": profile["quality"],
+                "diagnostics": profile["diagnostics"]["diagnostics"],
+            }
+            if (profile["quality"]["levels"] < 20
+                    or not profile["quality"]["pressure_decreases_upward"]
+                    or not profile["quality"]["height_increases_upward"]):
+                passed = False
+                processed["kbtv_profile"]["error"] = "KBTV profile failed vertical quality checks"
     report = {
         "status": "passed" if passed else "failed",
         "model": "RAP",
