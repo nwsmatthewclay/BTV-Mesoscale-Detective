@@ -9,6 +9,7 @@ on:
     paths:
       - "mesoscale/validate_rap_ingestion.py"
       - "mesoscale/build_rap_forecast_archive.py"
+      - "mesoscale/data/model_manifest.json"
       - "!mesoscale/data/fields/**"
       - "mesoscale/process_grib.py"
       - "mesoscale/extract_profile.py"
