@@ -6,6 +6,8 @@ on:
     paths:
       - "mesoscale/**"
       - ".github/workflows/mesoscale_model_discovery.yml"
+    paths-ignore:
+      - "mesoscale/data/model_manifest.json"
   workflow_dispatch:
   schedule:
     - cron: "17 * * * *"
@@ -36,7 +38,6 @@ jobs:
         run: pytest -q mesoscale/tests
 
   discover:
-    if: github.event_name != 'push'
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 15
