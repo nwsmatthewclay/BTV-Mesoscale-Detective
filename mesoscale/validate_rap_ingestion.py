@@ -9,6 +9,8 @@ from pathlib import Path
 import cfgrib
 import requests
 
+from mesoscale.process_grib import process_file
+
 MANIFEST = Path("mesoscale/data/model_manifest.json")
 OUT = Path("mesoscale/data/ingestion_smoke")
 BTV_BOUNDS = {"west": -75.2, "east": -71.2, "south": 42.3, "north": 45.3}
@@ -141,6 +143,27 @@ def main() -> None:
 
     all_vars = {name for item in inventory for name in item["variables"]}
     passed = bool(inventory) and bool(btv_datasets) and bool({"t", "gh", "u", "v", "r"} & all_vars)
+    processed = None
+    if passed:
+        field_path = OUT / f"rap_f{int(product['forecast_hour']):02d}_btv.json.gz"
+        payload = process_file(
+            target, "RAP", product["cycle_utc"], int(product["forecast_hour"]),
+            field_path, max_grid_dim=160
+        )
+        required_fields = {"t", "gh", "u", "v"}
+        extracted_short_names = {item["short_name"] for item in payload["fields"].values()}
+        processed = {
+            "output_file": field_path.name,
+            "output_bytes": field_path.stat().st_size,
+            "field_count": payload["quality"]["field_count"],
+            "grid_count": payload["quality"]["grid_count"],
+            "warnings": payload["quality"]["warnings"],
+            "extracted_short_names": sorted(extracted_short_names),
+            "required_fields_present": sorted(required_fields & extracted_short_names),
+        }
+        if not required_fields.issubset(extracted_short_names):
+            passed = False
+            processed["error"] = "One or more required upper-air fields were not extracted"
     report = {
         "status": "passed" if passed else "failed",
         "model": "RAP",
@@ -154,13 +177,14 @@ def main() -> None:
         "btv_intersecting_dataset_indices": btv_datasets,
         "variables": sorted(all_vars),
         "btv_bounds": BTV_BOUNDS,
+        "processed_btv_payload": processed,
         "datasets": inventory,
     }
     report_path = OUT / "rap_ingestion_smoke_report.json"
     report_path.write_text(json.dumps(report, indent=2, default=str) + "\n", encoding="utf-8")
     print(json.dumps({k: report[k] for k in (
         "status", "filename", "cycle_utc", "forecast_hour", "file_bytes",
-        "cfgrib_dataset_count", "btv_intersecting_dataset_indices", "variables"
+        "cfgrib_dataset_count", "btv_intersecting_dataset_indices", "variables", "processed_btv_payload"
     )}, indent=2))
     if not passed:
         raise RuntimeError(f"RAP ingestion validation failed; inspect {report_path}")
