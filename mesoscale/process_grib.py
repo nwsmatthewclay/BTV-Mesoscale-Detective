@@ -44,13 +44,15 @@ def process_file(path: Path, model: str, cycle: str, forecast_hour: int,
     warnings = []
     try:
         for ds_index, ds in enumerate(datasets):
-            lat_name = next((n for n in ("latitude", "lat") if n in ds.coords), None)
-            lon_name = next((n for n in ("longitude", "lon") if n in ds.coords), None)
+            lat_name = next((n for n in ("latitude", "lat") if n in ds.variables), None)
+            lon_name = next((n for n in ("longitude", "lon") if n in ds.variables), None)
             if not lat_name or not lon_name:
                 warnings.append(f"dataset {ds_index}: no latitude/longitude coordinates")
                 continue
             lat = np.asarray(ds[lat_name].values)
             lon = np.asarray(ds[lon_name].values)
+            # GRIB longitude coordinates may use 0..360; normalize before geographic cropping.
+            lon = ((lon + 180.0) % 360.0) - 180.0
             if lat.ndim != 2 or lon.ndim != 2:
                 warnings.append(f"dataset {ds_index}: expected 2-D lat/lon grid")
                 continue
