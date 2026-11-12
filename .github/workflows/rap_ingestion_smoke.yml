@@ -1,18 +1,21 @@
 name: RAP BTV Ingestion Smoke Test
 
 on:
+  schedule:
+    - cron: '37 * * * *'
   workflow_dispatch:
   push:
     branches: [main]
     paths:
       - "mesoscale/validate_rap_ingestion.py"
+      - "!mesoscale/data/fields/**"
       - "mesoscale/process_grib.py"
       - "mesoscale/extract_profile.py"
       - "mesoscale/diagnostics.py"
       - ".github/workflows/rap_ingestion_smoke.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: mesoscale-data-updates
@@ -35,6 +38,21 @@ jobs:
           python -m pip install requests numpy xarray cfgrib eccodes metpy
       - name: Download and decode current RAP pressure-level product
         run: python mesoscale/validate_rap_ingestion.py
+      - name: Publish verified RAP fields and KBTV profile
+        run: |
+          mkdir -p mesoscale/data/fields
+          cp mesoscale/data/ingestion_smoke/rap_f*_btv.json.gz mesoscale/data/fields/rap_latest.json.gz
+          cp mesoscale/data/ingestion_smoke/rap_kbtv_profile.json mesoscale/data/fields/rap_kbtv_profile.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mesoscale/data/fields/
+          if git diff --cached --quiet; then
+            echo "Published RAP data unchanged."
+            exit 0
+          fi
+          git commit -m "Publish verified latest RAP BTV fields"
+          git pull --rebase origin main
+          git push
       - name: Upload ingestion report
         if: always()
         uses: actions/upload-artifact@v4
