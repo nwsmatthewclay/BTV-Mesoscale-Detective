@@ -42,7 +42,7 @@ select,input[type=range]{width:100%}select{background:#071827;color:var(--text);
 <div class="field"><label>Model</label><select id="model"><option value="RAP" selected>RAP · 13 km · decoded</option><option value="HRRR">HRRR · 3 km · surface archive</option><option value="RRFS" disabled>RRFS · 3 km · discovery only</option></select></div>
 <div class="field"><label>Model cycle</label><select id="cycle"><option>Latest available cycle</option></select></div>
 <div class="field"><label>Forecast hour</label><div class="range-row"><input id="hour" type="range" min="0" max="18" value="0"><output id="hourOut">F00</output></div></div>
-<div class="field"><label>Map parameter</label><select id="parameter"><option value="surface">Surface observations</option><option value="cape">CAPE / CIN</option><option value="shear">0–6 km bulk shear</option><option value="srh">0–1 km SRH</option><option value="pwat">Precipitable water</option><option value="lapse">700–500 mb lapse rate</option><option value="fronto">850 mb frontogenesis</option><option value="omega">700 mb vertical velocity</option><option value="moisture">925 mb moisture convergence</option><option value="hrrr_temp" hidden disabled>HRRR 2-m temperature</option><option value="hrrr_dewpoint" hidden disabled>HRRR 2-m dewpoint</option><option value="hrrr_wind" hidden disabled>HRRR 10-m wind speed</option><option value="hrrr_gust" hidden disabled>HRRR wind gust</option><option value="hrrr_refc" hidden disabled>HRRR composite reflectivity</option><option value="hrrr_vis" hidden disabled>HRRR visibility</option><option value="hrrr_cin" hidden disabled>HRRR convective inhibition</option><option value="hrrr_blh" hidden disabled>HRRR boundary-layer height</option><option value="hrrr_tp" hidden disabled>HRRR total precipitation</option><option value="hrrr_prate" hidden disabled>HRRR precipitation rate</option></select></div>
+<div class="field"><label>Map parameter</label><select id="parameter"><option value="surface">Surface observations</option><option value="cape">CAPE / CIN</option><option value="shear">0–6 km bulk shear</option><option value="srh">0–1 km SRH</option><option value="pwat">Precipitable water</option><option value="lapse">700–500 mb lapse rate</option><option value="fronto">850 mb frontogenesis</option><option value="omega">700 mb vertical velocity</option><option value="moisture">925 mb moisture convergence</option><option value="hrrr_temp" hidden disabled>HRRR 2-m temperature</option><option value="hrrr_dewpoint" hidden disabled>HRRR 2-m dewpoint</option><option value="hrrr_wind" hidden disabled>HRRR 10-m wind speed</option><option value="hrrr_gust" hidden disabled>HRRR wind gust</option><option value="hrrr_refc" hidden disabled>HRRR composite reflectivity</option><option value="hrrr_vis" hidden disabled>HRRR visibility</option><option value="hrrr_cin" hidden disabled>HRRR convective inhibition</option><option value="hrrr_blh" hidden disabled>HRRR boundary-layer height</option></select></div>
 <div class="field"><label>Overlays</label><div class="checks">
 <label><input type="checkbox" checked id="stations"> Stations</label><label><input type="checkbox" id="radar"> MRMS radar</label><label><input type="checkbox" id="county" checked> CWA context</label><label><input type="checkbox" id="terrain"> Terrain</label>
 </div></div>
@@ -321,8 +321,6 @@ function renderHrrrGridOverlay(payload,param){
     hrrr_vis:{names:['vis'],label:'Visibility',min:0,max:40,units:'km',transform:v=>v/1000},
     hrrr_cin:{names:['cin'],label:'Convective inhibition',min:-200,max:0,units:'J/kg'},
     hrrr_blh:{names:['blh'],label:'Boundary-layer height',min:0,max:2500,units:'m'},
-    hrrr_tp:{names:['tp'],label:'Total precipitation',min:0,max:50,units:'mm'},
-    hrrr_prate:{names:['prate'],label:'Precipitation rate',min:0,max:10,units:'mm/hr',transform:v=>v*3600}
   };
   let cfg,gridId,valueAt;
   if(param==='hrrr_wind'){
@@ -592,7 +590,8 @@ async function loadModelManifest(){
       document.getElementById('mapTitle').textContent=selectedModel+' · '+(selectedModel==='HRRR'?'Surface analysis':'Mesoscale environment');
       updateRapArchiveFreshness();
       document.getElementById('mapChip').textContent=selectedModel+' F'+String(activeHour).padStart(2,'0')+' · '+archive.model_cycle_utc+' · verified regional grid';
-      document.getElementById('selectionStatus').textContent='Verified hours: '+hours.map(h=>'F'+String(h).padStart(2,'0')).join(', ');
+      const newerDiscovery=cycles[0]&&cycles[0]>archive.model_cycle_utc?' · newer products discovered: '+cycles[0]:'';
+      document.getElementById('selectionStatus').textContent='Verified hours: '+hours.map(h=>'F'+String(h).padStart(2,'0')).join(', ')+newerDiscovery;
       return;
     }
     if(!cycles.length){
@@ -623,7 +622,7 @@ function updateParameterOptions(){
   const select=document.getElementById('parameter');
   for(const option of select.options){
     const hrrrOption=option.value.startsWith('hrrr_');
-    const show=option.value==='surface'||(model==='HRRR'?hrrrOption:!hrrrOption);
+    const show=model==='HRRR'?hrrrOption:!hrrrOption;
     option.hidden=!show;option.disabled=!show;
   }
   if(model==='HRRR'&&!select.value.startsWith('hrrr_'))select.value='hrrr_temp';
