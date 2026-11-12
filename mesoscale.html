@@ -101,7 +101,7 @@ document.getElementById('clearTransect').onclick=()=>{transect=[];drawing=false;
 document.getElementById('reset').onclick=document.getElementById('locateBtv').onclick=()=>{map.setView([44.4719,-73.1533],7);selectPoint(44.4719,-73.1533,'KBTV');};
 document.getElementById('hour').oninput=e=>document.getElementById('hourOut').textContent='F'+String(e.target.value).padStart(2,'0');
 document.getElementById('model').onchange=e=>{document.getElementById('gridSpacing').textContent='13 km nominal';document.querySelector('#investigation .detail-line:nth-child(1) b').textContent=e.target.value;loadStationProfile(selected.name);};
-document.getElementById('parameter').onchange=e=>{const label=e.target.options[e.target.selectedIndex].text;document.getElementById('mapTitle').textContent='Environment · '+label;document.getElementById('mapChip').textContent=label+' · awaiting verified model grid';};
+document.getElementById('parameter').onchange=e=>{const label=e.target.options[e.target.selectedIndex].text;document.getElementById('mapTitle').textContent='Environment · '+label;updateRapParameter();};
 document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('active',x===b));window.activeTab=b.dataset.tab;const titles={environment:'Environment',soundings:'Soundings',kinematics:'Kinematics & Forcing',cross:'Cross-Sections',compare:'Model Comparison',evolution:'Time Evolution'};document.getElementById('mapTitle').textContent=titles[window.activeTab]+' · Shared map selection';if(window.activeTab==='cross'&&!line)document.getElementById('mapChip').textContent='Draw a transect using the button below';});
 function renderProfilePlaceholder(){/* profile plot is intentionally blank until real vertical data are ingested */}
 Plotly.newPlot('profile',[],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:48,r:12,t:24,b:38},xaxis:{title:'Temperature (°C)',color:'#9cb2c5',gridcolor:'#24435e'},yaxis:{title:'Pressure (hPa)',type:'log',autorange:'reversed',color:'#9cb2c5',gridcolor:'#24435e'},showlegend:true,legend:{font:{color:'#dceaf4'},orientation:'h',y:1.18}},{displayModeBar:false,responsive:true});
@@ -158,7 +158,59 @@ function extractRegionalRapProfile(payload,lat,lon,label){
   const z={pressure_hpa:profile.map(a=>a.p),temperature_k:profile.map(a=>a.t),dewpoint_k:profile.map(a=>a.td),height_agl_m:profile.map(a=>a.h),u_ms:profile.map(a=>a.u),v_ms:profile.map(a=>a.v)};
   return {label,model:'RAP',model_cycle_utc:payload.model_cycle_utc,forecast_hour:payload.forecast_hour,valid_time_utc:payload.valid_time_utc,source_file:payload.source_file,profile:z,diagnostics:{diagnostics:{}},quality:{levels:profile.length,profile_warnings:[]},sampled_grid_point:{latitude:pt.lat,longitude:pt.lon,distance_km:pt.d,grid_id,sampling_method:'nearest RAP grid point'},regional_sample:true};
 }
-async function loadStationProfile(station){
+
+function squeezeRap2D(data){
+  let a=data;while(Array.isArray(a)&&a.length===1&&Array.isArray(a[0])&&Array.isArray(a[0][0]))a=a[0];
+  return Array.isArray(a)&&Array.isArray(a[0])&&typeof a[0][0]==='number'?a:null;
+}
+function findRapSurfaceField(payload,names){
+  return Object.values(payload.fields).find(f=>names.includes(f.short_name)&&squeezeRap2D(f.data));
+}
+function sampleRapSurface(payload,names,lat,lon){
+  const field=findRapSurfaceField(payload,names);if(!field)return null;
+  const grid=payload.grids[field.grid_id];if(!grid)return null;
+  const pt=nearestRapGridPoint(grid,lat,lon),value=field.data[pt.y]?.[pt.x];
+  return Number.isFinite(value)?{value,units:field.units,short_name:field.short_name,distance_km:pt.d}:null;
+}
+function updateRegionalDiagnostics(p,payload){
+  const d=p.diagnostics?.diagnostics||{},z=p.profile;
+  const cape=sampleRapSurface(payload,['cape'],p.requested_location.latitude,p.requested_location.longitude);
+  const cin=sampleRapSurface(payload,['cin'],p.requested_location.latitude,p.requested_location.longitude);
+  const pwat=sampleRapSurface(payload,['pwat'],p.requested_location.latitude,p.requested_location.longitude);
+  const shear=(()=>{let lo=0,hi=0;for(let i=0;i<z.height_agl_m.length;i++){if(Math.abs(z.height_agl_m[i]-0)<Math.abs(z.height_agl_m[lo]))lo=i;if(Math.abs(z.height_agl_m[i]-6000)<Math.abs(z.height_agl_m[hi]))hi=i;}return Math.hypot(z.u_ms[hi]-z.u_ms[lo],z.v_ms[hi]-z.v_ms[lo])*1.943844;})();
+  const items=[['MUCAPE',cape?.value,null,'J/kg'],['MLCAPE',null,null,'J/kg'],['MLCIN',cin?.value,null,'J/kg'],['PWAT',pwat?.value,null,pwat?.units||'kg m-2'],['0–6 km shear',shear,null,'kt'],['0–1 km SRH',null,null,'m²/s²']];
+  document.getElementById('metrics').innerHTML=items.map(([n,v,,u])=>'<div class="metric"><span>'+n+'</span><strong>'+(Number.isFinite(v)?Number(v).toFixed(1):'—')+'</strong><small>'+u+'</small></div>').join('');
+  const missing=items.filter(x=>!Number.isFinite(x[1])).map(x=>x[0]);
+  return {cape,cin,pwat,shear,missing};
+}
+function rapColor(value,min,max){
+  const t=Math.max(0,Math.min(1,(value-min)/(max-min)));
+  const stops=[[49,54,149],[69,117,180],[116,173,209],[171,217,233],[224,243,248],[254,224,144],[253,174,97],[244,109,67],[215,48,39],[165,0,38]];
+  const q=t*(stops.length-1),i=Math.min(stops.length-2,Math.floor(q)),f=q-i;
+  const c=stops[i].map((v,k)=>Math.round(v+(stops[i+1][k]-v)*f));return 'rgb('+c.join(',')+')';
+}
+let rapOverlayLayer=null;
+function renderRapGridOverlay(payload,param){
+  if(rapOverlayLayer){map.removeLayer(rapOverlayLayer);rapOverlayLayer=null;}
+  const cfg={cape:{names:['cape'],min:0,max:3000,label:'CAPE',units:'J/kg'},pwat:{names:['pwat'],min:0,max:50,label:'PWAT',units:'kg m-2'},omega:{names:['w'],min:-2,max:2,label:'Vertical velocity',units:'Pa/s'} }[param];
+  if(!cfg){document.getElementById('mapChip').textContent='This parameter is not yet available as a verified RAP grid field';return;}
+  const field=findRapSurfaceField(payload,cfg.names);
+  if(!field){document.getElementById('mapChip').textContent=cfg.label+' field not present in this RAP file; no substitute shown';return;}const fieldData=squeezeRap2D(field.data);if(!fieldData){document.getElementById('mapChip').textContent=cfg.label+' is not a two-dimensional field in this RAP file';return;}
+  const grid=payload.grids[field.grid_id],data=squeezeRap2D(field.data),layer=L.layerGroup(),step=Math.max(1,Math.floor(Math.max(grid.shape[0],grid.shape[1])/45));
+  for(let y=0;y<grid.latitude.length;y+=step)for(let x=0;x<grid.latitude[y].length;x+=step){
+    const val=fieldData[y]?.[x],lat=grid.latitude[y][x],lon=grid.longitude[y][x];if(!Number.isFinite(val)||!Number.isFinite(lat)||!Number.isFinite(lon))continue;
+    L.circleMarker([lat,lon],{radius:5*step/Math.max(1,step),stroke:false,fillColor:rapColor(val,cfg.min,cfg.max),fillOpacity:.62,interactive:false}).addTo(layer);
+  }
+  layer.addTo(map);rapOverlayLayer=layer;
+  document.getElementById('mapChip').textContent='RAP '+cfg.label+' · '+payload.valid_time_utc+' · native grid samples · '+field.units;
+}
+async function updateRapParameter(){
+  const param=document.getElementById('parameter').value;
+  if(param==='surface'){if(rapOverlayLayer){map.removeLayer(rapOverlayLayer);rapOverlayLayer=null;}document.getElementById('mapChip').textContent='Surface observations are not yet connected';return;}
+  try{const payload=await loadRapGrid();renderRapGridOverlay(payload,param);}
+  catch(e){document.getElementById('mapChip').textContent='RAP grid unavailable: '+e.message;console.error(e);}
+}
+\nasync function loadStationProfile(station){
   const metrics=document.getElementById('metrics');
   const notes=document.querySelectorAll('.rightcol .placeholder');
   if(document.getElementById('model').value!=='RAP'){
@@ -183,7 +235,7 @@ async function loadStationProfile(station){
       document.getElementById('feedStatus').textContent='RAP STATION DATA · PARTIAL';document.getElementById('feedStatus').style.color='var(--amber)';return;
     }
     window.rapKbtvProfile=p;
-    const d=(p.diagnostics&&p.diagnostics.diagnostics)||{};
+    const d=(p.diagnostics&&p.diagnostics.diagnostics)||{};\n    let regionalDiag=null;if(p.regional_sample){const gp=await loadRapGrid();regionalDiag=updateRegionalDiagnostics(p,gp);}
     const items=[['MUCAPE',d.mucape_jkg,'J/kg'],['MLCAPE',d.mlcape_jkg,'J/kg'],['MLCIN',d.mlcin_jkg,'J/kg'],['PWAT',d.pwat_mm,'mm'],['0–6 km shear',d.bs06_kt,'kt'],['0–1 km SRH',d.srh01_m2s2,'m²/s²']];
     metrics.innerHTML=items.map(([n,v,u])=>'<div class="metric"><span>'+n+'</span><strong>'+(Number.isFinite(v)?Number(v).toFixed(1):'—')+'</strong><small>'+u+'</small></div>').join('');
     const z=p.profile,skew=35,ln=Math.log;
