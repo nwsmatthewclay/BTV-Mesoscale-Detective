@@ -25,6 +25,17 @@
         "near_surface",
         "pressure_levels_if_available"
       ]
+    },
+    "RRFS": {
+      "role": "high_resolution_companion",
+      "nominal_grid_km": 3,
+      "domain": "CONUS",
+      "priorities": [
+        "pressure_levels",
+        "surface_2d",
+        "surface_subhourly"
+      ],
+      "status": "discovery_enabled_extraction_pending_validation"
     }
   },
   "diagnostics": [
@@ -35,7 +46,8 @@
       "group": "thermodynamics",
       "model_priority": [
         "RAP",
-        "HRRR"
+        "HRRR",
+        "RRFS"
       ],
       "requires": [
         "temperature",
@@ -51,7 +63,8 @@
       "group": "thermodynamics",
       "model_priority": [
         "RAP",
-        "HRRR"
+        "HRRR",
+        "RRFS"
       ],
       "requires": [
         "temperature",
@@ -67,7 +80,8 @@
       "group": "thermodynamics",
       "model_priority": [
         "RAP",
-        "HRRR"
+        "HRRR",
+        "RRFS"
       ],
       "requires": [
         "temperature",
@@ -83,7 +97,8 @@
       "group": "thermodynamics",
       "model_priority": [
         "RAP",
-        "HRRR"
+        "HRRR",
+        "RRFS"
       ],
       "requires": [
         "temperature",
@@ -114,7 +129,8 @@
       "group": "thermodynamics",
       "model_priority": [
         "RAP",
-        "HRRR"
+        "HRRR",
+        "RRFS"
       ],
       "requires": [
         "temperature",
@@ -129,7 +145,8 @@
       "group": "moisture",
       "model_priority": [
         "RAP",
-        "HRRR"
+        "HRRR",
+        "RRFS"
       ],
       "requires": [
         "specific_humidity_or_dewpoint",
