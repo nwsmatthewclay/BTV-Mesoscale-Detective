@@ -168,7 +168,15 @@ async function loadModelManifest(){
     document.getElementById('mapChip').textContent=selectedModel+' latest discovered cycle '+cycles[0]+' · model fields not yet decoded';
     if(product)document.getElementById('selectionStatus').textContent='Latest file: '+product.filename;
   }catch(error){
-    badge.textContent='MODEL FEED NOT CONNECTED';badge.style.color='var(--amber)';
+    console.warn('Model discovery manifest unavailable; retaining independently loaded RAP station profiles',error);
+    if(window.rapStationProfiles && document.getElementById('model').value==='RAP'){
+      badge.textContent='RAP PROFILE CONNECTED · DISCOVERY FEED UNAVAILABLE';
+      badge.style.color='var(--green)';
+      document.getElementById('provModel').textContent='RAP · station profiles loaded';
+      document.getElementById('mapChip').textContent='RAP station profiles connected · regional analysis grid not yet connected';
+    }else{
+      badge.textContent='MODEL DISCOVERY FEED UNAVAILABLE';badge.style.color='var(--amber)';
+    }
   }
 }
 document.getElementById('model').addEventListener('change',loadModelManifest);
