@@ -108,20 +108,56 @@ document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{document.que
 function renderProfilePlaceholder(){/* profile plot is intentionally blank until real vertical data are ingested */}
 Plotly.newPlot('profile',[],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:48,r:12,t:24,b:38},xaxis:{title:'Temperature (°C)',color:'#9cb2c5',gridcolor:'#24435e'},yaxis:{title:'Pressure (hPa)',type:'log',autorange:'reversed',color:'#9cb2c5',gridcolor:'#24435e'},showlegend:true,legend:{font:{color:'#dceaf4'},orientation:'h',y:1.18}},{displayModeBar:false,responsive:true});
 
-let rapGridPayloadPromise=null;
-async function loadRapGrid(){
-  if(!rapGridPayloadPromise){
-    rapGridPayloadPromise=(async()=>{
-      const r=await fetch('./mesoscale/data/fields/rap_latest.json.gz?ts='+Date.now(),{cache:'no-store'});
-      if(!r.ok)throw new Error('regional RAP grid HTTP '+r.status);
+let rapGridPayloadPromises={};
+let rapForecastManifest=null;
+let activeRapHour=0;
+let availableRapHours=[];
+async function loadRapForecastManifest(){
+  try{
+    const r=await fetch('./mesoscale/data/fields/forecast/forecast_manifest.json?ts='+Date.now(),{cache:'no-store'});
+    if(!r.ok)throw new Error('forecast manifest HTTP '+r.status);
+    const manifest=await r.json();
+    if(manifest.model!=='RAP'||!Array.isArray(manifest.hours)||!manifest.hours.length)throw new Error('invalid RAP forecast archive manifest');
+    rapForecastManifest=manifest;
+    availableRapHours=manifest.hours.map(x=>Number(x.forecast_hour)).filter(Number.isFinite).sort((a,b)=>a-b);
+    activeRapHour=availableRapHours.includes(0)?0:availableRapHours[0];
+    const slider=document.getElementById('hour');
+    slider.min=availableRapHours[0];slider.max=availableRapHours[availableRapHours.length-1];slider.step=1;slider.value=activeRapHour;
+    document.getElementById('hourOut').textContent='F'+String(activeRapHour).padStart(2,'0');
+    const cycle=document.getElementById('cycle');cycle.innerHTML='';
+    const option=document.createElement('option');option.value=manifest.model_cycle_utc;option.textContent=manifest.model_cycle_utc+' · RAP archive';cycle.appendChild(option);
+    document.getElementById('mapChip').textContent='RAP forecast archive · '+availableRapHours.map(h=>'F'+String(h).padStart(2,'0')).join(' / ')+' · cycle '+manifest.model_cycle_utc;
+    return manifest;
+  }catch(e){
+    console.warn('RAP forecast archive not available; using latest single-hour grid',e);
+    availableRapHours=[];rapForecastManifest=null;
+    document.getElementById('mapChip').textContent='RAP forecast-hour archive not published yet · latest grid fallback';
+    return null;
+  }
+}
+function nearestAvailableRapHour(value){
+  if(!availableRapHours.length)return 0;
+  return availableRapHours.reduce((best,h)=>Math.abs(h-value)<Math.abs(best-value)?h:best,availableRapHours[0]);
+}
+async function loadRapGrid(hour=activeRapHour){
+  const useArchive=rapForecastManifest&&availableRapHours.length;
+  const selectedHour=useArchive?nearestAvailableRapHour(Number(hour)):0;
+  const key=useArchive?'F'+selectedHour:'latest';
+  if(!rapGridPayloadPromises[key]){
+    rapGridPayloadPromises[key]=(async()=>{
+      const entry=useArchive?rapForecastManifest.hours.find(x=>Number(x.forecast_hour)===selectedHour):null;
+      const url=useArchive?'./mesoscale/data/fields/forecast/'+entry.grid_file:'./mesoscale/data/fields/rap_latest.json.gz';
+      const r=await fetch(url+'?ts='+Date.now(),{cache:'no-store'});
+      if(!r.ok)throw new Error('regional RAP grid HTTP '+r.status+' ('+url+')');
       if(!('DecompressionStream' in window))throw new Error('This browser cannot decompress the published gzip RAP grid');
       const stream=r.body.pipeThrough(new DecompressionStream('gzip'));
       const payload=await new Response(stream).json();
       if(!payload.fields||!payload.grids)throw new Error('RAP grid payload is missing fields or grids');
+      if(useArchive&&Number(payload.forecast_hour)!==selectedHour)throw new Error('Requested F'+selectedHour+' but file contains F'+payload.forecast_hour);
       window.rapGridPayload=payload;return payload;
-    })().catch(e=>{rapGridPayloadPromise=null;throw e;});
+    })().catch(e=>{delete rapGridPayloadPromises[key];throw e;});
   }
-  return rapGridPayloadPromise;
+  return rapGridPayloadPromises[key];
 }
 function nearestRapGridPoint(grid,lat,lon){
   let best={d:Infinity,y:0,x:0};
@@ -213,7 +249,7 @@ function renderRapGridOverlay(payload,param){
 async function updateRapParameter(){
   const param=document.getElementById('parameter').value;
   if(param==='surface'){if(rapOverlayLayer){map.removeLayer(rapOverlayLayer);rapOverlayLayer=null;}document.getElementById('mapChip').textContent='Surface observations are not yet connected';return;}
-  try{const payload=await loadRapGrid();renderRapGridOverlay(payload,param);}
+  try{const payload=await loadRapGrid(activeRapHour);renderRapGridOverlay(payload,param);}
   catch(e){document.getElementById('mapChip').textContent='RAP grid unavailable: '+e.message;console.error(e);}
 }
 
@@ -226,12 +262,14 @@ async function loadStationProfile(station){
     document.getElementById('feedStatus').textContent='MODEL NOT DECODED';document.getElementById('feedStatus').style.color='var(--amber)';return;
   }
   try{
-    const response=await fetch('./mesoscale/data/fields/rap_station_profiles.json?ts='+Date.now(),{cache:'no-store'});
+    const archiveEntry=rapForecastManifest&&rapForecastManifest.hours.find(x=>Number(x.forecast_hour)===activeRapHour);
+    const stationUrl=archiveEntry?'./mesoscale/data/fields/forecast/'+archiveEntry.station_file:'./mesoscale/data/fields/rap_station_profiles.json';
+    const response=await fetch(stationUrl+'?ts='+Date.now(),{cache:'no-store'});
     if(!response.ok)throw new Error('station profiles HTTP '+response.status);
     const collection=await response.json();window.rapStationProfiles=collection;
     let p=collection.stations&&collection.stations[station];
     if(!p && selected && Number.isFinite(selected.lat) && Number.isFinite(selected.lon)){
-      const grid=await loadRapGrid();p=extractRegionalRapProfile(grid,selected.lat,selected.lon,station);
+      const grid=await loadRapGrid(activeRapHour);p=extractRegionalRapProfile(grid,selected.lat,selected.lon,station);
     }
     if(!p){
       metrics.innerHTML='';
@@ -245,7 +283,7 @@ async function loadStationProfile(station){
     const d=(p.diagnostics&&p.diagnostics.diagnostics)||{};
     let regionalDiag=null;
     if(p.regional_sample){
-      const gp=await loadRapGrid();
+      const gp=await loadRapGrid(activeRapHour);
       regionalDiag=updateRegionalDiagnostics(p,gp);
       const sp=p.sampled_grid_point;
       if(notes[0])notes[0].textContent='Custom RAP grid profile · '+(sp?sp.distance_km.toFixed(1)+' km from nearest grid point':'nearest grid point')+' · '+p.valid_time_utc;
@@ -327,8 +365,18 @@ async function loadModelManifest(){
   }
 }
 document.getElementById('model').addEventListener('change',loadModelManifest);
-loadModelManifest();
-loadStationProfile('KBTV');
+document.getElementById('hour').addEventListener('input',()=>{
+  const h=nearestAvailableRapHour(Number(document.getElementById('hour').value));
+  document.getElementById('hourOut').textContent='F'+String(h).padStart(2,'0');
+});
+document.getElementById('hour').addEventListener('change',async()=>{
+  activeRapHour=nearestAvailableRapHour(Number(document.getElementById('hour').value));
+  document.getElementById('hour').value=activeRapHour;
+  document.getElementById('hourOut').textContent='F'+String(activeRapHour).padStart(2,'0');
+  document.getElementById('mapChip').textContent='Loading RAP F'+String(activeRapHour).padStart(2,'0')+' · '+(rapForecastManifest?.model_cycle_utc||'latest cycle');
+  await Promise.all([updateRapParameter(),loadStationProfile(window.rapKbtvProfile?.label||'KBTV')]);
+});
+loadRapForecastManifest().finally(()=>{loadModelManifest();loadStationProfile('KBTV');});
 
 </script>
 </body></html>
