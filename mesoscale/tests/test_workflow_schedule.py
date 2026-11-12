@@ -57,8 +57,8 @@ def test_hrRR_browser_smoke_is_independent_of_pages_deployment():
 
 def test_hrrr_workflow_run_checks_out_latest_main_before_freshness_decision():
     hrrr = (ROOT / ".github/workflows/hrrr_ingestion_smoke.yml").read_text(encoding="utf-8")
-    smoke_job = hrrr.split("  hrrr-smoke:\\n", 1)[1].split("\\n  publish-hrrr:\\n", 1)[0]
-    checkout = smoke_job.split("      - name: Check out latest repository state\\n", 1)[1].split("      - name:", 1)[0]
+    smoke_job = hrrr.split("  hrrr-smoke:\n", 1)[1].split("\n  publish-hrrr:\n", 1)[0]
+    checkout = smoke_job.split("      - name: Check out latest repository state\n", 1)[1].split("      - name:", 1)[0]
 
     assert "          ref: main" in checkout
     assert smoke_job.index("          ref: main") < smoke_job.index(
