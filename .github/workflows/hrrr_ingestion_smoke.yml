@@ -1,0 +1,56 @@
+name: HRRR BTV Surface Ingestion Smoke Test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "mesoscale/validate_hrrr_ingestion.py"
+      - "mesoscale/download_subset.py"
+      - "mesoscale/process_grib.py"
+      - "mesoscale/hrrr_tests/**"
+      - ".github/workflows/hrrr_ingestion_smoke.yml"
+  workflow_run:
+    workflows: ["RAP BTV Ingestion and Forecast Archive"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "47 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mesoscale-hrrr-smoke
+  cancel-in-progress: false
+
+jobs:
+  hrrr-smoke:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out latest repository state
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install HRRR decoding dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests numpy xarray cfgrib eccodes metpy pytest
+      - name: Run RAP and HRRR validation tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: pytest -q mesoscale/tests mesoscale/hrrr_tests
+      - name: Download and validate latest HRRR BTV surface subset
+        run: python mesoscale/validate_hrrr_ingestion.py --forecast-hour 0
+      - name: Upload non-publishing HRRR smoke-test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hrrr-btv-ingestion-smoke
+          path: mesoscale/data/ingestion_smoke/hrrr/
+          if-no-files-found: ignore
+          retention-days: 7
