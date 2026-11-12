@@ -6,6 +6,8 @@ on:
     types: [completed]
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: "47 * * * *"
 
 permissions:
   contents: write
@@ -21,6 +23,7 @@ jobs:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     outputs:
       published: ${{ steps.publish.outputs.published }}
+      manifest_changed: ${{ steps.refresh.outputs.changed }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -40,21 +43,32 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: pytest -q mesoscale/tests
-      - name: Refresh RAP, HRRR and RRFS model discovery manifest for manual runs
-        if: github.event_name == 'workflow_dispatch'
+      - name: Refresh RAP, HRRR and RRFS model discovery manifest for scheduled and manual runs
+        id: refresh
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          git pull --rebase origin main
-          python mesoscale/discover_models.py --days-back 2 --index-latest
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add mesoscale/data/model_manifest.json
-          if git diff --cached --quiet; then
-            echo "Model discovery manifest unchanged."
-          else
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            python mesoscale/discover_models.py --days-back 2 --index-latest
+            git add mesoscale/data/model_manifest.json
+            if git diff --cached --quiet; then
+              echo "changed=false" >> "$GITHUB_OUTPUT"
+              echo "Model discovery manifest unchanged after attempt $attempt."
+              exit 0
+            fi
             git commit -m "Refresh RAP, HRRR and RRFS model manifest"
-            git pull --rebase origin main
-            git push
-          fi
+            if git push origin HEAD:main; then
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "Manifest push raced with another main update; retrying attempt $attempt." >&2
+          done
+          echo "Could not publish the refreshed model manifest after three attempts." >&2
+          exit 1
       - name: Check whether a newer complete RAP cycle needs publication
         id: freshness
         env:
@@ -119,7 +133,7 @@ jobs:
 
   deploy-pages:
     needs: rap-ingestion
-    if: needs.rap-ingestion.outputs.published == 'true' || github.event_name == 'workflow_dispatch'
+    if: needs.rap-ingestion.outputs.published == 'true' || needs.rap-ingestion.outputs.manifest_changed == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: read

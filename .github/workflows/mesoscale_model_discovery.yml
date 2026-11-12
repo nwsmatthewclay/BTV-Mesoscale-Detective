@@ -20,8 +20,6 @@ on:
       - ".github/workflows/rap_ingestion_smoke.yml"
       - ".github/workflows/hrrr_ingestion_smoke.yml"
   workflow_dispatch:
-  schedule:
-    - cron: "17 * * * *"
 
 permissions:
   contents: write
