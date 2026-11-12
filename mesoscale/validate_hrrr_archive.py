@@ -26,7 +26,7 @@ from mesoscale.validate_hrrr_ingestion import validate_payload
 
 DEFAULT_MANIFEST = Path("mesoscale/data/model_manifest.json")
 DEFAULT_OUTPUT = Path("mesoscale/data/ingestion_smoke/hrrr")
-SURFACE_FILENAME_RE = re.compile(r"hrrr\\.t\\d{2}z\\.wrfsfcf\\d{2,3}\\.grib2$")
+SURFACE_FILENAME_RE = re.compile(r"hrrr\.t\d{2}z\.wrfsfcf\d{2,3}\.grib2$")
 
 
 def choose_cycle_products(manifest: dict, hours: tuple[int, ...]) -> tuple[str, list[dict]]:
@@ -122,7 +122,7 @@ def main() -> None:
     }
     manifest_path = output_dir / "hrrr_forecast_manifest.json"
     manifest_path.write_text(
-        json.dumps(archive, indent=2, allow_nan=False) + "\\n",
+        json.dumps(archive, indent=2, allow_nan=False) + "\n",
         encoding="utf-8",
     )
     print(json.dumps({
