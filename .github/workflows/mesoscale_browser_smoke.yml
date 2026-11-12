@@ -9,6 +9,10 @@ on:
       - "mesoscale/data/fields/**"
       - "mesoscale/browser_tests/**"
       - ".github/workflows/mesoscale_browser_smoke.yml"
+  workflow_run:
+    workflows: ["HRRR BTV Surface Ingestion and Archive"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -20,11 +24,14 @@ concurrency:
 
 jobs:
   browser-smoke:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
-      - name: Check out repository
+      - name: Check out latest published main branch
         uses: actions/checkout@v4
+        with:
+          ref: main
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -45,5 +52,5 @@ jobs:
           done
           cat /tmp/mesoscale-http.log
           exit 1
-      - name: Exercise RAP and HRRR map switching
+      - name: Exercise every published RAP and HRRR forecast hour
         run: pytest -q mesoscale/browser_tests
