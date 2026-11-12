@@ -26,6 +26,7 @@ The dashboard reads available RAP forecast hours from the manifest; it does not 
 - Draw and clear a two-point transect.
 - Change model, cycle, available forecast hour and map parameter.
 - Explore Environment, Soundings, Kinematics & Forcing, Cross-Sections, Model Compare and Time Evolution.
+- Plot verified RAP station diagnostics across the published forecast hours in Time Evolution; custom-point time series are not substituted from nearby stations.
 - The model manifest reader distinguishes discovered products from decoded and published fields.
 
 ## Data safety

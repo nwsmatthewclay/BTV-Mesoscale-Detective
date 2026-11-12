@@ -62,7 +62,7 @@ select,input[type=range]{width:100%}select{background:#071827;color:var(--text);
 <div class="bottom-grid">
 <section class="panel"><h2>RAP Vertical Cross-Section</h2><div id="crossSectionPlot" style="height:360px"></div><div class="placeholder" id="crossSectionStatus">Draw a transect on the map. RAP temperature will be sampled along the line at each model grid point.</div></section>
 
-<section class="panel"><h2>Time Evolution · Selected point</h2><div id="trend"></div><div class="placeholder">Parameter traces will populate from consecutive model forecast hours.</div></section>
+<section class="panel"><h2>Time Evolution · Selected station</h2><div class="field" style="margin:8px 0"><label for="trendParameter">Diagnostic</label><select id="trendParameter"><option value="sbcape_jkg">Surface-based CAPE</option><option value="mlcape_jkg">Mixed-layer CAPE</option><option value="mucape_jkg">Most-unstable CAPE</option><option value="mlcin_jkg">Mixed-layer CIN</option><option value="pwat_mm">Precipitable water</option><option value="bs06_kt">0–6 km bulk shear</option><option value="srh01_m2s2">0–1 km SRH</option><option value="lr03_k_km">0–3 km lapse rate</option></select></div><div id="trend" style="height:260px"></div><div class="placeholder" id="trendStatus">Select one of the eight verified stations to view RAP forecast-hour diagnostics. Custom points are not filled from nearby stations.</div></section>
 <section class="panel"><h2>Data Provenance &amp; Quality</h2><div class="pad"><div class="detail-line"><span>Model source</span><b id="provModel">RAP · not connected</b></div><div class="detail-line"><span>Model initialization</span><b>—</b></div><div class="detail-line"><span>Valid time</span><b>—</b></div><div class="detail-line"><span>Grid spacing</span><b id="gridSpacing">13 km nominal</b></div><div class="detail-line"><span>Processing status</span><b style="color:var(--amber)">Awaiting ingestion pipeline</b></div><div class="detail-line"><span>Observation overlay</span><b>Not loaded</b></div><p style="font-size:11px;color:var(--muted);margin:12px 0 0">Every diagnostic will carry its source, initialization time, valid time, units and processing status. Model analysis and observed data will remain visually distinct.</p></div></section>
 </div>
 <footer class="foot">BTV Mesoscale Detective · Development build · Not for operational decision-making until data ingestion and verification are complete.</footer>
@@ -72,7 +72,7 @@ const map=L.map('map',{zoomControl:true}).setView([44.15,-73.05],7);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:13,attribution:'&copy; OpenStreetMap'}).addTo(map);
 let selected={name:"KBTV",lat:44.4719,lon:-73.1533},markers=[],transect=[],line=null,drawing=false;
 function stationLayer(){markers.forEach(m=>map.removeLayer(m));markers=[];if(!document.getElementById('stations').checked)return;stations.forEach(s=>{const m=L.circleMarker([s[1],s[2]],{radius:s[0]==="KBTV"?7:5,color:"#9de7f1",weight:1.5,fillColor:"#123d59",fillOpacity:.95}).addTo(map).bindTooltip(s[0],{direction:"top"}).on('click',()=>selectPoint(s[1],s[2],s[0]));markers.push(m)});}
-function selectPoint(lat,lon,name){selected={name:name||"Custom point",lat,lon};document.getElementById('pointReadout').innerHTML='<span>Location</span><b>'+selected.name+'</b>';document.getElementById('coords').textContent=lat.toFixed(4)+'°N, '+Math.abs(lon).toFixed(4)+'°W';document.getElementById('selectionStatus').textContent='Selected: '+selected.name;document.querySelector('#investigation .detail-line:nth-child(3) b').textContent=selected.name;document.getElementById('mapChip').textContent='Selected '+selected.name+' · '+lat.toFixed(3)+', '+lon.toFixed(3);if(window.loadStationProfile)window.loadStationProfile(selected.name);}
+function selectPoint(lat,lon,name){selected={name:name||"Custom point",lat,lon};document.getElementById('pointReadout').innerHTML='<span>Location</span><b>'+selected.name+'</b>';document.getElementById('coords').textContent=lat.toFixed(4)+'°N, '+Math.abs(lon).toFixed(4)+'°W';document.getElementById('selectionStatus').textContent='Selected: '+selected.name;document.querySelector('#investigation .detail-line:nth-child(3) b').textContent=selected.name;document.getElementById('mapChip').textContent='Selected '+selected.name+' · '+lat.toFixed(3)+', '+lon.toFixed(3);if(window.loadStationProfile)window.loadStationProfile(selected.name);if(window.activeTab==='evolution'&&window.updateRapTimeEvolution)window.updateRapTimeEvolution();}
 map.on('click',e=>{if(drawing){transect.push([e.latlng.lat,e.latlng.lng]);if(transect.length===2){if(line)map.removeLayer(line);line=L.polyline(transect,{color:'#ffd166',weight:3,dashArray:'7 5'}).addTo(map);drawing=false;runRapCrossSection(transect).catch(e=>{console.error('RAP cross-section failed',e);document.getElementById('crossSectionStatus').textContent='Cross-section unavailable: '+e.message;});document.getElementById('drawTransect').textContent='Draw cross-section line';document.getElementById('mapChip').textContent='Transect selected · Cross-Sections tab';}return;}selectPoint(e.latlng.lat,e.latlng.lng,'Custom point');});
 stationLayer();document.getElementById('stations').addEventListener('change',stationLayer);
 
@@ -104,7 +104,7 @@ document.getElementById('reset').onclick=document.getElementById('locateBtv').on
 document.getElementById('hour').oninput=e=>document.getElementById('hourOut').textContent='F'+String(e.target.value).padStart(2,'0');
 document.getElementById('model').onchange=e=>{document.getElementById('gridSpacing').textContent='13 km nominal';document.querySelector('#investigation .detail-line:nth-child(1) b').textContent=e.target.value;loadStationProfile(selected.name);};
 document.getElementById('parameter').onchange=e=>{const label=e.target.options[e.target.selectedIndex].text;document.getElementById('mapTitle').textContent='Environment · '+label;updateRapParameter();};
-document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('active',x===b));window.activeTab=b.dataset.tab;const titles={environment:'Environment',soundings:'Soundings',kinematics:'Kinematics & Forcing',cross:'Cross-Sections',compare:'Model Comparison',evolution:'Time Evolution'};document.getElementById('mapTitle').textContent=titles[window.activeTab]+' · Shared map selection';if(window.activeTab==='cross'&&!line)document.getElementById('mapChip').textContent='Draw a transect using the button below';});
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('active',x===b));window.activeTab=b.dataset.tab;const titles={environment:'Environment',soundings:'Soundings',kinematics:'Kinematics & Forcing',cross:'Cross-Sections',compare:'Model Comparison',evolution:'Time Evolution'};document.getElementById('mapTitle').textContent=titles[window.activeTab]+' · Shared map selection';if(window.activeTab==='cross'&&!line)document.getElementById('mapChip').textContent='Draw a transect using the button below';if(window.activeTab==='evolution'&&window.updateRapTimeEvolution)window.updateRapTimeEvolution();});
 function renderProfilePlaceholder(){/* profile plot is intentionally blank until real vertical data are ingested */}
 Plotly.newPlot('profile',[],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:48,r:12,t:24,b:38},xaxis:{title:'Temperature (°C)',color:'#9cb2c5',gridcolor:'#24435e'},yaxis:{title:'Pressure (hPa)',type:'log',autorange:'reversed',color:'#9cb2c5',gridcolor:'#24435e'},showlegend:true,legend:{font:{color:'#dceaf4'},orientation:'h',y:1.18}},{displayModeBar:false,responsive:true});
 
@@ -159,6 +159,30 @@ async function loadRapGrid(hour=activeRapHour){
   }
   return rapGridPayloadPromises[key];
 }
+let rapStationCollectionPromises={};
+async function loadRapStationCollection(hour=activeRapHour){
+  const archiveEntry=rapForecastManifest&&rapForecastManifest.hours.find(x=>Number(x.forecast_hour)===Number(hour));
+  if(!archiveEntry){
+    const response=await fetch('./mesoscale/data/fields/rap_station_profiles.json?ts='+Date.now(),{cache:'no-store'});
+    if(!response.ok)throw new Error('latest RAP station profiles HTTP '+response.status);
+    return response.json();
+  }
+  const cacheKey=rapForecastManifest.model_cycle_utc+'_F'+String(hour).padStart(2,'0');
+  if(!rapStationCollectionPromises[cacheKey]){
+    rapStationCollectionPromises[cacheKey]=(async()=>{
+      const stationUrl='./mesoscale/data/fields/forecast/'+archiveEntry.station_file;
+      const response=await fetch(stationUrl+'?ts='+Date.now(),{cache:'no-store'});
+      if(!response.ok)throw new Error('RAP station profiles HTTP '+response.status+' ('+stationUrl+')');
+      const collection=await response.json();
+      if(collection.model!=='RAP'||collection.model_cycle_utc!==rapForecastManifest.model_cycle_utc||Number(collection.forecast_hour)!==Number(hour)){
+        throw new Error('RAP station-profile file does not match the selected model cycle and forecast hour');
+      }
+      return collection;
+    })().catch(error=>{delete rapStationCollectionPromises[cacheKey];throw error;});
+  }
+  return rapStationCollectionPromises[cacheKey];
+}
+
 function nearestRapGridPoint(grid,lat,lon){
   let best={d:Infinity,y:0,x:0};
   for(let y=0;y<grid.latitude.length;y++)for(let x=0;x<grid.latitude[y].length;x++){
@@ -262,11 +286,7 @@ async function loadStationProfile(station){
     document.getElementById('feedStatus').textContent='MODEL NOT DECODED';document.getElementById('feedStatus').style.color='var(--amber)';return;
   }
   try{
-    const archiveEntry=rapForecastManifest&&rapForecastManifest.hours.find(x=>Number(x.forecast_hour)===activeRapHour);
-    const stationUrl=archiveEntry?'./mesoscale/data/fields/forecast/'+archiveEntry.station_file:'./mesoscale/data/fields/rap_station_profiles.json';
-    const response=await fetch(stationUrl+'?ts='+Date.now(),{cache:'no-store'});
-    if(!response.ok)throw new Error('station profiles HTTP '+response.status);
-    const collection=await response.json();window.rapStationProfiles=collection;
+    const collection=await loadRapStationCollection(activeRapHour);window.rapStationProfiles=collection;
     let p=collection.stations&&collection.stations[station];
     if(!p && selected && Number.isFinite(selected.lat) && Number.isFinite(selected.lon)){
       const grid=await loadRapGrid(activeRapHour);p=extractRegionalRapProfile(grid,selected.lat,selected.lon,station);
@@ -329,9 +349,90 @@ async function loadStationProfile(station){
 }
 window.loadStationProfile=loadStationProfile;
 
-Plotly.newPlot('trend',[],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:35,r:12,t:8,b:30},xaxis:{visible:false},yaxis:{visible:false},annotations:[{text:'Forecast-hour time series pending',showarrow:false,font:{color:'#9cb2c5'}}]},{displayModeBar:false,responsive:true});
+const RAP_TREND_METRICS={
+  sbcape_jkg:{label:'Surface-based CAPE',units:'J/kg'},
+  mlcape_jkg:{label:'Mixed-layer CAPE',units:'J/kg'},
+  mucape_jkg:{label:'Most-unstable CAPE',units:'J/kg'},
+  mlcin_jkg:{label:'Mixed-layer CIN',units:'J/kg'},
+  pwat_mm:{label:'Precipitable water',units:'mm'},
+  bs06_kt:{label:'0–6 km bulk shear',units:'kt'},
+  srh01_m2s2:{label:'0–1 km SRH',units:'m²/s²'},
+  lr03_k_km:{label:'0–3 km lapse rate',units:'K/km'}
+};
+let rapTimeEvolutionRequest=0;
+function showRapTimeEvolutionMessage(message){
+  Plotly.react('trend',[],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:35,r:12,t:8,b:30},xaxis:{visible:false},yaxis:{visible:false},annotations:[{text:message,showarrow:false,font:{color:'#9cb2c5'},xref:'paper',yref:'paper',x:0.5,y:0.5}]},{displayModeBar:false,responsive:true});
+}
+async function updateRapTimeEvolution(){
+  const status=document.getElementById('trendStatus');
+  const requestId=++rapTimeEvolutionRequest;
+  if(document.getElementById('model').value!=='RAP'){
+    status.textContent='Time evolution is available for RAP only; HRRR and RRFS are still discovery-only.';
+    showRapTimeEvolutionMessage('No verified HRRR/RRFS station profiles are published');
+    return;
+  }
+  if(!rapForecastManifest||!availableRapHours.length){
+    status.textContent='No verified multi-hour RAP archive is currently available.';
+    showRapTimeEvolutionMessage('Verified RAP forecast-hour archive unavailable');
+    return;
+  }
+  const station=stations.find(item=>item[0]===selected.name);
+  if(!station){
+    status.textContent='Time evolution uses the eight verified station profiles. Custom map points are not filled with a nearby station.';
+    showRapTimeEvolutionMessage('Select KBTV, KPBG, KMSS, KSLK, KMPV, KRUT, 1V4 or KEFK');
+    return;
+  }
+  const metric=RAP_TREND_METRICS[document.getElementById('trendParameter').value];
+  if(!metric){
+    status.textContent='Select a supported RAP station diagnostic.';
+    showRapTimeEvolutionMessage('No diagnostic selected');
+    return;
+  }
+  status.textContent='Loading verified RAP '+station[0]+' forecast-hour profiles…';
+  try{
+    const collections=await Promise.all(availableRapHours.map(hour=>loadRapStationCollection(hour)));
+    if(requestId!==rapTimeEvolutionRequest)return;
+    const points=collections.map((collection,index)=>{
+      const profile=collection.stations&&collection.stations[station[0]];
+      const diagnostics=(profile&&profile.diagnostics&&profile.diagnostics.diagnostics)||{};
+      return {
+        hour:availableRapHours[index],
+        validTime:profile&&profile.valid_time_utc||collection.valid_time_utc,
+        value:diagnostics[document.getElementById('trendParameter').value]
+      };
+    }).filter(point=>point.validTime&&Number.isFinite(point.value));
+    if(!points.length){
+      status.textContent='No verified '+metric.label+' values are available for '+station[0]+' in this archive.';
+      showRapTimeEvolutionMessage('No verified values for '+metric.label);
+      return;
+    }
+    const labels=points.map(point=>'F'+String(point.hour).padStart(2,'0')+' · '+new Date(point.validTime).toISOString().slice(11,16)+'Z');
+    Plotly.react('trend',[{
+      x:labels,y:points.map(point=>point.value),mode:'lines+markers',name:metric.label,
+      line:{color:'#8bc7ff',width:2.5},marker:{size:8,color:'#8bc7ff'},
+      customdata:points.map(point=>point.validTime),
+      hovertemplate:'%{x}<br>'+metric.label+': %{y:.1f} '+metric.units+'<br>Valid: %{customdata}<extra></extra>'
+    }],{
+      paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',
+      margin:{l:58,r:16,t:12,b:58},
+      xaxis:{title:'Forecast hour · valid time UTC',color:'#9cb2c5',gridcolor:'#24435e',tickangle:-15},
+      yaxis:{title:metric.label+' ('+metric.units+')',color:'#9cb2c5',gridcolor:'#24435e'},
+      font:{color:'#dceaf4'},hovermode:'x'
+    },{displayModeBar:false,responsive:true});
+    status.textContent='RAP '+rapForecastManifest.model_cycle_utc+' · '+station[0]+' · '+points.length+'/'+availableRapHours.length+' verified values · '+metric.label;
+  }catch(error){
+    if(requestId!==rapTimeEvolutionRequest)return;
+    status.textContent='Time evolution unavailable: '+error.message;
+    showRapTimeEvolutionMessage('RAP time series unavailable');
+    console.warn('RAP time evolution failed',error);
+  }
+}
+window.updateRapTimeEvolution=updateRapTimeEvolution;
+
+Plotly.newPlot('trend',[],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:35,r:12,t:8,b:30},xaxis:{visible:false},yaxis:{visible:false},annotations:[{text:'Select a verified station and diagnostic to plot RAP forecast-hour evolution',showarrow:false,font:{color:'#9cb2c5'}}]},{displayModeBar:false,responsive:true});
 function tick(){document.getElementById('clock').textContent=new Date().toISOString().slice(11,16)+' UTC';}tick();setInterval(tick,30000);
 window.activeTab='environment';
+document.getElementById('trendParameter').addEventListener('change',updateRapTimeEvolution);
 async function loadModelManifest(){
   const badge=document.getElementById('feedStatus');
   try{
@@ -387,7 +488,7 @@ document.getElementById('hour').addEventListener('change',async()=>{
   document.getElementById('mapChip').textContent='Loading RAP F'+String(activeRapHour).padStart(2,'0')+' · '+(rapForecastManifest?.model_cycle_utc||'latest cycle');
   await Promise.all([updateRapParameter(),loadStationProfile(window.rapKbtvProfile?.label||'KBTV')]);
 });
-loadRapForecastManifest().finally(()=>{loadModelManifest();loadStationProfile('KBTV');});
+loadRapForecastManifest().finally(()=>{loadModelManifest();loadStationProfile('KBTV');if(window.activeTab==='evolution')updateRapTimeEvolution();});
 
 </script>
 </body></html>

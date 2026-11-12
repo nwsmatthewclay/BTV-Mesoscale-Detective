@@ -10,6 +10,7 @@ Standalone interactive mesoscale analysis dashboard for the NWS Burlington forec
 - The standalone latest RAP grid and KBTV profile are also published.
 - RAP is the only model with end-to-end regional decoding and publication. HRRR and RRFS are discovered in the model manifest but are not yet validated for dashboard field use.
 - `index.html` and `mesoscale.html` are kept byte-for-byte synchronized.
+- The Time Evolution panel plots station-profile diagnostics from each verified RAP archive hour and checks cycle/hour metadata before use; custom points are not assigned nearby-station values.
 
 This is a development/research workspace, not an operationally approved decision-support system. Do not use it as the sole basis for forecast, warning or aviation decisions.
 
