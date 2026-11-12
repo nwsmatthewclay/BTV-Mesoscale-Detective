@@ -171,7 +171,7 @@ def main() -> None:
         else:
             profile_path = OUT / "rap_kbtv_profile.json"
             profile = extract_profile(payload, 44.4719, -73.1533, "KBTV")
-            profile_path.write_text(json.dumps(profile, indent=2, allow_nan=False) + "\\n", encoding="utf-8")
+            profile_path.write_text(json.dumps(profile, indent=2, allow_nan=False) + "\n", encoding="utf-8")
             processed["kbtv_profile"] = {
                 "output_file": profile_path.name,
                 "levels": profile["quality"]["levels"],
