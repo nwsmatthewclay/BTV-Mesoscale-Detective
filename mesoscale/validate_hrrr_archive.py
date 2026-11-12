@@ -12,6 +12,7 @@ import gzip
 import json
 import re
 import sys
+import zlib
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -199,7 +200,7 @@ def archive_needs_update(
                 and required_groups.issubset(set(recorded_groups))
                 and required_groups.issubset(set(report.get("required_field_groups", {})))
             )
-        except (OSError, EOFError, UnicodeError, ValueError, TypeError, KeyError, AttributeError):
+        except (OSError, EOFError, zlib.error, UnicodeError, ValueError, TypeError, KeyError, AttributeError):
             return False
 
     files_complete = (
