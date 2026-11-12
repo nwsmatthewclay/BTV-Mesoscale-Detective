@@ -1,0 +1,49 @@
+name: Mesoscale Browser Smoke Test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "mesoscale.html"
+      - "mesoscale/data/fields/**"
+      - "mesoscale/browser_tests/**"
+      - ".github/workflows/mesoscale_browser_smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mesoscale-browser-smoke
+  cancel-in-progress: true
+
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Playwright and Chromium
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest playwright
+          python -m playwright install --with-deps chromium
+      - name: Start local dashboard server
+        run: |
+          python -m http.server 8765 --bind 127.0.0.1 > /tmp/mesoscale-http.log 2>&1 &
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:8765/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/mesoscale-http.log
+          exit 1
+      - name: Exercise RAP and HRRR map switching
+        run: pytest -q mesoscale/browser_tests
