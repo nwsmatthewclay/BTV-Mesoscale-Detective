@@ -92,13 +92,18 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
                 },
             ), f"RAP F{entry['forecast_hour']:02d} payload must match its manifest"
 
-        # Switching models must retain the currently selected valid time.
+        # Switching models must retain the last selected RAP valid time.
+        initial_hrrr_valid_time = rap["hours"][-1]["valid_time_utc"]
+        page.evaluate(
+            "(value) => { window.__testInitialHrrrValidTime = value; }",
+            initial_hrrr_valid_time,
+        )
         page.locator("#model").select_option("HRRR")
         page.wait_for_function(
             """() => window.hrrrGridPayload
                 && window.hrrrGridPayload.model === "HRRR"
                 && window.hrrrGridPayload.model_cycle_utc === window.__testHrrrManifest.model_cycle_utc
-                && window.hrrrGridPayload.valid_time_utc === window.__testHrrrManifest.hours[0].valid_time_utc""",
+                && window.hrrrGridPayload.valid_time_utc === window.__testInitialHrrrValidTime""",
             timeout=30000,
         )
         assert page.locator("#parameter").input_value() == "hrrr_temp"
@@ -123,14 +128,22 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
             "() => document.querySelector('#mapChip').textContent.includes('10-m wind speed')",
             timeout=15000,
         )
-        assert "F15" in page.locator("#mapChip").inner_text()
+        last_hrrr_hour = int(hrrr["hours"][-1]["forecast_hour"])
+        assert f"F{last_hrrr_hour:02d}" in page.locator("#mapChip").inner_text()
 
         # Switching back to RAP must also preserve the selected valid time.
         page.locator("#model").select_option("RAP")
+        last_rap_entry = rap["hours"][-1]
         page.wait_for_function(
-            "() => window.rapGridPayload && window.rapGridPayload.model === 'RAP' "
-            "&& Number(window.rapGridPayload.forecast_hour) === 15 "
-            "&& document.querySelector('#mapChip').textContent.includes('RAP')",
+            """expected => window.rapGridPayload
+                && window.rapGridPayload.model === "RAP"
+                && Number(window.rapGridPayload.forecast_hour) === expected.hour
+                && window.rapGridPayload.valid_time_utc === expected.validTime
+                && document.querySelector("#mapChip").textContent.includes("RAP")""",
+            arg={
+                "hour": int(last_rap_entry["forecast_hour"]),
+                "validTime": last_rap_entry["valid_time_utc"],
+            },
             timeout=30000,
         )
         assert page.locator("#gridSpacing").text_content().strip() == "13 km nominal"
