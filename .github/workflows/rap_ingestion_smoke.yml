@@ -25,7 +25,7 @@ concurrency:
 jobs:
   rap-ingestion:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
