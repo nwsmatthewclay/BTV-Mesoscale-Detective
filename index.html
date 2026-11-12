@@ -81,7 +81,34 @@ document.getElementById('model').onchange=e=>{const h=e.target.value==='RAP'?'13
 document.getElementById('parameter').onchange=e=>{const label=e.target.options[e.target.selectedIndex].text;document.getElementById('mapTitle').textContent='Environment · '+label;document.getElementById('mapChip').textContent=label+' · awaiting verified model grid';};
 document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('active',x===b));window.activeTab=b.dataset.tab;const titles={environment:'Environment',soundings:'Soundings',kinematics:'Kinematics & Forcing',cross:'Cross-Sections',compare:'Model Comparison',evolution:'Time Evolution'};document.getElementById('mapTitle').textContent=titles[window.activeTab]+' · Shared map selection';if(window.activeTab==='cross'&&!line)document.getElementById('mapChip').textContent='Draw a transect using the button below';});
 function renderProfilePlaceholder(){/* profile plot is intentionally blank until real vertical data are ingested */}
-Plotly.newPlot('profile',[],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:35,r:10,t:8,b:30},xaxis:{visible:false},yaxis:{visible:false},annotations:[{text:'Profile data pending',showarrow:false,font:{color:'#9cb2c5'}}]},{displayModeBar:false,responsive:true});
+Plotly.newPlot('profile',[],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:48,r:12,t:24,b:38},xaxis:{title:'Temperature (°C)',color:'#9cb2c5',gridcolor:'#24435e'},yaxis:{title:'Pressure (hPa)',type:'log',autorange:'reversed',color:'#9cb2c5',gridcolor:'#24435e'},showlegend:true,legend:{font:{color:'#dceaf4'},orientation:'h',y:1.18}},{displayModeBar:false,responsive:true});
+async function loadKbtvProfile(){
+  try{
+    const response=await fetch('./mesoscale/data/fields/rap_kbtv_profile.json?ts='+Date.now(),{cache:'no-store'});
+    if(!response.ok)throw new Error('profile HTTP '+response.status);
+    const p=await response.json(); window.rapKbtvProfile=p;
+    const d=p.diagnostics.diagnostics||{};
+    const items=[['MUCAPE',d.mucape_jkg,'J/kg'],['MLCAPE',d.mlcape_jkg,'J/kg'],['MLCIN',d.mlcin_jkg,'J/kg'],['PWAT',d.pwat_mm,'mm'],['0–6 km shear',d.bs06_kt,'kt'],['0–1 km SRH',d.srh01_m2s2,'m²/s²']];
+    document.getElementById('metrics').innerHTML=items.map(([n,v,u])=>'<div class="metric"><span>'+n+'</span><strong>'+(Number.isFinite(v)?Number(v).toFixed(1):'—')+'</strong><small>'+u+'</small></div>').join('');
+    const z=p.profile, c=a=>a.map(v=>v-273.15);
+    Plotly.react('profile',[
+      {x:c(z.temperature_k),y:z.pressure_hpa,mode:'lines+markers',name:'Temperature',line:{color:'#f07878',width:2},marker:{size:3}},
+      {x:c(z.dewpoint_k),y:z.pressure_hpa,mode:'lines+markers',name:'Dewpoint',line:{color:'#53d1d8',width:2},marker:{size:3}}
+    ],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:48,r:12,t:24,b:38},xaxis:{title:'Temperature (°C)',color:'#9cb2c5',gridcolor:'#24435e'},yaxis:{title:'Pressure (hPa)',type:'log',autorange:'reversed',color:'#9cb2c5',gridcolor:'#24435e'},showlegend:true,legend:{font:{color:'#dceaf4'},orientation:'h',y:1.18}},{displayModeBar:false,responsive:true});
+    document.getElementById('feedStatus').textContent='RAP KBTV PROFILE LOADED';document.getElementById('feedStatus').style.color='var(--green)';
+    document.getElementById('provModel').textContent='RAP · verified regional extraction';
+    document.querySelector('#investigation .detail-line:nth-child(2) b').textContent=p.model_cycle_utc;
+    document.querySelector('#investigation .detail-line:nth-child(4) b').textContent='Computed · '+p.quality.levels+' levels';
+    const rows=document.querySelectorAll('.bottom-grid .panel:last-child .detail-line');
+    if(rows[1])rows[1].querySelector('b').textContent=p.model_cycle_utc;
+    if(rows[2])rows[2].querySelector('b').textContent=p.valid_time_utc;
+    if(rows[4]){rows[4].querySelector('b').textContent='Verified · '+p.quality.levels+' levels';rows[4].querySelector('b').style.color='var(--green)';}
+    const notes=document.querySelectorAll('.rightcol .placeholder');
+    if(notes[0])notes[0].textContent='RAP '+p.valid_time_utc+' · nearest grid point '+p.sampled_grid_point.distance_km.toFixed(1)+' km from KBTV · '+p.quality.levels+' hybrid levels. Model-derived diagnostics; not observations.';
+    if(notes[1])notes[1].textContent='This first profile is for KBTV only. Other selected points are not yet sampled.';
+    document.getElementById('selectionStatus').textContent='KBTV RAP · '+p.quality.levels+' levels';
+  }catch(e){console.warn('KBTV RAP profile unavailable',e);document.getElementById('feedStatus').textContent='RAP PROFILE NOT PUBLISHED';}
+}
 Plotly.newPlot('trend',[],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:35,r:12,t:8,b:30},xaxis:{visible:false},yaxis:{visible:false},annotations:[{text:'Forecast-hour time series pending',showarrow:false,font:{color:'#9cb2c5'}}]},{displayModeBar:false,responsive:true});
 function tick(){document.getElementById('clock').textContent=new Date().toISOString().slice(11,16)+' UTC';}tick();setInterval(tick,30000);
 window.activeTab='environment';
@@ -111,6 +138,7 @@ async function loadModelManifest(){
 }
 document.getElementById('model').addEventListener('change',loadModelManifest);
 loadModelManifest();
+loadKbtvProfile();
 
 </script>
 </body></html>
