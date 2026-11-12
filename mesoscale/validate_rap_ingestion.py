@@ -11,6 +11,7 @@ import requests
 
 MANIFEST = Path("mesoscale/data/model_manifest.json")
 OUT = Path("mesoscale/data/ingestion_smoke")
+BTV_BOUNDS = {"west": -75.2, "east": -71.2, "south": 42.3, "north": 45.3}
 
 
 def choose_product(manifest: dict) -> dict:
@@ -23,6 +24,52 @@ def choose_product(manifest: dict) -> dict:
     if not candidates:
         raise RuntimeError("No indexed RAP pressure-level product is available in the manifest")
     return max(candidates, key=lambda p: (p["cycle_utc"], p["forecast_hour"]))
+
+
+def coordinate_summary(ds, name):
+    import numpy as np
+    if name not in ds.variables:
+        return None
+    var = ds[name]
+    values = np.asarray(var.values)
+    finite = values[np.isfinite(values)] if np.issubdtype(values.dtype, np.number) else []
+    sample = values.reshape(-1)[:8].tolist() if values.size else []
+    return {
+        "dims": list(var.dims),
+        "shape": list(var.shape),
+        "dtype": str(values.dtype),
+        "min": float(np.min(finite)) if len(finite) else None,
+        "max": float(np.max(finite)) if len(finite) else None,
+        "sample": sample,
+        "attrs": {k: str(v) for k, v in var.attrs.items()},
+    }
+
+
+def btv_intersection(ds):
+    import numpy as np
+    lat_name = next((n for n in ("latitude", "lat") if n in ds.variables), None)
+    lon_name = next((n for n in ("longitude", "lon") if n in ds.variables), None)
+    if not lat_name or not lon_name:
+        return False, {"reason": "latitude/longitude variables absent", "lat_name": lat_name, "lon_name": lon_name}
+    lat = np.asarray(ds[lat_name].values)
+    lon = np.asarray(ds[lon_name].values)
+    try:
+        lat, lon = np.broadcast_arrays(lat, lon)
+    except ValueError:
+        return False, {"reason": "latitude/longitude shapes cannot broadcast",
+                       "latitude_shape": list(lat.shape), "longitude_shape": list(lon.shape)}
+    lon = ((lon + 180.0) % 360.0) - 180.0
+    finite = np.isfinite(lat) & np.isfinite(lon)
+    mask = (finite & (lon >= BTV_BOUNDS["west"]) & (lon <= BTV_BOUNDS["east"]) &
+            (lat >= BTV_BOUNDS["south"]) & (lat <= BTV_BOUNDS["north"]))
+    return bool(np.any(mask)), {
+        "latitude_name": lat_name, "longitude_name": lon_name,
+        "latitude_shape": list(lat.shape), "longitude_shape": list(lon.shape),
+        "latitude_min": float(np.nanmin(lat)), "latitude_max": float(np.nanmax(lat)),
+        "longitude_min_normalized": float(np.nanmin(lon)),
+        "longitude_max_normalized": float(np.nanmax(lon)),
+        "btv_cell_count": int(np.count_nonzero(mask)),
+    }
 
 
 def main() -> None:
@@ -69,23 +116,22 @@ def main() -> None:
     try:
         for i, ds in enumerate(datasets):
             names = list(ds.data_vars)
-            lat_name = next((n for n in ("latitude", "lat") if n in ds.coords), None)
-            lon_name = next((n for n in ("longitude", "lon") if n in ds.coords), None)
-            has_btv = False
-            if lat_name and lon_name:
-                lat = ds[lat_name].values
-                lon = ds[lon_name].values
-                if getattr(lat, "ndim", 0) == 2 and getattr(lon, "ndim", 0) == 2:
-                    import numpy as np
-                    mask = ((lon >= -75.2) & (lon <= -71.2) &
-                            (lat >= 42.3) & (lat <= 45.3))
-                    has_btv = bool(np.any(mask))
+            has_btv, grid = btv_intersection(ds)
             if has_btv:
                 btv_datasets.append(i)
             inventory.append({
                 "dataset": i,
                 "variables": names,
+                "dimensions": {k: int(v) for k, v in ds.sizes.items()},
                 "coordinates": list(ds.coords),
+                "all_variables": list(ds.variables),
+                "coordinate_details": {
+                    n: coordinate_summary(ds, n)
+                    for n in ("latitude", "longitude", "lat", "lon", "x", "y")
+                    if n in ds.variables
+                },
+                "grid_check": grid,
+                "global_attrs": {k: str(v) for k, v in ds.attrs.items()},
                 "shape": {name: list(var.shape) for name, var in ds.data_vars.items()},
                 "has_btv_grid_cells": has_btv,
             })
@@ -93,16 +139,10 @@ def main() -> None:
         for ds in datasets:
             ds.close()
 
-    if not inventory:
-        raise RuntimeError("cfgrib opened no datasets from the downloaded RAP file")
-    if not btv_datasets:
-        raise RuntimeError("Decoded RAP datasets contain no grid cells inside the BTV domain")
     all_vars = {name for item in inventory for name in item["variables"]}
-    if not ({"t", "gh", "u", "v", "r"} & all_vars):
-        raise RuntimeError(f"No expected pressure-level meteorological variables found: {sorted(all_vars)}")
-
+    passed = bool(inventory) and bool(btv_datasets) and bool({"t", "gh", "u", "v", "r"} & all_vars)
     report = {
-        "status": "passed",
+        "status": "passed" if passed else "failed",
         "model": "RAP",
         "product": product["product"],
         "filename": product["filename"],
@@ -113,14 +153,17 @@ def main() -> None:
         "cfgrib_dataset_count": len(inventory),
         "btv_intersecting_dataset_indices": btv_datasets,
         "variables": sorted(all_vars),
+        "btv_bounds": BTV_BOUNDS,
         "datasets": inventory,
     }
     report_path = OUT / "rap_ingestion_smoke_report.json"
-    report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    report_path.write_text(json.dumps(report, indent=2, default=str) + "\n", encoding="utf-8")
     print(json.dumps({k: report[k] for k in (
         "status", "filename", "cycle_utc", "forecast_hour", "file_bytes",
         "cfgrib_dataset_count", "btv_intersecting_dataset_indices", "variables"
     )}, indent=2))
+    if not passed:
+        raise RuntimeError(f"RAP ingestion validation failed; inspect {report_path}")
 
 
 if __name__ == "__main__":
