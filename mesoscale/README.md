@@ -25,7 +25,7 @@ This is a development/research workspace, not an operationally approved decision
 
 ## Model roles
 
-- **RAP is the full-column workhorse.** The current 13-km hybrid-level workflow supplies station soundings, hodographs, vertical profiles and cross-section inputs. Its verified archive currently contains F00/F03/F06/F09/F12/F15/F12/F15.
+- **RAP is the full-column workhorse.** The current 13-km hybrid-level workflow supplies station soundings, hodographs, vertical profiles and cross-section inputs. Its verified archive currently contains F00/F03/F06/F09/F12/F15.
 - **HRRR is the high-resolution surface companion.** The live NOMADS subset workflow now downloads and decodes F00/F03/F06/F09/F12/F15 from one cycle, validates BTV coverage and required 2-m temperature/10-m wind fields, and publishes the resulting surface grids. It does not supply full-column sounding profiles.
 - **RRFS is the 3-km high-resolution model.** Discovery includes pressure-level, 2-D surface and sub-hourly product families. Regional extraction remains gated on validating index offsets, partial-HTTP byte-range behavior and actual message inventories; the RRFS UI option remains disabled.
 - **Comparisons must be field-aware.** Compare only fields available in both models with compatible definitions, units and valid times. Label native grid spacing and interpolation method.
