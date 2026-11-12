@@ -49,6 +49,12 @@ def test_model_discovery_orchestrates_rap_and_hrrr_ingestion_and_pages():
     hrrr = (ROOT / ".github" / "workflows" / "hrrr_ingestion_smoke.yml").read_text(encoding="utf-8")
 
     assert 'cron: "17 * * * *"' in discovery
+    # Discovery must not share a concurrency group with the downstream RAP
+    # workflow_run job; otherwise the queued child can cancel its parent.
+    assert "group: mesoscale-model-discovery" in discovery
+    assert "group: mesoscale-data-updates" in rap
+    assert "if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'" in rap
+    assert "if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'" in hrrr
     assert '"mesoscale/build_rap_forecast_archive.py"' in discovery
     assert '"mesoscale/download_subset.py"' in discovery
     assert '"mesoscale/data/model_manifest.json"' in discovery
