@@ -1,4 +1,4 @@
-name: RAP BTV Ingestion Smoke Test
+name: RAP BTV Ingestion and Forecast Archive
 
 on:
   schedule:
