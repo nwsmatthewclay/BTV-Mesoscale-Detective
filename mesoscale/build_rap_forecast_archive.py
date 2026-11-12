@@ -13,6 +13,7 @@ import gzip
 import json
 import re
 import sys
+import zlib
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -124,7 +125,7 @@ def _archive_file_matches(path: Path, item: dict, cycle: str, kind: str) -> bool
             for profile in stations.values()
             if isinstance(profile, dict)
         ) and all(isinstance(profile, dict) for profile in stations.values())
-    except (OSError, EOFError, UnicodeError, ValueError, TypeError, KeyError, AttributeError):
+    except (OSError, EOFError, zlib.error, UnicodeError, ValueError, TypeError, KeyError, AttributeError):
         return False
 
 
