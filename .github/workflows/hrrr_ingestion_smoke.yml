@@ -171,6 +171,22 @@ jobs:
       - name: Rebase and publish verified HRRR surface fields
         run: |
           git pull --rebase origin main
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          artifact = json.loads(Path("hrrr-artifact/hrrr_forecast_manifest.json").read_text(encoding="utf-8"))
+          rap = json.loads(Path("mesoscale/data/fields/forecast/forecast_manifest.json").read_text(encoding="utf-8"))
+          expected = [item.get("valid_time_utc") for item in (rap.get("hours") or [])]
+          alignment = artifact.get("valid_time_alignment") or {}
+          actual = [item.get("valid_time_utc") for item in (artifact.get("hours") or [])]
+          if (alignment.get("reference_model") != "RAP"
+                  or alignment.get("reference_cycle_utc") != rap.get("model_cycle_utc")
+                  or alignment.get("valid_times_utc") != expected
+                  or actual != expected):
+              raise SystemExit("RAP archive changed during HRRR publication; refusing stale valid-time alignment")
+          print(f"Final publish guard passed for RAP cycle {rap['model_cycle_utc']}")
+          PY
           mkdir -p mesoscale/data/fields/hrrr
           find mesoscale/data/fields/hrrr -maxdepth 1 -type f -name 'hrrr_f*_btv.json.gz' -delete
           cp hrrr-artifact/hrrr_f*_btv.json.gz mesoscale/data/fields/hrrr/
