@@ -20,13 +20,13 @@ GitHub Pages is deployed after successful model ingestion and interface changes.
 - HRRR 2-D surface subsets are downloaded from NOMADS, decoded and checked against the BTV domain before publication.
 - The published [HRRR surface manifest](mesoscale/data/fields/hrrr/hrrr_forecast_manifest.json) currently contains F00, F03, F06 and F09 from one 15Z cycle.
 - Each hour contains seven BTV-intersecting grids and 20 decoded fields. Required checks pass for 2-m temperature and 10-m u/v wind; the latest archive has no validation warnings.
-- The subset also contains available surface/column fields such as CAPE, CIN, dewpoint, gust, visibility, reflectivity and precipitation fields. HRRR is surface-only here: it does **not** provide the full-column sounding/profile support supplied by RAP.
+- The interactive map currently exposes 2-m temperature, 2-m dewpoint, 10-m wind speed, gust, composite reflectivity, visibility, CIN and boundary-layer height. CAPE and precipitation overlays are intentionally withheld until duplicate CAPE messages and precipitation accumulation metadata can be distinguished safely. HRRR is surface-only here: it does **not** provide the full-column sounding/profile support supplied by RAP.
 
 **RRFS — discovery only**
 - Model discovery identifies RAP, HRRR and RRFS products and records their cycle/forecast-hour metadata.
 - RRFS regional decoding and publication are not enabled yet.
 
-The dashboard's RAP forecast-hour control reads the verified RAP manifest. HRRR data are published, but HRRR is not yet enabled in the interactive model selector; the current soundings, hodographs and cross-sections remain RAP-only. Do not interpret model discovery as proof of decoded data.
+The model selector now enables HRRR for its verified surface archive and exposes only the supported HRRR map parameters. Soundings, hodographs, cross-sections and station Time Evolution remain RAP-only because the HRRR archive contains no vertical profiles. Do not interpret model discovery as proof of decoded data.
 
 ## Interface controls
 
