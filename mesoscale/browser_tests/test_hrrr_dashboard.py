@@ -63,10 +63,20 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
             entry["valid_time_utc"] for entry in hrrr["hours"]
         ]
 
-        # Force the initial RAP grid request, then exercise every published hour.
+        # Keep the browser's asynchronously loaded archive manifests distinct
+        # from the direct test fetches above. The first grid request can briefly
+        # use the single-hour fallback while the archive manifests initialize.
+        page.evaluate("(manifest) => { window.__testRapManifest = manifest; }", rap)
+        page.evaluate("(manifest) => { window.__testHrrrManifest = manifest; }", hrrr)
+
+        # Force the initial RAP request and wait until it is the archived cycle,
+        # not the temporary latest-grid fallback.
         page.locator("#parameter").select_option("cape")
         page.wait_for_function(
-            "() => window.rapGridPayload && window.rapGridPayload.model === 'RAP'",
+            """() => window.rapGridPayload
+                && window.rapGridPayload.model === "RAP"
+                && window.rapGridPayload.model_cycle_utc === window.__testRapManifest.model_cycle_utc
+                && window.rapGridPayload.valid_time_utc === window.__testRapManifest.hours[0].valid_time_utc""",
             timeout=45000,
         )
         for entry in rap["hours"]:
@@ -85,7 +95,10 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         # Switching models must retain the currently selected valid time.
         page.locator("#model").select_option("HRRR")
         page.wait_for_function(
-            "() => window.hrrrGridPayload && window.hrrrGridPayload.model === 'HRRR'",
+            """() => window.hrrrGridPayload
+                && window.hrrrGridPayload.model === "HRRR"
+                && window.hrrrGridPayload.model_cycle_utc === window.__testHrrrManifest.model_cycle_utc
+                && window.hrrrGridPayload.valid_time_utc === window.__testHrrrManifest.hours[0].valid_time_utc""",
             timeout=30000,
         )
         assert page.locator("#parameter").input_value() == "hrrr_temp"
