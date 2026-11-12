@@ -1,9 +1,39 @@
 from playwright.sync_api import sync_playwright
 
 
-def _select_and_wait_for_hour(page, model, entry):
+def _select_and_wait_for_hour(page, model, entry, cycle):
     hour = int(entry["forecast_hour"])
     payload_name = "hrrrGridPayload" if model == "HRRR" else "rapGridPayload"
+    expected = {
+        "payloadName": payload_name,
+        "cycle": cycle,
+        "hour": hour,
+        "validTime": entry["valid_time_utc"],
+    }
+    current = page.evaluate(
+        """expected => {
+            const payload = window[expected.payloadName];
+            const label = document.querySelector("#mapChip")?.textContent || "";
+            return {
+                matches: Boolean(payload)
+                    && payload.model_cycle_utc === expected.cycle
+                    && Number(payload.forecast_hour) === expected.hour
+                    && payload.valid_time_utc === expected.validTime
+                    && label.includes("F" + String(expected.hour).padStart(2, "0")),
+                model: payload?.model,
+                cycle: payload?.model_cycle_utc,
+                hour: payload?.forecast_hour,
+                validTime: payload?.valid_time_utc,
+                mapChip: label,
+                slider: document.querySelector("#hour")?.value,
+                hourLabel: document.querySelector("#hourOut")?.textContent
+            };
+        }""",
+        expected,
+    )
+    if current["matches"]:
+        return
+
     page.locator("#hour").evaluate(
         """(element, value) => {
             element.value = String(value);
@@ -12,23 +42,39 @@ def _select_and_wait_for_hour(page, model, entry):
         }""",
         hour,
     )
-    page.wait_for_function(
-        """expected => {
-            const payload = window[expected.payloadName];
-            const label = document.querySelector("#mapChip")?.textContent || "";
-            return payload
-                && Number(payload.forecast_hour) === expected.hour
-                && payload.valid_time_utc === expected.validTime
-                && label.includes("F" + String(expected.hour).padStart(2, "0"));
-        }""",
-        arg={
-            "payloadName": payload_name,
-            "hour": hour,
-            "validTime": entry["valid_time_utc"],
-        },
-        timeout=30000,
-    )
-
+    try:
+        page.wait_for_function(
+            """expected => {
+                const payload = window[expected.payloadName];
+                const label = document.querySelector("#mapChip")?.textContent || "";
+                return payload
+                    && payload.model_cycle_utc === expected.cycle
+                    && Number(payload.forecast_hour) === expected.hour
+                    && payload.valid_time_utc === expected.validTime
+                    && label.includes("F" + String(expected.hour).padStart(2, "0"));
+            }""",
+            arg=expected,
+            timeout=30000,
+        )
+    except Exception as exc:
+        state = page.evaluate(
+            """expected => {
+                const payload = window[expected.payloadName];
+                return {
+                    model: payload?.model,
+                    cycle: payload?.model_cycle_utc,
+                    hour: payload?.forecast_hour,
+                    validTime: payload?.valid_time_utc,
+                    mapChip: document.querySelector("#mapChip")?.textContent,
+                    slider: document.querySelector("#hour")?.value,
+                    hourLabel: document.querySelector("#hourOut")?.textContent
+                };
+            }""",
+            expected,
+        )
+        raise AssertionError(
+            f"{model} F{hour:02d} did not load from its archive entry: {state}"
+        ) from exc
 
 def test_hrrr_surface_parameter_and_all_forecast_hours():
     page_errors = []
@@ -80,7 +126,7 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
             timeout=45000,
         )
         for entry in rap["hours"]:
-            _select_and_wait_for_hour(page, "RAP", entry)
+            _select_and_wait_for_hour(page, "RAP", entry, rap["model_cycle_utc"])
             assert page.evaluate(
                 """expected => window.rapGridPayload.model_cycle_utc === expected.cycle
                     && Number(window.rapGridPayload.forecast_hour) === expected.hour
@@ -111,7 +157,7 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         assert page.locator("#gridSpacing").text_content().strip() == "3 km nominal"
 
         for entry in hrrr["hours"]:
-            _select_and_wait_for_hour(page, "HRRR", entry)
+            _select_and_wait_for_hour(page, "HRRR", entry, hrrr["model_cycle_utc"])
             assert page.evaluate(
                 """expected => window.hrrrGridPayload.model_cycle_utc === expected.cycle
                     && Number(window.hrrrGridPayload.forecast_hour) === expected.hour
