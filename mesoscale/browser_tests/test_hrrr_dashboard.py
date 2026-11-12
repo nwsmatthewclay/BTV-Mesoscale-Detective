@@ -45,6 +45,21 @@ def test_hrrr_surface_parameter_and_hour_switching():
                 return window.hrrrGridPayload.valid_time_utc === rapEntry.valid_time_utc;
             }"""
         ), "Switching to HRRR must preserve the selected RAP valid time"
+        assert page.evaluate(
+            """async () => {
+                const rap = await (await fetch(
+                    './mesoscale/data/fields/forecast/forecast_manifest.json'
+                )).json();
+                const hrrr = await (await fetch(
+                    './mesoscale/data/fields/hrrr/hrrr_forecast_manifest.json'
+                )).json();
+                return rap.hours.length >= 4
+                    && rap.hours.length === hrrr.hours.length
+                    && rap.hours.every((entry, index) =>
+                        entry.valid_time_utc === hrrr.hours[index].valid_time_utc
+                    );
+            }"""
+        ), "Every published HRRR forecast hour must align with the corresponding RAP valid time"
 
         aligned_hour = page.evaluate(
             """async () => {
