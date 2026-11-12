@@ -1,3 +1,8 @@
+import os
+import subprocess
+import sys
+from pathlib import Path
+
 import pytest
 
 from mesoscale.validate_hrrr_ingestion import validate_payload
@@ -57,3 +62,19 @@ def test_hrrr_validator_rejects_grid_outside_btv_domain():
     payload["grids"]["grid_0"]["longitude"] = [[-73.2, -73.3]]
     with pytest.raises(RuntimeError, match="no coordinates inside the BTV domain"):
         validate_payload(payload, CYCLE, 0)
+
+
+def test_hrrr_validator_runs_as_script_without_pythonpath():
+    repo_root = Path(__file__).resolve().parents[2]
+    env = os.environ.copy()
+    env.pop("PYTHONPATH", None)
+    result = subprocess.run(
+        [sys.executable, str(repo_root / "mesoscale" / "validate_hrrr_ingestion.py"), "--help"],
+        cwd=repo_root,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "Non-publishing HRRR surface-subset smoke test" in result.stdout
