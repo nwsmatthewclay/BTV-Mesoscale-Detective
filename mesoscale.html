@@ -347,11 +347,22 @@ async function loadModelManifest(){
     if(!cycles.length){cycleSelect.innerHTML='<option>Cycle not found</option>';badge.textContent='NO MODEL PRODUCTS FOUND';badge.style.color='var(--amber)';return;}
     cycles.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=new Date(c).toISOString().replace('T',' ').slice(0,16)+' UTC';cycleSelect.appendChild(o);});
     const product=products.find(p=>p.cycle_utc===cycles[0]);
-    document.getElementById('provModel').textContent=selectedModel+' · discovered';
-    document.querySelector('#investigation .detail-line:nth-child(2) b').textContent=cycles[0];
-    if(selectedModel!=='RAP'||!window.rapStationProfiles){badge.textContent=selectedModel+' FILES DISCOVERED · NOT DECODED';badge.style.color='var(--amber)';}
-    document.getElementById('mapChip').textContent=selectedModel+' latest discovered cycle '+cycles[0]+' · model fields not yet decoded';
-    if(product)document.getElementById('selectionStatus').textContent='Latest file: '+product.filename;
+    const archiveReady=selectedModel==='RAP'&&rapForecastManifest&&availableRapHours.length;
+    if(archiveReady){
+      cycleSelect.innerHTML='';
+      const o=document.createElement('option');o.value=rapForecastManifest.model_cycle_utc;o.textContent=rapForecastManifest.model_cycle_utc+' · RAP archive';cycleSelect.appendChild(o);
+      document.getElementById('provModel').textContent='RAP · verified forecast archive';
+      document.querySelector('#investigation .detail-line:nth-child(2) b').textContent=rapForecastManifest.model_cycle_utc;
+      badge.textContent='RAP FORECAST ARCHIVE · '+availableRapHours.length+' HOURS';badge.style.color='var(--green)';
+      document.getElementById('mapChip').textContent='RAP '+('F'+String(activeRapHour).padStart(2,'0'))+' · '+rapForecastManifest.model_cycle_utc+' · verified regional grid';
+      document.getElementById('selectionStatus').textContent='Available hours: '+availableRapHours.map(h=>'F'+String(h).padStart(2,'0')).join(', ');
+    }else{
+      document.getElementById('provModel').textContent=selectedModel+' · discovered';
+      document.querySelector('#investigation .detail-line:nth-child(2) b').textContent=cycles[0];
+      if(selectedModel!=='RAP'||!window.rapStationProfiles){badge.textContent=selectedModel+' FILES DISCOVERED · NOT DECODED';badge.style.color='var(--amber)';}
+      document.getElementById('mapChip').textContent=selectedModel+' latest discovered cycle '+cycles[0]+' · model fields not yet decoded';
+      if(product)document.getElementById('selectionStatus').textContent='Latest file: '+product.filename;
+    }
   }catch(error){
     console.warn('Model discovery manifest unavailable; retaining independently loaded RAP station profiles',error);
     if(window.rapStationProfiles && document.getElementById('model').value==='RAP'){
