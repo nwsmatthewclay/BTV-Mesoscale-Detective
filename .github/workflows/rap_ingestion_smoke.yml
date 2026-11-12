@@ -45,6 +45,8 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: pytest -q mesoscale/tests
+      - name: Rebase latest model discovery manifest
+        run: git pull --rebase origin main
       - name: Download and decode current RAP pressure-level product
         run: python mesoscale/validate_rap_ingestion.py
       - name: Build verified multi-hour RAP forecast archive
