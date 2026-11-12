@@ -83,9 +83,7 @@ def discover_model(session, model, days_back):
             # Operational 13-km CONUS RAP pressure products use two
             # filename families: awp130bgrb (early hours) and awp130pgrb.
             # awip32 is retained as a lower-resolution North American fallback.
-            pattern = re.compile(
-                r"rap\.t(\d{2})z\.(awp130[bp]grb|awip32)f(\d{2,3})\.grib2$"
-            )
+            pattern = RAP_FILENAME_RE
         else:
             directory = f"{BASE}/hrrr/prod/hrrr.{date_str}/conus/"
             pattern = re.compile(r"hrrr\.t(\d{2})z\.(wrfprsf|wrfsfcf)(\d{2,3})\.grib2$")
