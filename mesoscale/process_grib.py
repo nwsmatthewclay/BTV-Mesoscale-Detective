@@ -95,6 +95,9 @@ def process_file(path: Path, model: str, cycle: str, forecast_hour: int,
                 level_tag = "_".join(f"{k}-{v}" for k, vals in level_meta.items()
                                      for v in vals[:1]) or "2d"
                 key = f"{short_name}_{level_tag}_{ds_index}"
+                # Preserve precision for small mixing-ratio fields; rounding q to
+                # hundredths would erase essentially all atmospheric moisture.
+                precision = 7 if variable.attrs.get("units") in {"kg kg**-1", "kg/kg"} else 2
                 fields[key] = {
                     "short_name": short_name,
                     "variable_name": name,
@@ -103,7 +106,7 @@ def process_file(path: Path, model: str, cycle: str, forecast_hour: int,
                     "dimensions": other_dims,
                     "levels": level_meta,
                     "grid_id": grid_id,
-                    "data": json_values(arr, 2),
+                    "data": json_values(arr, precision),
                 }
     finally:
         for ds in datasets:
