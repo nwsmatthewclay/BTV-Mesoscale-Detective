@@ -1,14 +1,6 @@
 name: HRRR BTV Surface Ingestion Smoke Test
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "mesoscale/validate_hrrr_ingestion.py"
-      - "mesoscale/download_subset.py"
-      - "mesoscale/process_grib.py"
-      - "mesoscale/hrrr_tests/**"
-      - ".github/workflows/hrrr_ingestion_smoke.yml"
   workflow_run:
     workflows: ["RAP BTV Ingestion and Forecast Archive"]
     types: [completed]

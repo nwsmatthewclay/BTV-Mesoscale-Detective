@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from datetime import datetime
 from urllib.parse import urlencode
 
 import requests
@@ -88,7 +89,12 @@ def filter_url(model: str, product: dict) -> str:
 def download(session, model, product, output_dir):
     url = filter_url(model, product)
     output_dir.mkdir(parents=True, exist_ok=True)
-    cycle_hour = product["cycle_utc"][11:13]
+    try:
+        cycle_hour = datetime.fromisoformat(
+            product["cycle_utc"].replace("Z", "+00:00")
+        ).strftime("%H")
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError(f"Invalid model cycle timestamp: {product.get('cycle_utc')!r}") from exc
     filename = (
         f"{model.lower()}_{product['date']}_{cycle_hour}_"
         f"f{int(product['forecast_hour']):02d}_btv.grib2"
