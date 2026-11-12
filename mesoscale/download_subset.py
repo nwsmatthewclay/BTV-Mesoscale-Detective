@@ -1,17 +1,9 @@
 #!/usr/bin/env python3
-"""Download compact BTV-area GRIB2 subsets from NOMADS.
+"""Download compact BTV-area GRIB2 subsets from current NOMADS products.
 
-The downloader uses the latest products recorded in model_manifest.json
-(or explicit filenames), requests a small set of forecast fields, and
-checks that the response is a GRIB file before writing it. It never
-downloads whole CONUS GRIB files.
-
-RAP: full-domain pressure-level product, cropped to the BTV region.
-HRRR: hourly 2-D product, cropped to the same region.
-
-NOMADS can reject combinations that are not present in a selected file;
-the script preserves the server response as an error and never labels an
-HTML error page as meteorological data.
+RAP uses the current 13-km CONUS pressure-level family. HRRR uses its hourly
+2-D surface family. Exact filenames come from model_manifest.json so this
+script cannot silently reconstruct obsolete product names.
 """
 from __future__ import annotations
 
@@ -24,6 +16,10 @@ import requests
 
 BASE = "https://nomads.ncep.noaa.gov/cgi-bin"
 REGION = {"leftlon": -75.2, "rightlon": -71.2, "toplat": 45.3, "bottomlat": 42.3}
+MAX_DOWNLOAD_BYTES = 100_000_000
+
+RAP_PRODUCT = "pressure_levels_conus_13km"
+HRRR_PRODUCT = "surface"
 
 RAP_VARIABLES = ["TMP", "RH", "HGT", "UGRD", "VGRD"]
 RAP_LEVELS = [
@@ -40,24 +36,50 @@ HRRR_LEVELS = [
 ]
 
 
+def select_product(manifest: dict, model: str, forecast_hour: int, cycle: str | None = None):
+    """Select a current, explicitly supported product family from the manifest."""
+    expected_product = {"RAP": RAP_PRODUCT, "HRRR": HRRR_PRODUCT}.get(model)
+    if expected_product is None:
+        raise ValueError(f"Unsupported subset model: {model}")
+    products = manifest.get("models", {}).get(model, {}).get("latest_products", [])
+    matches = [
+        product for product in products
+        if product.get("product") == expected_product
+        and product.get("forecast_hour") == forecast_hour
+        and product.get("filename")
+        and product.get("url")
+        and (not cycle or product.get("cycle_utc") == cycle)
+    ]
+    if not matches:
+        return None
+    return max(matches, key=lambda product: product["cycle_utc"])
+
+
 def filter_url(model: str, product: dict) -> str:
-    date = product["date"]
-    cycle = product["cycle_utc"][11:13]
-    forecast = int(product["forecast_hour"])
     if model == "RAP":
+        if product.get("product") != RAP_PRODUCT:
+            raise ValueError(f"RAP subset requires {RAP_PRODUCT}, got {product.get('product')!r}")
         script = "filter_rap.pl"
-        filename = f"rap.t{cycle}z.wrfprs.f{forecast:02d}.grib2"
-        directory = f"/rap.{date}"
+        directory = f"/rap.{product['date']}"
         variables = RAP_VARIABLES
         levels = [f"{level}_mb" for level in RAP_LEVELS]
-    else:
+    elif model == "HRRR":
+        if product.get("product") != HRRR_PRODUCT:
+            raise ValueError(f"HRRR subset requires {HRRR_PRODUCT}, got {product.get('product')!r}")
         script = "filter_hrrr_2d.pl"
-        filename = f"hrrr.t{cycle}z.wrfsfcf{forecast:02d}.grib2"
-        directory = f"/hrrr.{date}/conus"
+        directory = f"/hrrr.{product['date']}/conus"
         variables = HRRR_VARIABLES
         levels = HRRR_LEVELS
+    else:
+        raise ValueError(f"Unsupported subset model: {model}")
 
-    params = {"file": filename, "dir": directory, "subregion": "1", **REGION}
+    params = {
+        "file": product["filename"],
+        "dir": directory,
+        # NOMADS' grib-filter form emits an empty subregion value.
+        "subregion": "",
+        **REGION,
+    }
     params.update({f"var_{name}": "on" for name in variables})
     params.update({f"lev_{name}": "on" for name in levels})
     return f"{BASE}/{script}?{urlencode(params)}"
@@ -66,29 +88,50 @@ def filter_url(model: str, product: dict) -> str:
 def download(session, model, product, output_dir):
     url = filter_url(model, product)
     output_dir.mkdir(parents=True, exist_ok=True)
-    filename = f"{model.lower()}_{product['date']}_{product['cycle_utc'][11:13]}_f{product['forecast_hour']:02d}_btv.grib2"
+    cycle_hour = product["cycle_utc"][11:13]
+    filename = (
+        f"{model.lower()}_{product['date']}_{cycle_hour}_"
+        f"f{int(product['forecast_hour']):02d}_btv.grib2"
+    )
     destination = output_dir / filename
-    response = session.get(url, stream=True, timeout=(20, 180))
-    response.raise_for_status()
-    chunks = iter(response.iter_content(chunk_size=1024 * 1024))
-    first = next(chunks, b"")
-    if not first.startswith(b"GRIB"):
-        raise RuntimeError(f"NOMADS did not return GRIB data for {model}: {first[:300]!r}")
     temp = destination.with_suffix(destination.suffix + ".part")
     total = 0
-    with temp.open("wb") as stream:
-        stream.write(first)
-        total += len(first)
-        for chunk in chunks:
-            if chunk:
-                stream.write(chunk)
-                total += len(chunk)
-    if total < 1000:
+    first = b""
+
+    try:
+        with session.get(url, stream=True, timeout=(20, 180)) as response:
+            response.raise_for_status()
+            declared = int(response.headers.get("Content-Length", "0"))
+            if declared and declared > MAX_DOWNLOAD_BYTES:
+                raise RuntimeError(
+                    f"Filtered {model} response exceeds {MAX_DOWNLOAD_BYTES} byte safety cap: {declared}"
+                )
+            with temp.open("wb") as stream:
+                for chunk in response.iter_content(chunk_size=1024 * 1024):
+                    if not chunk:
+                        continue
+                    if not first:
+                        first = chunk[:4]
+                    total += len(chunk)
+                    if total > MAX_DOWNLOAD_BYTES:
+                        raise RuntimeError(
+                            f"Filtered {model} download exceeded {MAX_DOWNLOAD_BYTES} byte safety cap"
+                        )
+                    stream.write(chunk)
+        if first != b"GRIB":
+            raise RuntimeError(f"NOMADS did not return GRIB data for {model}: {first[:300]!r}")
+        if total < 1000:
+            raise RuntimeError(f"Filtered {model} subset unexpectedly small ({total} bytes): {url}")
+        temp.replace(destination)
+    except Exception:
         temp.unlink(missing_ok=True)
-        raise RuntimeError(f"Subset unexpectedly small ({total} bytes): {url}")
-    temp.replace(destination)
-    return {"model": model, "file": str(destination), "bytes": total, "request_url": url,
-            "cycle_utc": product["cycle_utc"], "forecast_hour": product["forecast_hour"]}
+        raise
+
+    return {
+        "model": model, "file": str(destination), "bytes": total, "request_url": url,
+        "cycle_utc": product["cycle_utc"], "forecast_hour": product["forecast_hour"],
+        "source_file": product["filename"], "product": product["product"],
+    }
 
 
 def main():
@@ -106,17 +149,16 @@ def main():
     models = ["RAP", "HRRR"] if args.model == "both" else [args.model]
     results, errors = [], []
     for model in models:
-        products = manifest.get("models", {}).get(model, {}).get("latest_products", [])
-        match = next((p for p in products
-                      if p.get("forecast_hour") == args.forecast_hour
-                      and (not args.cycle or p.get("cycle_utc") == args.cycle)
-                      and (p.get("product") == "pressure_levels_full_domain" if model == "RAP"
-                           else p.get("product") == "surface")), None)
-        if not match:
-            errors.append({"model": model, "error": "No matching product in manifest"})
+        product = select_product(manifest, model, args.forecast_hour, args.cycle)
+        if not product:
+            errors.append({
+                "model": model,
+                "error": f"No {model} {RAP_PRODUCT if model == 'RAP' else HRRR_PRODUCT} "
+                         f"product at F{args.forecast_hour:02d} in the requested cycle",
+            })
             continue
         try:
-            results.append(download(session, model, match, Path(args.output_dir)))
+            results.append(download(session, model, product, Path(args.output_dir)))
         except Exception as exc:
             errors.append({"model": model, "error": f"{type(exc).__name__}: {exc}"})
 
