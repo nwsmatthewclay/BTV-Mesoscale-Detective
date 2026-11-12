@@ -59,7 +59,8 @@ select,input[type=range]{width:100%}select{background:#071827;color:var(--text);
 <section class="panel"><h2>Investigation Notes</h2><div class="pad" id="investigation"><div class="detail-line"><span>Model</span><b>RAP</b></div><div class="detail-line"><span>Valid time</span><b>Awaiting feed</b></div><div class="detail-line"><span>Point</span><b>KBTV</b></div><div class="detail-line"><span>Interpretation</span><b style="color:var(--amber)">Not available</b></div></div></section>
 </aside>
 </main>
-<div class="bottom-grid">\n<section class="panel"><h2>RAP Vertical Cross-Section</h2><div id="crossSectionPlot" style="height:360px"></div><div class="placeholder" id="crossSectionStatus">Draw a transect on the map. RAP temperature will be sampled along the line at each model grid point.</div></section>
+<div class="bottom-grid">
+<section class="panel"><h2>RAP Vertical Cross-Section</h2><div id="crossSectionPlot" style="height:360px"></div><div class="placeholder" id="crossSectionStatus">Draw a transect on the map. RAP temperature will be sampled along the line at each model grid point.</div></section>
 
 <section class="panel"><h2>Time Evolution · Selected point</h2><div id="trend"></div><div class="placeholder">Parameter traces will populate from consecutive model forecast hours.</div></section>
 <section class="panel"><h2>Data Provenance &amp; Quality</h2><div class="pad"><div class="detail-line"><span>Model source</span><b id="provModel">RAP · not connected</b></div><div class="detail-line"><span>Model initialization</span><b>—</b></div><div class="detail-line"><span>Valid time</span><b>—</b></div><div class="detail-line"><span>Grid spacing</span><b id="gridSpacing">13 km nominal</b></div><div class="detail-line"><span>Processing status</span><b style="color:var(--amber)">Awaiting ingestion pipeline</b></div><div class="detail-line"><span>Observation overlay</span><b>Not loaded</b></div><p style="font-size:11px;color:var(--muted);margin:12px 0 0">Every diagnostic will carry its source, initialization time, valid time, units and processing status. Model analysis and observed data will remain visually distinct.</p></div></section>
@@ -96,7 +97,8 @@ async function runRapCrossSection(points){
   Plotly.react('crossSectionPlot',[{type:'heatmap',x:distances,y:heights,z,colorscale:'RdYlBu',reversescale:true,colorbar:{title:'°C'},hovertemplate:'Distance %{x:.1f} km<br>Height %{y:.0f} m AGL<br>Temperature %{z:.1f} °C<extra></extra>'}],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:58,r:25,t:18,b:48},xaxis:{title:'Distance along transect (km)',color:'#9cb2c5',gridcolor:'#24435e'},yaxis:{title:'Height AGL (m)',color:'#9cb2c5',gridcolor:'#24435e'},font:{color:'#dceaf4'}},{displayModeBar:false,responsive:true});
   status.textContent='RAP '+payload.valid_time_utc+' · '+profiles.length+' nearest-grid samples · temperature interpolated to 250 m vertical spacing. Horizontal sampling follows native RAP grid spacing; not a 3-km analysis.';
 }
-\ndocument.getElementById('drawTransect').onclick=()=>{transect=[];drawing=true;document.getElementById('drawTransect').textContent='Click start, then end point';document.getElementById('mapChip').textContent='Choose two points on the map to define a transect';};
+
+document.getElementById('drawTransect').onclick=()=>{transect=[];drawing=true;document.getElementById('drawTransect').textContent='Click start, then end point';document.getElementById('mapChip').textContent='Choose two points on the map to define a transect';};
 document.getElementById('clearTransect').onclick=()=>{transect=[];drawing=false;if(line){map.removeLayer(line);line=null;}document.getElementById('drawTransect').textContent='Draw cross-section line';document.getElementById('mapChip').textContent='BTV CWA · Click map to interrogate a point';};
 document.getElementById('reset').onclick=document.getElementById('locateBtv').onclick=()=>{map.setView([44.4719,-73.1533],7);selectPoint(44.4719,-73.1533,'KBTV');};
 document.getElementById('hour').oninput=e=>document.getElementById('hourOut').textContent='F'+String(e.target.value).padStart(2,'0');
@@ -174,7 +176,8 @@ function sampleRapSurface(payload,names,lat,lon){
 }
 function updateRegionalDiagnostics(p,payload){
   const d=p.diagnostics?.diagnostics||{},z=p.profile;
-  const loc=p.requested_location;if(!loc||!Number.isFinite(loc.latitude)||!Number.isFinite(loc.longitude))throw new Error('Requested coordinates missing for regional RAP diagnostics');\n  const cape=sampleRapSurface(payload,['cape'],loc.latitude,loc.longitude);
+  const loc=p.requested_location;if(!loc||!Number.isFinite(loc.latitude)||!Number.isFinite(loc.longitude))throw new Error('Requested coordinates missing for regional RAP diagnostics');
+  const cape=sampleRapSurface(payload,['cape'],loc.latitude,loc.longitude);
   const cin=sampleRapSurface(payload,['cin'],loc.latitude,loc.longitude);
   const pwat=sampleRapSurface(payload,['pwat'],loc.latitude,loc.longitude);
   const interp=(arr,h)=>{const zz=z.height_agl_m;if(h<Math.min(...zz)||h>Math.max(...zz))return null;let k=0;while(k<zz.length-1&&zz[k+1]<h)k++;if(k>=zz.length-1)return arr[arr.length-1];const f=(h-zz[k])/(zz[k+1]-zz[k]);return arr[k]+f*(arr[k+1]-arr[k]);};
@@ -213,7 +216,8 @@ async function updateRapParameter(){
   try{const payload=await loadRapGrid();renderRapGridOverlay(payload,param);}
   catch(e){document.getElementById('mapChip').textContent='RAP grid unavailable: '+e.message;console.error(e);}
 }
-\nasync function loadStationProfile(station){
+
+async function loadStationProfile(station){
   const metrics=document.getElementById('metrics');
   const notes=document.querySelectorAll('.rightcol .placeholder');
   if(document.getElementById('model').value!=='RAP'){
@@ -233,14 +237,23 @@ async function updateRapParameter(){
       metrics.innerHTML='';
       Plotly.react('hodograph',[],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',annotations:[{text:'No wind profile available',showarrow:false,font:{color:'#9cb2c5'}}],xaxis:{visible:false},yaxis:{visible:false}},{displayModeBar:false,responsive:true});
       if(notes[0])notes[0].textContent='No verified RAP profile for '+station+'. Select one of the eight supported stations.';
-      if(notes[1])notes[1].textContent='Custom map points are not yet profiled; no nearby station values are substituted.';
+      if(notes[1])notes[1].textContent='Custom map points require a valid RAP regional grid profile; no nearby station values are substituted.';
       Plotly.react('profile',[],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',annotations:[{text:'No station profile available',showarrow:false,font:{color:'#9cb2c5'}}],xaxis:{visible:false},yaxis:{visible:false}},{displayModeBar:false,responsive:true});
       document.getElementById('feedStatus').textContent='RAP STATION DATA · PARTIAL';document.getElementById('feedStatus').style.color='var(--amber)';return;
     }
     window.rapKbtvProfile=p;
-    const d=(p.diagnostics&&p.diagnostics.diagnostics)||{};\n    let regionalDiag=null;if(p.regional_sample){const gp=await loadRapGrid();regionalDiag=updateRegionalDiagnostics(p,gp);}
-    const items=[['MUCAPE',d.mucape_jkg,'J/kg'],['MLCAPE',d.mlcape_jkg,'J/kg'],['MLCIN',d.mlcin_jkg,'J/kg'],['PWAT',d.pwat_mm,'mm'],['0–6 km shear',d.bs06_kt,'kt'],['0–1 km SRH',d.srh01_m2s2,'m²/s²']];
-    metrics.innerHTML=items.map(([n,v,u])=>'<div class="metric"><span>'+n+'</span><strong>'+(Number.isFinite(v)?Number(v).toFixed(1):'—')+'</strong><small>'+u+'</small></div>').join('');
+    const d=(p.diagnostics&&p.diagnostics.diagnostics)||{};
+    let regionalDiag=null;
+    if(p.regional_sample){
+      const gp=await loadRapGrid();
+      regionalDiag=updateRegionalDiagnostics(p,gp);
+      const sp=p.sampled_grid_point;
+      if(notes[0])notes[0].textContent='Custom RAP grid profile · '+(sp?sp.distance_km.toFixed(1)+' km from nearest grid point':'nearest grid point')+' · '+p.valid_time_utc;
+      if(notes[1])notes[1].textContent='Regional RAP diagnostics are sampled/interpolated from the selected grid point; MLCAPE and SRH are intentionally withheld until validated.';
+    }else{
+      const items=[['SBCAPE',d.sbcape_jkg,'J/kg'],['MLCAPE',d.mlcape_jkg,'J/kg'],['MUCAPE',d.mucape_jkg,'J/kg'],['MLCIN',d.mlcin_jkg,'J/kg'],['PWAT',d.pwat_mm,'mm'],['0–6 km shear',d.bs06_kt,'kt']];
+      metrics.innerHTML=items.map(([n,v,u])=>'<div class="metric"><span>'+n+'</span><strong>'+(Number.isFinite(v)?Number(v).toFixed(1):'—')+'</strong><small>'+u+'</small></div>').join('');
+    }
     const z=p.profile,skew=35,ln=Math.log;
     const skewX=(tempC,pressure)=>tempC+skew*ln(1000/pressure);
     const traces=[];
