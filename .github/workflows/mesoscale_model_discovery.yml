@@ -49,6 +49,8 @@ jobs:
           python-version: "3.11"
       - name: Install discovery dependencies
         run: python -m pip install --upgrade requests
+      - name: Rebase before generating the model manifest
+        run: git pull --rebase origin main
       - name: Discover latest RAP, HRRR and RRFS products
         run: python mesoscale/discover_models.py --days-back 2 --index-latest
       - name: Commit updated model manifest
@@ -61,5 +63,4 @@ jobs:
             exit 0
           fi
           git commit -m "Update RAP, HRRR and RRFS discovery manifest"
-          git pull --rebase origin main
           git push
