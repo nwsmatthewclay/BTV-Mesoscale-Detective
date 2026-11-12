@@ -11,6 +11,9 @@ def test_hrrr_surface_parameter_and_hour_switching():
         page.route("**/tile.openstreetmap.org/**", lambda route: route.abort())
 
         page.goto("http://127.0.0.1:8765/", wait_until="domcontentloaded")
+        # The initial parameter is observations; select a model grid field to
+        # force the first RAP regional-grid request before testing model swaps.
+        page.locator("#parameter").select_option("cape")
         page.wait_for_function(
             "() => window.rapGridPayload && window.rapGridPayload.model === 'RAP'",
             timeout=45000,
