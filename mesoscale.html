@@ -48,14 +48,14 @@ select,input[type=range]{width:100%}select{background:#071827;color:var(--text);
 </div></div>
 <div class="field"><label>Selected point</label><div id="pointReadout" class="detail-line"><span>Location</span><b>KBTV</b></div><div id="coords" style="color:var(--muted);font-size:11px;margin-top:5px">44.4719°N, 73.1533°W</div></div>
 <button class="btn primary" id="reset">Reset map / KBTV</button>
-</div><div class="notice">Data status is deliberately explicit. No model-derived values are displayed until a verified RAP/HRRR data feed is connected.</div></aside>
+</div><div class="notice">RAP profiles are published for KBTV, KPBG, KMSS, KSLK, KMPV, KRUT, 1V4 and KEFK. Custom points and other models remain unavailable.</div></aside>
 <section class="panel"><h2 id="mapTitle">Environment · Surface observations</h2><div class="map-wrap"><div id="map"></div><div class="map-chip" id="mapChip">BTV CWA · Click map to interrogate a point</div><div class="map-legend">Map base: OpenStreetMap · Analysis fields: awaiting data ingest</div></div><div class="map-actions"><button class="btn" id="drawTransect">Draw cross-section line</button><button class="btn" id="clearTransect">Clear line</button><button class="btn" id="locateBtv">Select KBTV</button><span style="margin-left:auto;color:var(--muted);font-size:11px;align-self:center" id="selectionStatus">Selected: KBTV</span></div></section>
 <aside class="rightcol" style="display:flex;flex-direction:column;gap:10px">
 <section class="panel"><h2>Selected Point · Diagnostics</h2><div class="metrics" id="metrics">
 <div class="metric"><span>MUCAPE</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>MLCAPE</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>MLCIN</span><strong>—</strong><small>J/kg</small></div>
 <div class="metric"><span>PWAT</span><strong>—</strong><small>mm</small></div><div class="metric"><span>0–6 km shear</span><strong>—</strong><small>kt</small></div><div class="metric"><span>0–1 km SRH</span><strong>—</strong><small>m²/s²</small></div>
-</div><div class="placeholder">No analysis grid loaded · Values will populate from the selected model, cycle, hour and map location.</div></section>
-<section class="panel"><h2>Vertical Profile</h2><div id="profile"></div><div class="placeholder">Skew-T / hodograph will render when profile-level model data is available.</div></section>
+</div><div class="placeholder">RAP profiles are available at the eight listed stations only. Custom map points will not inherit station diagnostics.</div></section>
+<section class="panel"><h2>Vertical Profile</h2><div id="profile"></div><div class="placeholder">Current plot: temperature and dewpoint versus pressure. Skew-T and hodograph are still under development.</div></section>
 <section class="panel"><h2>Investigation Notes</h2><div class="pad" id="investigation"><div class="detail-line"><span>Model</span><b>RAP</b></div><div class="detail-line"><span>Valid time</span><b>Awaiting feed</b></div><div class="detail-line"><span>Point</span><b>KBTV</b></div><div class="detail-line"><span>Interpretation</span><b style="color:var(--amber)">Not available</b></div></div></section>
 </aside>
 </main>
