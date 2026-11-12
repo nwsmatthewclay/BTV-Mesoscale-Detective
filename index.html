@@ -96,7 +96,9 @@ async function loadStationProfile(station){
     const collection=await response.json();window.rapStationProfiles=collection;
     const p=collection.stations&&collection.stations[station];
     if(!p){
-      metrics.innerHTML='';if(notes[0])notes[0].textContent='No verified RAP profile for '+station+'. Select one of the eight supported stations.';
+      metrics.innerHTML='';
+      Plotly.react('hodograph',[],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',annotations:[{text:'No wind profile available',showarrow:false,font:{color:'#9cb2c5'}}],xaxis:{visible:false},yaxis:{visible:false}},{displayModeBar:false,responsive:true});
+      if(notes[0])notes[0].textContent='No verified RAP profile for '+station+'. Select one of the eight supported stations.';
       if(notes[1])notes[1].textContent='Custom map points are not yet profiled; no nearby station values are substituted.';
       Plotly.react('profile',[],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',annotations:[{text:'No station profile available',showarrow:false,font:{color:'#9cb2c5'}}],xaxis:{visible:false},yaxis:{visible:false}},{displayModeBar:false,responsive:true});
       document.getElementById('feedStatus').textContent='RAP STATION DATA · PARTIAL';document.getElementById('feedStatus').style.color='var(--amber)';return;
