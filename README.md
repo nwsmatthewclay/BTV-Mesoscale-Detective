@@ -2,25 +2,41 @@
 
 Interactive, map-first mesoscale analysis workspace for the NWS Burlington forecast area (Vermont and northern New York).
 
-## Try it online
+## Live workspace
 
-Enable GitHub Pages under **Settings → Pages → Build and deployment → GitHub Actions**. The included Pages workflow deploys the repository root on pushes to `main`.
+[Open BTV Mesoscale Detective](https://nwsmatthewclay.github.io/BTV-Mesoscale-Detective/)
 
-Expected URL: https://nwsmatthewclay.github.io/BTV-Mesoscale-Detective/
+GitHub Pages is deployed from the repository and is refreshed after successful RAP ingestion as well as interface changes.
+
+## Verified data status
+
+The workspace now has a functioning, automated RAP data path:
+
+- The ingestion workflow downloads and decodes RAP 13-km CONUS hybrid-level GRIB2 data, crops it to the BTV analysis domain, and validates the resulting fields.
+- The published forecast archive contains F00, F03, F06 and F09 from one RAP cycle. The live [forecast manifest](mesoscale/data/fields/forecast/forecast_manifest.json) is the source of truth for the available cycle, valid times and files.
+- Each published forecast hour includes a regional grid product and eight station profiles: KBTV, KPBG, KMSS, KSLK, KMPV, KRUT, 1V4 and KEFK. The latest verified profiles contain 50 vertical levels and pass pressure/height monotonicity checks.
+- A separate latest RAP field grid and KBTV profile are also published.
+- Model discovery identifies RAP, HRRR and RRFS products. **Discovery is not ingestion:** RAP is the only model currently decoded and published end-to-end. HRRR and RRFS remain gated until their regional extraction and field validation are complete.
+
+The dashboard reads available RAP forecast hours from the manifest; it does not invent missing hours or substitute illustrative meteorological values.
 
 ## Interface controls
 
-- Select KBTV, KPBG, KMSS, KSLK, KMPV, KRUT, 1V4, or KEFK, or click any map point.
+- Select KBTV, KPBG, KMSS, KSLK, KMPV, KRUT, 1V4 or KEFK, or click a map point.
 - Draw and clear a two-point transect.
-- Change model, cycle, forecast hour, and map parameter.
-- Explore Environment, Soundings, Kinematics & Forcing, Cross-Sections, Model Compare, and Time Evolution tabs.
-- Model manifest reader reports discovered files without implying that fields are decoded.
+- Change model, cycle, available forecast hour and map parameter.
+- Explore Environment, Soundings, Kinematics & Forcing, Cross-Sections, Model Compare and Time Evolution.
+- The model manifest reader distinguishes discovered products from decoded and published fields.
 
-## Data status and safety
+## Data safety
 
-This is an interactive development build. Map controls and navigation are functional, but model-data ingestion is not connected end-to-end. Diagnostic values intentionally remain blank until real model fields are downloaded, decoded, and validated. Do not use this development build for operational decision-making.
+This remains a development and research workspace, not an operationally approved decision-support system. Do not use it as the sole basis for warning, forecast or aviation decisions.
 
-RRFS discovery is included, but RRFS extraction remains gated on validating index offsets and HTTP byte-range behavior. RAP/HRRR subset and GRIB processing utilities are included as a pipeline foundation.
+- Never display fabricated meteorological values.
+- Keep observations distinct from model output.
+- Carry source, initialization time, valid time, units and provenance with every diagnostic.
+- Do not compare models unless fields have compatible definitions, units and valid times.
+- Keep this project independent of the operational NWS_SA_Dashboard until separately validated.
 
 ## Local setup
 
@@ -33,6 +49,7 @@ python -m venv .venv
 # Windows: .venv\\Scripts\\activate
 # macOS/Linux: source .venv/bin/activate
 pip install -r mesoscale/requirements.txt
+pytest -q mesoscale/tests
 ```
 
 See [mesoscale/README.md](mesoscale/README.md) for pipeline details.
@@ -40,14 +57,13 @@ See [mesoscale/README.md](mesoscale/README.md) for pipeline details.
 ## Structure
 
 - `index.html`: GitHub Pages entry point.
-- `mesoscale.html`: source copy of the interactive interface.
-- `mesoscale/`: discovery, GRIB utilities, diagnostics, tests, and configuration.
-- `.github/workflows/`: discovery and Pages workflows.
+- `mesoscale.html`: synchronized source copy of the interface.
+- `mesoscale/`: model discovery, GRIB acquisition/processing, diagnostics, tests and configuration.
+- `.github/workflows/`: model discovery, RAP ingestion/archive and Pages deployment.
 
 ## Development principles
 
-- Never display fabricated meteorological values.
-- Keep observations distinct from model output.
-- Carry source, initialization, valid time, units, and provenance with each diagnostic.
-- Avoid full CONUS downloads when a verified regional extraction method is available.
-- Keep this project independent of the operational SA Dashboard until validated.
+- Never fabricate meteorological values.
+- Preserve source model, cycle, forecast hour, valid time, units and quality metadata.
+- Validate every field and vertical profile before publishing.
+- Keep this project separate from the operational SA Dashboard until it has completed its own validation.

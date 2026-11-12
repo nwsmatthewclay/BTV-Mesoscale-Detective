@@ -2,7 +2,9 @@ from urllib.parse import parse_qs, urlparse
 
 import pytest
 
-from mesoscale.download_subset import filter_url, select_product
+from pathlib import Path
+
+from mesoscale.download_subset import download, filter_url, select_product
 
 
 def product(model, cycle, hour, family, filename):
@@ -95,3 +97,37 @@ def test_select_product_respects_requested_cycle_and_rejects_unsupported_familie
     assert select_product(manifest, "RAP", 0, "2026-11-12T09:00:00Z") is None
     with pytest.raises(ValueError, match="Unsupported subset model"):
         select_product(manifest, "RRFS", 0)
+
+
+
+def test_download_accepts_grib_magic_split_across_chunks(tmp_path):
+    item = product(
+        "RAP", "2026-11-12T11:00:00Z", 0, "pressure_levels_conus_13km",
+        "rap.t11z.awp130pgrbf00.grib2",
+    )
+
+    class FakeResponse:
+        headers = {}
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def raise_for_status(self):
+            return None
+
+        def iter_content(self, chunk_size):
+            yield b"GR"
+            yield b"IB" + b"x" * 1000
+
+    class FakeSession:
+        def get(self, *args, **kwargs):
+            return FakeResponse()
+
+    result = download(FakeSession(), "RAP", item, tmp_path)
+    saved = Path(result["file"])
+
+    assert saved.read_bytes() == b"GRIB" + b"x" * 1000
+    assert result["bytes"] == 1004

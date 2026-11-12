@@ -110,8 +110,8 @@ def download(session, model, product, output_dir):
                 for chunk in response.iter_content(chunk_size=1024 * 1024):
                     if not chunk:
                         continue
-                    if not first:
-                        first = chunk[:4]
+                    if len(first) < 4:
+                        first += chunk[:4 - len(first)]
                     total += len(chunk)
                     if total > MAX_DOWNLOAD_BYTES:
                         raise RuntimeError(
