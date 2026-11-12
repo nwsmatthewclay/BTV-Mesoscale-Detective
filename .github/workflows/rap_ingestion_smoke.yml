@@ -1,0 +1,108 @@
+name: RAP BTV Ingestion and Forecast Archive
+
+on:
+  schedule:
+    - cron: '37 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "mesoscale/validate_rap_ingestion.py"
+      - "mesoscale/build_rap_forecast_archive.py"
+      - "mesoscale/data/model_manifest.json"
+      - "!mesoscale/data/fields/**"
+      - "mesoscale/process_grib.py"
+      - "mesoscale/extract_profile.py"
+      - "mesoscale/diagnostics.py"
+      - "mesoscale/tests/**"
+      - ".github/workflows/rap_ingestion_smoke.yml"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: mesoscale-data-updates
+  cancel-in-progress: false
+
+jobs:
+  rap-ingestion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install GRIB decoding dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests numpy xarray cfgrib eccodes metpy pytest
+      - name: Run mesoscale unit tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: pytest -q mesoscale/tests
+      - name: Rebase latest model discovery manifest
+        run: git pull --rebase origin main
+      - name: Download and decode current RAP pressure-level product
+        run: python mesoscale/validate_rap_ingestion.py
+      - name: Build verified multi-hour RAP forecast archive
+        run: python mesoscale/build_rap_forecast_archive.py --hours 0,3,6,9
+      - name: Publish verified RAP fields and KBTV profile
+        run: |
+          # Rebase before staging generated outputs. This avoids binary merge
+          # conflicts when a queued hourly run checked out an older gzip grid.
+          git pull --rebase origin main
+          mkdir -p mesoscale/data/fields
+          cp mesoscale/data/ingestion_smoke/rap_f*_btv.json.gz mesoscale/data/fields/rap_latest.json.gz
+          cp mesoscale/data/ingestion_smoke/rap_kbtv_profile.json mesoscale/data/fields/rap_kbtv_profile.json
+          cp mesoscale/data/ingestion_smoke/rap_station_profiles.json mesoscale/data/fields/rap_station_profiles.json
+          mkdir -p mesoscale/data/fields/forecast/fields
+          rm -f mesoscale/data/fields/forecast/rap_f*.json.gz mesoscale/data/fields/forecast/rap_f*_stations.json
+          cp mesoscale/data/forecast_archive/fields/rap_f*.json.gz mesoscale/data/fields/forecast/fields/
+          cp mesoscale/data/forecast_archive/fields/rap_f*_stations.json mesoscale/data/fields/forecast/fields/
+          cp mesoscale/data/forecast_archive/forecast_manifest.json mesoscale/data/fields/forecast/forecast_manifest.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A mesoscale/data/fields/
+          if git diff --cached --quiet; then
+            echo "Published RAP data unchanged."
+            exit 0
+          fi
+          git commit -m "Publish verified latest RAP BTV fields"
+          git push
+      - name: Upload ingestion report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rap-btv-ingestion-smoke-report
+          path: mesoscale/data/ingestion_smoke/
+          if-no-files-found: ignore
+
+  deploy-pages:
+    needs: rap-ingestion
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out latest published main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Deploy updated model data to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
