@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
-      PYTHONPATH: \${{ github.workspace }}
+      PYTHONPATH: ${{ github.workspace }}
     steps:
       - name: Check out latest repository state
         uses: actions/checkout@v4
@@ -45,7 +45,7 @@ jobs:
           python -m pip install requests numpy xarray cfgrib eccodes metpy pytest
       - name: Run RAP and HRRR validation tests
         env:
-          PYTHONPATH: \${{ github.workspace }}
+          PYTHONPATH: ${{ github.workspace }}
         run: pytest -q mesoscale/tests mesoscale/hrrr_tests
       - name: Download and validate four HRRR BTV surface forecast hours
         run: python mesoscale/validate_hrrr_archive.py --hours 0,3,6,9
@@ -146,7 +146,7 @@ jobs:
       id-token: write
     environment:
       name: github-pages
-      url: \${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Check out latest published main branch
         uses: actions/checkout@v4
