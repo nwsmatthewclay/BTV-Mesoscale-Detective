@@ -48,7 +48,9 @@ def test_model_discovery_orchestrates_rap_and_hrrr_ingestion_and_pages():
     rap = (ROOT / ".github" / "workflows" / "rap_ingestion_smoke.yml").read_text(encoding="utf-8")
     hrrr = (ROOT / ".github" / "workflows" / "hrrr_ingestion_smoke.yml").read_text(encoding="utf-8")
 
-    assert 'cron: "17 * * * *"' in discovery
+    # The scheduled ingestion orchestrator refreshes discovery before RAP selection.
+    assert 'cron: "47 * * * *"' in rap
+    assert "schedule:" not in discovery
     # Discovery must not share a concurrency group with the downstream RAP
     # workflow_run job; otherwise the queued child can cancel its parent.
     assert "group: mesoscale-model-discovery" in discovery
@@ -59,13 +61,12 @@ def test_model_discovery_orchestrates_rap_and_hrrr_ingestion_and_pages():
     assert '"mesoscale/download_subset.py"' in discovery
     assert '"mesoscale/data/model_manifest.json"' in discovery
     assert 'workflows: ["Mesoscale Model Discovery and Validation"]' in rap
-    assert 'if: github.event_name == \'workflow_dispatch\'' in rap
+    assert "if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'" in rap
     assert 'workflows: ["RAP BTV Ingestion and Forecast Archive"]' in hrrr
-    assert "schedule:" not in rap
     assert "schedule:" not in hrrr
 
     discover = rap.index("python mesoscale/discover_models.py --days-back 2 --index-latest")
-    manual_refresh = rap.index("if: github.event_name == 'workflow_dispatch'")
+    manual_refresh = rap.index("if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'")
     validate = rap.index("python mesoscale/validate_rap_ingestion.py")
     archive = rap.index("python mesoscale/build_rap_forecast_archive.py")
     assert manual_refresh < discover < validate < archive
@@ -77,6 +78,7 @@ def test_model_discovery_orchestrates_rap_and_hrrr_ingestion_and_pages():
     assert "archive_needs_update" in rap
     assert "steps.freshness.outputs.needs_update == 'true'" in rap
     assert "needs.rap-ingestion.outputs.published == 'true'" in rap
+    assert "needs.rap-ingestion.outputs.manifest_changed == 'true'" in rap
     assert "archive_needs_update" in hrrr
     assert "needs.hrrr-smoke.outputs.needs_update == 'true'" in hrrr
 
