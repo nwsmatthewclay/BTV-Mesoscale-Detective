@@ -13,7 +13,6 @@ import json
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
-import cfgrib
 import numpy as np
 
 DOMAIN = {"west": -75.2, "east": -71.2, "south": 42.3, "north": 45.3}
@@ -38,6 +37,7 @@ def attr_value(value):
 
 def process_file(path: Path, model: str, cycle: str, forecast_hour: int,
                  output: Path, max_grid_dim: int = 160):
+    import cfgrib
     datasets = cfgrib.open_datasets(str(path), backend_kwargs={"indexpath": ""})
     fields = {}
     grids = {}
