@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import gzip
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -30,25 +31,30 @@ STATIONS = {
     "1V4": (44.4193, -72.0194), "KEFK": (44.8888, -72.2292),
 }
 HOURS = (0, 3, 6, 9)
+HYBRID_FILENAME_RE = re.compile(r"rap\\.t\\d{2}z\\.awp130bgrbf\\d{2,3}\\.grib2$")
 MAX_BYTES = 180_000_000
 
 
 def choose_cycle_products(manifest: dict, hours: tuple[int, ...]) -> tuple[str, list[dict]]:
     products = manifest["models"]["RAP"]["latest_products"]
-    valid = [p for p in products if p.get("url") and p.get("product") == "north_american_32km"]
+    # Select by the actual NOMADS filename token, not a loosely named
+    # manifest family. awp130bgrb is the verified 13-km native/hybrid-level
+    # product; awip32 does not provide the hybrid column required for soundings.
+    valid = [
+        p for p in products
+        if p.get("url") and HYBRID_FILENAME_RE.fullmatch(p.get("filename", ""))
+    ]
     if not valid:
-        raise RuntimeError("No RAP hybrid-level North American 32-km files found in model manifest")
+        raise RuntimeError("No RAP 13-km CONUS hybrid-level files found in model manifest")
     cycles = sorted({p["cycle_utc"] for p in valid}, reverse=True)
     for cycle in cycles:
         cycle_items = [p for p in valid if p["cycle_utc"] == cycle]
-        families = sorted({p["product"] for p in cycle_items})
-        for family in families:
-            family_items = [p for p in cycle_items if p["product"] == family]
-            by_hour = {int(p["forecast_hour"]): p for p in family_items}
-            selected = [by_hour[h] for h in hours if h in by_hour]
-            if len(selected) >= 2:
-                return cycle, selected
-    raise RuntimeError("No single RAP North American 32-km cycle contains the requested forecast hours")
+        by_hour = {int(p["forecast_hour"]): p for p in cycle_items}
+        if all(hour in by_hour for hour in hours):
+            return cycle, [by_hour[hour] for hour in hours]
+    raise RuntimeError(
+        "No single RAP 13-km CONUS hybrid-level cycle contains all requested forecast hours"
+    )
 
 
 def download(url: str, destination: Path, session: requests.Session) -> int:

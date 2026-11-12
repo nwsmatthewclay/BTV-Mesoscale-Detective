@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -25,10 +26,13 @@ def choose_product(manifest: dict) -> dict:
     candidates = [
         p for p in products
         if p.get("index", {}).get("message_count", 0) > 0
-        and p.get("product") in {"pressure_levels_conus_early", "pressure_levels_conus"}
+        and re.fullmatch(
+            r"rap\\.t\\d{2}z\\.awp130bgrbf\\d{2,3}\\.grib2",
+            p.get("filename", ""),
+        )
     ]
     if not candidates:
-        raise RuntimeError("No indexed RAP pressure-level product is available in the manifest")
+        raise RuntimeError("No indexed RAP 13-km CONUS hybrid-level product is available in the manifest")
     return max(candidates, key=lambda p: (p["cycle_utc"], p["forecast_hour"]))
 
 

@@ -72,6 +72,19 @@ def index_summary(session: requests.Session, grib_url: str) -> dict:
     return {"url": idx_url, "message_count": len(messages), "messages": messages}
 
 
+def rap_product_role(family: str) -> str:
+    """Return the physical RAP product family represented by its filename token.
+
+    awp130bgrb contains native/hybrid model levels (used for soundings);
+    awp130pgrb is pressure-level output; awip32 is a separate 32-km product.
+    """
+    return {
+        "awp130bgrb": "hybrid_levels_conus_13km",
+        "awp130pgrb": "pressure_levels_conus_13km",
+        "awip32": "north_american_32km",
+    }[family]
+
+
 def discover_model(session, model, days_back):
     found = []
     today = datetime.now(timezone.utc).date()
@@ -80,9 +93,9 @@ def discover_model(session, model, days_back):
         date_str = day.strftime("%Y%m%d")
         if model == "RAP":
             directory = f"{BASE}/rap/prod/rap.{date_str}/"
-            # Operational 13-km CONUS RAP pressure products use two
-            # filename families: awp130bgrb (early hours) and awp130pgrb.
-            # awip32 is retained as a lower-resolution North American fallback.
+            # Operational 13-km CONUS RAP includes native hybrid-level
+            # awp130bgrb and isobaric awp130pgrb products. awip32 is a
+            # separate 32-km product and must not be treated as a sounding source.
             pattern = RAP_FILENAME_RE
         else:
             directory = f"{BASE}/hrrr/prod/hrrr.{date_str}/conus/"
@@ -101,11 +114,7 @@ def discover_model(session, model, days_back):
                 continue
             if model == "RAP":
                 cycle, family, forecast = match.groups()
-                product_role = {
-                    "awp130bgrb": "pressure_levels_conus_early",
-                    "awp130pgrb": "pressure_levels_conus",
-                    "awip32": "north_american_32km",
-                }[family]
+                product_role = rap_product_role(family)
             else:
                 cycle, family, forecast = match.groups()
                 product_role = "pressure_levels" if family == "wrfprsf" else "surface"

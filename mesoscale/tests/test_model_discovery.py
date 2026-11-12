@@ -1,4 +1,4 @@
-from mesoscale.discover_models import RAP_FILENAME_RE
+from mesoscale.discover_models import RAP_FILENAME_RE, rap_product_role
 from mesoscale.discover_models import RRFS_CYCLE_DIR_RE, RRFS_FILENAME_RE
 
 
@@ -29,3 +29,10 @@ def test_rap_operational_filename_families():
     assert later.groups() == ("12", "awp130pgrb", "18")
     assert fallback.groups() == ("12", "awip32", "18")
     assert RAP_FILENAME_RE.fullmatch("rap.t12z.wrfprs.f18.grib2") is None
+
+
+
+def test_rap_product_roles_distinguish_hybrid_and_pressure_level_files():
+    assert rap_product_role("awp130bgrb") == "hybrid_levels_conus_13km"
+    assert rap_product_role("awp130pgrb") == "pressure_levels_conus_13km"
+    assert rap_product_role("awip32") == "north_american_32km"
