@@ -102,8 +102,8 @@ class FakeIndexSession:
 
 def test_index_summary_parses_only_valid_nomads_grib_index_records():
     session = FakeIndexSession(
-        "1:0:d=2026111216:TMP:2 m above ground:anl:\\n"
-        "12.1:801427:d=2026111216:UGRD:100 mb:anl:\\n"
+        "1:0:d=2026111216:TMP:2 m above ground:anl:\n"
+        "12.1:801427:d=2026111216:UGRD:100 mb:anl:\n"
     )
 
     result = index_summary(session, "https://example.test/rap.grib2")

@@ -58,13 +58,13 @@ def index_summary(session: requests.Session, grib_url: str) -> dict:
     idx_url = grib_url + ".idx"
     response = session.get(idx_url, timeout=TIMEOUT)
     response.raise_for_status()
-    lines = [line.strip().lstrip("\\ufeff") for line in response.text.splitlines() if line.strip()]
+    lines = [line.strip().lstrip("\ufeff") for line in response.text.splitlines() if line.strip()]
     messages = []
     for line in lines:
         parts = line.split(":")
         if (
             len(parts) < 5
-            or not re.fullmatch(r"\\d+(?:\\.\\d+)?", parts[0])
+            or not re.fullmatch(r"\d+(?:\.\d+)?", parts[0])
             or not parts[1].isdigit()
             or not parts[2].startswith("d=")
             or not parts[3].strip()
