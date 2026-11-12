@@ -11,7 +11,10 @@ import numpy as np
 import metpy.calc as mpcalc
 from metpy.units import units
 
-from diagnostics import diagnose_profile
+if __package__:
+    from .diagnostics import diagnose_profile
+else:  # Support direct execution as a script.
+    from diagnostics import diagnose_profile
 
 
 def write_profile_json(result: dict, output: str | Path) -> None:
