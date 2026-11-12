@@ -6,14 +6,24 @@ on:
     paths:
       - "mesoscale/discover_models.py"
       - "mesoscale/validate_rap_ingestion.py"
+      - "mesoscale/build_rap_forecast_archive.py"
+      - "mesoscale/process_grib.py"
+      - "mesoscale/extract_profile.py"
+      - "mesoscale/diagnostics.py"
+      - "mesoscale/download_subset.py"
+      - "mesoscale/data/model_manifest.json"
       - "mesoscale/tests/**"
       - ".github/workflows/mesoscale_model_discovery.yml"
+      - ".github/workflows/rap_ingestion_smoke.yml"
+      - ".github/workflows/hrrr_ingestion_smoke.yml"
   workflow_dispatch:
   schedule:
     - cron: "17 * * * *"
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: mesoscale-data-updates
@@ -41,6 +51,8 @@ jobs:
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      manifest_changed: ${{ steps.commit_manifest.outputs.changed }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -55,13 +67,42 @@ jobs:
       - name: Discover latest RAP, HRRR and RRFS products
         run: python mesoscale/discover_models.py --days-back 2 --index-latest
       - name: Commit updated model manifest
+        id: commit_manifest
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add mesoscale/data/model_manifest.json
           if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "Model manifest unchanged."
             exit 0
           fi
           git commit -m "Update RAP, HRRR and RRFS discovery manifest"
           git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+  deploy-pages:
+    needs: discover
+    if: needs.discover.outputs.manifest_changed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out latest published main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Deploy updated model discovery manifest to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -18,6 +18,15 @@ def test_hrrr_surface_parameter_and_hour_switching():
             "() => window.rapGridPayload && window.rapGridPayload.model === 'RAP'",
             timeout=45000,
         )
+        assert page.evaluate(
+            """async () => {
+                const manifest = await (await fetch(
+                    './mesoscale/data/fields/forecast/forecast_manifest.json'
+                )).json();
+                return window.rapGridPayload.model_cycle_utc === manifest.model_cycle_utc
+                    && Number(window.rapGridPayload.forecast_hour) === 0;
+            }"""
+        ), "RAP grid payload must match the published archive cycle and F00"
 
         page.locator("#model").select_option("HRRR")
         page.wait_for_function(

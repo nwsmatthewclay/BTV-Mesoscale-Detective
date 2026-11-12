@@ -6,17 +6,12 @@ on:
     paths:
       - "mesoscale/validate_hrrr_ingestion.py"
       - "mesoscale/validate_hrrr_archive.py"
-      - "mesoscale/download_subset.py"
-      - "mesoscale/process_grib.py"
       - "mesoscale/hrrr_tests/**"
-      - ".github/workflows/hrrr_ingestion_smoke.yml"
   workflow_run:
     workflows: ["RAP BTV Ingestion and Forecast Archive"]
     types: [completed]
     branches: [main]
   workflow_dispatch:
-  schedule:
-    - cron: "47 * * * *"
 
 permissions:
   contents: read

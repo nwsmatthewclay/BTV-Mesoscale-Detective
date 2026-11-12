@@ -168,8 +168,10 @@ async function loadRapGrid(hour=activeRapHour){
       if(!('DecompressionStream' in window))throw new Error('This browser cannot decompress the published gzip RAP grid');
       const stream=r.body.pipeThrough(new DecompressionStream('gzip'));
       const payload=await new Response(stream).json();
-      if(!payload.fields||!payload.grids)throw new Error('RAP grid payload is missing fields or grids');
+      if(payload.model!=='RAP')throw new Error('RAP grid payload model mismatch: '+(payload.model||'unknown'));
+      if(useArchive&&payload.model_cycle_utc!==rapForecastManifest.model_cycle_utc)throw new Error('RAP grid cycle does not match the selected archive');
       if(useArchive&&Number(payload.forecast_hour)!==selectedHour)throw new Error('Requested F'+selectedHour+' but file contains F'+payload.forecast_hour);
+      if(!payload.fields||!payload.grids)throw new Error('RAP grid payload is missing fields or grids');
       window.rapGridPayload=payload;return payload;
     })().catch(e=>{delete rapGridPayloadPromises[key];throw e;});
   }
