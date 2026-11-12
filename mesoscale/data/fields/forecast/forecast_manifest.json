@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "model": "RAP",
-  "model_cycle_utc": "20261112T16:00:00Z",
-  "created_utc": "2026-11-12T17:59:25.938716+00:00",
+  "model_cycle_utc": "20261112T17:00:00Z",
+  "created_utc": "2026-11-12T18:07:17.764829+00:00",
   "domain": {
     "west": -75.2,
     "east": -71.2,
@@ -12,9 +12,9 @@
   "hours": [
     {
       "forecast_hour": 0,
-      "valid_time_utc": "2026-11-12T16:00:00Z",
-      "source_file": "rap.t16z.awp130bgrbf00.grib2",
-      "download_bytes": 40216985,
+      "valid_time_utc": "2026-11-12T17:00:00Z",
+      "source_file": "rap.t17z.awp130bgrbf00.grib2",
+      "download_bytes": 40138181,
       "grid_file": "fields/rap_f00.json.gz",
       "station_file": "fields/rap_f00_stations.json",
       "field_count": 58,
@@ -23,9 +23,9 @@
     },
     {
       "forecast_hour": 3,
-      "valid_time_utc": "2026-11-12T19:00:00Z",
-      "source_file": "rap.t16z.awp130bgrbf03.grib2",
-      "download_bytes": 40549243,
+      "valid_time_utc": "2026-11-12T20:00:00Z",
+      "source_file": "rap.t17z.awp130bgrbf03.grib2",
+      "download_bytes": 40345459,
       "grid_file": "fields/rap_f03.json.gz",
       "station_file": "fields/rap_f03_stations.json",
       "field_count": 58,
@@ -34,9 +34,9 @@
     },
     {
       "forecast_hour": 6,
-      "valid_time_utc": "2026-11-12T22:00:00Z",
-      "source_file": "rap.t16z.awp130bgrbf06.grib2",
-      "download_bytes": 40783786,
+      "valid_time_utc": "2026-11-12T23:00:00Z",
+      "source_file": "rap.t17z.awp130bgrbf06.grib2",
+      "download_bytes": 40667747,
       "grid_file": "fields/rap_f06.json.gz",
       "station_file": "fields/rap_f06_stations.json",
       "field_count": 58,
@@ -45,9 +45,9 @@
     },
     {
       "forecast_hour": 9,
-      "valid_time_utc": "2026-11-13T01:00:00Z",
-      "source_file": "rap.t16z.awp130bgrbf09.grib2",
-      "download_bytes": 40683174,
+      "valid_time_utc": "2026-11-13T02:00:00Z",
+      "source_file": "rap.t17z.awp130bgrbf09.grib2",
+      "download_bytes": 40914332,
       "grid_file": "fields/rap_f09.json.gz",
       "station_file": "fields/rap_f09_stations.json",
       "field_count": 58,
