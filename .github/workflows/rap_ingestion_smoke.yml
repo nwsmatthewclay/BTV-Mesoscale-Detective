@@ -43,6 +43,7 @@ jobs:
           mkdir -p mesoscale/data/fields
           cp mesoscale/data/ingestion_smoke/rap_f*_btv.json.gz mesoscale/data/fields/rap_latest.json.gz
           cp mesoscale/data/ingestion_smoke/rap_kbtv_profile.json mesoscale/data/fields/rap_kbtv_profile.json
+          cp mesoscale/data/ingestion_smoke/rap_station_profiles.json mesoscale/data/fields/rap_station_profiles.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add mesoscale/data/fields/
