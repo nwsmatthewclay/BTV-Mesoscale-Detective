@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "created_utc": "2026-11-12T18:19:39.312904+00:00",
+  "created_utc": "2026-11-12T18:24:03.082155+00:00",
   "source": "NCEP NOMADS operational production directories",
   "domain": {
     "west": -75.2,
@@ -14854,7 +14854,7 @@
       ]
     },
     "HRRR": {
-      "products_found": 2010,
+      "products_found": 2014,
       "latest_products": [
         {
           "model": "HRRR",
@@ -21305,6 +21305,42 @@
         {
           "model": "HRRR",
           "date": "20261112",
+          "cycle_utc": "20261112T17:00:00Z",
+          "forecast_hour": 16,
+          "product": "surface",
+          "filename": "hrrr.t17z.wrfsfcf16.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t17z.wrfsfcf16.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261112",
+          "cycle_utc": "20261112T17:00:00Z",
+          "forecast_hour": 16,
+          "product": "pressure_levels",
+          "filename": "hrrr.t17z.wrfprsf16.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t17z.wrfprsf16.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261112",
+          "cycle_utc": "20261112T17:00:00Z",
+          "forecast_hour": 17,
+          "product": "surface",
+          "filename": "hrrr.t17z.wrfsfcf17.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t17z.wrfsfcf17.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261112",
+          "cycle_utc": "20261112T17:00:00Z",
+          "forecast_hour": 17,
+          "product": "pressure_levels",
+          "filename": "hrrr.t17z.wrfprsf17.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t17z.wrfprsf17.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261112",
           "cycle_utc": "20261112T16:00:00Z",
           "forecast_hour": 0,
           "product": "surface",
@@ -22057,42 +22093,6 @@
           "product": "pressure_levels",
           "filename": "hrrr.t14z.wrfprsf03.grib2",
           "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t14z.wrfprsf03.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261112",
-          "cycle_utc": "20261112T14:00:00Z",
-          "forecast_hour": 4,
-          "product": "surface",
-          "filename": "hrrr.t14z.wrfsfcf04.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t14z.wrfsfcf04.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261112",
-          "cycle_utc": "20261112T14:00:00Z",
-          "forecast_hour": 4,
-          "product": "pressure_levels",
-          "filename": "hrrr.t14z.wrfprsf04.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t14z.wrfprsf04.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261112",
-          "cycle_utc": "20261112T14:00:00Z",
-          "forecast_hour": 5,
-          "product": "surface",
-          "filename": "hrrr.t14z.wrfsfcf05.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t14z.wrfsfcf05.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261112",
-          "cycle_utc": "20261112T14:00:00Z",
-          "forecast_hour": 5,
-          "product": "pressure_levels",
-          "filename": "hrrr.t14z.wrfprsf05.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t14z.wrfprsf05.grib2"
         }
       ],
       "directory_errors": [
