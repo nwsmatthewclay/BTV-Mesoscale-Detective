@@ -2,7 +2,7 @@
   "schema_version": 1,
   "model": "RAP",
   "model_cycle_utc": "20261112T17:00:00Z",
-  "created_utc": "2026-11-12T18:07:17.764829+00:00",
+  "created_utc": "2026-11-12T18:32:01.321209+00:00",
   "domain": {
     "west": -75.2,
     "east": -71.2,
@@ -53,10 +53,32 @@
       "field_count": 58,
       "grid_count": 12,
       "station_count": 8
+    },
+    {
+      "forecast_hour": 12,
+      "valid_time_utc": "2026-11-13T05:00:00Z",
+      "source_file": "rap.t17z.awp130bgrbf12.grib2",
+      "download_bytes": 41257690,
+      "grid_file": "fields/rap_f12.json.gz",
+      "station_file": "fields/rap_f12_stations.json",
+      "field_count": 58,
+      "grid_count": 12,
+      "station_count": 8
+    },
+    {
+      "forecast_hour": 15,
+      "valid_time_utc": "2026-11-13T08:00:00Z",
+      "source_file": "rap.t17z.awp130bgrbf15.grib2",
+      "download_bytes": 41978912,
+      "grid_file": "fields/rap_f15.json.gz",
+      "station_file": "fields/rap_f15_stations.json",
+      "field_count": 58,
+      "grid_count": 12,
+      "station_count": 8
     }
   ],
   "quality": {
     "status": "passed",
-    "hours_verified": 4
+    "hours_verified": 6
   }
 }
