@@ -1,3 +1,6 @@
+import gzip
+import json
+
 import pytest
 
 from datetime import datetime, timedelta, timezone
@@ -18,6 +21,32 @@ def product(cycle, hour, family="surface"):
         "filename": f"hrrr.t15z.{token}f{hour:02d}.grib2",
         "url": f"https://example.test/{token}/f{hour:02d}.grib2",
     }
+
+
+def write_hrrr_archive_files(archive_root, archive):
+    for entry in archive["hours"]:
+        path = archive_root / entry["grid_file"]
+        path.parent.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "model": "HRRR",
+            "model_cycle_utc": archive["model_cycle_utc"],
+            "forecast_hour": entry["forecast_hour"],
+            "valid_time_utc": entry["valid_time_utc"],
+            "grids": {
+                "btv": {
+                    "latitude": [[44.5]],
+                    "longitude": [[-73.2]],
+                }
+            },
+            "fields": {
+                "temperature": {"short_name": "2t", "data": [[280.0]]},
+                "u_wind": {"short_name": "10u", "data": [[1.0]]},
+                "v_wind": {"short_name": "10v", "data": [[-1.0]]},
+            },
+            "quality": {"field_count": 3, "grid_count": 1, "warnings": []},
+        }
+        with gzip.open(path, "wt", encoding="utf-8") as stream:
+            json.dump(payload, stream)
 
 
 def test_hrrr_archive_selects_latest_cycle_with_all_requested_hours():
@@ -80,6 +109,8 @@ def published_hrrr_archive(cycle, hours=(0, 3, 6, 9), publishing=True, quality="
                 "forecast_hour": hour,
                 "valid_time_utc": valid_time(cycle, hour),
                 "grid_file": f"hrrr_f{hour:02d}_btv.json.gz",
+                "field_count": 3,
+                "grid_count": 1,
                 "required_field_groups": required,
             }
             for hour in hours
@@ -249,16 +280,30 @@ def test_hrrr_freshness_rebuilds_when_a_referenced_grid_is_missing(tmp_path):
     archive = published_hrrr_archive(cycle)
     archive_root = tmp_path / "hrrr"
 
-    for entry in archive["hours"]:
-        path = archive_root / entry["grid_file"]
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes(b"verified test fixture")
+    write_hrrr_archive_files(archive_root, archive)
 
     assert archive_needs_update(
         manifest, archive, (0, 3, 6, 9), archive_root=archive_root
     )[0] is False
 
     (archive_root / archive["hours"][0]["grid_file"]).unlink()
+    assert archive_needs_update(
+        manifest, archive, (0, 3, 6, 9), archive_root=archive_root
+    )[0] is True
+
+
+def test_hrrr_freshness_rebuilds_when_published_grid_is_corrupt(tmp_path):
+    cycle = "20261112T16:00:00Z"
+    manifest = {"models": {"HRRR": {"latest_products": [
+        *[product(cycle, hour) for hour in (0, 3, 6, 9)],
+    ]}}}
+    archive = published_hrrr_archive(cycle)
+    archive_root = tmp_path / "hrrr"
+    write_hrrr_archive_files(archive_root, archive)
+
+    grid_path = archive_root / archive["hours"][0]["grid_file"]
+    grid_path.write_bytes(b"truncated gzip data")
+
     assert archive_needs_update(
         manifest, archive, (0, 3, 6, 9), archive_root=archive_root
     )[0] is True
