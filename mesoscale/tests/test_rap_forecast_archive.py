@@ -17,7 +17,7 @@ def test_archive_selects_requested_hours_from_one_cycle_and_family():
         product("2026-11-12T10:00:00Z", 3),
         product("2026-11-12T09:00:00Z", 0),
     ]}}}
-    cycle, chosen = choose_cycle_products(manifest, (0, 3, 6, 9))
+    cycle, chosen = choose_cycle_products(manifest, (3, 6, 9))
     assert cycle == "2026-11-12T10:00:00Z"
     assert [p["forecast_hour"] for p in chosen] == [3, 6, 9]
 
@@ -25,9 +25,9 @@ def test_archive_selects_requested_hours_from_one_cycle_and_family():
 def test_archive_does_not_mix_product_families():
     manifest = {"models": {"RAP": {"latest_products": [
         product("2026-11-12T10:00:00Z", 0, "north_american_32km"),
-        product("2026-11-12T10:00:00Z", 3, "north_american_32km"),
+        product("2026-11-12T10:00:00Z", 3, "pressure_levels_conus"),
         product("2026-11-12T10:00:00Z", 6, "north_american_32km"),
     ]}}}
-    cycle, chosen = choose_cycle_products(manifest, (0, 3, 6))
-    assert cycle == "2026-11-12T10:00:00Z"
-    assert [p["forecast_hour"] for p in chosen] == [0, 6]
+    import pytest
+    with pytest.raises(RuntimeError, match="North American 32-km"):
+        choose_cycle_products(manifest, (0, 3, 6))
