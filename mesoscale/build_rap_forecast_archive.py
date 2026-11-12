@@ -35,11 +35,9 @@ MAX_BYTES = 180_000_000
 
 def choose_cycle_products(manifest: dict, hours: tuple[int, ...]) -> tuple[str, list[dict]]:
     products = manifest["models"]["RAP"]["latest_products"]
-    valid = [p for p in products if p.get("url") and p.get("product") in {
-        "pressure_levels_conus_early", "pressure_levels_conus"
-    }]
+    valid = [p for p in products if p.get("url") and p.get("product") == "north_american_32km"]
     if not valid:
-        raise RuntimeError("No RAP pressure-level files found in model manifest")
+        raise RuntimeError("No RAP hybrid-level North American 32-km files found in model manifest")
     cycles = sorted({p["cycle_utc"] for p in valid}, reverse=True)
     for cycle in cycles:
         cycle_items = [p for p in valid if p["cycle_utc"] == cycle]
@@ -50,7 +48,7 @@ def choose_cycle_products(manifest: dict, hours: tuple[int, ...]) -> tuple[str, 
             selected = [by_hour[h] for h in hours if h in by_hour]
             if len(selected) >= 2:
                 return cycle, selected
-    raise RuntimeError("No single RAP cycle/product family contains at least two requested forecast hours")
+    raise RuntimeError("No single RAP North American 32-km cycle contains the requested forecast hours")
 
 
 def download(url: str, destination: Path, session: requests.Session) -> int:
