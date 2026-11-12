@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - "mesoscale/discover_models.py"
+      - "mesoscale/validate_rap_ingestion.py"
+      - "mesoscale/tests/**"
       - ".github/workflows/mesoscale_model_discovery.yml"
   workflow_dispatch:
   schedule:

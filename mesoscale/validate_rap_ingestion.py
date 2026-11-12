@@ -8,7 +8,6 @@ import re
 import sys
 from pathlib import Path
 
-import cfgrib
 import requests
 
 # Allow this script to run directly from the repository root in GitHub Actions.
@@ -125,6 +124,7 @@ def main() -> None:
     if target.stat().st_size < 100_000:
         raise RuntimeError(f"Downloaded GRIB is unexpectedly small: {target.stat().st_size} bytes")
 
+    import cfgrib
     datasets = cfgrib.open_datasets(str(target), backend_kwargs={"indexpath": ""})
     inventory = []
     btv_datasets = []
