@@ -238,3 +238,49 @@ def test_hrrr_archive_aligns_six_forecast_points_to_rap_valid_times():
 
     assert selected_cycle == cycle
     assert [item["forecast_hour"] for item in selected] == list(hours)
+
+
+
+def test_hrrr_freshness_rebuilds_when_a_referenced_grid_is_missing(tmp_path):
+    cycle = "20261112T16:00:00Z"
+    manifest = {"models": {"HRRR": {"latest_products": [
+        *[product(cycle, hour) for hour in (0, 3, 6, 9)],
+    ]}}}
+    archive = published_hrrr_archive(cycle)
+    archive_root = tmp_path / "hrrr"
+
+    for entry in archive["hours"]:
+        path = archive_root / entry["grid_file"]
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"verified test fixture")
+
+    assert archive_needs_update(
+        manifest, archive, (0, 3, 6, 9), archive_root=archive_root
+    )[0] is False
+
+    (archive_root / archive["hours"][0]["grid_file"]).unlink()
+    assert archive_needs_update(
+        manifest, archive, (0, 3, 6, 9), archive_root=archive_root
+    )[0] is True
+
+
+def test_hrrr_freshness_rebuilds_archive_with_inconsistent_valid_times():
+    cycle = "20261112T16:00:00Z"
+    manifest = {"models": {"HRRR": {"latest_products": [
+        *[product(cycle, hour) for hour in (0, 3, 6, 9)],
+    ]}}}
+    archive = published_hrrr_archive(cycle)
+    archive["hours"][1]["valid_time_utc"] = "2026-11-12T18:59:00Z"
+
+    assert archive_needs_update(manifest, archive, (0, 3, 6, 9))[0] is True
+
+
+def test_hrrr_freshness_treats_malformed_quality_metadata_as_stale():
+    cycle = "20261112T16:00:00Z"
+    manifest = {"models": {"HRRR": {"latest_products": [
+        *[product(cycle, hour) for hour in (0, 3, 6, 9)],
+    ]}}}
+    archive = published_hrrr_archive(cycle)
+    archive["quality"] = "passed"
+
+    assert archive_needs_update(manifest, archive, (0, 3, 6, 9))[0] is True

@@ -63,7 +63,8 @@ jobs:
           archive_path = Path("mesoscale/data/fields/hrrr/hrrr_forecast_manifest.json")
           existing = json.loads(archive_path.read_text(encoding="utf-8")) if archive_path.exists() else None
           needs_update, target_cycle = archive_needs_update(
-              model_manifest, existing, (0, 3, 6, 9), valid_times=tuple(target_valid_times)
+              model_manifest, existing, (0, 3, 6, 9),
+              valid_times=tuple(target_valid_times), archive_root=archive_path.parent
           )
           if os.environ.get("EVENT_NAME") == "workflow_dispatch":
               needs_update = True

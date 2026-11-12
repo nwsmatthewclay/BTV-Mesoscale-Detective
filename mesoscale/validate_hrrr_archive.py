@@ -129,8 +129,9 @@ def archive_needs_update(
     existing_archive: dict | None,
     hours: tuple[int, ...],
     valid_times: tuple[str, ...] | None = None,
+    archive_root: Path | None = None,
 ) -> tuple[bool, str]:
-    """Skip a rebuild only when the published HRRR archive matches the target valid times."""
+    """Skip rebuilding only when HRRR metadata and every referenced grid are complete."""
     if valid_times:
         target_cycle, selected = choose_cycle_products_for_valid_times(manifest, valid_times)
         expected_valid_times = tuple(_format_valid_time(value) for value in valid_times)
@@ -140,39 +141,71 @@ def archive_needs_update(
         expected_valid_times = None
         expected_hours = tuple(sorted(int(product["forecast_hour"]) for product in selected))
 
-    if not isinstance(existing_archive, dict):
+    target_cycle_time = _parse_cycle_utc(target_cycle)
+    if target_cycle_time is None or not isinstance(existing_archive, dict):
         return True, target_cycle
 
-    entries = existing_archive.get("hours") or []
+    entries = existing_archive.get("hours")
+    if not isinstance(entries, list):
+        return True, target_cycle
     try:
         archived_hours = tuple(sorted(int(item["forecast_hour"]) for item in entries))
         archived_valid_times = tuple(_format_valid_time(item["valid_time_utc"]) for item in entries)
     except (KeyError, TypeError, ValueError):
         return True, target_cycle
 
+    existing_cycle = existing_archive.get("model_cycle_utc")
+    try:
+        existing_cycle_time = _parse_cycle_utc(existing_cycle)
+    except (TypeError, ValueError):
+        existing_cycle_time = None
+
     required_groups = {"2-m temperature", "10-m u wind", "10-m v wind"}
+    def referenced_grid_exists(value: object) -> bool:
+        if not isinstance(value, str) or not value:
+            return False
+        relative = Path(value)
+        if relative.is_absolute() or ".." in relative.parts:
+            return False
+        return archive_root is None or (archive_root / relative).is_file()
+
     files_complete = (
         len(entries) == len(expected_hours)
-        and all(item.get("grid_file") for item in entries)
-        and all(required_groups.issubset(set((item.get("required_field_groups") or {}).keys()))
-                for item in entries)
+        and archived_hours == expected_hours
+        and all(
+            isinstance(item.get("required_field_groups"), dict)
+            and required_groups.issubset(set(item["required_field_groups"]))
+            and referenced_grid_exists(item.get("grid_file"))
+            for item in entries
+        )
     )
-    quality_passed = (existing_archive.get("quality") or {}).get("status") == "passed"
-    existing_cycle = existing_archive.get("model_cycle_utc")
-    valid_times_match = expected_valid_times is None or archived_valid_times == expected_valid_times
+    if expected_valid_times is not None:
+        valid_times_match = archived_valid_times == expected_valid_times
+    elif existing_cycle_time is not None:
+        expected_from_cycle = tuple(
+            (existing_cycle_time + timedelta(hours=int(item["forecast_hour"]))).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            )
+            for item in entries
+        )
+        valid_times_match = archived_valid_times == expected_from_cycle
+    else:
+        valid_times_match = False
+
+    quality = existing_archive.get("quality")
+    quality_passed = isinstance(quality, dict) and quality.get("status") == "passed"
     archive_is_current = (
         existing_archive.get("model") == "HRRR"
         and existing_archive.get("product") == "surface"
         and existing_archive.get("publishing") is True
-        and isinstance(existing_cycle, str)
-        and existing_cycle >= target_cycle
+        and existing_cycle_time is not None
+        and existing_cycle_time >= target_cycle_time
         and archived_hours == expected_hours
         and valid_times_match
         and files_complete
         and quality_passed
     )
     return not archive_is_current, target_cycle
-
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
