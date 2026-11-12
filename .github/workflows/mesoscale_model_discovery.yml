@@ -92,6 +92,9 @@ jobs:
   deploy-pages:
     needs: discover
     if: needs.discover.outputs.manifest_changed == 'true'
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -111,6 +114,8 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: .
+      - name: Wait for GitHub Pages artifact metadata
+        run: sleep 10
       - name: Deploy updated model discovery manifest to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

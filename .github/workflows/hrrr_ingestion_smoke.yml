@@ -202,8 +202,47 @@ jobs:
           git commit -m "Publish verified HRRR BTV surface archive"
           git push
 
+  browser-smoke:
+    needs: [hrrr-smoke, publish-hrrr]
+    if: >-
+      always() &&
+      needs.hrrr-smoke.result == 'success' &&
+      (needs.publish-hrrr.result == 'success' || needs.publish-hrrr.result == 'skipped')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out latest published main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Playwright and Chromium
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest playwright
+          python -m playwright install --with-deps chromium
+      - name: Start local dashboard server
+        run: |
+          python -m http.server 8765 --bind 127.0.0.1 > /tmp/mesoscale-http.log 2>&1 &
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:8765/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/mesoscale-http.log
+          exit 1
+      - name: Exercise every published RAP and HRRR forecast hour
+        run: pytest -q mesoscale/browser_tests
+
   deploy-pages:
     needs: publish-hrrr
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -223,6 +262,8 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: .
+      - name: Wait for GitHub Pages artifact metadata
+        run: sleep 10
       - name: Deploy updated HRRR data to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
