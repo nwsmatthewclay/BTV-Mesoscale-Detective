@@ -14,6 +14,16 @@ from metpy.units import units
 from diagnostics import diagnose_profile
 
 
+def write_profile_json(result: dict, output: str | Path) -> None:
+    """Write a profile as strict JSON with a real trailing newline."""
+    target = Path(output)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(
+        json.dumps(result, indent=2, allow_nan=False) + "\n",
+        encoding="utf-8",
+    )
+
+
 def nearest_grid_index(grid: dict, latitude: float, longitude: float):
     lat = np.asarray(grid["latitude"], dtype=float)
     lon = np.asarray(grid["longitude"], dtype=float)
@@ -150,8 +160,7 @@ def main():
     with gzip.open(args.input, "rt", encoding="utf-8") as stream:
         payload = json.load(stream)
     result = extract_profile(payload, args.latitude, args.longitude, args.label)
-    Path(args.output).parent.mkdir(parents=True, exist_ok=True)
-    Path(args.output).write_text(json.dumps(result, indent=2, allow_nan=False) + "\\n", encoding="utf-8")
+    write_profile_json(result, args.output)
     print(json.dumps({
         "label": result["label"],
         "sampled_grid_point": result["sampled_grid_point"],

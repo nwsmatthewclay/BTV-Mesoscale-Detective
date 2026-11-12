@@ -1,6 +1,9 @@
+import json
+
 import pytest
 
 from mesoscale.diagnostics import _finite_profile
+from mesoscale.extract_profile import write_profile_json
 
 
 def test_profile_rejects_mismatched_arrays():
@@ -33,3 +36,15 @@ def test_specific_humidity_precision_is_preserved():
 
     values = json_values(np.array([0.00345678]), decimals=7)
     assert values == [0.0034568]
+
+
+
+def test_profile_json_writer_writes_parseable_json(tmp_path):
+    output = tmp_path / "nested" / "profile.json"
+    profile = {"model": "RAP", "forecast_hour": 3, "quality": {"levels": 50}}
+
+    write_profile_json(profile, output)
+
+    serialized = output.read_text(encoding="utf-8")
+    assert serialized.endswith("\n")
+    assert json.loads(serialized) == profile
