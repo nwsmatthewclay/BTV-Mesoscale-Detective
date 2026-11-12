@@ -2,8 +2,8 @@
   "schema_version": 1,
   "model": "HRRR",
   "product": "surface",
-  "model_cycle_utc": "20261112T16:00:00Z",
-  "created_utc": "2026-11-12T17:52:46.611918+00:00",
+  "model_cycle_utc": "20261112T17:00:00Z",
+  "created_utc": "2026-11-12T18:16:11.875101+00:00",
   "domain": {
     "west": -75.2,
     "east": -71.2,
@@ -13,11 +13,11 @@
   "hours": [
     {
       "forecast_hour": 0,
-      "valid_time_utc": "2026-11-12T16:00:00Z",
-      "source_file": "hrrr.t16z.wrfsfcf00.grib2",
-      "download_bytes": 551332,
+      "valid_time_utc": "2026-11-12T17:00:00Z",
+      "source_file": "hrrr.t17z.wrfsfcf00.grib2",
+      "download_bytes": 553576,
       "grid_file": "hrrr_f00_btv.json.gz",
-      "decoded_bytes": 1122527,
+      "decoded_bytes": 1128765,
       "grid_count": 7,
       "field_count": 20,
       "available_short_names": [
@@ -53,11 +53,11 @@
     },
     {
       "forecast_hour": 3,
-      "valid_time_utc": "2026-11-12T19:00:00Z",
-      "source_file": "hrrr.t16z.wrfsfcf03.grib2",
-      "download_bytes": 630084,
+      "valid_time_utc": "2026-11-12T20:00:00Z",
+      "source_file": "hrrr.t17z.wrfsfcf03.grib2",
+      "download_bytes": 623352,
       "grid_file": "hrrr_f03_btv.json.gz",
-      "decoded_bytes": 1152144,
+      "decoded_bytes": 1150248,
       "grid_count": 7,
       "field_count": 20,
       "available_short_names": [
@@ -93,11 +93,11 @@
     },
     {
       "forecast_hour": 6,
-      "valid_time_utc": "2026-11-12T22:00:00Z",
-      "source_file": "hrrr.t16z.wrfsfcf06.grib2",
-      "download_bytes": 632328,
+      "valid_time_utc": "2026-11-12T23:00:00Z",
+      "source_file": "hrrr.t17z.wrfsfcf06.grib2",
+      "download_bytes": 621108,
       "grid_file": "hrrr_f06_btv.json.gz",
-      "decoded_bytes": 1177069,
+      "decoded_bytes": 1171911,
       "grid_count": 7,
       "field_count": 20,
       "available_short_names": [
@@ -133,11 +133,11 @@
     },
     {
       "forecast_hour": 9,
-      "valid_time_utc": "2026-11-13T01:00:00Z",
-      "source_file": "hrrr.t16z.wrfsfcf09.grib2",
-      "download_bytes": 634572,
+      "valid_time_utc": "2026-11-13T02:00:00Z",
+      "source_file": "hrrr.t17z.wrfsfcf09.grib2",
+      "download_bytes": 630084,
       "grid_file": "hrrr_f09_btv.json.gz",
-      "decoded_bytes": 1182261,
+      "decoded_bytes": 1173579,
       "grid_count": 7,
       "field_count": 20,
       "available_short_names": [
@@ -177,5 +177,15 @@
     "hours_verified": 4
   },
   "publishing": true,
-  "published_utc": "2026-11-12T17:53:01.770775+00:00"
+  "valid_time_alignment": {
+    "reference_model": "RAP",
+    "reference_cycle_utc": "20261112T17:00:00Z",
+    "valid_times_utc": [
+      "2026-11-12T17:00:00Z",
+      "2026-11-12T20:00:00Z",
+      "2026-11-12T23:00:00Z",
+      "2026-11-13T02:00:00Z"
+    ]
+  },
+  "published_utc": "2026-11-12T18:16:27.618895+00:00"
 }
