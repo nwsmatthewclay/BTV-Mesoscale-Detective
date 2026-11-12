@@ -60,7 +60,7 @@ jobs:
             git pull --rebase origin main
             git push
           fi
-      - name: Download and decode current RAP pressure-level product
+      - name: Download and decode current RAP hybrid-level product
         run: python mesoscale/validate_rap_ingestion.py
       - name: Build verified multi-hour RAP forecast archive
         run: python mesoscale/build_rap_forecast_archive.py --hours 0,3,6,9

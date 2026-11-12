@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Download, decode, and validate compact regional RAP pressure-level extraction for BTV."""
+"""Download, decode, and validate a regional RAP hybrid-level extraction for BTV."""
 from __future__ import annotations
 
 import argparse
@@ -25,15 +25,20 @@ def choose_product(manifest: dict) -> dict:
     products = manifest["models"]["RAP"]["latest_products"]
     candidates = [
         p for p in products
-        if p.get("index", {}).get("message_count", 0) > 0
+        if p.get("url")
         and re.fullmatch(
-            r"rap\.t\d{2}z\.awp130bgrbf\d{2,3}\.grib2",
+            r"rap\\.t\\d{2}z\\.awp130bgrbf\\d{2,3}\\.grib2",
             p.get("filename", ""),
         )
     ]
     if not candidates:
-        raise RuntimeError("No indexed RAP 13-km CONUS hybrid-level product is available in the manifest")
-    return max(candidates, key=lambda p: (p["cycle_utc"], p["forecast_hour"]))
+        raise RuntimeError("No RAP 13-km CONUS hybrid-level product is available in the manifest")
+    # The index is optional discovery metadata. Validate the actual GRIB by
+    # downloading and decoding it; do not reject a valid product because its
+    # NOMADS .idx request failed. Prefer F00 from the newest cycle.
+    latest_cycle = max(p["cycle_utc"] for p in candidates)
+    cycle_products = [p for p in candidates if p["cycle_utc"] == latest_cycle]
+    return min(cycle_products, key=lambda p: int(p["forecast_hour"]))
 
 
 def coordinate_summary(ds, name):

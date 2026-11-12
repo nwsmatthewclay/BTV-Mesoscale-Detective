@@ -174,6 +174,21 @@ def discover_rrfs(session, days_back):
     return found
 
 
+def prioritize_latest_products(products: list[dict], limit: int = 120) -> list[dict]:
+    """Keep the newest cycle first while retaining the shortest forecast hours.
+
+    Short-range RAP fields are needed for the BTV forecast archive. Sorting
+    forecast hour descending before truncation silently dropped F00-F09 once
+    longer RAP forecast hours became available.
+    """
+    ordered = sorted(
+        products,
+        key=lambda p: (p["cycle_utc"], -int(p["forecast_hour"]), p["product"]),
+        reverse=True,
+    )
+    return ordered[:limit]
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--days-back", type=int, default=2,
@@ -197,11 +212,11 @@ def main():
         products = (discover_rrfs(session, max(0, args.days_back))
                     if model == "RRFS"
                     else discover_model(session, model, max(0, args.days_back)))
-        valid = [p for p in products if p.get("url")]
-        valid.sort(key=lambda p: (p["cycle_utc"], p["forecast_hour"], p["product"]), reverse=True)
+        all_valid = [p for p in products if p.get("url")]
+        valid = prioritize_latest_products(all_valid)
         if args.index_latest:
-            # One index for the latest available product in each distinct HRRR family;
-            # one latest pressure-level index for RAP.
+            # Index the nearest-term product in each family (F00 where available).
+            # This keeps useful index metadata without making ingestion depend on it.
             chosen = []
             families = sorted({p["product"] for p in valid})
             for family in families:
@@ -214,7 +229,7 @@ def main():
                 except requests.RequestException as exc:
                     item["index_error"] = f"{type(exc).__name__}: {exc}"
         report["models"][model] = {
-            "products_found": len(valid),
+            "products_found": len(all_valid),
             "latest_products": valid[:120],
             "directory_errors": [p for p in products if p.get("error")],
         }
