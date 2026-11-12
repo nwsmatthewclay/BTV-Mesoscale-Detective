@@ -80,6 +80,54 @@ def _expected_valid_time(cycle: object, hour: int) -> str | None:
     ).replace("+00:00", "Z")
 
 
+def _archive_file_matches(path: Path, item: dict, cycle: str, kind: str) -> bool:
+    """Return whether a published RAP grid or station JSON matches its manifest entry."""
+    try:
+        if kind == "grid":
+            with gzip.open(path, "rt", encoding="utf-8") as stream:
+                payload = json.load(stream)
+        else:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(payload, dict):
+            return False
+        if (
+            payload.get("model") != "RAP"
+            or payload.get("model_cycle_utc") != cycle
+            or int(payload.get("forecast_hour", -1)) != int(item["forecast_hour"])
+            or payload.get("valid_time_utc") != item.get("valid_time_utc")
+        ):
+            return False
+        if kind == "grid":
+            fields = payload.get("fields")
+            grids = payload.get("grids")
+            quality = payload.get("quality")
+            return (
+                isinstance(fields, dict) and bool(fields)
+                and isinstance(grids, dict) and bool(grids)
+                and isinstance(quality, dict)
+                and len(fields) == int(quality.get("field_count", -1))
+                and len(grids) == int(quality.get("grid_count", -1))
+                and len(fields) == int(item.get("field_count", -2))
+                and len(grids) == int(item.get("grid_count", -2))
+            )
+        stations = payload.get("stations")
+        if not isinstance(stations, dict) or len(stations) != int(item.get("station_count", -1)):
+            return False
+        return all(
+            profile.get("model") == "RAP"
+            and profile.get("model_cycle_utc") == cycle
+            and int(profile.get("forecast_hour", -1)) == int(item["forecast_hour"])
+            and profile.get("valid_time_utc") == item.get("valid_time_utc")
+            and int((profile.get("quality") or {}).get("levels", 0)) >= 20
+            and (profile.get("quality") or {}).get("pressure_decreases_upward") is True
+            and (profile.get("quality") or {}).get("height_increases_upward") is True
+            for profile in stations.values()
+            if isinstance(profile, dict)
+        ) and all(isinstance(profile, dict) for profile in stations.values())
+    except (OSError, EOFError, UnicodeError, ValueError, TypeError, KeyError, AttributeError):
+        return False
+
+
 def archive_needs_update(manifest: dict, existing_archive: dict | None,
                          hours: tuple[int, ...],
                          archive_root: Path | None = None) -> tuple[bool, str]:
@@ -102,21 +150,26 @@ def archive_needs_update(manifest: dict, existing_archive: dict | None,
     existing_time = _parse_utc(existing_cycle)
     quality_passed = (existing_archive.get("quality") or {}).get("status") == "passed"
 
-    def referenced_file_exists(value: object) -> bool:
+    def referenced_file_matches(value: object, item: dict, kind: str) -> bool:
         if not isinstance(value, str) or not value:
             return False
         relative = Path(value)
         if relative.is_absolute() or ".." in relative.parts:
             return False
-        return archive_root is None or (archive_root / relative).is_file()
+        if archive_root is None:
+            return True
+        path = archive_root / relative
+        return path.is_file() and path.stat().st_size > 0 and _archive_file_matches(
+            path, item, existing_cycle, kind
+        )
 
     files_complete = (
         len(entries) == len(expected_hours)
         and archived_hours == expected_hours
         and all(
-            referenced_file_exists(item.get(key))
+            referenced_file_matches(item.get("grid_file"), item, "grid")
+            and referenced_file_matches(item.get("station_file"), item, "station")
             for item in entries
-            for key in ("grid_file", "station_file")
         )
     )
     valid_times_match = (
