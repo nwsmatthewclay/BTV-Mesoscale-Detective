@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "model": "HRRR",
+  "product": "surface",
+  "model_cycle_utc": "20261112T15:00:00Z",
+  "created_utc": "2026-11-12T16:31:53.463395+00:00",
+  "domain": {
+    "west": -75.2,
+    "east": -71.2,
+    "south": 42.3,
+    "north": 45.3
+  },
+  "hours": [
+    {
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-12T15:00:00Z",
+      "source_file": "hrrr.t15z.wrfsfcf00.grib2",
+      "download_bytes": 555820,
+      "grid_file": "hrrr_f00_btv.json.gz",
+      "decoded_bytes": 1120288,
+      "grid_count": 7,
+      "field_count": 20,
+      "available_short_names": [
+        "10u",
+        "10v",
+        "2d",
+        "2t",
+        "blh",
+        "cape",
+        "cin",
+        "dpt",
+        "gust",
+        "prate",
+        "refc",
+        "t",
+        "tp",
+        "u",
+        "v",
+        "vis"
+      ],
+      "required_field_groups": {
+        "2-m temperature": [
+          "2t"
+        ],
+        "10-m u wind": [
+          "10u"
+        ],
+        "10-m v wind": [
+          "10v"
+        ]
+      },
+      "warnings": []
+    },
+    {
+      "forecast_hour": 3,
+      "valid_time_utc": "2026-11-12T18:00:00Z",
+      "source_file": "hrrr.t15z.wrfsfcf03.grib2",
+      "download_bytes": 630084,
+      "grid_file": "hrrr_f03_btv.json.gz",
+      "decoded_bytes": 1150946,
+      "grid_count": 7,
+      "field_count": 20,
+      "available_short_names": [
+        "10u",
+        "10v",
+        "2d",
+        "2t",
+        "blh",
+        "cape",
+        "cin",
+        "dpt",
+        "gust",
+        "prate",
+        "refc",
+        "t",
+        "tp",
+        "u",
+        "v",
+        "vis"
+      ],
+      "required_field_groups": {
+        "2-m temperature": [
+          "2t"
+        ],
+        "10-m u wind": [
+          "10u"
+        ],
+        "10-m v wind": [
+          "10v"
+        ]
+      },
+      "warnings": []
+    },
+    {
+      "forecast_hour": 6,
+      "valid_time_utc": "2026-11-12T21:00:00Z",
+      "source_file": "hrrr.t15z.wrfsfcf06.grib2",
+      "download_bytes": 636816,
+      "grid_file": "hrrr_f06_btv.json.gz",
+      "decoded_bytes": 1171779,
+      "grid_count": 7,
+      "field_count": 20,
+      "available_short_names": [
+        "10u",
+        "10v",
+        "2d",
+        "2t",
+        "blh",
+        "cape",
+        "cin",
+        "dpt",
+        "gust",
+        "prate",
+        "refc",
+        "t",
+        "tp",
+        "u",
+        "v",
+        "vis"
+      ],
+      "required_field_groups": {
+        "2-m temperature": [
+          "2t"
+        ],
+        "10-m u wind": [
+          "10u"
+        ],
+        "10-m v wind": [
+          "10v"
+        ]
+      },
+      "warnings": []
+    },
+    {
+      "forecast_hour": 9,
+      "valid_time_utc": "2026-11-13T00:00:00Z",
+      "source_file": "hrrr.t15z.wrfsfcf09.grib2",
+      "download_bytes": 632328,
+      "grid_file": "hrrr_f09_btv.json.gz",
+      "decoded_bytes": 1185539,
+      "grid_count": 7,
+      "field_count": 20,
+      "available_short_names": [
+        "10u",
+        "10v",
+        "2d",
+        "2t",
+        "blh",
+        "cape",
+        "cin",
+        "dpt",
+        "gust",
+        "prate",
+        "refc",
+        "t",
+        "tp",
+        "u",
+        "v",
+        "vis"
+      ],
+      "required_field_groups": {
+        "2-m temperature": [
+          "2t"
+        ],
+        "10-m u wind": [
+          "10u"
+        ],
+        "10-m v wind": [
+          "10v"
+        ]
+      },
+      "warnings": []
+    }
+  ],
+  "quality": {
+    "status": "passed",
+    "hours_verified": 4
+  },
+  "publishing": true,
+  "published_utc": "2026-11-12T16:32:05.050406+00:00"
+}
