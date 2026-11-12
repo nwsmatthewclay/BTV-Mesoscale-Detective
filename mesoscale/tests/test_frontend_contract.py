@@ -75,3 +75,19 @@ def test_verified_hrrr_surface_archive_is_model_aware_and_keeps_profiles_rap_onl
     assert "HRRR surface grids have no vertical profiles" in html
     for parameter in ("hrrr_temp", "hrrr_dewpoint", "hrrr_wind", "hrrr_gust", "hrrr_refc", "hrrr_vis", "hrrr_cin", "hrrr_blh"):
         assert f'value="{parameter}"' in html
+
+    renderer_start = html.index("function renderHrrrGridOverlay")
+    renderer_end = html.index("async function updateRapParameter", renderer_start)
+    renderer = html[renderer_start:renderer_end]
+    for mapping in (
+        "hrrr_temp:{names:['2t']",
+        "hrrr_dewpoint:{names:['2d']",
+        "hrrr_gust:{names:['gust']",
+        "hrrr_refc:{names:['refc']",
+        "hrrr_vis:{names:['vis']",
+        "hrrr_cin:{names:['cin']",
+        "hrrr_blh:{names:['blh']",
+        "const uField=findHrrrField(payload,['10u'])",
+        "const vField=uField&&findHrrrField(payload,['10v'],uField.grid_id)",
+    ):
+        assert mapping in renderer
