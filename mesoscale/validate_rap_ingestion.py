@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Download and decode one indexed RAP pressure-level product for BTV smoke validation."""
+"""Download, decode, and validate compact regional RAP pressure-level extraction for BTV."""
 from __future__ import annotations
 
 import argparse
