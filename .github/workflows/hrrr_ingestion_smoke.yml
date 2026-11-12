@@ -79,8 +79,8 @@ jobs:
       - name: Download and validate HRRR at the published RAP valid times
         if: steps.freshness.outputs.needs_update == 'true'
         env:
-          TARGET_VALID_TIMES: \${{ steps.freshness.outputs.valid_times }}
-          RAP_CYCLE: \${{ steps.freshness.outputs.rap_cycle }}
+          TARGET_VALID_TIMES: ${{ steps.freshness.outputs.valid_times }}
+          RAP_CYCLE: ${{ steps.freshness.outputs.rap_cycle }}
         run: |
           python mesoscale/validate_hrrr_archive.py \
             --valid-times "$TARGET_VALID_TIMES" \
