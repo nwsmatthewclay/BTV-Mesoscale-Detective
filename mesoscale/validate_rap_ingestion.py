@@ -12,7 +12,8 @@ import requests
 
 # Allow this script to run directly from the repository root in GitHub Actions.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from process_grib import process_file\nfrom extract_profile import extract_profile
+from process_grib import process_file
+from extract_profile import extract_profile
 
 MANIFEST = Path("mesoscale/data/model_manifest.json")
 OUT = Path("mesoscale/data/ingestion_smoke")
