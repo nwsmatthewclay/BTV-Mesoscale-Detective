@@ -330,7 +330,7 @@ function renderRapGridOverlay(payload,param){
     L.circleMarker([lat,lon],{radius:5*step/Math.max(1,step),stroke:false,fillColor:rapColor(val,cfg.min,cfg.max),fillOpacity:.62,interactive:false}).addTo(layer);
   }
   layer.addTo(map);modelOverlayLayer=layer;
-  document.getElementById('mapChip').textContent='RAP '+cfg.label+' · '+payload.valid_time_utc+' · native grid samples · '+field.units;
+  document.getElementById('mapChip').textContent='RAP '+cfg.label+' · F'+String(payload.forecast_hour).padStart(2,'0')+' · '+payload.valid_time_utc+' · native grid samples · '+field.units;
 }
 function findHrrrField(payload,names,gridId){
   return Object.values(payload.fields||{}).find(field=>names.includes(field.short_name)&&(!gridId||field.grid_id===gridId)&&squeezeRap2D(field.data));
