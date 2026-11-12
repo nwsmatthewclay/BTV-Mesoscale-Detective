@@ -25,3 +25,11 @@ def test_profile_rejects_nonmonotonic_height():
                         [290, 285, 280, 275, 270],
                         [285, 280, 275, 270, 265],
                         [0, 1000, 900, 3000, 4000])
+
+
+def test_specific_humidity_precision_is_preserved():
+    import numpy as np
+    from mesoscale.process_grib import json_values
+
+    values = json_values(np.array([0.00345678]), decimals=7)
+    assert values == [0.0034568]
