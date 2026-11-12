@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 import cfgrib
 import requests
 
-from mesoscale.process_grib import process_file
+# Allow this script to run directly from the repository root in GitHub Actions.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from process_grib import process_file
 
 MANIFEST = Path("mesoscale/data/model_manifest.json")
 OUT = Path("mesoscale/data/ingestion_smoke")
