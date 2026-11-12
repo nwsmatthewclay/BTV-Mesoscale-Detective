@@ -8,6 +8,7 @@ surface fields and grid coverage, and writes an artifact manifest.
 from __future__ import annotations
 
 import argparse
+import gzip
 import json
 import re
 import sys
@@ -161,23 +162,50 @@ def archive_needs_update(
         existing_cycle_time = None
 
     required_groups = {"2-m temperature", "10-m u wind", "10-m v wind"}
-    def referenced_grid_exists(value: object) -> bool:
+    def referenced_grid_is_valid(item: dict) -> bool:
+        value = item.get("grid_file")
         if not isinstance(value, str) or not value:
             return False
         relative = Path(value)
         if relative.is_absolute() or ".." in relative.parts:
             return False
-        return archive_root is None or (archive_root / relative).is_file()
+        if archive_root is None:
+            return True
+        path = archive_root / relative
+        if not path.is_file() or path.stat().st_size < 1000:
+            return False
+        try:
+            with gzip.open(path, "rt", encoding="utf-8") as stream:
+                payload = json.load(stream)
+            if (
+                not isinstance(payload, dict)
+                or payload.get("model") != "HRRR"
+                or payload.get("model_cycle_utc") != existing_cycle
+                or int(payload.get("forecast_hour", -1)) != int(item["forecast_hour"])
+                or _format_valid_time(payload.get("valid_time_utc"))
+                    != _format_valid_time(item.get("valid_time_utc"))
+            ):
+                return False
+            report = validate_payload(payload, existing_cycle, int(item["forecast_hour"]))
+            if (
+                report.get("valid_time_utc") != item.get("valid_time_utc")
+                or int(report.get("field_count", -1)) != int(item.get("field_count", -2))
+                or int(report.get("grid_count", -1)) != int(item.get("grid_count", -2))
+            ):
+                return False
+            recorded_groups = item.get("required_field_groups")
+            return (
+                isinstance(recorded_groups, dict)
+                and required_groups.issubset(set(recorded_groups))
+                and required_groups.issubset(set(report.get("required_field_groups", {})))
+            )
+        except (OSError, EOFError, UnicodeError, ValueError, TypeError, KeyError, AttributeError):
+            return False
 
     files_complete = (
         len(entries) == len(expected_hours)
         and archived_hours == expected_hours
-        and all(
-            isinstance(item.get("required_field_groups"), dict)
-            and required_groups.issubset(set(item["required_field_groups"]))
-            and referenced_grid_exists(item.get("grid_file"))
-            for item in entries
-        )
+        and all(referenced_grid_is_valid(item) for item in entries)
     )
     if expected_valid_times is not None:
         valid_times_match = archived_valid_times == expected_valid_times
