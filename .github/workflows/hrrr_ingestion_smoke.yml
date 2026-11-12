@@ -19,6 +19,8 @@ jobs:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     outputs:
       needs_update: ${{ steps.freshness.outputs.needs_update }}
+      valid_times: ${{ steps.freshness.outputs.valid_times }}
+      rap_cycle: ${{ steps.freshness.outputs.rap_cycle }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
@@ -50,18 +52,39 @@ jobs:
           from mesoscale.validate_hrrr_archive import archive_needs_update
 
           model_manifest = json.loads(Path("mesoscale/data/model_manifest.json").read_text(encoding="utf-8"))
+          rap_path = Path("mesoscale/data/fields/forecast/forecast_manifest.json")
+          rap_archive = json.loads(rap_path.read_text(encoding="utf-8"))
+          if rap_archive.get("model") != "RAP" or (rap_archive.get("quality") or {}).get("status") != "passed":
+              raise SystemExit("A verified published RAP archive is required for HRRR valid-time alignment")
+          rap_hours = rap_archive.get("hours") or []
+          target_valid_times = [item.get("valid_time_utc") for item in rap_hours]
+          if len(target_valid_times) != 4 or any(not value for value in target_valid_times):
+              raise SystemExit("RAP archive must provide four valid times for HRRR alignment")
           archive_path = Path("mesoscale/data/fields/hrrr/hrrr_forecast_manifest.json")
           existing = json.loads(archive_path.read_text(encoding="utf-8")) if archive_path.exists() else None
-          needs_update, target_cycle = archive_needs_update(model_manifest, existing, (0, 3, 6, 9))
+          needs_update, target_cycle = archive_needs_update(
+              model_manifest, existing, (0, 3, 6, 9), valid_times=tuple(target_valid_times)
+          )
           if os.environ.get("EVENT_NAME") == "workflow_dispatch":
               needs_update = True
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
               output.write(f"needs_update={'true' if needs_update else 'false'}\n")
-          print(f"Latest complete HRRR cycle: {target_cycle}; archive update required: {needs_update}")
+              output.write(f"valid_times={','.join(target_valid_times)}\n")
+              output.write(f"rap_cycle={rap_archive['model_cycle_utc']}\n")
+          print(
+              f"Latest HRRR cycle covering RAP valid times: {target_cycle}; "
+              f"RAP cycle: {rap_archive['model_cycle_utc']}; update required: {needs_update}"
+          )
           PY
-      - name: Download and validate four HRRR BTV surface forecast hours
+      - name: Download and validate HRRR at the published RAP valid times
         if: steps.freshness.outputs.needs_update == 'true'
-        run: python mesoscale/validate_hrrr_archive.py --hours 0,3,6,9
+        env:
+          TARGET_VALID_TIMES: \${{ steps.freshness.outputs.valid_times }}
+          RAP_CYCLE: \${{ steps.freshness.outputs.rap_cycle }}
+        run: |
+          python mesoscale/validate_hrrr_archive.py \
+            --valid-times "$TARGET_VALID_TIMES" \
+            --reference-rap-cycle "$RAP_CYCLE"
       - name: Upload verified HRRR surface archive artifact
         if: always() && steps.freshness.outputs.needs_update == 'true'
         uses: actions/upload-artifact@v4
@@ -104,8 +127,19 @@ jobs:
           if (manifest.get("quality") or {}).get("status") != "passed":
               raise SystemExit("Refusing to publish an archive without passed quality status")
           hours = manifest.get("hours") or []
-          if [int(item["forecast_hour"]) for item in hours] != [0, 3, 6, 9]:
-              raise SystemExit("Refusing to publish an incomplete or unexpected HRRR hour set")
+          rap_manifest = json.loads(
+              Path("mesoscale/data/fields/forecast/forecast_manifest.json").read_text(encoding="utf-8")
+          )
+          rap_valid_times = [item.get("valid_time_utc") for item in (rap_manifest.get("hours") or [])]
+          alignment = manifest.get("valid_time_alignment") or {}
+          if len(hours) != 4 or len(rap_valid_times) != 4 or any(not value for value in rap_valid_times):
+              raise SystemExit("Refusing to publish an incomplete RAP/HRRR valid-time set")
+          if [item.get("valid_time_utc") for item in hours] != rap_valid_times:
+              raise SystemExit("Refusing to publish HRRR grids that do not match RAP valid times")
+          if (alignment.get("reference_model") != "RAP"
+                  or alignment.get("reference_cycle_utc") != rap_manifest.get("model_cycle_utc")
+                  or alignment.get("valid_times_utc") != rap_valid_times):
+              raise SystemExit("Refusing to publish HRRR data aligned to a different RAP archive")
 
           for item in hours:
               grid_path = root / item["grid_file"]

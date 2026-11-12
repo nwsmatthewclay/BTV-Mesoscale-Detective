@@ -1,6 +1,12 @@
 import pytest
 
-from mesoscale.validate_hrrr_archive import archive_needs_update, choose_cycle_products
+from datetime import datetime, timedelta, timezone
+
+from mesoscale.validate_hrrr_archive import (
+    archive_needs_update,
+    choose_cycle_products,
+    choose_cycle_products_for_valid_times,
+)
 
 
 def product(cycle, hour, family="surface"):
@@ -53,6 +59,11 @@ def test_hrrr_archive_ignores_pressure_level_products():
 
 
 
+def valid_time(cycle, hour):
+    cycle_time = datetime.strptime(cycle, "%Y%m%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+    return (cycle_time + timedelta(hours=hour)).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 def published_hrrr_archive(cycle, hours=(0, 3, 6, 9), publishing=True, quality="passed"):
     required = {
         "2-m temperature": ["2t"],
@@ -67,6 +78,7 @@ def published_hrrr_archive(cycle, hours=(0, 3, 6, 9), publishing=True, quality="
         "hours": [
             {
                 "forecast_hour": hour,
+                "valid_time_utc": valid_time(cycle, hour),
                 "grid_file": f"hrrr_f{hour:02d}_btv.json.gz",
                 "required_field_groups": required,
             }
@@ -120,3 +132,86 @@ def test_hrrr_freshness_rebuilds_unpublished_or_failed_archives():
     assert archive_needs_update(
         manifest, published_hrrr_archive(cycle, quality="failed"), (0, 3, 6, 9)
     )[0] is True
+
+
+
+def test_hrrr_archive_aligns_forecast_hours_to_rap_valid_times():
+    targets = (
+        "2026-11-12T17:00:00Z",
+        "2026-11-12T20:00:00Z",
+        "2026-11-12T23:00:00Z",
+        "2026-11-13T02:00:00Z",
+    )
+    manifest = {"models": {"HRRR": {"latest_products": [
+        *[product("20261112T16:00:00Z", hour) for hour in (1, 4, 7, 10)],
+        *[product("20261112T17:00:00Z", hour) for hour in (0, 1, 2)],
+    ]}}}
+
+    cycle, selected = choose_cycle_products_for_valid_times(manifest, targets)
+
+    assert cycle == "20261112T16:00:00Z"
+    assert [item["forecast_hour"] for item in selected] == [1, 4, 7, 10]
+
+
+def test_hrrr_valid_time_alignment_refuses_to_mix_cycles():
+    targets = (
+        "2026-11-12T17:00:00Z",
+        "2026-11-12T20:00:00Z",
+        "2026-11-12T23:00:00Z",
+        "2026-11-13T02:00:00Z",
+    )
+    manifest = {"models": {"HRRR": {"latest_products": [
+        *[product("20261112T16:00:00Z", hour) for hour in (1, 4, 7)],
+        *[product("20261112T17:00:00Z", hour) for hour in (0, 3, 6)],
+    ]}}}
+
+    with pytest.raises(RuntimeError, match="refusing to mix model cycles"):
+        choose_cycle_products_for_valid_times(manifest, targets)
+
+
+def test_hrrr_freshness_rebuilds_archive_when_valid_times_do_not_match_rap():
+    targets = (
+        "2026-11-12T17:00:00Z",
+        "2026-11-12T20:00:00Z",
+        "2026-11-12T23:00:00Z",
+        "2026-11-13T02:00:00Z",
+    )
+    cycle = "20261112T16:00:00Z"
+    manifest = {"models": {"HRRR": {"latest_products": [
+        *[product(cycle, hour) for hour in (1, 4, 7, 10)],
+        *[product("20261112T17:00:00Z", hour) for hour in (0, 1, 2)],
+    ]}}}
+
+    needs_update, target_cycle = archive_needs_update(
+        manifest,
+        published_hrrr_archive(cycle, hours=(0, 3, 6, 9)),
+        (0, 3, 6, 9),
+        valid_times=targets,
+    )
+
+    assert target_cycle == cycle
+    assert needs_update is True
+
+
+def test_hrrr_freshness_accepts_archive_aligned_to_rap_valid_times():
+    targets = (
+        "2026-11-12T17:00:00Z",
+        "2026-11-12T20:00:00Z",
+        "2026-11-12T23:00:00Z",
+        "2026-11-13T02:00:00Z",
+    )
+    cycle = "20261112T16:00:00Z"
+    manifest = {"models": {"HRRR": {"latest_products": [
+        *[product(cycle, hour) for hour in (1, 4, 7, 10)],
+        *[product("20261112T17:00:00Z", hour) for hour in (0, 1, 2)],
+    ]}}}
+
+    needs_update, target_cycle = archive_needs_update(
+        manifest,
+        published_hrrr_archive(cycle, hours=(1, 4, 7, 10)),
+        (0, 3, 6, 9),
+        valid_times=targets,
+    )
+
+    assert target_cycle == cycle
+    assert needs_update is False

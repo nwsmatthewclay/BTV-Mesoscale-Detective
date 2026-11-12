@@ -11,7 +11,7 @@ import argparse
 import json
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
@@ -60,17 +60,93 @@ def choose_cycle_products(manifest: dict, hours: tuple[int, ...]) -> tuple[str, 
     )
 
 
-def archive_needs_update(manifest: dict, existing_archive: dict | None,
-                         hours: tuple[int, ...]) -> tuple[bool, str]:
-    """Skip a rebuild when the published HRRR archive covers the newest complete cycle."""
-    target_cycle, _ = choose_cycle_products(manifest, hours)
-    expected_hours = tuple(sorted(int(hour) for hour in hours))
+def _parse_cycle_utc(value: str) -> datetime:
+    """Parse the compact UTC cycle format used by the model discovery manifest."""
+    try:
+        return datetime.strptime(value, "%Y%m%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+    except (TypeError, ValueError):
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        return parsed.replace(tzinfo=timezone.utc) if parsed.tzinfo is None else parsed.astimezone(timezone.utc)
+
+
+def _parse_valid_time(value: str) -> datetime:
+    """Parse an ISO-8601 valid time and normalize it to UTC."""
+    parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    return parsed.replace(tzinfo=timezone.utc) if parsed.tzinfo is None else parsed.astimezone(timezone.utc)
+
+
+def _format_valid_time(value: str) -> str:
+    return _parse_valid_time(value).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def choose_cycle_products_for_valid_times(
+    manifest: dict, valid_times: tuple[str, ...]
+) -> tuple[str, list[dict]]:
+    """Choose one HRRR surface cycle whose forecast hours match every target valid time."""
+    targets = tuple(_parse_valid_time(value) for value in valid_times)
+    if not targets or len(set(targets)) != len(targets):
+        raise ValueError("At least one unique RAP valid time is required")
+
+    products = manifest.get("models", {}).get("HRRR", {}).get("latest_products", [])
+    valid = [
+        product for product in products
+        if product.get("product") == "surface"
+        and product.get("url")
+        and SURFACE_FILENAME_RE.fullmatch(product.get("filename", ""))
+        and product.get("cycle_utc")
+    ]
+    if not valid:
+        raise RuntimeError("No HRRR surface GRIB2 products are available in the model manifest")
+
+    cycles = sorted({product["cycle_utc"] for product in valid}, reverse=True)
+    for cycle in cycles:
+        try:
+            cycle_time = _parse_cycle_utc(cycle)
+        except (TypeError, ValueError):
+            continue
+        by_valid_time = {}
+        for product in valid:
+            if product["cycle_utc"] != cycle:
+                continue
+            try:
+                hour = int(product["forecast_hour"])
+                if hour < 0 or hour > 48:
+                    continue
+            except (KeyError, TypeError, ValueError):
+                continue
+            by_valid_time[cycle_time + timedelta(hours=hour)] = product
+        if all(target in by_valid_time for target in targets):
+            return cycle, [by_valid_time[target] for target in targets]
+
+    raise RuntimeError(
+        "No single HRRR surface cycle contains all requested RAP valid times; "
+        "refusing to mix model cycles"
+    )
+
+
+def archive_needs_update(
+    manifest: dict,
+    existing_archive: dict | None,
+    hours: tuple[int, ...],
+    valid_times: tuple[str, ...] | None = None,
+) -> tuple[bool, str]:
+    """Skip a rebuild only when the published HRRR archive matches the target valid times."""
+    if valid_times:
+        target_cycle, selected = choose_cycle_products_for_valid_times(manifest, valid_times)
+        expected_valid_times = tuple(_format_valid_time(value) for value in valid_times)
+        expected_hours = tuple(sorted(int(product["forecast_hour"]) for product in selected))
+    else:
+        target_cycle, selected = choose_cycle_products(manifest, hours)
+        expected_valid_times = None
+        expected_hours = tuple(sorted(int(product["forecast_hour"]) for product in selected))
+
     if not isinstance(existing_archive, dict):
         return True, target_cycle
 
     entries = existing_archive.get("hours") or []
     try:
         archived_hours = tuple(sorted(int(item["forecast_hour"]) for item in entries))
+        archived_valid_times = tuple(_format_valid_time(item["valid_time_utc"]) for item in entries)
     except (KeyError, TypeError, ValueError):
         return True, target_cycle
 
@@ -83,6 +159,7 @@ def archive_needs_update(manifest: dict, existing_archive: dict | None,
     )
     quality_passed = (existing_archive.get("quality") or {}).get("status") == "passed"
     existing_cycle = existing_archive.get("model_cycle_utc")
+    valid_times_match = expected_valid_times is None or archived_valid_times == expected_valid_times
     archive_is_current = (
         existing_archive.get("model") == "HRRR"
         and existing_archive.get("product") == "surface"
@@ -90,6 +167,7 @@ def archive_needs_update(manifest: dict, existing_archive: dict | None,
         and isinstance(existing_cycle, str)
         and existing_cycle >= target_cycle
         and archived_hours == expected_hours
+        and valid_times_match
         and files_complete
         and quality_passed
     )
@@ -101,17 +179,31 @@ def main() -> None:
     parser.add_argument("--manifest", default=str(DEFAULT_MANIFEST))
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT))
     parser.add_argument("--hours", default="0,3,6,9")
+    parser.add_argument(
+        "--valid-times",
+        default="",
+        help="Comma-separated ISO-8601 valid times to align with the published RAP archive",
+    )
+    parser.add_argument(
+        "--reference-rap-cycle",
+        default="",
+        help="RAP model cycle used to define the requested valid times",
+    )
     parser.add_argument("--max-grid-dim", type=int, default=160)
     args = parser.parse_args()
 
     hours = tuple(sorted({int(value) for value in args.hours.split(",") if value.strip()}))
-    if not hours or any(hour < 0 or hour > 48 for hour in hours):
-        raise ValueError("HRRR forecast hours must be between 0 and 48")
+    valid_times = tuple(value.strip() for value in args.valid_times.split(",") if value.strip())
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     manifest = json.loads(Path(args.manifest).read_text(encoding="utf-8"))
-    cycle, products = choose_cycle_products(manifest, hours)
+    if valid_times:
+        cycle, products = choose_cycle_products_for_valid_times(manifest, valid_times)
+    else:
+        if not hours or any(hour < 0 or hour > 48 for hour in hours):
+            raise ValueError("HRRR forecast hours must be between 0 and 48")
+        cycle, products = choose_cycle_products(manifest, hours)
 
     session = requests.Session()
     session.headers.update({
@@ -155,6 +247,13 @@ def main() -> None:
         "hours": entries,
         "quality": {"status": "passed", "hours_verified": len(entries)},
         "publishing": False,
+        **({
+            "valid_time_alignment": {
+                "reference_model": "RAP",
+                "reference_cycle_utc": args.reference_rap_cycle,
+                "valid_times_utc": [_format_valid_time(value) for value in valid_times],
+            }
+        } if valid_times and args.reference_rap_cycle else {}),
     }
     manifest_path = output_dir / "hrrr_forecast_manifest.json"
     manifest_path.write_text(
@@ -166,6 +265,8 @@ def main() -> None:
         "model": "HRRR",
         "cycle": cycle,
         "hours": [entry["forecast_hour"] for entry in entries],
+        "valid_times_utc": [entry["valid_time_utc"] for entry in entries],
+        "reference_rap_cycle": args.reference_rap_cycle or None,
         "manifest": str(manifest_path),
         "publishing": False,
     }, indent=2))
