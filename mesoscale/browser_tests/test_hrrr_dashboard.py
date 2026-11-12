@@ -194,7 +194,7 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         )
         assert page.locator("#gridSpacing").text_content().strip() == "13 km nominal"
         for entry in rap["hours"]:
-            _select_and_wait_for_hour(page, "RAP", entry)
+            _select_and_wait_for_hour(page, "RAP", entry, rap["model_cycle_utc"])
 
         browser.close()
 
