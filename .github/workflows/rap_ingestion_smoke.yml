@@ -2,6 +2,11 @@ name: RAP BTV Ingestion Smoke Test
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "mesoscale/validate_rap_ingestion.py"
+      - ".github/workflows/rap_ingestion_smoke.yml"
 
 permissions:
   contents: read
