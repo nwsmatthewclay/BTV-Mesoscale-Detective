@@ -13,6 +13,7 @@ import gzip
 import json
 import re
 import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
@@ -57,36 +58,86 @@ def choose_cycle_products(manifest: dict, hours: tuple[int, ...]) -> tuple[str, 
     )
 
 
+def _parse_utc(value: object) -> datetime | None:
+    """Parse an ISO UTC timestamp, accepting compact NOMADS and standard ISO forms."""
+    if not isinstance(value, str) or not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        return None
+    return parsed.astimezone(timezone.utc)
+
+
+def _expected_valid_time(cycle: object, hour: int) -> str | None:
+    cycle_time = _parse_utc(cycle)
+    if cycle_time is None:
+        return None
+    return (cycle_time + timedelta(hours=int(hour))).isoformat(
+        timespec="seconds"
+    ).replace("+00:00", "Z")
+
+
 def archive_needs_update(manifest: dict, existing_archive: dict | None,
-                         hours: tuple[int, ...]) -> tuple[bool, str]:
-    """Skip a rebuild when the published archive already covers the newest complete cycle."""
+                         hours: tuple[int, ...],
+                         archive_root: Path | None = None) -> tuple[bool, str]:
+    """Skip rebuilding only when archive metadata and referenced files are complete."""
     target_cycle, _ = choose_cycle_products(manifest, hours)
+    target_time = _parse_utc(target_cycle)
     expected_hours = tuple(sorted(int(hour) for hour in hours))
-    if not isinstance(existing_archive, dict):
+    if target_time is None or not isinstance(existing_archive, dict):
         return True, target_cycle
 
-    entries = existing_archive.get("hours") or []
+    entries = existing_archive.get("hours")
+    if not isinstance(entries, list):
+        return True, target_cycle
     try:
         archived_hours = tuple(sorted(int(item["forecast_hour"]) for item in entries))
     except (KeyError, TypeError, ValueError):
         return True, target_cycle
 
+    existing_cycle = existing_archive.get("model_cycle_utc")
+    existing_time = _parse_utc(existing_cycle)
+    quality_passed = (existing_archive.get("quality") or {}).get("status") == "passed"
+
+    def referenced_file_exists(value: object) -> bool:
+        if not isinstance(value, str) or not value:
+            return False
+        relative = Path(value)
+        if relative.is_absolute() or ".." in relative.parts:
+            return False
+        return archive_root is None or (archive_root / relative).is_file()
+
     files_complete = (
         len(entries) == len(expected_hours)
-        and all(item.get("grid_file") and item.get("station_file") for item in entries)
+        and archived_hours == expected_hours
+        and all(
+            referenced_file_exists(item.get(key))
+            for item in entries
+            for key in ("grid_file", "station_file")
+        )
     )
-    quality_passed = (existing_archive.get("quality") or {}).get("status") == "passed"
-    existing_cycle = existing_archive.get("model_cycle_utc")
+    valid_times_match = (
+        existing_time is not None
+        and len(entries) == len(expected_hours)
+        and all(
+            item.get("valid_time_utc")
+            == _expected_valid_time(existing_cycle, int(item["forecast_hour"]))
+            for item in entries
+        )
+    )
     archive_is_current = (
         existing_archive.get("model") == "RAP"
-        and isinstance(existing_cycle, str)
-        and existing_cycle >= target_cycle
+        and existing_time is not None
+        and existing_time >= target_time
         and archived_hours == expected_hours
         and files_complete
+        and valid_times_match
         and quality_passed
     )
     return not archive_is_current, target_cycle
-
 
 def download(url: str, destination: Path, session: requests.Session) -> int:
     if destination.exists() and destination.stat().st_size >= 100_000:

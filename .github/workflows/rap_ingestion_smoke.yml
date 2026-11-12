@@ -83,7 +83,9 @@ jobs:
           model_manifest = json.loads(Path("mesoscale/data/model_manifest.json").read_text(encoding="utf-8"))
           archive_path = Path("mesoscale/data/fields/forecast/forecast_manifest.json")
           existing = json.loads(archive_path.read_text(encoding="utf-8")) if archive_path.exists() else None
-          needs_update, target_cycle = archive_needs_update(model_manifest, existing, (0, 3, 6, 9, 12, 15))
+          needs_update, target_cycle = archive_needs_update(
+    model_manifest, existing, (0, 3, 6, 9, 12, 15), archive_root=archive_path.parent
+)
           if os.environ.get("EVENT_NAME") == "workflow_dispatch":
               needs_update = True
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:

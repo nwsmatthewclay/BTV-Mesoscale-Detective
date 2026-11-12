@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from mesoscale.build_rap_forecast_archive import archive_needs_update, choose_cycle_products
 
 
@@ -63,12 +65,16 @@ def test_archive_requires_every_requested_hour_from_one_cycle():
 
 
 def published_rap_archive(cycle, hours=(0, 3, 6, 9, 12, 15), quality="passed"):
+    cycle_time = datetime.fromisoformat(cycle.replace("Z", "+00:00"))
     return {
         "model": "RAP",
         "model_cycle_utc": cycle,
         "hours": [
             {
                 "forecast_hour": hour,
+                "valid_time_utc": (
+                    cycle_time + timedelta(hours=hour)
+                ).isoformat(timespec="seconds").replace("+00:00", "Z"),
                 "grid_file": f"fields/rap_f{hour:02d}.json.gz",
                 "station_file": f"fields/rap_f{hour:02d}_stations.json",
             }
@@ -154,3 +160,41 @@ def test_archive_rebuilds_four_hour_archive_to_add_f12_and_f15():
 
     assert target == cycle
     assert needs_update is True
+
+
+
+def test_rap_freshness_rebuilds_when_referenced_archive_files_are_missing(tmp_path):
+    cycle = "2026-11-12T16:00:00Z"
+    manifest = {"models": {"RAP": {"latest_products": [
+        *[product(cycle, hour) for hour in (0, 3, 6, 9, 12, 15)],
+    ]}}}
+    archive = published_rap_archive(cycle)
+    archive_root = tmp_path / "forecast"
+
+    for entry in archive["hours"]:
+        for key in ("grid_file", "station_file"):
+            path = archive_root / entry[key]
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"verified test fixture")
+
+    assert archive_needs_update(
+        manifest, archive, (0, 3, 6, 9, 12, 15), archive_root=archive_root
+    )[0] is False
+
+    (archive_root / archive["hours"][0]["grid_file"]).unlink()
+    assert archive_needs_update(
+        manifest, archive, (0, 3, 6, 9, 12, 15), archive_root=archive_root
+    )[0] is True
+
+
+def test_rap_freshness_rebuilds_archive_with_inconsistent_valid_times():
+    cycle = "2026-11-12T16:00:00Z"
+    manifest = {"models": {"RAP": {"latest_products": [
+        *[product(cycle, hour) for hour in (0, 3, 6, 9, 12, 15)],
+    ]}}}
+    archive = published_rap_archive(cycle)
+    archive["hours"][2]["valid_time_utc"] = "2026-11-12T22:59:00Z"
+
+    assert archive_needs_update(
+        manifest, archive, (0, 3, 6, 9, 12, 15)
+    )[0] is True
