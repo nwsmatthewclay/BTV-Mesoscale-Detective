@@ -15,7 +15,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: mesoscale-model-discovery
+  group: mesoscale-data-updates
   cancel-in-progress: false
 
 jobs:
