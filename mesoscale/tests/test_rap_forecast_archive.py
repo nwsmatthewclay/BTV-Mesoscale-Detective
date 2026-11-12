@@ -1,3 +1,5 @@
+import gzip
+import json
 from datetime import datetime, timedelta
 
 from mesoscale.build_rap_forecast_archive import archive_needs_update, choose_cycle_products
@@ -77,6 +79,9 @@ def published_rap_archive(cycle, hours=(0, 3, 6, 9, 12, 15), quality="passed"):
                 ).isoformat(timespec="seconds").replace("+00:00", "Z"),
                 "grid_file": f"fields/rap_f{hour:02d}.json.gz",
                 "station_file": f"fields/rap_f{hour:02d}_stations.json",
+                "field_count": 1,
+                "grid_count": 1,
+                "station_count": 1,
             }
             for hour in hours
         ],
@@ -132,6 +137,46 @@ def test_rap_freshness_rebuilds_missing_or_failed_archives():
 
 
 
+def write_rap_archive_files(archive_root, archive):
+    for entry in archive["hours"]:
+        grid_path = archive_root / entry["grid_file"]
+        grid_path.parent.mkdir(parents=True, exist_ok=True)
+        grid_payload = {
+            "model": "RAP",
+            "model_cycle_utc": archive["model_cycle_utc"],
+            "forecast_hour": entry["forecast_hour"],
+            "valid_time_utc": entry["valid_time_utc"],
+            "fields": {"temperature": {"short_name": "t"}},
+            "grids": {"hybrid": {"shape": [1, 1]}},
+            "quality": {"field_count": 1, "grid_count": 1},
+        }
+        with gzip.open(grid_path, "wt", encoding="utf-8") as stream:
+            json.dump(grid_payload, stream)
+
+        station_path = archive_root / entry["station_file"]
+        station_path.parent.mkdir(parents=True, exist_ok=True)
+        station_payload = {
+            "model": "RAP",
+            "model_cycle_utc": archive["model_cycle_utc"],
+            "forecast_hour": entry["forecast_hour"],
+            "valid_time_utc": entry["valid_time_utc"],
+            "stations": {
+                "KBTV": {
+                    "model": "RAP",
+                    "model_cycle_utc": archive["model_cycle_utc"],
+                    "forecast_hour": entry["forecast_hour"],
+                    "valid_time_utc": entry["valid_time_utc"],
+                    "quality": {
+                        "levels": 50,
+                        "pressure_decreases_upward": True,
+                        "height_increases_upward": True,
+                    },
+                }
+            },
+        }
+        station_path.write_text(json.dumps(station_payload), encoding="utf-8")
+
+
 def test_archive_selects_six_three_hourly_forecast_points_from_one_cycle():
     hours = (0, 3, 6, 9, 12, 15)
     cycle = "2026-11-12T17:00:00Z"
@@ -171,17 +216,30 @@ def test_rap_freshness_rebuilds_when_referenced_archive_files_are_missing(tmp_pa
     archive = published_rap_archive(cycle)
     archive_root = tmp_path / "forecast"
 
-    for entry in archive["hours"]:
-        for key in ("grid_file", "station_file"):
-            path = archive_root / entry[key]
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes(b"verified test fixture")
+    write_rap_archive_files(archive_root, archive)
 
     assert archive_needs_update(
         manifest, archive, (0, 3, 6, 9, 12, 15), archive_root=archive_root
     )[0] is False
 
     (archive_root / archive["hours"][0]["grid_file"]).unlink()
+    assert archive_needs_update(
+        manifest, archive, (0, 3, 6, 9, 12, 15), archive_root=archive_root
+    )[0] is True
+
+
+def test_rap_freshness_rebuilds_when_published_json_is_corrupt(tmp_path):
+    cycle = "2026-11-12T16:00:00Z"
+    manifest = {"models": {"RAP": {"latest_products": [
+        *[product(cycle, hour) for hour in (0, 3, 6, 9, 12, 15)],
+    ]}}}
+    archive = published_rap_archive(cycle)
+    archive_root = tmp_path / "forecast"
+    write_rap_archive_files(archive_root, archive)
+
+    grid_path = archive_root / archive["hours"][0]["grid_file"]
+    grid_path.write_bytes(b"not a gzip JSON file")
+
     assert archive_needs_update(
         manifest, archive, (0, 3, 6, 9, 12, 15), archive_root=archive_root
     )[0] is True
