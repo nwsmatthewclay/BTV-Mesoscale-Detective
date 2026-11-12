@@ -206,7 +206,7 @@ def main():
                     item["index_error"] = f"{type(exc).__name__}: {exc}"
         report["models"][model] = {
             "products_found": len(valid),
-            "latest_products": valid[:40],
+            "latest_products": valid[:120],
             "directory_errors": [p for p in products if p.get("error")],
         }
 
