@@ -6,8 +6,7 @@ on:
     paths:
       - "mesoscale/**"
       - ".github/workflows/mesoscale_model_discovery.yml"
-    paths-ignore:
-      - "mesoscale/data/model_manifest.json"
+      - "!mesoscale/data/model_manifest.json"
   workflow_dispatch:
   schedule:
     - cron: "17 * * * *"
