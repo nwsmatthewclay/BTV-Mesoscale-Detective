@@ -430,7 +430,19 @@ async function updateRapTimeEvolution(){
 window.updateRapTimeEvolution=updateRapTimeEvolution;
 
 Plotly.newPlot('trend',[],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:35,r:12,t:8,b:30},xaxis:{visible:false},yaxis:{visible:false},annotations:[{text:'Select a verified station and diagnostic to plot RAP forecast-hour evolution',showarrow:false,font:{color:'#9cb2c5'}}]},{displayModeBar:false,responsive:true});
-function tick(){document.getElementById('clock').textContent=new Date().toISOString().slice(11,16)+' UTC';}tick();setInterval(tick,30000);
+function updateRapArchiveFreshness(){
+  const badge=document.getElementById('feedStatus');
+  if(!badge||document.getElementById('model').value!=='RAP'||!rapForecastManifest)return;
+  const rawCycle=String(rapForecastManifest.model_cycle_utc||'');
+  const cycleMs=Date.parse(rawCycle.replace(/^(\d{4})(\d{2})(\d{2})T/,'$1-$2-$3T'));
+  if(!Number.isFinite(cycleMs))return;
+  const ageMinutes=Math.max(0,Math.floor((Date.now()-cycleMs)/60000));
+  const ageLabel=ageMinutes>=60?Math.floor(ageMinutes/60)+'h '+String(ageMinutes%60).padStart(2,'0')+'m':ageMinutes+'m';
+  badge.textContent='RAP FORECAST ARCHIVE · '+availableRapHours.length+' HOURS · CYCLE AGE '+ageLabel;
+  badge.style.color=ageMinutes>=120?'var(--amber)':'var(--green)';
+  badge.title='RAP model cycle '+rapForecastManifest.model_cycle_utc+'; archive published '+(rapForecastManifest.created_utc||'time unavailable');
+}
+function tick(){document.getElementById('clock').textContent=new Date().toISOString().slice(11,16)+' UTC';updateRapArchiveFreshness();}tick();setInterval(tick,30000);
 window.activeTab='environment';
 document.getElementById('trendParameter').addEventListener('change',updateRapTimeEvolution);
 async function loadModelManifest(){
@@ -454,7 +466,7 @@ async function loadModelManifest(){
       const o=document.createElement('option');o.value=rapForecastManifest.model_cycle_utc;o.textContent=rapForecastManifest.model_cycle_utc+' · RAP archive';cycleSelect.appendChild(o);
       document.getElementById('provModel').textContent='RAP · verified forecast archive';
       document.querySelector('#investigation .detail-line:nth-child(2) b').textContent=rapForecastManifest.model_cycle_utc;
-      badge.textContent='RAP FORECAST ARCHIVE · '+availableRapHours.length+' HOURS';badge.style.color='var(--green)';
+      updateRapArchiveFreshness();
       document.getElementById('mapChip').textContent='RAP '+('F'+String(activeRapHour).padStart(2,'0'))+' · '+rapForecastManifest.model_cycle_utc+' · verified regional grid';
       document.getElementById('selectionStatus').textContent='Available hours: '+availableRapHours.map(h=>'F'+String(h).padStart(2,'0')).join(', ');
     }else{
@@ -478,7 +490,9 @@ async function loadModelManifest(){
 }
 document.getElementById('model').addEventListener('change',loadModelManifest);
 document.getElementById('hour').addEventListener('input',()=>{
-  const h=nearestAvailableRapHour(Number(document.getElementById('hour').value));
+  const slider=document.getElementById('hour');
+  const h=nearestAvailableRapHour(Number(slider.value));
+  slider.value=String(h);
   document.getElementById('hourOut').textContent='F'+String(h).padStart(2,'0');
 });
 document.getElementById('hour').addEventListener('change',async()=>{

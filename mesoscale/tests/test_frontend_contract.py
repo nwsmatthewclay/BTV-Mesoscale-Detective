@@ -51,3 +51,13 @@ def test_rap_ingestion_refreshes_discovery_before_validating_and_archiving():
     assert discover < validate < archive
     assert "git add mesoscale/data/model_manifest.json" in workflow
     assert 'git commit -m "Refresh RAP, HRRR and RRFS model manifest"' in workflow
+
+def test_forecast_hour_slider_snaps_to_published_hours_and_shows_cycle_age():
+    html = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "function updateRapArchiveFreshness()" in html
+    assert "ageMinutes>=120?'var(--amber)':'var(--green)'" in html
+    start = html.index("document.getElementById('hour').addEventListener('input'")
+    end = html.index("document.getElementById('hour').addEventListener('change'", start)
+    handler = html[start:end]
+    assert "nearestAvailableRapHour(Number(slider.value))" in handler
+    assert "slider.value=String(h)" in handler
