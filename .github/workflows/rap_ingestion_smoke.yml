@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths:
       - "mesoscale/validate_rap_ingestion.py"
+      - "mesoscale/build_rap_forecast_archive.py"
       - "!mesoscale/data/fields/**"
       - "mesoscale/process_grib.py"
       - "mesoscale/extract_profile.py"
@@ -38,6 +39,8 @@ jobs:
           python -m pip install requests numpy xarray cfgrib eccodes metpy
       - name: Download and decode current RAP pressure-level product
         run: python mesoscale/validate_rap_ingestion.py
+      - name: Build verified multi-hour RAP forecast archive
+        run: python mesoscale/build_rap_forecast_archive.py --hours 0,3,6,9
       - name: Publish verified RAP fields and KBTV profile
         run: |
           # Rebase before staging generated outputs. This avoids binary merge
@@ -47,6 +50,10 @@ jobs:
           cp mesoscale/data/ingestion_smoke/rap_f*_btv.json.gz mesoscale/data/fields/rap_latest.json.gz
           cp mesoscale/data/ingestion_smoke/rap_kbtv_profile.json mesoscale/data/fields/rap_kbtv_profile.json
           cp mesoscale/data/ingestion_smoke/rap_station_profiles.json mesoscale/data/fields/rap_station_profiles.json
+          mkdir -p mesoscale/data/fields/forecast
+          cp mesoscale/data/forecast_archive/fields/rap_f*.json.gz mesoscale/data/fields/forecast/
+          cp mesoscale/data/forecast_archive/fields/rap_f*_stations.json mesoscale/data/fields/forecast/
+          cp mesoscale/data/forecast_archive/forecast_manifest.json mesoscale/data/fields/forecast/forecast_manifest.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add mesoscale/data/fields/
