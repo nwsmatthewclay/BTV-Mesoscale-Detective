@@ -52,7 +52,7 @@ Never silently mix analysis time and forecast valid time. Never label model-deri
 ## Development sequence
 
 1. Maintain RAP cycle freshness, multi-hour archive completeness and station/grid quality checks.
-2. 2. Perform browser-level validation of HRRR map parameter/hour switching, data freshness and stale-layer clearing; keep soundings and cross-sections RAP-only.
+2. Perform browser-level validation of HRRR map parameter/hour switching, data freshness and stale-layer clearing; keep soundings and cross-sections RAP-only.
 3. Validate RAP/HRRR common-valid-time comparisons for fields with compatible definitions and units.
 4. Preserve GRIB level/step metadata so additional HRRR CAPE and precipitation fields can be exposed without ambiguity.
 5. Add RRFS regional acquisition only after its product inventory and byte-range behavior are verified.
