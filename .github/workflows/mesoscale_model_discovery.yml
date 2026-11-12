@@ -53,12 +53,12 @@ jobs:
         run: python mesoscale/discover_models.py --days-back 2 --index-latest
       - name: Commit updated model manifest
         run: |
-          if git diff --quiet -- mesoscale/data/model_manifest.json; then
-            echo "Model manifest unchanged."
-            exit 0
-          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add mesoscale/data/model_manifest.json
+          if git diff --cached --quiet; then
+            echo "Model manifest unchanged."
+            exit 0
+          fi
           git commit -m "Update RAP, HRRR and RRFS discovery manifest"
           git push
