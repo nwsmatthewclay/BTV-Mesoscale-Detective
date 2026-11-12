@@ -14,6 +14,7 @@ on:
       - "mesoscale/process_grib.py"
       - "mesoscale/extract_profile.py"
       - "mesoscale/diagnostics.py"
+      - "mesoscale/tests/test_rap_forecast_archive.py"
       - ".github/workflows/rap_ingestion_smoke.yml"
 
 permissions:
