@@ -61,3 +61,17 @@ def test_forecast_hour_slider_snaps_to_published_hours_and_shows_cycle_age():
     handler = html[start:end]
     assert "nearestAvailableRapHour(Number(slider.value))" in handler
     assert "slider.value=String(h)" in handler
+
+
+def test_verified_hrrr_surface_archive_is_model_aware_and_keeps_profiles_rap_only():
+    html = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert '<option value="HRRR">HRRR · 3 km · surface archive</option>' in html
+    assert "async function loadHrrrForecastManifest" in html
+    assert "async function loadHrrrGrid" in html
+    assert "function renderHrrrGridOverlay" in html
+    assert "payload.model_cycle_utc!==hrrrForecastManifest.model_cycle_utc" in html
+    assert "nearestAvailableHrrrHour(Number(slider.value))" in html
+    assert "Cross-sections require RAP hybrid-level profiles" in html
+    assert "HRRR surface grids have no vertical profiles" in html
+    for parameter in ("hrrr_temp", "hrrr_dewpoint", "hrrr_wind", "hrrr_gust", "hrrr_refc", "hrrr_vis", "hrrr_cin", "hrrr_blh"):
+        assert f'value="{parameter}"' in html
