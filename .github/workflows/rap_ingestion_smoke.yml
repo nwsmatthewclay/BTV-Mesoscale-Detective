@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - "mesoscale/validate_rap_ingestion.py"
+      - "mesoscale/process_grib.py"
       - ".github/workflows/rap_ingestion_smoke.yml"
 
 permissions:
