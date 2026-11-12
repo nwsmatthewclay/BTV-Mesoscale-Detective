@@ -43,14 +43,37 @@ def test_inline_dashboard_javascript_parses_with_node_when_available():
         Path(path).unlink(missing_ok=True)
 
 
-def test_rap_ingestion_refreshes_discovery_before_validating_and_archiving():
-    workflow = (ROOT / ".github" / "workflows" / "rap_ingestion_smoke.yml").read_text(encoding="utf-8")
-    discover = workflow.index("python mesoscale/discover_models.py --days-back 2 --index-latest")
-    validate = workflow.index("python mesoscale/validate_rap_ingestion.py")
-    archive = workflow.index("python mesoscale/build_rap_forecast_archive.py")
-    assert discover < validate < archive
-    assert "git add mesoscale/data/model_manifest.json" in workflow
-    assert 'git commit -m "Refresh RAP, HRRR and RRFS model manifest"' in workflow
+def test_model_discovery_orchestrates_rap_and_hrrr_ingestion_and_pages():
+    discovery = (ROOT / ".github" / "workflows" / "mesoscale_model_discovery.yml").read_text(encoding="utf-8")
+    rap = (ROOT / ".github" / "workflows" / "rap_ingestion_smoke.yml").read_text(encoding="utf-8")
+    hrrr = (ROOT / ".github" / "workflows" / "hrrr_ingestion_smoke.yml").read_text(encoding="utf-8")
+
+    assert 'cron: "17 * * * *"' in discovery
+    assert '"mesoscale/build_rap_forecast_archive.py"' in discovery
+    assert '"mesoscale/download_subset.py"' in discovery
+    assert '"mesoscale/data/model_manifest.json"' in discovery
+    assert 'workflows: ["Mesoscale Model Discovery and Validation"]' in rap
+    assert 'if: github.event_name == \'workflow_dispatch\'' in rap
+    assert 'workflows: ["RAP BTV Ingestion and Forecast Archive"]' in hrrr
+    assert "schedule:" not in rap
+    assert "schedule:" not in hrrr
+
+    discover = rap.index("python mesoscale/discover_models.py --days-back 2 --index-latest")
+    manual_refresh = rap.index("if: github.event_name == 'workflow_dispatch'")
+    validate = rap.index("python mesoscale/validate_rap_ingestion.py")
+    archive = rap.index("python mesoscale/build_rap_forecast_archive.py")
+    assert manual_refresh < discover < validate < archive
+
+    assert "manifest_changed:" in discovery
+    assert "needs.discover.outputs.manifest_changed == 'true'" in discovery
+    assert 'echo "changed=true"' in discovery
+    assert "actions/deploy-pages@v4" in discovery
+
+
+def test_rap_grid_payload_must_match_the_published_archive_cycle():
+    html = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "payload.model!=='RAP'" in html
+    assert "payload.model_cycle_utc!==rapForecastManifest.model_cycle_utc" in html
 
 def test_forecast_hour_slider_snaps_to_published_hours_and_shows_cycle_age():
     html = (ROOT / "index.html").read_text(encoding="utf-8")

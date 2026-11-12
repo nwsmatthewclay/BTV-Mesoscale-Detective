@@ -54,21 +54,31 @@ def get_listing(session: requests.Session, url: str) -> list[str]:
 
 
 def index_summary(session: requests.Session, grib_url: str) -> dict:
+    """Parse a NOMADS GRIB index, rejecting HTML/error pages returned as HTTP 200."""
     idx_url = grib_url + ".idx"
     response = session.get(idx_url, timeout=TIMEOUT)
     response.raise_for_status()
-    lines = [line.strip() for line in response.text.splitlines() if line.strip()]
+    lines = [line.strip().lstrip("\\ufeff") for line in response.text.splitlines() if line.strip()]
     messages = []
     for line in lines:
         parts = line.split(":")
-        if len(parts) >= 5:
-            messages.append({
-                "message": parts[0],
-                "byte_offset": int(parts[1]) if parts[1].isdigit() else None,
-                "reference": parts[2],
-                "level": parts[3],
-                "description": ":".join(parts[4:]),
-            })
+        if (
+            len(parts) < 5
+            or not re.fullmatch(r"\\d+(?:\\.\\d+)?", parts[0])
+            or not parts[1].isdigit()
+            or not parts[2].startswith("d=")
+            or not parts[3].strip()
+        ):
+            continue
+        messages.append({
+            "message": parts[0],
+            "byte_offset": int(parts[1]),
+            "reference": parts[2],
+            "level": parts[3],
+            "description": ":".join(parts[4:]),
+        })
+    if not messages:
+        raise ValueError(f"NOMADS index response contained no valid GRIB index records: {idx_url}")
     return {"url": idx_url, "message_count": len(messages), "messages": messages}
 
 
@@ -226,7 +236,7 @@ def main():
             for item in chosen:
                 try:
                     item["index"] = index_summary(session, item["url"])
-                except requests.RequestException as exc:
+                except (requests.RequestException, ValueError) as exc:
                     item["index_error"] = f"{type(exc).__name__}: {exc}"
         report["models"][model] = {
             "products_found": len(all_valid),

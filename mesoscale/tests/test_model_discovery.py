@@ -1,4 +1,6 @@
-from mesoscale.discover_models import RAP_FILENAME_RE, rap_product_role
+import pytest
+
+from mesoscale.discover_models import RAP_FILENAME_RE, index_summary, rap_product_role
 from mesoscale.discover_models import RRFS_CYCLE_DIR_RE, RRFS_FILENAME_RE, prioritize_latest_products
 
 
@@ -77,3 +79,47 @@ def test_manifest_priority_keeps_newer_cycles_ahead_of_older_cycles():
         ("20261112T15:00:00Z", 9),
         ("20261112T14:00:00Z", 0),
     ]
+
+
+
+class FakeIndexResponse:
+    def __init__(self, text):
+        self.text = text
+
+    def raise_for_status(self):
+        return None
+
+
+class FakeIndexSession:
+    def __init__(self, text):
+        self.text = text
+        self.requested_url = None
+
+    def get(self, url, timeout):
+        self.requested_url = url
+        return FakeIndexResponse(self.text)
+
+
+def test_index_summary_parses_only_valid_nomads_grib_index_records():
+    session = FakeIndexSession(
+        "1:0:d=2026111216:TMP:2 m above ground:anl:\\n"
+        "12.1:801427:d=2026111216:UGRD:100 mb:anl:\\n"
+    )
+
+    result = index_summary(session, "https://example.test/rap.grib2")
+
+    assert session.requested_url == "https://example.test/rap.grib2.idx"
+    assert result["message_count"] == 2
+    assert result["messages"][0]["byte_offset"] == 0
+    assert result["messages"][1]["message"] == "12.1"
+    assert result["messages"][1]["level"] == "UGRD"
+
+
+def test_index_summary_rejects_html_error_pages_returned_with_http_200():
+    session = FakeIndexSession(
+        "<!doctype html><html><head><style>body { font: 16px Helvetica; }</style>"
+        "</head><body>Not Found</body></html>"
+    )
+
+    with pytest.raises(ValueError, match="no valid GRIB index records"):
+        index_summary(session, "https://example.test/rrfs.grib2")
