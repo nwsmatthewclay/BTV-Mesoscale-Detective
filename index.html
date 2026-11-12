@@ -159,8 +159,12 @@ function extractRegionalRapProfile(payload,lat,lon,label){
   return {label,model:'RAP',model_cycle_utc:payload.model_cycle_utc,forecast_hour:payload.forecast_hour,valid_time_utc:payload.valid_time_utc,source_file:payload.source_file,profile:z,diagnostics:{diagnostics:{}},quality:{levels:profile.length,profile_warnings:[]},sampled_grid_point:{latitude:pt.lat,longitude:pt.lon,distance_km:pt.d,grid_id,sampling_method:'nearest RAP grid point'},regional_sample:true};
 }
 
+function squeezeRap2D(data){
+  let a=data;while(Array.isArray(a)&&a.length===1&&Array.isArray(a[0])&&Array.isArray(a[0][0]))a=a[0];
+  return Array.isArray(a)&&Array.isArray(a[0])&&typeof a[0][0]==='number'?a:null;
+}
 function findRapSurfaceField(payload,names){
-  return Object.values(payload.fields).find(f=>names.includes(f.short_name)&&f.data&&Array.isArray(f.data)&&typeof f.data[0]?.[0]==='number'&&f.dimensions.length===0);
+  return Object.values(payload.fields).find(f=>names.includes(f.short_name)&&squeezeRap2D(f.data));
 }
 function sampleRapSurface(payload,names,lat,lon){
   const field=findRapSurfaceField(payload,names);if(!field)return null;
@@ -191,10 +195,10 @@ function renderRapGridOverlay(payload,param){
   const cfg={cape:{names:['cape'],min:0,max:3000,label:'CAPE',units:'J/kg'},pwat:{names:['pwat'],min:0,max:50,label:'PWAT',units:'kg m-2'},omega:{names:['w'],min:-2,max:2,label:'Vertical velocity',units:'Pa/s'} }[param];
   if(!cfg){document.getElementById('mapChip').textContent='This parameter is not yet available as a verified RAP grid field';return;}
   const field=findRapSurfaceField(payload,cfg.names);
-  if(!field){document.getElementById('mapChip').textContent=cfg.label+' field not present in this RAP file; no substitute shown';return;}
-  const grid=payload.grids[field.grid_id],layer=L.layerGroup(),step=Math.max(1,Math.floor(Math.max(grid.shape[0],grid.shape[1])/45));
+  if(!field){document.getElementById('mapChip').textContent=cfg.label+' field not present in this RAP file; no substitute shown';return;}const fieldData=squeezeRap2D(field.data);if(!fieldData){document.getElementById('mapChip').textContent=cfg.label+' is not a two-dimensional field in this RAP file';return;}
+  const grid=payload.grids[field.grid_id],data=squeezeRap2D(field.data),layer=L.layerGroup(),step=Math.max(1,Math.floor(Math.max(grid.shape[0],grid.shape[1])/45));
   for(let y=0;y<grid.latitude.length;y+=step)for(let x=0;x<grid.latitude[y].length;x+=step){
-    const val=field.data[y]?.[x],lat=grid.latitude[y][x],lon=grid.longitude[y][x];if(!Number.isFinite(val)||!Number.isFinite(lat)||!Number.isFinite(lon))continue;
+    const val=fieldData[y]?.[x],lat=grid.latitude[y][x],lon=grid.longitude[y][x];if(!Number.isFinite(val)||!Number.isFinite(lat)||!Number.isFinite(lon))continue;
     L.circleMarker([lat,lon],{radius:5*step/Math.max(1,step),stroke:false,fillColor:rapColor(val,cfg.min,cfg.max),fillOpacity:.62,interactive:false}).addTo(layer);
   }
   layer.addTo(map);rapOverlayLayer=layer;
