@@ -26,6 +26,7 @@ import requests
 BASE = "https://nomads.ncep.noaa.gov/pub/data/nccf/com"
 HEADERS = {"User-Agent": "BTV-Mesoscale-Detective/0.1 (NWS forecast office research)"}
 TIMEOUT = 25
+RAP_FILENAME_RE = re.compile(r"rap\\.t(\\d{2})z\\.(awp130[bp]grb|awip32)f(\\d{2,3})\\.grib2$")
 RRFS_FILENAME_RE = re.compile(
     r"rrfs\.t(\d{2})z\.(prslev|2dfld|2dfld\.subh)\.3km\.f(\d{3})\.conus\.grib2$"
 )
