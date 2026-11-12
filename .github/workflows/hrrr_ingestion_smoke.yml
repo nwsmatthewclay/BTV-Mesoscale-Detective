@@ -1,4 +1,4 @@
-name: HRRR BTV Surface Ingestion Smoke Test
+name: HRRR BTV Surface Ingestion and Archive
 
 on:
   push:
@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
-      PYTHONPATH: ${{ github.workspace }}
+      PYTHONPATH: \${{ github.workspace }}
     steps:
       - name: Check out latest repository state
         uses: actions/checkout@v4
@@ -45,11 +45,11 @@ jobs:
           python -m pip install requests numpy xarray cfgrib eccodes metpy pytest
       - name: Run RAP and HRRR validation tests
         env:
-          PYTHONPATH: ${{ github.workspace }}
+          PYTHONPATH: \${{ github.workspace }}
         run: pytest -q mesoscale/tests mesoscale/hrrr_tests
       - name: Download and validate four HRRR BTV surface forecast hours
         run: python mesoscale/validate_hrrr_archive.py --hours 0,3,6,9
-      - name: Upload non-publishing HRRR smoke-test artifacts
+      - name: Upload verified HRRR surface archive artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -57,3 +57,107 @@ jobs:
           path: mesoscale/data/ingestion_smoke/hrrr/
           if-no-files-found: ignore
           retention-days: 7
+
+  publish-hrrr:
+    needs: hrrr-smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Check out latest published main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Download verified HRRR archive artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: hrrr-btv-ingestion-smoke
+          path: hrrr-artifact
+      - name: Re-verify archive metadata and decoded grids
+        run: |
+          python - <<'PY'
+          import gzip
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          root = Path("hrrr-artifact")
+          manifest_path = root / "hrrr_forecast_manifest.json"
+          manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+          if manifest.get("model") != "HRRR" or manifest.get("product") != "surface":
+              raise SystemExit("Refusing to publish a non-HRRR surface archive")
+          if (manifest.get("quality") or {}).get("status") != "passed":
+              raise SystemExit("Refusing to publish an archive without passed quality status")
+          hours = manifest.get("hours") or []
+          if [int(item["forecast_hour"]) for item in hours] != [0, 3, 6, 9]:
+              raise SystemExit("Refusing to publish an incomplete or unexpected HRRR hour set")
+
+          for item in hours:
+              grid_path = root / item["grid_file"]
+              if not grid_path.is_file() or grid_path.stat().st_size < 1000:
+                  raise SystemExit(f"Missing or undersized HRRR grid: {grid_path}")
+              with gzip.open(grid_path, "rt", encoding="utf-8") as stream:
+                  payload = json.load(stream)
+              if (payload.get("model") != "HRRR"
+                      or payload.get("model_cycle_utc") != manifest["model_cycle_utc"]
+                      or int(payload.get("forecast_hour", -1)) != int(item["forecast_hour"])):
+                  raise SystemExit(f"HRRR grid metadata mismatch: {grid_path}")
+              if not payload.get("grids") or not payload.get("fields"):
+                  raise SystemExit(f"HRRR grid has no decoded data: {grid_path}")
+              names = {field.get("short_name") for field in payload["fields"].values()}
+              if not {"2t", "10u", "10v"}.issubset(names):
+                  raise SystemExit(f"HRRR required surface fields missing: {grid_path}")
+
+          manifest["publishing"] = True
+          manifest["published_utc"] = datetime.now(timezone.utc).isoformat()
+          manifest_path.write_text(
+              json.dumps(manifest, indent=2, allow_nan=False) + "\n",
+              encoding="utf-8",
+          )
+          print(
+              f"Verified HRRR cycle {manifest['model_cycle_utc']} "
+              f"hours {[item['forecast_hour'] for item in hours]} for publication"
+          )
+          PY
+      - name: Rebase and publish verified HRRR surface fields
+        run: |
+          git pull --rebase origin main
+          mkdir -p mesoscale/data/fields/hrrr
+          find mesoscale/data/fields/hrrr -maxdepth 1 -type f -name 'hrrr_f*_btv.json.gz' -delete
+          cp hrrr-artifact/hrrr_f*_btv.json.gz mesoscale/data/fields/hrrr/
+          cp hrrr-artifact/hrrr_forecast_manifest.json mesoscale/data/fields/hrrr/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A mesoscale/data/fields/hrrr/
+          if git diff --cached --quiet; then
+            echo "Published HRRR archive unchanged."
+            exit 0
+          fi
+          git commit -m "Publish verified HRRR BTV surface archive"
+          git push
+
+  deploy-pages:
+    needs: publish-hrrr
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: \${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out latest published main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Deploy updated HRRR data to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
