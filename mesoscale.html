@@ -55,7 +55,7 @@ select,input[type=range]{width:100%}select{background:#071827;color:var(--text);
 <div class="metric"><span>MUCAPE</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>MLCAPE</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>MLCIN</span><strong>—</strong><small>J/kg</small></div>
 <div class="metric"><span>PWAT</span><strong>—</strong><small>mm</small></div><div class="metric"><span>0–6 km shear</span><strong>—</strong><small>kt</small></div><div class="metric"><span>0–1 km SRH</span><strong>—</strong><small>m²/s²</small></div>
 </div><div class="placeholder">RAP profiles are available at the eight listed stations only. Custom map points will not inherit station diagnostics.</div></section>
-<section class="panel"><h2>Vertical Profile</h2><div id="profile"></div><div class="placeholder">Current plot: temperature and dewpoint versus pressure. Skew-T and hodograph are still under development.</div></section>
+<section class="panel"><h2>Vertical Profile</h2><div id="profile" style="height:440px"></div><div class="placeholder">Skewed temperature–pressure view with observed RAP temperature/dewpoint traces and dry adiabats. Moist adiabats and mixing-ratio guides are not yet included.</div><h3 style="margin:16px 0 4px;color:var(--text)">Hodograph · RAP winds</h3><div id="hodograph" style="height:300px"></div><div class="placeholder">Wind components are model-derived and plotted in knots; height labels identify sampled levels.</div></section>
 <section class="panel"><h2>Investigation Notes</h2><div class="pad" id="investigation"><div class="detail-line"><span>Model</span><b>RAP</b></div><div class="detail-line"><span>Valid time</span><b>Awaiting feed</b></div><div class="detail-line"><span>Point</span><b>KBTV</b></div><div class="detail-line"><span>Interpretation</span><b style="color:var(--amber)">Not available</b></div></div></section>
 </aside>
 </main>
@@ -105,11 +105,28 @@ async function loadStationProfile(station){
     const d=p.diagnostics.diagnostics||{};
     const items=[['MUCAPE',d.mucape_jkg,'J/kg'],['MLCAPE',d.mlcape_jkg,'J/kg'],['MLCIN',d.mlcin_jkg,'J/kg'],['PWAT',d.pwat_mm,'mm'],['0–6 km shear',d.bs06_kt,'kt'],['0–1 km SRH',d.srh01_m2s2,'m²/s²']];
     metrics.innerHTML=items.map(([n,v,u])=>'<div class="metric"><span>'+n+'</span><strong>'+(Number.isFinite(v)?Number(v).toFixed(1):'—')+'</strong><small>'+u+'</small></div>').join('');
-    const z=p.profile,c=a=>a.map(v=>v-273.15);
-    Plotly.react('profile',[
-      {x:c(z.temperature_k),y:z.pressure_hpa,mode:'lines+markers',name:'Temperature',line:{color:'#f07878',width:2},marker:{size:3}},
-      {x:c(z.dewpoint_k),y:z.pressure_hpa,mode:'lines+markers',name:'Dewpoint',line:{color:'#53d1d8',width:2},marker:{size:3}}
-    ],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:48,r:12,t:24,b:38},xaxis:{title:'Temperature (°C)',color:'#9cb2c5',gridcolor:'#24435e'},yaxis:{title:'Pressure (hPa)',type:'log',autorange:'reversed',color:'#9cb2c5',gridcolor:'#24435e'},showlegend:true,legend:{font:{color:'#dceaf4'},orientation:'h',y:1.18}},{displayModeBar:false,responsive:true});
+    const z=p.profile,skew=35,ln=Math.log;
+    const skewX=(tempC,pressure)=>tempC+skew*ln(1000/pressure);
+    const traces=[];
+    [ -40,-30,-20,-10,0,10,20,30,40,50 ].forEach(t=>{
+      const pp=[1050,1000,900,800,700,600,500,400,300,250,200,150,100];
+      traces.push({x:pp.map(v=>skewX(t,v)),y:pp,mode:'lines',hoverinfo:'skip',showlegend:false,line:{color:'#29445b',width:1,dash:'dot'}});
+    });
+    // Dry adiabats (constant potential temperature), referenced to surface temperatures.
+    [-30,-20,-10,0,10,20,30,40,50].forEach(thetaC=>{
+      const pp=[1050,1000,900,800,700,600,500,400,300,250,200,150,100];
+      const xx=pp.map(v=>{const tk=(thetaC+273.15)*Math.pow(v/1000,0.2854);return skewX(tk-273.15,v);});
+      traces.push({x:xx,y:pp,mode:'lines',hoverinfo:'skip',showlegend:false,line:{color:'#35516a',width:1}});
+    });
+    const temp=z.temperature_k.map((v,i)=>skewX(v-273.15,z.pressure_hpa[i]));
+    const dew=z.dewpoint_k.map((v,i)=>skewX(v-273.15,z.pressure_hpa[i]));
+    traces.push({x:temp,y:z.pressure_hpa,mode:'lines+markers',name:'Temperature',line:{color:'#f07878',width:2.5},marker:{size:3}});
+    traces.push({x:dew,y:z.pressure_hpa,mode:'lines+markers',name:'Dewpoint',line:{color:'#53d1d8',width:2.5},marker:{size:3}});
+    Plotly.react('profile',traces,{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:52,r:12,t:28,b:42},xaxis:{title:'Skewed temperature coordinate (°C at 1000 hPa)',color:'#9cb2c5',gridcolor:'#24435e',tickvals:[-40,-30,-20,-10,0,10,20,30,40,50],ticktext:['-40','-30','-20','-10','0','10','20','30','40','50']},yaxis:{title:'Pressure (hPa)',type:'log',range:[Math.log10(1050),Math.log10(100)],autorange:'reversed',color:'#9cb2c5',gridcolor:'#24435e'},showlegend:true,legend:{font:{color:'#dceaf4'},orientation:'h',y:1.12}},{displayModeBar:false,responsive:true});
+    const knots=1.943844,zkm=z.height_agl_m.map(v=>v/1000),u=z.u_ms.map(v=>v*knots),v=z.v_ms.map(v=>v*knots);
+    const selectedLevels=[0,0.5,1,2,3,4,5,6,8,10];
+    const marks=selectedLevels.map(h=>{let best=0;for(let j=1;j<zkm.length;j++)if(Math.abs(zkm[j]-h)<Math.abs(zkm[best]-h))best=j;return best;}).filter((n,i,a)=>a.indexOf(n)===i&&zkm[n]<=10);
+    Plotly.react('hodograph',[{x:u,y:v,mode:'lines+markers',name:'RAP wind',line:{color:'#8bc7ff',width:2.5},marker:{size:5,color:zkm,colorscale:'Turbo',showscale:true,colorbar:{title:'km',tickfont:{color:'#9cb2c5'},titlefont:{color:'#9cb2c5'}}},text:zkm.map(h=>h.toFixed(1)+' km'),hovertemplate:'U %{x:.1f} kt<br>V %{y:.1f} kt<br>%{text}<extra></extra>'},{x:marks.map(n=>u[n]),y:marks.map(n=>v[n]),mode:'text',text:marks.map(n=>zkm[n].toFixed(1)),textposition:'top center',showlegend:false,hoverinfo:'skip'}],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:48,r:55,t:18,b:42},xaxis:{title:'U wind (kt)',zeroline:true,zerolinecolor:'#7892a8',color:'#9cb2c5',gridcolor:'#24435e'},yaxis:{title:'V wind (kt)',zeroline:true,zerolinecolor:'#7892a8',color:'#9cb2c5',gridcolor:'#24435e',scaleanchor:'x',scaleratio:1},showlegend:false},{displayModeBar:false,responsive:true});
     document.getElementById('feedStatus').textContent='RAP PROFILE · '+station;document.getElementById('feedStatus').style.color='var(--green)';
     document.getElementById('provModel').textContent='RAP · verified station profile';
     document.querySelector('#investigation .detail-line:nth-child(2) b').textContent=p.model_cycle_utc;
