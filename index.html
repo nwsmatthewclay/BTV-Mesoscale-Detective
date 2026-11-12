@@ -177,8 +177,11 @@ function updateRegionalDiagnostics(p,payload){
   const loc=p.requested_location;if(!loc||!Number.isFinite(loc.latitude)||!Number.isFinite(loc.longitude))throw new Error('Requested coordinates missing for regional RAP diagnostics');\n  const cape=sampleRapSurface(payload,['cape'],loc.latitude,loc.longitude);
   const cin=sampleRapSurface(payload,['cin'],loc.latitude,loc.longitude);
   const pwat=sampleRapSurface(payload,['pwat'],loc.latitude,loc.longitude);
-  const shear=(()=>{let lo=0,hi=0;for(let i=0;i<z.height_agl_m.length;i++){if(Math.abs(z.height_agl_m[i]-0)<Math.abs(z.height_agl_m[lo]))lo=i;if(Math.abs(z.height_agl_m[i]-6000)<Math.abs(z.height_agl_m[hi]))hi=i;}return Math.hypot(z.u_ms[hi]-z.u_ms[lo],z.v_ms[hi]-z.v_ms[lo])*1.943844;})();
-  const items=[['MUCAPE',cape?.value,null,'J/kg'],['MLCAPE',null,null,'J/kg'],['MLCIN',cin?.value,null,'J/kg'],['PWAT',pwat?.value,null,pwat?.units||'kg m-2'],['0–6 km shear',shear,null,'kt'],['0–1 km SRH',null,null,'m²/s²']];
+  const interp=(arr,h)=>{const zz=z.height_agl_m;if(h<Math.min(...zz)||h>Math.max(...zz))return null;let k=0;while(k<zz.length-1&&zz[k+1]<h)k++;if(k>=zz.length-1)return arr[arr.length-1];const f=(h-zz[k])/(zz[k+1]-zz[k]);return arr[k]+f*(arr[k+1]-arr[k]);};
+  const u0=interp(z.u_ms,0),v0=interp(z.v_ms,0),u6=interp(z.u_ms,6000),v6=interp(z.v_ms,6000);
+  const shear=[u0,v0,u6,v6].every(Number.isFinite)?Math.hypot(u6-u0,v6-v0)*1.943844:null;
+  const lr03=(()=>{const t0=interp(z.temperature_k,0),t3=interp(z.temperature_k,3000);return [t0,t3].every(Number.isFinite)?t0-t3:null;})();
+  const items=[['RAP CAPE',cape?.value,null,cape?.units||'J/kg'],['RAP CIN',cin?.value,null,cin?.units||'J/kg'],['MLCAPE',null,null,'J/kg'],['PWAT',pwat?.value,null,pwat?.units||'kg m-2'],['0–6 km shear',shear,null,'kt'],['0–3 km lapse rate',lr03,null,'K/km']];
   document.getElementById('metrics').innerHTML=items.map(([n,v,,u])=>'<div class="metric"><span>'+n+'</span><strong>'+(Number.isFinite(v)?Number(v).toFixed(1):'—')+'</strong><small>'+u+'</small></div>').join('');
   const missing=items.filter(x=>!Number.isFinite(x[1])).map(x=>x[0]);
   return {cape,cin,pwat,shear,missing};
