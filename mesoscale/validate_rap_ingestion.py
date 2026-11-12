@@ -169,21 +169,49 @@ def main() -> None:
             passed = False
             processed["error"] = "One or more required upper-air fields were not extracted"
         else:
-            profile_path = OUT / "rap_kbtv_profile.json"
-            profile = extract_profile(payload, 44.4719, -73.1533, "KBTV")
-            profile_path.write_text(json.dumps(profile, indent=2, allow_nan=False) + "\n", encoding="utf-8")
-            processed["kbtv_profile"] = {
-                "output_file": profile_path.name,
-                "levels": profile["quality"]["levels"],
-                "sampled_grid_point": profile["sampled_grid_point"],
-                "quality": profile["quality"],
-                "diagnostics": profile["diagnostics"]["diagnostics"],
+            station_locations = {
+                "KBTV": (44.4719, -73.1533),
+                "KPBG": (44.6509, -73.4681),
+                "KMSS": (44.9358, -74.8456),
+                "KSLK": (44.3853, -74.2062),
+                "KMPV": (44.2035, -72.5623),
+                "KRUT": (43.5294, -72.9496),
+                "1V4": (44.4193, -72.0194),
+                "KEFK": (44.8888, -72.2292),
             }
-            if (profile["quality"]["levels"] < 20
-                    or not profile["quality"]["pressure_decreases_upward"]
-                    or not profile["quality"]["height_increases_upward"]):
-                passed = False
-                processed["kbtv_profile"]["error"] = "KBTV profile failed vertical quality checks"
+            station_profiles = {}
+            station_summary = {}
+            for station, (latitude, longitude) in station_locations.items():
+                profile = extract_profile(payload, latitude, longitude, station)
+                station_profiles[station] = profile
+                station_summary[station] = {
+                    "levels": profile["quality"]["levels"],
+                    "sampled_grid_point": profile["sampled_grid_point"],
+                    "quality": profile["quality"],
+                    "diagnostics": profile["diagnostics"]["diagnostics"],
+                }
+                if (profile["quality"]["levels"] < 20
+                        or not profile["quality"]["pressure_decreases_upward"]
+                        or not profile["quality"]["height_increases_upward"]):
+                    passed = False
+                    station_summary[station]["error"] = "Station profile failed vertical quality checks"
+            station_path = OUT / "rap_station_profiles.json"
+            station_path.write_text(json.dumps({
+                "model": "RAP",
+                "model_cycle_utc": product["cycle_utc"],
+                "forecast_hour": int(product["forecast_hour"]),
+                "valid_time_utc": payload["valid_time_utc"],
+                "stations": station_profiles,
+            }, indent=2, allow_nan=False) + "\n", encoding="utf-8")
+            profile_path = OUT / "rap_kbtv_profile.json"
+            profile_path.write_text(json.dumps(station_profiles["KBTV"], indent=2, allow_nan=False) + "\n", encoding="utf-8")
+            processed["station_profiles"] = {
+                "output_file": station_path.name,
+                "station_count": len(station_profiles),
+                "stations": station_summary,
+            }
+            processed["kbtv_profile"] = station_summary["KBTV"]
+            processed["kbtv_profile"]["output_file"] = profile_path.name
     report = {
         "status": "passed" if passed else "failed",
         "model": "RAP",
