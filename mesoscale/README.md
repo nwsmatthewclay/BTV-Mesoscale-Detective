@@ -8,7 +8,7 @@ Standalone interactive mesoscale analysis dashboard for the NWS Burlington forec
 - The published RAP forecast archive currently exposes F00, F03, F06 and F09 from a single model cycle. Read `data/fields/forecast/forecast_manifest.json` for the actual current cycle and valid times.
 - Each forecast hour includes regional gridded fields and profiles for KBTV, KPBG, KMSS, KSLK, KMPV, KRUT, 1V4 and KEFK. The latest verified profiles contain 50 levels and pass pressure/height monotonicity checks.
 - The standalone latest RAP grid and KBTV profile are also published.
-- RAP is the full-column source and HRRR now has a separately validated/published surface archive. RRFS remains discovery-only. HRRR is not yet enabled in the interactive model selector.
+- RAP is the full-column source. HRRR now has a separately validated/published surface archive and is enabled in the interactive model selector for supported 2-D surface map fields. RRFS remains discovery-only.
 - `index.html` and `mesoscale.html` are kept byte-for-byte synchronized.
 - The Time Evolution panel plots station-profile diagnostics from each verified RAP archive hour and checks cycle/hour metadata before use; custom points are not assigned nearby-station values.
 
@@ -16,7 +16,7 @@ This is a development/research workspace, not an operationally approved decision
 
 ## Architecture
 
-1. **Acquisition:** discover RAP, HRRR and RRFS production products. The scheduled RAP workflow downloads verified hybrid-level source files; the optional subset utility builds bounded RAP pressure-level and HRRR 2-D requests.
+1. **Acquisition:** discover RAP, HRRR and RRFS production products. The RAP ingestion workflow refreshes discovery before downloading verified hybrid-level source files; the HRRR workflow builds a same-cycle F00/F03/F06/F09 surface archive and publishes it only after validation.
 2. **Subsetting:** crop decoded grids to the padded BTV analysis domain before serialization.
 3. **Processing:** use xarray/cfgrib, MetPy, NumPy and SciPy for GRIB decoding, unit-aware diagnostics, vertical interpolation and profile quality checks.
 4. **Products:** publish compact gzip JSON grids and station profiles with model, cycle, forecast hour, valid time, units, grid geometry and quality metadata.
@@ -52,15 +52,15 @@ Never silently mix analysis time and forecast valid time. Never label model-deri
 ## Development sequence
 
 1. Maintain RAP cycle freshness, multi-hour archive completeness and station/grid quality checks.
-2. Integrate the published HRRR surface grids into the map UI with model-aware parameter availability; keep soundings and cross-sections RAP-only.
-3. Validate transect sampling and cross-section rendering against the published RAP archive.
-4. Validate RAP/HRRR common-valid-time comparisons for fields with compatible definitions and units.
+2. 2. Perform browser-level validation of HRRR map parameter/hour switching, data freshness and stale-layer clearing; keep soundings and cross-sections RAP-only.
+3. Validate RAP/HRRR common-valid-time comparisons for fields with compatible definitions and units.
+4. Preserve GRIB level/step metadata so additional HRRR CAPE and precipitation fields can be exposed without ambiguity.
 5. Add RRFS regional acquisition only after its product inventory and byte-range behavior are verified.
 6. Add stale-data checks, automated tests and clear model-by-model status reporting.
 
 ## Running locally
 
-Open `mesoscale.html` through a local static web server. The interface uses public Leaflet/Plotly CDNs and OpenStreetMap tiles. Published RAP data are loaded from `mesoscale/data/fields/forecast/` and HRRR surface grids from `mesoscale/data/fields/hrrr/`. HRRR is not yet wired into the interactive model selector; RRFS remains discovery-only.
+Open `mesoscale.html` through a local static web server. The interface uses public Leaflet/Plotly CDNs and OpenStreetMap tiles. Published RAP data are loaded from `mesoscale/data/fields/forecast/` and HRRR surface grids from `mesoscale/data/fields/hrrr/`. HRRR map parameters currently include 2-m temperature/dewpoint, 10-m wind speed, gust, composite reflectivity, visibility, CIN and boundary-layer height. Soundings, hodographs, cross-sections and Time Evolution remain RAP-only; RRFS remains discovery-only.
 
 ## Implemented ingestion components
 
@@ -68,7 +68,7 @@ Open `mesoscale.html` through a local static web server. The interface uses publ
 - `validate_rap_ingestion.py` downloads and decodes a current RAP 13-km hybrid-level file, verifies BTV grid coverage, and creates the latest regional grid plus eight station profiles.
 - `validate_hrrr_ingestion.py` validates a live HRRR 2-D surface subset, while `validate_hrrr_archive.py` selects one complete HRRR cycle and verifies F00/F03/F06/F09 before publication.
 - `build_rap_forecast_archive.py` downloads a single RAP cycle at F00/F03/F06/F09, validates all requested hours and station profiles, and writes the forecast manifest.
-- `download_subset.py` builds bounded NOMADS filter requests from exact manifest filenames. The HRRR 2-D surface path is live-validated for four forecast hours; RAP pressure-level subset acquisition remains a separate validation task.
+- `download_subset.py` builds bounded NOMADS filter requests from exact manifest filenames. The HRRR 2-D surface path is live-validated and published for four forecast hours. The UI intentionally withholds CAPE because two distinct CAPE messages are present, and withholds precipitation fields until the GRIB accumulation/step-range metadata are retained.
 - `process_grib.py` decodes GRIB2 with cfgrib, crops 2-D and multi-level grids to the BTV analysis domain, and writes gzip-compressed JSON with grid geometry, units, level coordinates and valid-time metadata.
 - `extract_profile.py` samples full-column profiles at stations or selected map points and writes strict JSON.
 - `diagnostics.py` provides unit-aware MetPy profile calculations for SBCAPE/CIN, MLCAPE/CIN, MUCAPE/CIN, LCL, PWAT, 0-3 km lapse rate, 0-6 km bulk shear and 0-1 km SRH.
