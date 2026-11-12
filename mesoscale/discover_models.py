@@ -97,8 +97,8 @@ def discover_model(session, model, days_back):
             if not match:
                 continue
             if model == "RAP":
-                cycle, forecast = match.groups()
-                product_role = role
+                cycle, family, forecast = match.groups()
+                product_role = role if family.startswith("awp130") else "north_american_32km"
             else:
                 cycle, family, forecast = match.groups()
                 product_role = "pressure_levels" if family == "wrfprsf" else "surface"
