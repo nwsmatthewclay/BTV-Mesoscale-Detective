@@ -156,7 +156,7 @@ function extractRegionalRapProfile(payload,lat,lon,label){
   profile.sort((a,b)=>b.p-a.p);
   if(profile.length<20)throw new Error('Only '+profile.length+' valid hybrid levels at this grid point');
   const z={pressure_hpa:profile.map(a=>a.p),temperature_k:profile.map(a=>a.t),dewpoint_k:profile.map(a=>a.td),height_agl_m:profile.map(a=>a.h),u_ms:profile.map(a=>a.u),v_ms:profile.map(a=>a.v)};
-  return {label,model:'RAP',model_cycle_utc:payload.model_cycle_utc,forecast_hour:payload.forecast_hour,valid_time_utc:payload.valid_time_utc,source_file:payload.source_file,profile:z,diagnostics:{diagnostics:{}},quality:{levels:profile.length,profile_warnings:[]},sampled_grid_point:{latitude:pt.lat,longitude:pt.lon,distance_km:pt.d,grid_id,sampling_method:'nearest RAP grid point'},regional_sample:true};
+  return {label,requested_location:{latitude:lat,longitude:lon},model:'RAP',model_cycle_utc:payload.model_cycle_utc,forecast_hour:payload.forecast_hour,valid_time_utc:payload.valid_time_utc,source_file:payload.source_file,profile:z,diagnostics:{diagnostics:{}},quality:{levels:profile.length,profile_warnings:[]},sampled_grid_point:{latitude:pt.lat,longitude:pt.lon,distance_km:pt.d,grid_id,sampling_method:'nearest RAP grid point'},regional_sample:true};
 }
 
 function squeezeRap2D(data){
@@ -174,11 +174,14 @@ function sampleRapSurface(payload,names,lat,lon){
 }
 function updateRegionalDiagnostics(p,payload){
   const d=p.diagnostics?.diagnostics||{},z=p.profile;
-  const cape=sampleRapSurface(payload,['cape'],p.requested_location.latitude,p.requested_location.longitude);
-  const cin=sampleRapSurface(payload,['cin'],p.requested_location.latitude,p.requested_location.longitude);
-  const pwat=sampleRapSurface(payload,['pwat'],p.requested_location.latitude,p.requested_location.longitude);
-  const shear=(()=>{let lo=0,hi=0;for(let i=0;i<z.height_agl_m.length;i++){if(Math.abs(z.height_agl_m[i]-0)<Math.abs(z.height_agl_m[lo]))lo=i;if(Math.abs(z.height_agl_m[i]-6000)<Math.abs(z.height_agl_m[hi]))hi=i;}return Math.hypot(z.u_ms[hi]-z.u_ms[lo],z.v_ms[hi]-z.v_ms[lo])*1.943844;})();
-  const items=[['MUCAPE',cape?.value,null,'J/kg'],['MLCAPE',null,null,'J/kg'],['MLCIN',cin?.value,null,'J/kg'],['PWAT',pwat?.value,null,pwat?.units||'kg m-2'],['0–6 km shear',shear,null,'kt'],['0–1 km SRH',null,null,'m²/s²']];
+  const loc=p.requested_location;if(!loc||!Number.isFinite(loc.latitude)||!Number.isFinite(loc.longitude))throw new Error('Requested coordinates missing for regional RAP diagnostics');\n  const cape=sampleRapSurface(payload,['cape'],loc.latitude,loc.longitude);
+  const cin=sampleRapSurface(payload,['cin'],loc.latitude,loc.longitude);
+  const pwat=sampleRapSurface(payload,['pwat'],loc.latitude,loc.longitude);
+  const interp=(arr,h)=>{const zz=z.height_agl_m;if(h<Math.min(...zz)||h>Math.max(...zz))return null;let k=0;while(k<zz.length-1&&zz[k+1]<h)k++;if(k>=zz.length-1)return arr[arr.length-1];const f=(h-zz[k])/(zz[k+1]-zz[k]);return arr[k]+f*(arr[k+1]-arr[k]);};
+  const u0=interp(z.u_ms,0),v0=interp(z.v_ms,0),u6=interp(z.u_ms,6000),v6=interp(z.v_ms,6000);
+  const shear=[u0,v0,u6,v6].every(Number.isFinite)?Math.hypot(u6-u0,v6-v0)*1.943844:null;
+  const lr03=(()=>{const t0=interp(z.temperature_k,0),t3=interp(z.temperature_k,3000);return [t0,t3].every(Number.isFinite)?t0-t3:null;})();
+  const items=[['RAP CAPE',cape?.value,null,cape?.units||'J/kg'],['RAP CIN',cin?.value,null,cin?.units||'J/kg'],['MLCAPE',null,null,'J/kg'],['PWAT',pwat?.value,null,pwat?.units||'kg m-2'],['0–6 km shear',shear,null,'kt'],['0–3 km lapse rate',lr03,null,'K/km']];
   document.getElementById('metrics').innerHTML=items.map(([n,v,,u])=>'<div class="metric"><span>'+n+'</span><strong>'+(Number.isFinite(v)?Number(v).toFixed(1):'—')+'</strong><small>'+u+'</small></div>').join('');
   const missing=items.filter(x=>!Number.isFinite(x[1])).map(x=>x[0]);
   return {cape,cin,pwat,shear,missing};
