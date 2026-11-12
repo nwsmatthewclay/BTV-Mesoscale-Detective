@@ -107,8 +107,15 @@ document.getElementById('drawTransect').onclick=()=>{transect=[];drawing=true;do
 document.getElementById('clearTransect').onclick=()=>{transect=[];drawing=false;if(line){map.removeLayer(line);line=null;}document.getElementById('drawTransect').textContent='Draw cross-section line';document.getElementById('mapChip').textContent='BTV CWA · Click map to interrogate a point';};
 document.getElementById('reset').onclick=document.getElementById('locateBtv').onclick=()=>{map.setView([44.4719,-73.1533],7);selectPoint(44.4719,-73.1533,'KBTV');};
 document.getElementById('hour').oninput=e=>document.getElementById('hourOut').textContent='F'+String(e.target.value).padStart(2,'0');
-document.getElementById('model').onchange=e=>{document.getElementById('gridSpacing').textContent='13 km nominal';document.querySelector('#investigation .detail-line:nth-child(1) b').textContent=e.target.value;loadStationProfile(selected.name);};
-document.getElementById('parameter').onchange=e=>{const label=e.target.options[e.target.selectedIndex].text;document.getElementById('mapTitle').textContent='Environment · '+label;updateRapParameter();};
+document.getElementById('model').onchange=e=>{
+  const model=e.target.value;
+  document.getElementById('gridSpacing').textContent=model==='HRRR'?'3 km nominal':(model==='RAP'?'13 km nominal':'3 km nominal · not decoded');
+  document.querySelector('#investigation .detail-line:nth-child(1) b').textContent=model;
+};
+document.getElementById('parameter').onchange=e=>{
+  const label=e.target.options[e.target.selectedIndex].text;
+  document.getElementById('mapTitle').textContent='Environment · '+label;
+};
 document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('active',x===b));window.activeTab=b.dataset.tab;const titles={environment:'Environment',soundings:'Soundings',kinematics:'Kinematics & Forcing',cross:'Cross-Sections',compare:'Model Comparison',evolution:'Time Evolution'};document.getElementById('mapTitle').textContent=titles[window.activeTab]+' · Shared map selection';if(window.activeTab==='cross'&&!line)document.getElementById('mapChip').textContent='Draw a transect using the button below';if(window.activeTab==='evolution'&&window.updateRapTimeEvolution)window.updateRapTimeEvolution();});
 function renderProfilePlaceholder(){/* profile plot is intentionally blank until real vertical data are ingested */}
 Plotly.newPlot('profile',[],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:48,r:12,t:24,b:38},xaxis:{title:'Temperature (°C)',color:'#9cb2c5',gridcolor:'#24435e'},yaxis:{title:'Pressure (hPa)',type:'log',autorange:'reversed',color:'#9cb2c5',gridcolor:'#24435e'},showlegend:true,legend:{font:{color:'#dceaf4'},orientation:'h',y:1.18}},{displayModeBar:false,responsive:true});
@@ -116,6 +123,7 @@ Plotly.newPlot('profile',[],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',marg
 let rapGridPayloadPromises={},hrrrGridPayloadPromises={};
 let rapForecastManifest=null,hrrrForecastManifest=null;
 let activeRapHour=0,activeHrrrHour=0;
+let activeModelSelection=document.getElementById('model').value||'RAP';
 let availableRapHours=[],availableHrrrHours=[];
 async function loadRapForecastManifest(){
   try{
@@ -155,6 +163,18 @@ function nearestAvailableHrrrHour(value){
   if(!availableHrrrHours.length)return 0;
   return availableHrrrHours.reduce((best,h)=>Math.abs(h-value)<Math.abs(best-value)?h:best,availableHrrrHours[0]);
 }
+function nearestArchiveHourForValidTime(manifest,validTime){
+  const entries=manifest?.hours||[];
+  if(!entries.length)return 0;
+  const target=Date.parse(validTime||'');
+  if(!Number.isFinite(target))return Number(entries[0].forecast_hour);
+  let best=entries[0],bestDelta=Infinity;
+  for(const entry of entries){
+    const delta=Math.abs(Date.parse(entry.valid_time_utc||'')-target);
+    if(Number.isFinite(delta)&&delta<bestDelta){best=entry;bestDelta=delta;}
+  }
+  return Number(best.forecast_hour);
+}
 async function loadRapGrid(hour=activeRapHour){
   const useArchive=rapForecastManifest&&availableRapHours.length;
   const selectedHour=useArchive?nearestAvailableRapHour(Number(hour)):0;
@@ -171,6 +191,7 @@ async function loadRapGrid(hour=activeRapHour){
       if(payload.model!=='RAP')throw new Error('RAP grid payload model mismatch: '+(payload.model||'unknown'));
       if(useArchive&&payload.model_cycle_utc!==rapForecastManifest.model_cycle_utc)throw new Error('RAP grid cycle does not match the selected archive');
       if(useArchive&&Number(payload.forecast_hour)!==selectedHour)throw new Error('Requested F'+selectedHour+' but file contains F'+payload.forecast_hour);
+      if(useArchive&&entry.valid_time_utc&&payload.valid_time_utc!==entry.valid_time_utc)throw new Error('RAP grid valid time does not match the published manifest');
       if(!payload.fields||!payload.grids)throw new Error('RAP grid payload is missing fields or grids');
       window.rapGridPayload=payload;return payload;
     })().catch(e=>{delete rapGridPayloadPromises[key];throw e;});
@@ -192,6 +213,7 @@ async function loadHrrrGrid(hour=activeHrrrHour){
       const stream=response.body.pipeThrough(new DecompressionStream('gzip'));
       const payload=await new Response(stream).json();
       if(payload.model!=='HRRR'||payload.model_cycle_utc!==hrrrForecastManifest.model_cycle_utc||Number(payload.forecast_hour)!==selectedHour)throw new Error('HRRR grid metadata does not match the selected cycle/hour');
+      if(entry.valid_time_utc&&payload.valid_time_utc!==entry.valid_time_utc)throw new Error('HRRR grid valid time does not match the published manifest');
       if(!payload.fields||!payload.grids)throw new Error('HRRR grid payload is missing fields or grids');
       window.hrrrGridPayload=payload;return payload;
     })().catch(error=>{delete hrrrGridPayloadPromises[key];throw error;});
@@ -584,6 +606,8 @@ async function loadModelManifest(){
       option.textContent=archive.model_cycle_utc+' · '+selectedModel+(selectedModel==='HRRR'?' surface':'')+' archive';
       cycleSelect.appendChild(option);
       const activeHour=selectedModel==='RAP'?activeRapHour:activeHrrrHour;
+      const activeEntry=archive.hours.find(x=>Number(x.forecast_hour)===activeHour);
+      const activeValidTime=activeEntry?.valid_time_utc||'valid time unavailable';
       const slider=document.getElementById('hour');
       slider.min=hours[0];slider.max=hours[hours.length-1];slider.step=1;slider.value=activeHour;
       document.getElementById('hourOut').textContent='F'+String(activeHour).padStart(2,'0');
@@ -591,9 +615,9 @@ async function loadModelManifest(){
       document.querySelector('#investigation .detail-line:nth-child(2) b').textContent=archive.model_cycle_utc;
       document.getElementById('mapTitle').textContent=selectedModel+' · '+(selectedModel==='HRRR'?'Surface analysis':'Mesoscale environment');
       updateRapArchiveFreshness();
-      document.getElementById('mapChip').textContent=selectedModel+' F'+String(activeHour).padStart(2,'0')+' · '+archive.model_cycle_utc+' · verified regional grid';
+      document.getElementById('mapChip').textContent=selectedModel+' F'+String(activeHour).padStart(2,'0')+' · '+archive.model_cycle_utc+' · valid '+activeValidTime+' · verified regional grid';
       const newerDiscovery=cycles[0]&&cycles[0]>archive.model_cycle_utc?' · newer products discovered: '+cycles[0]:'';
-      document.getElementById('selectionStatus').textContent='Verified hours: '+hours.map(h=>'F'+String(h).padStart(2,'0')).join(', ')+newerDiscovery;
+      document.getElementById('selectionStatus').textContent='Verified hours: '+hours.map(h=>'F'+String(h).padStart(2,'0')).join(', ')+' · active valid time: '+activeValidTime+newerDiscovery;
       return;
     }
     if(!cycles.length){
@@ -631,6 +655,18 @@ function updateParameterOptions(){
   if(model!=='HRRR'&&select.value.startsWith('hrrr_'))select.value='cape';
 }
 document.getElementById('model').addEventListener('change',async()=>{
+  const nextModel=document.getElementById('model').value;
+  const previousModel=activeModelSelection==='HRRR'?'HRRR':'RAP';
+  const previousManifest=previousModel==='HRRR'?hrrrForecastManifest:rapForecastManifest;
+  const previousHour=previousModel==='HRRR'?activeHrrrHour:activeRapHour;
+  const previousEntry=previousManifest?.hours?.find(x=>Number(x.forecast_hour)===previousHour);
+  const previousValidTime=previousEntry?.valid_time_utc;
+  if(nextModel==='HRRR'&&hrrrForecastManifest&&previousValidTime){
+    activeHrrrHour=nearestArchiveHourForValidTime(hrrrForecastManifest,previousValidTime);
+  }else if(nextModel==='RAP'&&rapForecastManifest&&previousValidTime){
+    activeRapHour=nearestArchiveHourForValidTime(rapForecastManifest,previousValidTime);
+  }
+  activeModelSelection=nextModel;
   updateParameterOptions();
   await loadModelManifest();
   await Promise.all([updateRapParameter(),loadStationProfile(window.rapKbtvProfile?.label||'KBTV')]);
@@ -652,7 +688,9 @@ document.getElementById('hour').addEventListener('change',async()=>{
   const activeHour=model==='HRRR'?activeHrrrHour:activeRapHour;
   document.getElementById('hour').value=activeHour;
   document.getElementById('hourOut').textContent='F'+String(activeHour).padStart(2,'0');
-  document.getElementById('mapChip').textContent='Loading '+model+' F'+String(activeHour).padStart(2,'0')+' · '+(model==='HRRR'?hrrrForecastManifest?.model_cycle_utc:rapForecastManifest?.model_cycle_utc||'latest cycle');
+  const activeManifest=model==='HRRR'?hrrrForecastManifest:rapForecastManifest;
+  const activeEntry=activeManifest?.hours?.find(x=>Number(x.forecast_hour)===activeHour);
+  document.getElementById('mapChip').textContent='Loading '+model+' F'+String(activeHour).padStart(2,'0')+' · valid '+(activeEntry?.valid_time_utc||'time unavailable')+' · '+(activeManifest?.model_cycle_utc||'latest cycle');
   await Promise.all([updateRapParameter(),loadStationProfile(window.rapKbtvProfile?.label||'KBTV')]);
 });
 Promise.all([loadRapForecastManifest(),loadHrrrForecastManifest()]).then(async()=>{
