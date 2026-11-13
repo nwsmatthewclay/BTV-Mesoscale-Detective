@@ -3,6 +3,8 @@ import json
 from collections import defaultdict
 from pathlib import Path
 
+from mesoscale.cross_section import build_cross_section
+
 
 ROOT = Path(__file__).resolve().parents[2]
 ARCHIVE = ROOT / "mesoscale/data/fields/forecast/fields/rap_f00.json.gz"
@@ -40,3 +42,23 @@ def test_print_verified_rap_field_inventory():
     print("VERIFIED_RAP_F00_FIELD_INVENTORY=" + json.dumps(catalog, sort_keys=True))
     assert len(catalog) > 0
     assert any("hybrid" in field.get("dimensions", []) for fields in catalog.values() for field in fields)
+    assert "w" in catalog
+    omega = catalog["w"][0]
+    assert omega["units"] == "Pa s**-1"
+    assert omega["level_coordinates"]["hybrid"]["count"] == 50
+
+    # Exercise the engine against the real committed RAP archive, not only
+    # synthetic arrays. This confirms omega and temperature share pressure's
+    # native hybrid coordinate and regional grid.
+    section = build_cross_section(
+        payload,
+        (44.4719, -73.1533),
+        (44.2035, -72.5623),
+        {"omega": "w", "temperature": "t", "height": "gh"},
+        pressure_levels_hpa=[950, 900, 850, 800, 750, 700, 650, 600, 550, 500],
+        sample_count=50,
+    )
+    assert section["fields"]["omega"]["units"] == "Pa s**-1"
+    assert section["quality"]["sample_count"] >= 2
+    assert len(section["fields"]["omega"]["values"]) == section["quality"]["sample_count"]
+    assert len(section["fields"]["omega"]["values"][0]) == 10
