@@ -16,7 +16,21 @@
     153,
     145
   ],
+  "render_grid_shape": [
+    153,
+    145
+  ],
   "source_grid_id": "grid_0",
+  "source_grid_stride": 5,
+  "render_stride": 1,
+  "source_effective_spacing_m": {
+    "x": 15000.0,
+    "y": 15000.0
+  },
+  "render_effective_spacing_m": {
+    "x": 15000.0,
+    "y": 15000.0
+  },
   "display_range": [
     -10.0,
     19.83239999999998
@@ -38,5 +52,5 @@
   "contour_feature_count": 1087,
   "tile_url": "hrrr/20261113T140000Z/f00/refc_2d_0/tiles/{z}/{x}/{y}.png",
   "contour_url": "hrrr/20261113T140000Z/f00/refc_2d_0/contours.geojson",
-  "rendering": "linear interpolation from native model grid; contours calculated independently on native geographic grid"
+  "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling"
 }

@@ -16,7 +16,21 @@
     153,
     145
   ],
+  "render_grid_shape": [
+    153,
+    145
+  ],
   "source_grid_id": "grid_4",
+  "source_grid_stride": 5,
+  "render_stride": 1,
+  "source_effective_spacing_m": {
+    "x": 15000.0,
+    "y": 15000.0
+  },
+  "render_effective_spacing_m": {
+    "x": 15000.0,
+    "y": 15000.0
+  },
   "display_range": [
     0.0,
     115.3
@@ -44,5 +58,5 @@
   "contour_feature_count": 880,
   "tile_url": "hrrr/20261113T140000Z/f00/cape_2d_4/tiles/{z}/{x}/{y}.png",
   "contour_url": "hrrr/20261113T140000Z/f00/cape_2d_4/contours.geojson",
-  "rendering": "linear interpolation from native model grid; contours calculated independently on native geographic grid"
+  "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling"
 }

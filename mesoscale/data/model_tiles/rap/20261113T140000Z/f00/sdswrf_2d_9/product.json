@@ -16,7 +16,21 @@
     113,
     89
   ],
+  "render_grid_shape": [
+    113,
+    89
+  ],
   "source_grid_id": "grid_9",
+  "source_grid_stride": 2,
+  "render_stride": 1,
+  "source_effective_spacing_m": {
+    "x": 27090.0,
+    "y": 27090.0
+  },
+  "render_effective_spacing_m": {
+    "x": 27090.0,
+    "y": 27090.0
+  },
   "display_range": [
     12.38,
     393.62
@@ -39,5 +53,5 @@
   "contour_feature_count": 528,
   "tile_url": "rap/20261113T140000Z/f00/sdswrf_2d_9/tiles/{z}/{x}/{y}.png",
   "contour_url": "rap/20261113T140000Z/f00/sdswrf_2d_9/contours.geojson",
-  "rendering": "linear interpolation from native model grid; contours calculated independently on native geographic grid"
+  "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling"
 }
