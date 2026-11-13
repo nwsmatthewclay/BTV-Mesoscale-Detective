@@ -18,6 +18,7 @@ def sample_payload():
         "model_cycle_utc": CYCLE,
         "forecast_hour": 0,
         "valid_time_utc": CYCLE,
+        "domain": DOMAIN,
         "grids": {
             "grid_0": {
                 "latitude": [[32.0, 32.0], [52.0, 52.0]],
