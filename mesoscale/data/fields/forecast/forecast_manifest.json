@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "model": "RAP",
-  "model_cycle_utc": "20261113T14:00:00Z",
-  "created_utc": "2026-11-13T15:17:06.606915+00:00",
+  "model_cycle_utc": "20261113T17:00:00Z",
+  "created_utc": "2026-11-13T18:16:58.819385+00:00",
   "domain": {
     "west": -90.0,
     "east": -60.0,
@@ -12,71 +12,951 @@
   "hours": [
     {
       "forecast_hour": 0,
-      "valid_time_utc": "2026-11-13T14:00:00Z",
-      "source_file": "rap.t14z.awp130bgrbf00.grib2",
-      "download_bytes": 40237286,
+      "valid_time_utc": "2026-11-13T17:00:00Z",
+      "source_file": "rap.t17z.awp130bgrbf00.grib2",
+      "download_bytes": 39054814,
       "grid_file": "fields/rap_f00.json.gz",
       "station_file": "fields/rap_f00_stations.json",
       "field_count": 58,
       "grid_count": 12,
+      "grid_sampling": {
+        "grid_0": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_1": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_2": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_3": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_4": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_5": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_6": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_7": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_8": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_9": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_10": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_11": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        }
+      },
       "station_count": 8
     },
     {
       "forecast_hour": 3,
-      "valid_time_utc": "2026-11-13T17:00:00Z",
-      "source_file": "rap.t14z.awp130bgrbf03.grib2",
-      "download_bytes": 39615295,
+      "valid_time_utc": "2026-11-13T20:00:00Z",
+      "source_file": "rap.t17z.awp130bgrbf03.grib2",
+      "download_bytes": 39134694,
       "grid_file": "fields/rap_f03.json.gz",
       "station_file": "fields/rap_f03_stations.json",
       "field_count": 58,
       "grid_count": 12,
+      "grid_sampling": {
+        "grid_0": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_1": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_2": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_3": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_4": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_5": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_6": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_7": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_8": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_9": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_10": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_11": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        }
+      },
       "station_count": 8
     },
     {
       "forecast_hour": 6,
-      "valid_time_utc": "2026-11-13T20:00:00Z",
-      "source_file": "rap.t14z.awp130bgrbf06.grib2",
-      "download_bytes": 39242754,
+      "valid_time_utc": "2026-11-13T23:00:00Z",
+      "source_file": "rap.t17z.awp130bgrbf06.grib2",
+      "download_bytes": 39700323,
       "grid_file": "fields/rap_f06.json.gz",
       "station_file": "fields/rap_f06_stations.json",
       "field_count": 58,
       "grid_count": 12,
+      "grid_sampling": {
+        "grid_0": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_1": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_2": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_3": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_4": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_5": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_6": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_7": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_8": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_9": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_10": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_11": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        }
+      },
       "station_count": 8
     },
     {
       "forecast_hour": 9,
-      "valid_time_utc": "2026-11-13T23:00:00Z",
-      "source_file": "rap.t14z.awp130bgrbf09.grib2",
-      "download_bytes": 39934518,
+      "valid_time_utc": "2026-11-14T02:00:00Z",
+      "source_file": "rap.t17z.awp130bgrbf09.grib2",
+      "download_bytes": 40209201,
       "grid_file": "fields/rap_f09.json.gz",
       "station_file": "fields/rap_f09_stations.json",
       "field_count": 58,
       "grid_count": 12,
+      "grid_sampling": {
+        "grid_0": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_1": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_2": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_3": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_4": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_5": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_6": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_7": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_8": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_9": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_10": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_11": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        }
+      },
       "station_count": 8
     },
     {
       "forecast_hour": 12,
-      "valid_time_utc": "2026-11-14T02:00:00Z",
-      "source_file": "rap.t14z.awp130bgrbf12.grib2",
-      "download_bytes": 40300904,
+      "valid_time_utc": "2026-11-14T05:00:00Z",
+      "source_file": "rap.t17z.awp130bgrbf12.grib2",
+      "download_bytes": 40276721,
       "grid_file": "fields/rap_f12.json.gz",
       "station_file": "fields/rap_f12_stations.json",
       "field_count": 58,
       "grid_count": 12,
+      "grid_sampling": {
+        "grid_0": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_1": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_2": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_3": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_4": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_5": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_6": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_7": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_8": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_9": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_10": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_11": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        }
+      },
       "station_count": 8
     },
     {
       "forecast_hour": 15,
-      "valid_time_utc": "2026-11-14T05:00:00Z",
-      "source_file": "rap.t14z.awp130bgrbf15.grib2",
-      "download_bytes": 40471328,
+      "valid_time_utc": "2026-11-14T08:00:00Z",
+      "source_file": "rap.t17z.awp130bgrbf15.grib2",
+      "download_bytes": 40554774,
       "grid_file": "fields/rap_f15.json.gz",
       "station_file": "fields/rap_f15_stations.json",
       "field_count": 58,
       "grid_count": 12,
+      "grid_sampling": {
+        "grid_0": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_1": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_2": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_3": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_4": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_5": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_6": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_7": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_8": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_9": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_10": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        },
+        "grid_11": {
+          "max_grid_dim": 320,
+          "stride": 1,
+          "source_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          },
+          "effective_spacing_m": {
+            "x": 13545.0,
+            "y": 13545.0
+          }
+        }
+      },
       "station_count": 8
     }
   ],
+  "processing": {
+    "max_grid_dim": 320,
+    "sampling_method": "uniform row/column stride"
+  },
   "quality": {
     "status": "passed",
     "hours_verified": 6
