@@ -79,11 +79,20 @@ jobs:
                       if data.ndim == 2:
                           available.setdefault(field["short_name"], key)
               for short_name, key in available.items():
-                  subprocess.run([
+                  command = [
                       sys.executable, "mesoscale/render_model_tiles.py",
                       "--input", str(grid_path), "--field", key,
                       "--zoom-min", "3", "--zoom-max", "7"
-                  ], check=True)
+                  ]
+                  # Normalize common user-facing units while preserving source values in metadata.
+                  if short_name in ("2t", "2d"):
+                      command += ["--offset", "-273.15", "--display-units", "°C",
+                                  "--display-label", "2-m temperature" if short_name == "2t" else "2-m dewpoint"]
+                  elif short_name == "gust":
+                      command += ["--scale", "1.943844", "--display-units", "kt", "--display-label", "Wind gust"]
+                  elif short_name == "vis":
+                      command += ["--scale", "0.001", "--display-units", "km", "--display-label", "Visibility"]
+                  subprocess.run(command, check=True)
           PY
           }
           render_archive mesoscale/data/fields/forecast/forecast_manifest.json RAP
