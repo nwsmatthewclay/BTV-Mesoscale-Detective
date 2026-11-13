@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Crop decoded GRIB2 fields to the BTV domain and publish compact gzip JSON.
+"""Crop decoded GRIB2 fields to the expanded Great Lakes–Northeast domain and publish compact gzip JSON.
 
 The output preserves model, cycle, forecast hour, valid time, units,
 level coordinate and grid coordinates. 2-D and multi-level fields remain
@@ -172,7 +172,7 @@ def process_file(path: Path, model: str, cycle: str, forecast_hour: int,
             ds.close()
 
     if not fields:
-        raise RuntimeError("No gridded variables found inside the BTV geographic domain")
+        raise RuntimeError("No gridded variables found inside the expanded regional analysis domain")
     payload = {
         "schema_version": 1,
         "created_utc": datetime.now(timezone.utc).isoformat(),
