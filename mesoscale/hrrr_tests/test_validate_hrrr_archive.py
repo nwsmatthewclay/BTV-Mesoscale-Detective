@@ -5,6 +5,7 @@ import pytest
 
 from datetime import datetime, timedelta, timezone
 
+from mesoscale.process_grib import DOMAIN
 from mesoscale.validate_hrrr_archive import (
     archive_needs_update,
     choose_cycle_products,
@@ -32,6 +33,7 @@ def write_hrrr_archive_files(archive_root, archive):
             "model_cycle_utc": archive["model_cycle_utc"],
             "forecast_hour": entry["forecast_hour"],
             "valid_time_utc": entry["valid_time_utc"],
+            "domain": DOMAIN,
             "grids": {
                 "btv": {
                     "latitude": [[44.5]],
