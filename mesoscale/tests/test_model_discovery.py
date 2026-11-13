@@ -192,7 +192,8 @@ def test_index_summary_parses_only_valid_nomads_grib_index_records():
     assert result["message_count"] == 2
     assert result["messages"][0]["byte_offset"] == 0
     assert result["messages"][1]["message"] == "12.1"
-    assert result["messages"][1]["level"] == "UGRD"
+    assert result["messages"][1]["short_name"] == "UGRD"
+    assert result["messages"][1]["level"] == "100 mb"
 
 
 def test_index_summary_rejects_html_error_pages_returned_with_http_200():

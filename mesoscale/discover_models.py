@@ -74,7 +74,8 @@ def index_summary(session: requests.Session, grib_url: str) -> dict:
             "message": parts[0],
             "byte_offset": int(parts[1]),
             "reference": parts[2],
-            "level": parts[3],
+            "short_name": parts[3],
+            "level": parts[4],
             "description": ":".join(parts[4:]),
         })
     if not messages:

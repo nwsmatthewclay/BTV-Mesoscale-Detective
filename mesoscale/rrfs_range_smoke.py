@@ -1,0 +1,262 @@
+#!/usr/bin/env python3
+"""Safely smoke-test RRFS indexed HTTP byte-range retrieval without publishing data."""
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from pathlib import Path
+
+import requests
+
+HEADERS = {
+    "User-Agent": "BTV-Mesoscale-Detective/0.1 (NWS forecast office research)",
+    "Accept-Encoding": "identity",
+}
+MAX_MESSAGE_BYTES = 20_000_000
+CONTENT_RANGE_RE = re.compile(r"bytes\s+(\d+)-(\d+)/(\d+)$", re.IGNORECASE)
+
+
+def select_rrfs_product(manifest: dict) -> dict:
+    """Select the newest indexed 3-km RRFS subhourly surface product."""
+    products = (manifest.get("models") or {}).get("RRFS", {}).get("latest_products") or []
+    candidates = [
+        item for item in products
+        if item.get("product") == "surface_subhourly_3km"
+        and item.get("url")
+        and isinstance(item.get("index"), dict)
+        and item["index"].get("messages")
+    ]
+    if not candidates:
+        index_errors = [
+            item.get("index_error") for item in products
+            if item.get("product") == "surface_subhourly_3km" and item.get("index_error")
+        ]
+        detail = f"; latest index error: {index_errors[0]}" if index_errors else ""
+        raise ValueError(
+            "No RRFS 3-km subhourly surface product with indexed message metadata is available"
+            + detail
+        )
+    return max(
+        candidates,
+        key=lambda item: (
+            str(item.get("cycle_utc") or ""),
+            -int(item.get("forecast_lead_minutes") or 0),
+        ),
+    )
+
+
+def plan_index_ranges(
+    messages: list[dict],
+    limit: int = 3,
+    max_message_bytes: int = MAX_MESSAGE_BYTES,
+) -> list[dict]:
+    """Use each next GRIB-index offset to bound the preceding message."""
+    if limit < 1:
+        raise ValueError("message limit must be at least one")
+    if max_message_bytes < 1:
+        raise ValueError("maximum message size must be positive")
+    if not isinstance(messages, list) or len(messages) < 2:
+        raise ValueError("at least two index records are required to bound a message")
+
+    offsets = []
+    for index, record in enumerate(messages):
+        try:
+            offset = int(record["byte_offset"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError(f"index record {index + 1} has an invalid byte offset") from exc
+        if offset < 0 or (offsets and offset <= offsets[-1]):
+            raise ValueError("GRIB index byte offsets must be non-negative and strictly increasing")
+        offsets.append(offset)
+
+    planned = []
+    for index in range(min(limit, len(messages) - 1)):
+        start = offsets[index]
+        end = offsets[index + 1] - 1
+        size = end - start + 1
+        if size <= 0:
+            raise ValueError(f"index record {index + 1} has an empty byte range")
+        if size > max_message_bytes:
+            raise ValueError(
+                f"indexed message {messages[index].get('message', index + 1)} "
+                f"exceeds the {max_message_bytes}-byte safety cap ({size} bytes)"
+            )
+        record = messages[index]
+        planned.append({
+            "message": str(record.get("message", index + 1)),
+            "short_name": record.get("short_name") or record.get("level"),
+            "level": record.get("level"),
+            "description": record.get("description", ""),
+            "start": start,
+            "end": end,
+            "bytes": size,
+        })
+    if not planned:
+        raise ValueError("no bounded GRIB messages could be planned")
+    return planned
+
+
+def verify_content_range(value: str | None, start: int, end: int) -> int:
+    """Require an exact HTTP 206 Content-Range response for the requested bytes."""
+    match = CONTENT_RANGE_RE.fullmatch((value or "").strip())
+    if not match:
+        raise RuntimeError(f"Missing or invalid Content-Range header: {value!r}")
+    actual_start, actual_end, total = map(int, match.groups())
+    if actual_start != start or actual_end != end or total <= end:
+        raise RuntimeError(
+            f"Content-Range mismatch: expected bytes {start}-{end}/N, "
+            f"received bytes {actual_start}-{actual_end}/{total}"
+        )
+    return total
+
+
+def fetch_indexed_message(
+    session: requests.Session,
+    url: str,
+    record: dict,
+) -> bytes:
+    """Fetch one indexed message and reject servers that ignore byte ranges."""
+    start, end = int(record["start"]), int(record["end"])
+    headers = {**HEADERS, "Range": f"bytes={start}-{end}"}
+    with session.get(url, headers=headers, timeout=(20, 90)) as response:
+        if response.status_code != 206:
+            raise RuntimeError(
+                f"NOMADS did not honor the requested byte range "
+                f"(HTTP {response.status_code}; expected 206)"
+            )
+        response.raise_for_status()
+        verify_content_range(response.headers.get("Content-Range"), start, end)
+        payload = response.content
+
+    if len(payload) != end - start + 1:
+        raise RuntimeError(
+            f"Range body length mismatch: expected {end - start + 1}, received {len(payload)}"
+        )
+    if not payload.startswith(b"GRIB") or payload[-4:] != b"7777":
+        raise RuntimeError("Indexed byte range is not one complete GRIB message")
+    return payload
+
+
+def decode_grib_message(payload: bytes) -> dict:
+    """Decode GRIB metadata and verify that the message contains finite field values."""
+    try:
+        import numpy as np
+        from eccodes import (
+            codes_get,
+            codes_get_array,
+            codes_new_from_message,
+            codes_release,
+        )
+    except ImportError as exc:
+        raise RuntimeError("The RRFS smoke test requires numpy and eccodes") from exc
+
+    handle = codes_new_from_message(payload)
+    if handle is None:
+        raise RuntimeError("ecCodes could not create a handle for the indexed GRIB message")
+    try:
+        values = np.asarray(codes_get_array(handle, "values"), dtype=float)
+        finite_count = int(np.isfinite(values).sum())
+        if finite_count < 1:
+            raise RuntimeError("Decoded GRIB message contains no finite grid values")
+
+        def optional(key):
+            try:
+                return codes_get(handle, key)
+            except Exception:
+                return None
+
+        return {
+            "short_name": optional("shortName"),
+            "type_of_level": optional("typeOfLevel"),
+            "level": optional("level"),
+            "data_date": optional("dataDate"),
+            "data_time": optional("dataTime"),
+            "step_range": optional("stepRange"),
+            "number_of_points": int(values.size),
+            "finite_value_count": finite_count,
+        }
+    finally:
+        codes_release(handle)
+
+
+def run_smoke(
+    manifest: dict,
+    session: requests.Session,
+    message_limit: int = 3,
+    decoder=decode_grib_message,
+) -> dict:
+    """Download and decode a small set of indexed messages entirely in memory."""
+    product = select_rrfs_product(manifest)
+    index = product["index"]
+    index_url = index.get("url")
+    if index_url != product["url"] + ".idx":
+        raise ValueError("RRFS index URL does not match the selected GRIB product URL")
+
+    ranges = plan_index_ranges(index.get("messages") or [], limit=message_limit)
+    decoded_messages = []
+    total_bytes = 0
+    for record in ranges:
+        payload = fetch_indexed_message(session, product["url"], record)
+        decoded = decoder(payload)
+        expected_name = str(record.get("short_name") or "").lower()
+        actual_name = str(decoded.get("short_name") or "").lower()
+        if expected_name and actual_name and expected_name != actual_name:
+            raise RuntimeError(
+                f"GRIB message {record['message']} short-name mismatch: "
+                f"index={expected_name}, decoded={actual_name}"
+            )
+        total_bytes += len(payload)
+        decoded_messages.append({
+            **record,
+            "decoded": decoded,
+        })
+
+    return {
+        "status": "passed",
+        "model": "RRFS",
+        "product": product["product"],
+        "filename": product["filename"],
+        "model_cycle_utc": product["cycle_utc"],
+        "forecast_step": product.get("forecast_step"),
+        "forecast_lead_minutes": product.get("forecast_lead_minutes"),
+        "index_url": index_url,
+        "index_message_count": index.get("message_count", len(index.get("messages") or [])),
+        "messages_verified": len(decoded_messages),
+        "bytes_downloaded": total_bytes,
+        "publication": False,
+        "messages": decoded_messages,
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--manifest", default="mesoscale/data/model_manifest.json")
+    parser.add_argument("--messages", type=int, default=3)
+    parser.add_argument("--output", help="Optional JSON report path")
+    args = parser.parse_args()
+
+    try:
+        manifest = json.loads(Path(args.manifest).read_text(encoding="utf-8"))
+        session = requests.Session()
+        session.headers.update(HEADERS)
+        report = run_smoke(manifest, session, message_limit=args.messages)
+    except Exception as exc:
+        report = {"status": "failed", "error": f"{type(exc).__name__}: {exc}", "publication": False}
+        print(json.dumps(report, indent=2), file=sys.stderr)
+        if args.output:
+            output = Path(args.output)
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+        return 1
+
+    print(json.dumps(report, indent=2))
+    if args.output:
+        output = Path(args.output)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

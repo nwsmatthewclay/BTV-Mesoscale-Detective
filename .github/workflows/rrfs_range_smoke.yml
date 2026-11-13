@@ -1,0 +1,50 @@
+name: RRFS 3-km Indexed Range Smoke Test
+
+on:
+  workflow_run:
+    workflows: ["Mesoscale Model Discovery and Validation"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rrfs-indexed-range-smoke
+  cancel-in-progress: false
+
+jobs:
+  rrfs-range-smoke:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out latest discovered main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install RRFS range-smoke dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests numpy eccodes pytest
+      - name: Run indexed-range unit tests
+        run: pytest -q mesoscale/tests/test_rrfs_range_smoke.py
+      - name: Fetch and decode bounded RRFS GRIB messages
+        run: |
+          python mesoscale/rrfs_range_smoke.py \
+            --manifest mesoscale/data/model_manifest.json \
+            --messages 3 \
+            --output "$RUNNER_TEMP/rrfs_range_smoke.json"
+      - name: Upload RRFS range-smoke report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rrfs-indexed-range-smoke-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rrfs_range_smoke.json
+          if-no-files-found: ignore
+          retention-days: 7
