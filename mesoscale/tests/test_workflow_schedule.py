@@ -58,7 +58,7 @@ def test_tile_workflow_owns_its_pages_deployment_without_duplicate_pushes():
     paths = standalone.split("    paths:\n", 1)[1].split("  workflow_dispatch:", 1)[0]
     assert "!mesoscale/data/model_tiles/**" in paths
     assert "!mesoscale/render_model_tiles.py" in paths
-    assert "!mesoscale/tests/test_model_tiles.py" in paths
+    assert "!mesoscale/tests/**" in paths
     assert ".github/workflows/deploy_pages.yml" not in paths
     assert "  workflow_run:" not in standalone
 
