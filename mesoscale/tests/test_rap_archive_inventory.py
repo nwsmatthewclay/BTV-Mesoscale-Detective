@@ -1,5 +1,7 @@
 import gzip
 import json
+
+import pytest
 from collections import defaultdict
 from pathlib import Path
 
@@ -67,6 +69,10 @@ def test_print_verified_rap_field_inventory():
 
 
 def test_sharppy_calculates_from_real_archived_kbtv_rap_profile():
+    pytest.importorskip(
+        "sharppy",
+        reason="SHARPpy is optional; its dedicated workflow validates the adapter",
+    )
     station_archive = ARCHIVE.with_name("rap_f00_stations.json")
     assert station_archive.is_file()
     payload = json.loads(station_archive.read_text(encoding="utf-8"))
