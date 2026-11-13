@@ -258,7 +258,7 @@ def main():
     parser.add_argument("--cycle", required=True, help="UTC cycle ISO timestamp")
     parser.add_argument("--forecast-hour", type=int, required=True)
     parser.add_argument("--output", required=True)
-    parser.add_argument("--max-grid-dim", type=int, default=160)
+    parser.add_argument("--max-grid-dim", type=int, default=320)
     args = parser.parse_args()
     payload = process_file(Path(args.grib_file), args.model, args.cycle,
                            args.forecast_hour, Path(args.output), args.max_grid_dim)
