@@ -112,7 +112,8 @@ The RAP profile extractor now includes a separate `sharppy` result block for eac
 Install the optional dependency in an isolated environment with:
 
 ```bash
-python -m pip install -r mesoscale/requirements-sharppy.txt
+conda env create -f mesoscale/environment-sharppy.yml
+conda activate btv-sharppy
 pytest -q mesoscale/tests/test_sharppy_adapter.py
 ```
 
