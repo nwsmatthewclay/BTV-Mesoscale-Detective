@@ -11,6 +11,12 @@ on:
       - "mesoscale/tests/test_rap_archive_inventory.py"
       - "mesoscale/tests/test_profile_validation.py"
       - "mesoscale/process_grib.py"
+      - "mesoscale/download_subset.py"
+      - "mesoscale/validate_hrrr_archive.py"
+      - "mesoscale/build_rap_forecast_archive.py"
+      - "mesoscale/hrrr_tests/**"
+      - "mesoscale/tests/test_cross_section_contract.py"
+      - "mesoscale/tests/test_frontend_contract.py"
       - "mesoscale/inspect_grib.py"
       - "mesoscale/probe_rap_projection.py"
       - "mesoscale/environment-sharppy.yml"
@@ -42,12 +48,14 @@ jobs:
           activate-environment: btv-sharppy
           environment-file: mesoscale/environment-sharppy.yml
           auto-activate: true
-      - name: Validate SHARPpy adapter
-        shell: bash -el {0}
-        run: PYTHONPATH=. pytest -s -q mesoscale/tests/test_sharppy_adapter.py mesoscale/tests/test_cross_section_engine.py mesoscale/tests/test_rap_archive_inventory.py mesoscale/tests/test_profile_validation.py mesoscale/tests/test_frontogenesis.py
-      - name: Install read-only live GRIB probe dependencies
+      - name: Install full regression and read-only live GRIB probe dependencies
         shell: bash -el {0}
         run: python -m pip install xarray cfgrib eccodes requests
+      - name: Run full mesoscale and SHARPpy regression suite
+        shell: bash -el {0}
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: pytest -s -q mesoscale/tests mesoscale/hrrr_tests
       - name: Probe current RAP projection and wind-orientation metadata
         shell: bash -el {0}
         env:
