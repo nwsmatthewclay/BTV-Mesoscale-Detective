@@ -998,10 +998,9 @@ const NATIVE_FIELD_CATEGORIES={
 function syncDynamicFieldOptions(payload,model){
   const select=document.getElementById('parameter');
   const existing=new Set(Array.from(select.options).filter(option=>option.dataset.model===model).map(option=>option.dataset.fieldKey));
-  const staticNames=model==='HRRR'?new Set(['2t','2d','gust','refc','vis','cin','blh','10u','10v']):new Set(['cape','pwat']);
   for(const [fieldKey,field] of Object.entries(payload.fields||{})){
     const shortName=field.short_name;
-    if(!shortName||shortName==='unknown'||staticNames.has(shortName)||existing.has(fieldKey)||!squeezeRap2D(field.data))continue;
+    if(!shortName||shortName==='unknown'||existing.has(fieldKey)||!squeezeRap2D(field.data))continue;
     const category=NATIVE_FIELD_CATEGORIES[shortName]||'other',option=document.createElement('option');
     option.value='native_'+model+'_key_'+encodeURIComponent(fieldKey);
     option.textContent=(field.long_name||shortName)+' · '+(field.units||'units unavailable')+' ['+fieldKey+']';
@@ -1207,7 +1206,18 @@ function selectedTileFieldKey(model,param,payload){
     try{return decodeURIComponent(param.slice(('native_'+model+'_key_').length));}catch(_){return null;}
   }
   const shortName=selectedTileShortName(model,param,payload);
-  if(!shortName||!payload||!payload.fields)return null;
+  if(!payload||!payload.fields)return null;
+  if(!shortName){
+    const direct=payload.fields[param];
+    if(direct&&squeezeRap2D(direct.data))return param;
+    const aliases={omega:'w'};
+    const alias=aliases[param];
+    if(alias){
+      const pair=Object.entries(payload.fields).find(entry=>entry[1].short_name===alias&&squeezeRap2D(entry[1].data));
+      if(pair)return pair[0];
+    }
+    return null;
+  }
   const preferred=model==='RAP'?findRapSurfaceField(payload,[shortName]):findHrrrField(payload,[shortName]);
   if(preferred){
     const pair=Object.entries(payload.fields).find(entry=>entry[1]===preferred);
