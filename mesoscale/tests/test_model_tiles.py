@@ -36,6 +36,35 @@ def test_tile_coverage_rejects_unknown_or_duplicate_forecast_hours():
         summarize_forecast_hour_coverage([{"forecast_hour": 0}, {"forecast_hour": 0}], [0])
 
 
+def test_tile_catalog_preserves_timestamp_when_product_inventory_is_unchanged():
+    from mesoscale.render_model_tiles import build_tile_catalog
+
+    products = [{"model": "RAP", "cycle_utc": "20261113T20:00:00Z", "forecast_hour": 0}]
+    previous = {
+        "schema_version": 1,
+        "generated_utc": "2026-11-13T22:09:28Z",
+        "tile_scheme": "XYZ",
+        "products": products,
+    }
+
+    catalog = build_tile_catalog(products, previous, "2026-11-13T23:00:00Z")
+
+    assert catalog["generated_utc"] == previous["generated_utc"]
+    assert catalog["products"] == products
+
+
+def test_tile_catalog_advances_timestamp_when_product_inventory_changes():
+    from mesoscale.render_model_tiles import build_tile_catalog
+
+    previous = {"generated_utc": "2026-11-13T22:09:28Z", "products": []}
+    products = [{"model": "HRRR", "cycle_utc": "20261113T23:00:00Z", "forecast_hour": 0}]
+
+    catalog = build_tile_catalog(products, previous, "2026-11-13T23:10:00Z")
+
+    assert catalog["generated_utc"] == "2026-11-13T23:10:00Z"
+    assert catalog["products"] == products
+
+
 def test_render_native_grid_to_xyz_raster_and_independent_contours(tmp_path: Path):
     lat = np.linspace(40, 48, 30)
     lon = np.linspace(-80, -68, 40)
