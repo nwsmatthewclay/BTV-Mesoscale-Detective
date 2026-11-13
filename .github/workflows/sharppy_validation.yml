@@ -28,7 +28,7 @@ jobs:
           miniforge-version: latest
           activate-environment: btv-sharppy
           environment-file: mesoscale/environment-sharppy.yml
-          auto-activate-base: false
+          auto-activate: true
       - name: Validate SHARPpy adapter
         shell: bash -el {0}
-        run: pytest -q mesoscale/tests/test_sharppy_adapter.py
+        run: PYTHONPATH=. pytest -q mesoscale/tests/test_sharppy_adapter.py
