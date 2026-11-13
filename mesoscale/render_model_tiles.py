@@ -134,8 +134,12 @@ def build_contours(data: np.ndarray, lat: np.ndarray, lon: np.ndarray,
 def render_tiles(payload: dict[str, Any], selector: str, output_root: Path,
                  zoom_min: int = 3, zoom_max: int = 7, cmap: str = "turbo",
                  vmin: float | None = None, vmax: float | None = None,
-                 contour_interval: float | None = None) -> dict[str, Any]:
+                 contour_interval: float | None = None, scale: float = 1.0,
+                 offset: float = 0.0, display_units: str | None = None,
+                 display_label: str | None = None) -> dict[str, Any]:
     field_key, field, data, grid = choose_field(payload, selector)
+    source_units = field.get("units")
+    data = data * float(scale) + float(offset)
     lat = np.asarray(grid["latitude"], dtype=float)
     lon = ((np.asarray(grid["longitude"], dtype=float) + 180) % 360) - 180
     if data.shape != lat.shape or data.shape != lon.shape:
@@ -190,7 +194,8 @@ def render_tiles(payload: dict[str, Any], selector: str, output_root: Path,
         "model": payload["model"], "cycle_utc": payload["model_cycle_utc"],
         "forecast_hour": int(payload["forecast_hour"]), "valid_time_utc": payload["valid_time_utc"],
         "field_key": field_key, "short_name": field.get("short_name"),
-        "long_name": field.get("long_name"), "units": field.get("units"),
+        "long_name": display_label or field.get("long_name"), "units": display_units or source_units,
+        "source_units": source_units, "display_transform": {"scale": float(scale), "offset": float(offset)},
         "source_grid_shape": list(data.shape), "source_grid_id": field.get("grid_id"),
         "display_range": [low, high], "contour_interval": interval,
         "contour_levels": [float(v) for v in levels], "tile_size": TILE_SIZE,
@@ -216,12 +221,17 @@ def main() -> None:
     parser.add_argument("--vmin", type=float)
     parser.add_argument("--vmax", type=float)
     parser.add_argument("--contour-interval", type=float)
+    parser.add_argument("--scale", type=float, default=1.0)
+    parser.add_argument("--offset", type=float, default=0.0)
+    parser.add_argument("--display-units")
+    parser.add_argument("--display-label")
     args = parser.parse_args()
     if args.zoom_min < 0 or args.zoom_max > 12 or args.zoom_min > args.zoom_max:
         parser.error("zoom range must satisfy 0 <= zoom-min <= zoom-max <= 12")
     result = render_tiles(load_payload(args.input), args.field, args.output,
                           args.zoom_min, args.zoom_max, args.cmap,
-                          args.vmin, args.vmax, args.contour_interval)
+                          args.vmin, args.vmax, args.contour_interval,
+                          args.scale, args.offset, args.display_units, args.display_label)
     print(json.dumps(result, indent=2))
 
 
