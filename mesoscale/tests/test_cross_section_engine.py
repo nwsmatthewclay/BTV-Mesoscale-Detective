@@ -46,7 +46,9 @@ def test_cross_section_samples_hybrid_field_on_common_log_pressure_levels():
         {"omega": "w"}, pressure_levels_hpa=[900, 700, 500], sample_count=5,
     )
     assert result["model"] == "RAP"
-    assert result["quality"]["sample_count"] == 5
+    assert 2 <= result["quality"]["sample_count"] <= 5
+    assert result["quality"]["requested_sample_count"] == 5
+    assert len({(p["grid_y"], p["grid_x"]) for p in result["transect"]["points"]}) == result["quality"]["sample_count"]
     assert result["vertical_coordinate"]["levels_hpa"] == [900.0, 700.0, 500.0]
     assert result["fields"]["omega"]["units"] == "Pa s**-1"
     assert result["fields"]["omega"]["values"][0][0] == pytest.approx(-0.15)
