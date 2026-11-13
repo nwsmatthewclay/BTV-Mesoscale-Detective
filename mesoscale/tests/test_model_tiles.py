@@ -72,4 +72,11 @@ def test_model_tile_frontend_uses_catalog_and_keeps_pages_sources_synchronized()
     assert "L.geoJSON(geojson" in html
     assert "await renderPublishedModelTiles(payload,'RAP',param)" in html
     assert "await renderPublishedModelTiles(payload,'HRRR',param)" in html
-    assert "light_nolabels" in html
+    assert "tile.openstreetmap.org" in html
+    assert "function selectedTileFieldKey(model,param,payload)" in html
+    assert "item.field_key===fieldKey" in html
+    assert "option.dataset.fieldKey=fieldKey" in html
+    assert "map.on('mousemove'" in html
+    assert "stateBoundaryPane" in html
+    assert "countyBoundaryPane" in html
+
