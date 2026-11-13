@@ -197,6 +197,109 @@ body{background:radial-gradient(ellipse at 16% -8%,rgba(24,119,190,.20),transpar
  .map-corner-label{top:8px;right:8px;font-size:7px}
 }
 
+
+/* === V2: SPECTRAL / AURORA LAB — intentionally distinct from the SA dashboard === */
+:root{
+ --bg:#090711;--bg-soft:#100d1d;--surface:rgba(24,17,39,.88);--surface-2:rgba(34,23,53,.86);
+ --surface-3:#39234f;--line:rgba(197,126,255,.26);--line-soft:rgba(190,143,231,.14);
+ --text:#fff8ff;--muted:#b4a3c8;--blue:#7cdbff;--cyan:#72ffe0;--green:#d5ff62;
+ --amber:#ffc66e;--red:#ff739f;--shadow:0 20px 55px rgba(0,0,0,.48);--radius:16px
+}
+html,body{background:#090711}
+body{
+ background:
+ radial-gradient(ellipse at 12% 20%,rgba(169,54,255,.24),transparent 34%),
+ radial-gradient(ellipse at 87% 12%,rgba(255,57,150,.16),transparent 30%),
+ radial-gradient(ellipse at 58% 100%,rgba(96,52,192,.17),transparent 42%),
+ linear-gradient(130deg,#090711 0%,#100b1d 48%,#090914 100%);
+ color:var(--text)
+}
+.topbar{background:rgba(10,7,19,.88);border-bottom:1px solid rgba(208,126,255,.28);box-shadow:0 8px 35px rgba(0,0,0,.38),0 1px 0 rgba(255,120,199,.08);backdrop-filter:blur(24px)}
+.mark{border:1px solid rgba(255,117,194,.78);background:linear-gradient(145deg,rgba(171,45,151,.8),rgba(81,48,164,.88));color:#fff4ff;box-shadow:0 0 14px rgba(255,86,183,.35),0 0 30px rgba(151,72,255,.24),inset 0 0 17px rgba(255,255,255,.13)}
+.brand h1{color:#fff5ff;text-shadow:0 0 18px rgba(238,110,255,.3)}
+.brand p{color:#b99ccf}
+.status{border:1px solid rgba(114,255,224,.38);background:rgba(25,124,103,.16);color:#8effdc;box-shadow:0 0 20px rgba(89,255,203,.12)}
+#clock{color:#d4c0e8}
+#tabs{background:rgba(12,8,23,.84);border-bottom:1px solid rgba(197,126,255,.22);backdrop-filter:blur(22px)}
+#tabs button{color:#b6a2cc;border:1px solid transparent;border-radius:10px;transition:all .2s ease}
+#tabs button:hover{color:#fff4ff;border-color:rgba(255,112,196,.4);background:linear-gradient(120deg,rgba(174,58,157,.17),rgba(107,63,196,.16));box-shadow:0 0 16px rgba(255,89,183,.18),inset 0 0 12px rgba(255,255,255,.035)}
+#tabs button.active{color:#fff;border-color:rgba(255,119,199,.7);background:linear-gradient(115deg,rgba(190,59,151,.34),rgba(102,67,194,.32));box-shadow:0 0 16px rgba(255,80,177,.25),0 0 32px rgba(145,85,255,.14),inset 0 0 16px rgba(255,255,255,.07)}
+#tabs button.active:after{background:linear-gradient(90deg,#ff65b8,#b477ff,#d5ff62);box-shadow:0 0 12px #ff65b8}
+.panel,.model-sidebar{border:1px solid rgba(194,132,255,.24);background:linear-gradient(150deg,rgba(30,20,48,.91),rgba(15,12,28,.94));box-shadow:0 18px 48px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,239,255,.06);backdrop-filter:blur(22px)}
+.sidebar-heading{background:linear-gradient(120deg,rgba(194,54,155,.23),rgba(102,65,197,.23),rgba(36,153,144,.12));border-bottom:1px solid rgba(221,139,255,.2)}
+.sidebar-heading .eyebrow{color:#ff8dce}
+.sidebar-heading h2{color:#fff5ff}
+.sidebar-heading p{color:#b8a3cc}
+.sidebar-section{border-bottom:1px solid rgba(196,138,230,.15)}
+.sidebar-section-title{color:#e2c9f5}
+.sidebar-pulse{background:#d5ff62;box-shadow:0 0 9px #d5ff62,0 0 19px rgba(213,255,98,.65)}
+.sidebar-pulse.violet{background:#c18aff;box-shadow:0 0 10px #c18aff,0 0 20px rgba(193,138,255,.7)}
+.model-sidebar .field label{color:#c3afd6}
+.model-sidebar select{border:1px solid rgba(195,135,245,.32);background:rgba(13,9,24,.9);color:#fff2ff;box-shadow:inset 0 1px 0 rgba(255,255,255,.045)}
+.model-sidebar select:hover{border-color:rgba(255,117,195,.72);box-shadow:0 0 16px rgba(255,87,179,.15)}
+.model-sidebar select:focus{border-color:#ff7bc7;box-shadow:0 0 0 2px rgba(255,105,190,.16),0 0 20px rgba(255,105,190,.2)}
+.range-row{border:1px solid rgba(190,131,244,.35);background:rgba(13,9,24,.9)}
+.range-row input{accent-color:#d5ff62}
+.range-row output{color:#d5ff62;text-shadow:0 0 12px rgba(213,255,98,.48)}
+.forecast-shortcuts{border:1px solid rgba(193,138,255,.2);background:linear-gradient(110deg,rgba(114,58,151,.15),rgba(30,111,106,.12))}
+.forecast-shortcuts span{color:#a994bd}
+.forecast-shortcuts b{color:#bfffee}
+.sidebar-footer{color:#a895bb}
+.map-panel{border-color:rgba(255,113,192,.28);box-shadow:0 18px 55px rgba(0,0,0,.4),0 0 32px rgba(191,75,201,.09),inset 0 1px 0 rgba(255,255,255,.07)}
+.panel-heading{background:linear-gradient(100deg,rgba(166,47,131,.24),rgba(91,54,159,.23),rgba(26,117,105,.12));border-bottom:1px solid rgba(214,130,240,.2)}
+.panel-heading h2{color:#fff4ff}
+.map-panel .panel-heading>.eyebrow{border:1px solid rgba(213,255,98,.27);background:rgba(174,215,66,.08);color:#d5ff62}
+.map-wrap,#map{background:#100e1c}
+.map-corner-label{border:1px solid rgba(255,120,197,.35);background:rgba(13,8,23,.88);color:#f3d8ff;box-shadow:0 0 20px rgba(255,91,182,.1)}
+.map-corner-label span{color:#d5ff62}
+.map-chip,.map-legend{border:1px solid rgba(211,139,255,.35);background:rgba(13,8,23,.91);box-shadow:0 10px 28px rgba(0,0,0,.42),0 0 20px rgba(181,79,219,.12);backdrop-filter:blur(18px)}
+.map-legend .legend-title{color:#fff0ff}
+.map-legend .legend-subtitle,.legend-units{color:#c0a9d5}
+.legend-ticks{color:#eadcf5}
+.map-actions{border-top:1px solid rgba(190,128,237,.19);background:rgba(12,8,22,.94)}
+.btn{border:1px solid rgba(192,132,243,.4);border-radius:9px;background:linear-gradient(125deg,rgba(107,48,139,.42),rgba(57,44,108,.55));color:#f5e8ff;box-shadow:inset 0 1px 0 rgba(255,255,255,.08);transition:all .18s ease}
+.btn:hover{border-color:#ff79c8;background:linear-gradient(120deg,rgba(193,48,141,.7),rgba(104,62,183,.75));color:#fff;box-shadow:0 0 14px rgba(255,88,184,.42),0 0 30px rgba(174,91,255,.2),inset 0 0 14px rgba(255,255,255,.1);transform:translateY(-1px)}
+.btn.primary{border-color:rgba(213,255,98,.78);background:linear-gradient(115deg,rgba(117,151,42,.8),rgba(35,135,111,.82));color:#fbffe9;box-shadow:0 0 14px rgba(213,255,98,.2),inset 0 1px 0 rgba(255,255,255,.2)}
+.btn.primary:hover{box-shadow:0 0 18px rgba(213,255,98,.36),0 0 34px rgba(82,255,205,.18)}
+.checks label{color:#d8c8e6}
+.rightcol{gap:12px;min-width:0;min-height:0}
+.panel>h2,.rightcol .panel>h2{background:linear-gradient(100deg,rgba(160,51,132,.2),rgba(91,58,159,.17));border-bottom:1px solid rgba(192,130,234,.18);color:#f4e6ff}
+.metric{border:1px solid rgba(180,130,234,.24);background:linear-gradient(145deg,rgba(62,39,88,.62),rgba(22,17,39,.88));box-shadow:inset 0 1px 0 rgba(255,255,255,.045)}
+.metric strong{color:#fff;text-shadow:0 0 15px rgba(201,145,255,.25)}
+.metric span{color:#c2add7}
+.metric small{color:#a892bd}
+.placeholder{border-color:rgba(188,133,228,.25);background:rgba(13,9,24,.57);color:#c1afd2}
+.detail-line{border-bottom-color:rgba(185,131,220,.16)}
+.detail-line span:first-child{color:#b7a3ca}
+.detail-line b{color:#f1e5fa}
+.notice{border-color:rgba(213,255,98,.25);background:rgba(150,190,53,.07);color:#e2eab8}
+.pad{padding:12px 14px}
+.leaflet-control-zoom a{background:rgba(18,11,31,.95)!important;color:#ffe9fb!important;border-color:rgba(204,132,242,.45)!important;box-shadow:0 0 12px rgba(180,80,210,.15)!important}
+.leaflet-control-attribution{background:rgba(11,7,20,.85)!important;color:#b39bc8!important}
+.leaflet-control-attribution a{color:#d5ff62!important}
+/* Fix the cramped map: explicit three-column workstation and full available width. */
+@media(min-width:901px){
+ .layout{width:calc(100% - 2 * clamp(12px,2.2vw,32px));max-width:none;margin:12px clamp(12px,2.2vw,32px);grid-template-columns:260px minmax(480px,1fr) 350px;gap:14px}
+ .model-sidebar{min-width:0}
+ .map-panel{min-width:0;width:100%}
+ .rightcol{min-width:0;display:flex;flex-direction:column}
+}
+@media(min-width:1500px){
+ .layout{grid-template-columns:275px minmax(0,1fr) 365px;gap:16px}
+}
+@media(max-width:1250px) and (min-width:901px){
+ .layout{grid-template-columns:235px minmax(390px,1fr) 315px;gap:10px}
+}
+@media(max-width:900px){
+ body{background:radial-gradient(ellipse at 10% 0%,rgba(169,54,255,.2),transparent 40%),linear-gradient(140deg,#090711,#100b1d)}
+ .map-panel{border-color:rgba(255,113,192,.28)}
+}
+@media(prefers-reduced-motion:no-preference){
+ .btn,.model-sidebar select,#tabs button{transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease}
+ .sidebar-pulse{animation:spectralPulse 2.8s ease-in-out infinite}
+ @keyframes spectralPulse{0%,100%{filter:brightness(.9);opacity:.8}50%{filter:brightness(1.35);opacity:1}}
+}
+
 </style>
 </head>
 <body>
