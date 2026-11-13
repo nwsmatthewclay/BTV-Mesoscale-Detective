@@ -1213,6 +1213,7 @@ async function loadModelManifest(){
       document.getElementById('mapTitle').textContent=selectedModel+' · '+(selectedModel==='HRRR'?'Surface analysis':'Mesoscale environment');
       updateRapArchiveFreshness();
       document.getElementById('mapChip').textContent=selectedModel+' F'+String(activeHour).padStart(2,'0')+' · '+archive.model_cycle_utc+' · valid '+activeValidTime+' · verified regional grid';
+      const sidebarValidTime=document.getElementById('sidebarValidTime');if(sidebarValidTime)sidebarValidTime.textContent=activeValidTime;
       const newerDiscovery=cycles[0]&&cycles[0]>archive.model_cycle_utc?' · newer products discovered: '+cycles[0]:'';
       document.getElementById('selectionStatus').textContent='Verified hours: '+hours.map(h=>'F'+String(h).padStart(2,'0')).join(', ')+' · active valid time: '+activeValidTime+newerDiscovery;
       return;
@@ -1308,6 +1309,7 @@ document.getElementById('hour').addEventListener('change',async()=>{
   const activeManifest=model==='HRRR'?hrrrForecastManifest:rapForecastManifest;
   const activeEntry=activeManifest?.hours?.find(x=>Number(x.forecast_hour)===activeHour);
   document.getElementById('mapChip').textContent='Loading '+model+' F'+String(activeHour).padStart(2,'0')+' · valid '+(activeEntry?.valid_time_utc||'time unavailable')+' · '+(activeManifest?.model_cycle_utc||'latest cycle');
+  const sidebarValidTime=document.getElementById('sidebarValidTime');if(sidebarValidTime)sidebarValidTime.textContent=activeEntry?.valid_time_utc||'Valid time unavailable';
   await Promise.all([updateRapParameter(),loadStationProfile(window.rapKbtvProfile?.label||'KBTV')]);
   if(window.activeTab==='compare')updateModelComparison();
 });
