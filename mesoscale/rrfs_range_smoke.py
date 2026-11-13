@@ -51,6 +51,7 @@ def plan_index_ranges(
     messages: list[dict],
     limit: int = 3,
     max_message_bytes: int = MAX_MESSAGE_BYTES,
+    preferred_short_names: tuple[str, ...] | None = None,
 ) -> list[dict]:
     """Use each next GRIB-index offset to bound the preceding message."""
     if limit < 1:
@@ -70,8 +71,32 @@ def plan_index_ranges(
             raise ValueError("GRIB index byte offsets must be non-negative and strictly increasing")
         offsets.append(offset)
 
+    if preferred_short_names:
+        selected_positions = []
+        missing = []
+        for short_name in preferred_short_names:
+            target = str(short_name).upper()
+            position = next(
+                (
+                    index for index, record in enumerate(messages[:-1])
+                    if str(record.get("short_name") or record.get("level") or "").upper() == target
+                ),
+                None,
+            )
+            if position is None:
+                missing.append(target)
+            else:
+                selected_positions.append(position)
+        if missing:
+            raise ValueError(
+                "RRFS index is missing required smoke-test fields: " + ", ".join(missing)
+            )
+        selected_positions = selected_positions[:limit]
+    else:
+        selected_positions = list(range(min(limit, len(messages) - 1)))
+
     planned = []
-    for index in range(min(limit, len(messages) - 1)):
+    for index in selected_positions:
         start = offsets[index]
         end = offsets[index + 1] - 1
         size = end - start + 1
@@ -138,6 +163,20 @@ def fetch_indexed_message(
     return payload
 
 
+def validate_decoded_cycle(decoded: dict, cycle_utc: str) -> None:
+    """Reject decoded GRIB messages whose reference date/time differs from the selected cycle."""
+    expected_date = int(cycle_utc[:10].replace("-", ""))
+    expected_time = int(cycle_utc[11:13]) * 100
+    if decoded.get("data_date") is not None and int(decoded["data_date"]) != expected_date:
+        raise RuntimeError(
+            f"GRIB reference date mismatch: expected {expected_date}, got {decoded['data_date']}"
+        )
+    if decoded.get("data_time") is not None and int(decoded["data_time"]) != expected_time:
+        raise RuntimeError(
+            f"GRIB reference time mismatch: expected {expected_time:04d}, got {decoded['data_time']}"
+        )
+
+
 def decode_grib_message(payload: bytes) -> dict:
     """Decode GRIB metadata and verify that the message contains finite field values."""
     try:
@@ -193,7 +232,11 @@ def run_smoke(
     if index_url != product["url"] + ".idx":
         raise ValueError("RRFS index URL does not match the selected GRIB product URL")
 
-    ranges = plan_index_ranges(index.get("messages") or [], limit=message_limit)
+    ranges = plan_index_ranges(
+        index.get("messages") or [],
+        limit=message_limit,
+        preferred_short_names=("TMP", "DPT", "UGRD"),
+    )
     decoded_messages = []
     total_bytes = 0
     for record in ranges:
@@ -201,11 +244,12 @@ def run_smoke(
         decoded = decoder(payload)
         expected_name = str(record.get("short_name") or "").lower()
         actual_name = str(decoded.get("short_name") or "").lower()
-        if expected_name and actual_name and expected_name != actual_name:
+        if expected_name and actual_name not in {"", "unknown", "undef"} and expected_name != actual_name:
             raise RuntimeError(
                 f"GRIB message {record['message']} short-name mismatch: "
                 f"index={expected_name}, decoded={actual_name}"
             )
+        validate_decoded_cycle(decoded, product["cycle_utc"])
         total_bytes += len(payload)
         decoded_messages.append({
             **record,

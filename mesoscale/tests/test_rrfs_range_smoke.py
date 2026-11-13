@@ -139,20 +139,26 @@ def test_run_smoke_downloads_and_decodes_only_bounded_messages():
             "message_count": 3,
             "messages": [
                 {"message": "1", "byte_offset": 0, "short_name": "REFC"},
-                {"message": "2", "byte_offset": 100, "short_name": "VIL"},
-                {"message": "3", "byte_offset": 200, "short_name": "VIS"},
-                {"message": "4", "byte_offset": 300, "short_name": "TMP"},
+                {"message": "2", "byte_offset": 100, "short_name": "TMP"},
+                {"message": "3", "byte_offset": 200, "short_name": "DPT"},
+                {"message": "4", "byte_offset": 300, "short_name": "UGRD"},
+                {"message": "5", "byte_offset": 400, "short_name": "VGRD"},
             ],
         },
     }
     session = FakeSession()
-    decoded_names = iter(["refc", "vil", "vis"])
+    decoded_names = iter(["tmp", "dpt", "ugrd"])
 
     report = run_smoke(
         {"models": {"RRFS": {"latest_products": [product]}}},
         session,
         message_limit=3,
-        decoder=lambda payload: {"short_name": next(decoded_names), "finite_value_count": 10},
+        decoder=lambda payload: {
+            "short_name": next(decoded_names),
+            "finite_value_count": 10,
+            "data_date": 20261112,
+            "data_time": 2300,
+        },
     )
 
     assert report["status"] == "passed"
@@ -160,6 +166,50 @@ def test_run_smoke_downloads_and_decodes_only_bounded_messages():
     assert report["messages_verified"] == 3
     assert report["bytes_downloaded"] == 300
     assert [message["decoded"]["short_name"] for message in report["messages"]] == [
-        "refc", "vil", "vis"
+        "tmp", "dpt", "ugrd"
     ]
     assert len(session.calls) == 3
+
+
+def test_plan_index_ranges_selects_standard_fields_by_index_name():
+    messages = [
+        {"byte_offset": 0, "short_name": "REFC"},
+        {"byte_offset": 100, "short_name": "TMP"},
+        {"byte_offset": 250, "short_name": "DPT"},
+        {"byte_offset": 500, "short_name": "UGRD"},
+        {"byte_offset": 700, "short_name": "VGRD"},
+    ]
+
+    planned = plan_index_ranges(
+        messages,
+        preferred_short_names=("TMP", "DPT", "UGRD"),
+    )
+
+    assert [item["short_name"] for item in planned] == ["TMP", "DPT", "UGRD"]
+    assert [(item["start"], item["end"]) for item in planned] == [
+        (100, 249), (250, 499), (500, 699)
+    ]
+
+
+def test_plan_index_ranges_rejects_missing_preferred_field():
+    messages = [
+        {"byte_offset": 0, "short_name": "TMP"},
+        {"byte_offset": 100, "short_name": "UGRD"},
+    ]
+
+    with pytest.raises(ValueError, match="missing required smoke-test fields: DPT"):
+        plan_index_ranges(messages, preferred_short_names=("TMP", "DPT", "UGRD"))
+
+
+def test_validate_decoded_cycle_checks_reference_date_and_time():
+    from mesoscale.rrfs_range_smoke import validate_decoded_cycle
+
+    validate_decoded_cycle(
+        {"data_date": 20261112, "data_time": 2300},
+        "2026-11-12T23:00:00Z",
+    )
+    with pytest.raises(RuntimeError, match="reference time mismatch"):
+        validate_decoded_cycle(
+            {"data_date": 20261112, "data_time": 2200},
+            "2026-11-12T23:00:00Z",
+        )
