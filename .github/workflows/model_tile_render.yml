@@ -105,7 +105,14 @@ jobs:
                       command += ["--scale", "1.943844", "--display-units", "kt", "--display-label", "Wind gust"]
                   elif short_name == "vis":
                       command += ["--scale", "0.001", "--display-units", "km", "--display-label", "Visibility"]
-                  subprocess.run(command, check=True)
+                  result = subprocess.run(command, text=True, capture_output=True)
+                  if result.returncode:
+                      message = (result.stderr or result.stdout or "").strip()
+                      if "Invalid color range" in message or "Fewer than 12 valid grid cells" in message:
+                          skipped.append((hour["forecast_hour"], field_key, message.splitlines()[-1]))
+                          print(f"Skipping non-renderable {model} field {field_key}: {message.splitlines()[-1]}")
+                          continue
+                      raise RuntimeError(f"Tile rendering failed for {model} {field_key}: {message[-3000:]}")
                   rendered += 1
           print(f"{model}: rendered {rendered} 2-D fields across {len(manifest.get('hours', []))} forecast hours")
           if skipped:
