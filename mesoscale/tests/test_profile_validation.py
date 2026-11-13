@@ -4,7 +4,10 @@ import pytest
 
 from mesoscale.diagnostics import _finite_profile
 from mesoscale.extract_profile import write_profile_json
-from mesoscale.process_grib import grib_metadata, grid_projection_metadata
+from mesoscale.process_grib import (
+    grib_metadata, grid_projection_metadata,
+    merge_grib_metadata, merge_grid_projection_metadata,
+)
 
 
 def test_profile_rejects_mismatched_arrays():
@@ -68,3 +71,21 @@ def test_grib_projection_metadata_preserves_native_geometry_and_wind_orientation
     assert projection["GRIB_uvRelativeToGrid"] == 1
     assert "unrelated" not in projection
     assert grib_metadata(attrs)["GRIB_uvRelativeToGrid"] == 1
+
+
+
+def test_grib_metadata_merges_projection_from_variable_attributes():
+    dataset_attrs = {"GRIB_gridType": "lambert", "GRIB_LoVInDegrees": 265.0}
+    variable_attrs = {
+        "GRIB_DxInMetres": 13545.0,
+        "GRIB_DyInMetres": 13545.0,
+        "GRIB_uvRelativeToGrid": 1,
+        "GRIB_shortName": "u",
+    }
+    projection = merge_grid_projection_metadata(dataset_attrs, variable_attrs)
+    metadata = merge_grib_metadata(dataset_attrs, variable_attrs)
+
+    assert projection["GRIB_gridType"] == "lambert"
+    assert projection["GRIB_DxInMetres"] == 13545.0
+    assert projection["GRIB_uvRelativeToGrid"] == 1
+    assert metadata["GRIB_shortName"] == "u"
