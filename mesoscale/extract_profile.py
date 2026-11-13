@@ -59,6 +59,24 @@ def _find_field(payload, short_name, grid_id=None, require_hybrid=False):
     return matches[0]
 
 
+def _optional_sharppy_diagnostics(profile: dict) -> dict:
+    """Run SHARPpy when installed without making core RAP extraction depend on it."""
+    try:
+        if __package__:
+            from .sharppy_adapter import calculate_sharppy_diagnostics
+        else:
+            from sharppy_adapter import calculate_sharppy_diagnostics
+        diagnostics = calculate_sharppy_diagnostics(profile)
+    except ImportError as exc:
+        return {"status": "not_installed", "message": str(exc)}
+    except Exception as exc:
+        return {
+            "status": "failed",
+            "warning": f"{type(exc).__name__}: {exc}",
+        }
+    return {"status": "passed", "diagnostics": diagnostics}
+
+
 def extract_profile(payload: dict, latitude: float, longitude: float, label="custom"):
     # Select the hybrid-level temperature grid first, then require every
     # atmospheric variable to be collocated on that exact grid.
@@ -143,6 +161,14 @@ def extract_profile(payload: dict, latitude: float, longitude: float, label="cus
             "v_ms": v_ms.tolist(),
         },
         "diagnostics": diagnostics,
+        "sharppy": _optional_sharppy_diagnostics({
+            "pressure_hpa": pressure.tolist(),
+            "temperature_k": temperature_k.tolist(),
+            "dewpoint_k": dewpoint_k.tolist(),
+            "height_agl_m": height_agl.tolist(),
+            "u_ms": u_ms.tolist(),
+            "v_ms": v_ms.tolist(),
+        }),
         "quality": {
             "levels": int(len(pressure)),
             "pressure_decreases_upward": bool(np.all(np.diff(pressure) < 0)),
