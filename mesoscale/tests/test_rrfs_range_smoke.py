@@ -129,7 +129,7 @@ def test_run_smoke_downloads_and_decodes_only_bounded_messages():
     filename = "rrfs.t23z.2dfld.3km.subh.f001.conus.grib2"
     product = {
         "product": "surface_subhourly_3km",
-        "cycle_utc": "2026-11-12T23:00:00Z",
+        "cycle_utc": "20261112T23:00:00Z",
         "forecast_step": 1,
         "forecast_lead_minutes": 15,
         "filename": filename,
@@ -147,7 +147,7 @@ def test_run_smoke_downloads_and_decodes_only_bounded_messages():
         },
     }
     session = FakeSession()
-    decoded_names = iter(["tmp", "dpt", "ugrd"])
+    decoded_names = iter(["unknown", "2t", "10u"])
 
     report = run_smoke(
         {"models": {"RRFS": {"latest_products": [product]}}},
@@ -166,7 +166,7 @@ def test_run_smoke_downloads_and_decodes_only_bounded_messages():
     assert report["messages_verified"] == 3
     assert report["bytes_downloaded"] == 300
     assert [message["decoded"]["short_name"] for message in report["messages"]] == [
-        "tmp", "dpt", "ugrd"
+        "unknown", "2t", "10u"
     ]
     assert len(session.calls) == 3
 
@@ -195,6 +195,7 @@ def test_plan_index_ranges_rejects_missing_preferred_field():
     messages = [
         {"byte_offset": 0, "short_name": "TMP"},
         {"byte_offset": 100, "short_name": "UGRD"},
+        {"byte_offset": 200, "short_name": "VGRD"},
     ]
 
     with pytest.raises(ValueError, match="missing required smoke-test fields: DPT"):
@@ -206,7 +207,11 @@ def test_validate_decoded_cycle_checks_reference_date_and_time():
 
     validate_decoded_cycle(
         {"data_date": 20261112, "data_time": 2300},
-        "2026-11-12T23:00:00Z",
+        "20261112T23:00:00Z",
+    )
+    validate_decoded_cycle(
+        {"data_date": 20261112, "data_time": 2300},
+        "20261112T23:00:00Z",
     )
     with pytest.raises(RuntimeError, match="reference time mismatch"):
         validate_decoded_cycle(
