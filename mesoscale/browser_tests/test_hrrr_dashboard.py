@@ -107,7 +107,8 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
                     rejectsBad: !hasMatchingGridGeometry(payload, payload.fields.bad),
                     rapSkipsBadDuplicate: findRapSurfaceField(payload, ["2t"]) === payload.fields.good,
                     hrrrSkipsBadDuplicate: findHrrrField(payload, ["2t"]) === payload.fields.good,
-                    nativeResolverRejectsBad: selectedTileFieldKey("RAP", "native_RAP_key_bad", payload) === null
+                    nativeResolverRejectsBad: selectedTileFieldKey("RAP", "native_RAP_key_bad", payload) === null,
+                        snowFieldsCategorizedAsWinter: ["sd", "sde", "snod", "weasd"].every(name => NATIVE_FIELD_CATEGORIES[name] === "winter")
                 };
             }"""
         )
@@ -263,14 +264,24 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         )
 
         # The catalog is built from actual decoded fields, not a fixed menu.
+        # Select a temperature level actually present in this published RAP archive;
+        # snow fields are added to subsequent ingestions by the subset contract below.
         page.wait_for_function(
-            "() => Array.from(document.querySelector('#parameter').options).some(option => option.value === 'native_RAP_sde')",
+            "() => Array.from(document.querySelector('#parameter').options).some(option => option.dataset.nativeField === 'true' && option.dataset.shortName === 't')",
             timeout=15000,
         )
-        page.locator("#category").select_option("winter")
-        page.locator("#parameter").select_option("native_RAP_sde")
+        page.locator("#category").select_option("thermodynamics")
+        native_temperature = page.locator('#parameter option[data-native-field="true"][data-short-name="t"]').first
+        native_temperature_value = native_temperature.get_attribute("value")
+        native_temperature_label = native_temperature.text_content().split(" · ")[0]
+        assert native_temperature_value
+        page.locator("#parameter").select_option(native_temperature_value)
         page.wait_for_function(
-            "() => document.querySelector('#mapChip').textContent.includes('Snow depth')",
+            """label => {
+                const text = document.querySelector("#mapChip").textContent;
+                return text.includes(label) && !/could not be rendered|not renderable|not present/.test(text);
+            }""",
+            arg=native_temperature_label,
             timeout=15000,
         )
         page.locator("#category").select_option("all")
