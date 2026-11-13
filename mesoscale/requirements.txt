@@ -10,3 +10,5 @@ pyproj
 shapely
 requests
 pytest
+matplotlib
+Pillow
