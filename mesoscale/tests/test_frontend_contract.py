@@ -83,6 +83,17 @@ def test_model_discovery_orchestrates_rap_and_hrrr_ingestion_and_pages():
     assert "needs.hrrr-smoke.outputs.needs_update == 'true'" in hrrr
 
 
+def test_model_comparison_requires_exact_shared_valid_time_and_samples_both_models():
+    html = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert 'id="modelComparisonPanel"' in html
+    assert "async function updateModelComparison()" in html
+    assert "item.valid_time_utc===validTime" in html
+    assert "rap.valid_time_utc!==validTime||hrrr.valid_time_utc!==validTime" in html
+    assert "No exact shared valid time exists" in html
+    assert "window.updateModelComparison=updateModelComparison" in html
+    assert "comparableWind" in html
+
+
 def test_rap_grid_payload_must_match_the_published_archive_cycle():
     html = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "payload.model!=='RAP'" in html
