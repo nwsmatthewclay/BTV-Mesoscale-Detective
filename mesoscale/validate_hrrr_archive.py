@@ -226,6 +226,7 @@ def archive_needs_update(
     quality_passed = isinstance(quality, dict) and quality.get("status") == "passed"
     archive_is_current = (
         existing_archive.get("model") == "HRRR"
+        and existing_archive.get("domain") == DOMAIN
         and existing_archive.get("product") == "surface"
         and existing_archive.get("publishing") is True
         and existing_cycle_time is not None
@@ -236,6 +237,33 @@ def archive_needs_update(
         and quality_passed
     )
     return not archive_is_current, target_cycle
+
+def build_archive_manifest(
+    cycle: str,
+    entries: list[dict],
+    valid_times: tuple[str, ...] = (),
+    reference_rap_cycle: str | None = None,
+) -> dict:
+    """Build HRRR metadata from the same geographic domain used by the decoded grids."""
+    archive = {
+        "schema_version": 1,
+        "model": "HRRR",
+        "product": "surface",
+        "model_cycle_utc": cycle,
+        "created_utc": datetime.now(timezone.utc).isoformat(),
+        "domain": dict(DOMAIN),
+        "hours": entries,
+        "quality": {"status": "passed", "hours_verified": len(entries)},
+        "publishing": False,
+    }
+    if valid_times and reference_rap_cycle:
+        archive["valid_time_alignment"] = {
+            "reference_model": "RAP",
+            "reference_cycle_utc": reference_rap_cycle,
+            "valid_times_utc": [_format_valid_time(value) for value in valid_times],
+        }
+    return archive
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -300,24 +328,7 @@ def main() -> None:
             f"{quality['grid_count']} BTV grids, {quality['field_count']} fields"
         )
 
-    archive = {
-        "schema_version": 1,
-        "model": "HRRR",
-        "product": "surface",
-        "model_cycle_utc": cycle,
-        "created_utc": datetime.now(timezone.utc).isoformat(),
-        "domain": {"west": -75.2, "east": -71.2, "south": 42.3, "north": 45.3},
-        "hours": entries,
-        "quality": {"status": "passed", "hours_verified": len(entries)},
-        "publishing": False,
-        **({
-            "valid_time_alignment": {
-                "reference_model": "RAP",
-                "reference_cycle_utc": args.reference_rap_cycle,
-                "valid_times_utc": [_format_valid_time(value) for value in valid_times],
-            }
-        } if valid_times and args.reference_rap_cycle else {}),
-    }
+    archive = build_archive_manifest(cycle, entries, valid_times, args.reference_rap_cycle)
     manifest_path = output_dir / "hrrr_forecast_manifest.json"
     manifest_path.write_text(
         json.dumps(archive, indent=2, allow_nan=False) + "\n",
