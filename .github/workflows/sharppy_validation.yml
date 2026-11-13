@@ -104,5 +104,5 @@ jobs:
           python -m pip install requests numpy xarray cfgrib eccodes metpy pytest
       - name: Run complete mesoscale and HRRR regression suites
         env:
-          PYTHONPATH: \${{ github.workspace }}
+          PYTHONPATH: ${{ github.workspace }}
         run: pytest -q mesoscale/tests mesoscale/hrrr_tests
