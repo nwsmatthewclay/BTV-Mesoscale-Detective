@@ -120,4 +120,15 @@ This produces a stable scientific and storage foundation before large UI changes
 
 
 - The categorized variable selector now introspects each verified model grid after load and dynamically adds every unique native 2-D field to a meteorological category (thermodynamics, moisture, kinematics, forcing, surface, reflectivity, aviation, winter hydrometeors, land/soil, energy, or other). The generic native-field renderer uses source units and a 5th–95th percentile display stretch; model ownership is retained, and unavailable categories are disabled. Hybrid/vertical fields remain distinct and are exposed through the Cross-Section Lab selector. The next major work is integrating the validated frontogenesis calculation into the published model products/map layers and expanding the vertical viewer with pressure-coordinate overlays and animations. The latest browser CI passed category filtering, real RAP/HRRR native-field selection and rendering, temperature/omega cross-sections (including omega units), and the native-grid-resolution status check.
-- PR CI now includes browser coverage for the category filtering and existing RAP/HRRR valid-time/archive switching. The new browser job is in progress; do not treat it as passed until its result is confirmed.
+- PR CI now includes browser coverage for category filtering, RAP/HRRR native field selection and rendering, temperature/omega cross-sections, valid-time/archive switching, and desktop/mobile layout regression checks. The latest browser job passed.
+
+
+## Viewer layout redesign — 2026-11-13
+
+- Replaced the three-column controls/map/diagnostics arrangement with a map-first workstation layout.
+- Consolidated model, cycle, forecast hour, category, and map variable into a single horizontal control deck above the map.
+- Made the map the dominant workspace, with overlay toggles, station selection, reset, and transect controls in a compact toolbar.
+- Moved point diagnostics and Skew-T/hodograph into a right-side analysis rail; placed cross-section, time evolution, and provenance below.
+- Added a consistent dark navy/blue/cyan visual system, clearer typographic hierarchy, compact metadata, responsive spacing, and mobile single-column reflow.
+- Added Playwright checks for desktop two-column map-first geometry, five-column control deck, mobile one-column reflow, and horizontal overflow. The latest browser job passed.
+- `index.html` and `mesoscale.html` remain byte-for-byte identical. This is a frontend presentation change only; no ingestion or production deployment changes.
