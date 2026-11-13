@@ -419,12 +419,12 @@ function cursorReadout(latlng){
   coords.textContent=lat.toFixed(3)+'°N, '+Math.abs(lon).toFixed(3)+(lon<0?'°W':'°E');
   const model=document.getElementById('model')?.value||'RAP',param=document.getElementById('parameter')?.value||'';
   const payload=model==='HRRR'?window.hrrrGridPayload:window.rapGridPayload;
-  const shortName=selectedTileShortName(model,param);
-  if(!payload||!shortName){value.textContent='No active gridded field';return;}
-  const matches=Object.entries(payload.fields||{}).filter(([key,field])=>(field.short_name===shortName||key===param)&&Array.isArray(field.data)&&Array.isArray(field.data[0])&&!Array.isArray(field.data[0][0]));
-  const field=matches.find(([,f])=>payload.grids?.[f.grid_id]?.latitude&&payload.grids?.[f.grid_id]?.longitude);
-  if(!field){value.textContent='No 2-D grid sample for this variable';return;}
-  const [fieldKey,meta]=field,grid=payload.grids[meta.grid_id];
+  const fieldKey=payload&&selectedTileFieldKey(model,param,payload);
+  if(!payload||!fieldKey){value.textContent='No active gridded field';return;}
+  const meta=payload.fields?payload.fields[fieldKey]:null;
+  const grid=meta&&payload.grids?payload.grids[meta.grid_id]:null;
+  if(!meta||!Array.isArray(meta.data)||!Array.isArray(meta.data[0])||Array.isArray(meta.data[0][0])||!grid||!grid.latitude||!grid.longitude){value.textContent='No 2-D grid sample for this variable';return;}
+  const shortName=meta.short_name;
   let bestDistance=Infinity,bestValue=null,bestLat=null,bestLon=null;
   const rad=Math.PI/180,cosLat=Math.cos(lat*rad);
   for(let y=0;y<grid.latitude.length;y++){
@@ -439,10 +439,10 @@ function cursorReadout(latlng){
     }
   }
   if(!Number.isFinite(bestValue)){value.textContent='No valid grid value at this location';return;}
-  const transform=currentTileProduct?.model===model&&currentTileProduct?.short_name===shortName?currentTileProduct.display_transform:{scale:1,offset:0};
+  const transform=currentTileProduct?.model===model&&currentTileProduct?.field_key===fieldKey?currentTileProduct.display_transform:{scale:1,offset:0};
   const shown=bestValue*(Number(transform?.scale)||1)+(Number(transform?.offset)||0);
-  const units=currentTileProduct?.model===model&&currentTileProduct?.short_name===shortName?currentTileProduct.units:(meta.units||'native units');
-  const label=currentTileProduct?.model===model&&currentTileProduct?.short_name===shortName?currentTileProduct.long_name:(meta.long_name||fieldKey);
+  const units=currentTileProduct?.model===model&&currentTileProduct?.field_key===fieldKey?currentTileProduct.units:(meta.units||'native units');
+  const label=currentTileProduct?.model===model&&currentTileProduct?.field_key===fieldKey?currentTileProduct.long_name:(meta.long_name||fieldKey);
   const distanceKm=6371*Math.sqrt(bestDistance);
   value.textContent=label+': '+shown.toLocaleString('en-US',{maximumFractionDigits:1})+' '+units+' · nearest grid '+distanceKm.toFixed(1)+' km';
 }
