@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "created_utc": "2026-11-13T04:36:42.100442+00:00",
+  "created_utc": "2026-11-13T04:38:58.126594+00:00",
   "source": "NCEP NOMADS operational production directories",
   "domain": {
     "west": -75.2,
@@ -24944,7 +24944,7 @@
       ]
     },
     "RRFS": {
-      "products_found": 1525,
+      "products_found": 1528,
       "latest_products": [
         {
           "model": "RRFS",
@@ -33865,6 +33865,19 @@
           "model": "RRFS",
           "date": "20261113",
           "cycle_utc": "20261113T03:00:00Z",
+          "product": "surface_subhourly_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t03z.2dfld.3km.subh.f012.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261113/03/rrfs.t03z.2dfld.3km.subh.f012.conus.grib2",
+          "forecast_step": 12,
+          "forecast_lead_minutes": 180,
+          "forecast_interval_minutes": 15
+        },
+        {
+          "model": "RRFS",
+          "date": "20261113",
+          "cycle_utc": "20261113T03:00:00Z",
           "product": "surface_2d_3km",
           "resolution_km": 3,
           "domain": "conus",
@@ -34080,6 +34093,28 @@
           "filename": "rrfs.t03z.prslev.3km.f012.conus.grib2",
           "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261113/03/rrfs.t03z.prslev.3km.f012.conus.grib2",
           "forecast_hour": 12
+        },
+        {
+          "model": "RRFS",
+          "date": "20261113",
+          "cycle_utc": "20261113T03:00:00Z",
+          "product": "surface_2d_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t03z.2dfld.3km.f013.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261113/03/rrfs.t03z.2dfld.3km.f013.conus.grib2",
+          "forecast_hour": 13
+        },
+        {
+          "model": "RRFS",
+          "date": "20261113",
+          "cycle_utc": "20261113T03:00:00Z",
+          "product": "pressure_levels_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t03z.prslev.3km.f013.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261113/03/rrfs.t03z.prslev.3km.f013.conus.grib2",
+          "forecast_hour": 13
         },
         {
           "model": "RRFS",
@@ -36266,39 +36301,6 @@
           "filename": "rrfs.t00z.prslev.3km.f012.conus.grib2",
           "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261113/00/rrfs.t00z.prslev.3km.f012.conus.grib2",
           "forecast_hour": 12
-        },
-        {
-          "model": "RRFS",
-          "date": "20261113",
-          "cycle_utc": "20261113T00:00:00Z",
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t00z.2dfld.3km.f013.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261113/00/rrfs.t00z.2dfld.3km.f013.conus.grib2",
-          "forecast_hour": 13
-        },
-        {
-          "model": "RRFS",
-          "date": "20261113",
-          "cycle_utc": "20261113T00:00:00Z",
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t00z.prslev.3km.f013.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261113/00/rrfs.t00z.prslev.3km.f013.conus.grib2",
-          "forecast_hour": 13
-        },
-        {
-          "model": "RRFS",
-          "date": "20261113",
-          "cycle_utc": "20261113T00:00:00Z",
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t00z.2dfld.3km.f014.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261113/00/rrfs.t00z.2dfld.3km.f014.conus.grib2",
-          "forecast_hour": 14
         }
       ],
       "directory_errors": [
