@@ -81,7 +81,9 @@
   body[data-active-tab="compare"] #modelComparisonPanel{display:block}
 }
 
-\n/* Smooth model rasters sit beneath crisp geographic context and station markers. */\n.model-raster-overlay{image-rendering:auto;filter:saturate(1.08) contrast(1.025);}\n</style>
+\n/* Smooth model rasters sit beneath crisp geographic context and station markers. */\n.model-raster-overlay{image-rendering:auto;filter:saturate(1.08) contrast(1.025);}\n
+.map-legend{min-width:260px;max-width:min(390px,calc(100% - 28px));padding:9px 11px 10px;pointer-events:none;backdrop-filter:blur(9px)}.legend-title{font-size:10px;font-weight:750;letter-spacing:.06em;color:#e5f2fa}.legend-subtitle{margin-top:2px;font-size:9px;color:#9fb6c7}.legend-scale{height:10px;margin:8px 0 4px;border:1px solid rgba(220,237,248,.2);border-radius:3px;background:linear-gradient(90deg,rgb(35,67,125),rgb(48,112,170),rgb(80,166,198),rgb(151,207,211),rgb(222,235,218),rgb(250,232,157),rgb(247,177,91),rgb(230,104,65),rgb(174,48,59))}.legend-ticks{display:flex;justify-content:space-between;gap:5px;color:#c4d5e1;font-size:9px;font-variant-numeric:tabular-nums}.legend-units{margin-top:3px;color:#9fb6c7;font-size:9px}
+</style>
 </head>
 <body>
 <header class="topbar"><div class="brand"><div class="mark">BTV</div><div><h1>Mesoscale Detective</h1><p>NWS Burlington · Vermont &amp; Northern New York</p></div></div><div class="header-right"><span class="status" id="feedStatus">MODEL FEED NOT CONNECTED</span><span id="clock">--:-- UTC</span></div></header>
@@ -94,7 +96,7 @@
 <div class="field"><label for="parameter">Map variable</label><select id="parameter"><option data-category="surface" value="surface">Surface observations</option><option data-category="thermodynamics" value="cape">CAPE / CIN</option><option data-category="kinematics" value="shear">0–6 km bulk shear</option><option data-category="kinematics" value="srh">0–1 km SRH</option><option data-category="moisture" value="pwat">Precipitable water</option><option data-category="thermodynamics" value="lapse">700–500 mb lapse rate</option><option data-category="forcing" value="fronto">850 mb frontogenesis</option><option data-category="forcing" value="omega">700 mb vertical velocity (omega)</option><option data-category="forcing" value="moisture">925 mb moisture convergence</option><option data-category="thermodynamics" value="hrrr_temp" hidden disabled>HRRR 2-m temperature</option><option data-category="thermodynamics" value="hrrr_dewpoint" hidden disabled>HRRR 2-m dewpoint</option><option data-category="kinematics" value="hrrr_wind" hidden disabled>HRRR 10-m wind speed</option><option data-category="kinematics" value="hrrr_gust" hidden disabled>HRRR wind gust</option><option data-category="reflectivity" value="hrrr_refc" hidden disabled>HRRR composite reflectivity</option><option data-category="aviation" value="hrrr_vis" hidden disabled>HRRR visibility</option><option data-category="thermodynamics" value="hrrr_cin" hidden disabled>HRRR convective inhibition</option><option data-category="surface" value="hrrr_blh" hidden disabled>HRRR boundary-layer height</option></select></div>
 </div></section>
 <main class="layout">
-<section class="panel map-panel"><div class="panel-heading"><div><span class="eyebrow">Regional analysis</span><h2 id="mapTitle">Environment · Surface observations</h2></div><span class="eyebrow">BTV forecast area</span></div><div class="map-wrap"><div id="map"></div><div class="map-chip" id="mapChip">BTV CWA · Click map to interrogate a point</div><div class="map-legend">Map base: OpenStreetMap · RAP full-column and HRRR surface grids available for point sampling</div></div>
+<section class="panel map-panel"><div class="panel-heading"><div><span class="eyebrow">Regional analysis</span><h2 id="mapTitle">Environment · Surface observations</h2></div><span class="eyebrow">BTV forecast area</span></div><div class="map-wrap"><div id="map"></div><div class="map-chip" id="mapChip">BTV CWA · Click map to interrogate a point</div><div class="map-legend" id="mapLegend"><div class="legend-title">Map base · OpenStreetMap</div><div class="legend-subtitle">Select a model field to display its color scale</div></div></div>
 <div class="map-actions"><div class="overlay-tools"><span class="tool-label">Overlays</span><div class="checks"><label><input type="checkbox" checked id="stations"> Stations</label><label><input type="checkbox" id="radar"> MRMS radar</label><label><input type="checkbox" checked id="county"> CWA context</label><label><input type="checkbox" id="terrain"> Terrain</label></div></div><button class="btn" id="drawTransect">Draw cross-section line</button><button class="btn" id="clearTransect">Clear line</button><button class="btn" id="locateBtv">Select KBTV</button><button class="btn primary" id="reset">Reset view</button><div class="point-badge"><span>Selected point</span><span id="pointReadout"><b>KBTV</b></span><span id="coords">44.4719°N, 73.1533°W</span></div><span id="selectionStatus">Selected: KBTV</span></div></section>
 <aside class="rightcol">
 <section class="panel"><h2>Point diagnostics</h2><div class="metrics" id="metrics"><div class="metric"><span>MUCAPE</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>MLCAPE</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>MLCIN</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>PWAT</span><strong>—</strong><small>mm</small></div><div class="metric"><span>0–6 km shear</span><strong>—</strong><small>kt</small></div><div class="metric"><span>0–1 km SRH</span><strong>—</strong><small>m²/s²</small></div></div><div class="placeholder">RAP profiles are available at the eight listed stations only. Custom map points will not inherit station diagnostics.</div></section>
@@ -110,7 +112,7 @@
 <footer class="foot">BTV Mesoscale Detective · Development build · Not for operational decision-making until data ingestion and verification are complete.</footer>
 <script>
 const stations=[["KBTV",44.4719,-73.1533],["KPBG",44.6509,-73.4681],["KMSS",44.9358,-74.8456],["KSLK",44.3853,-74.2062],["KMPV",44.2035,-72.5623],["KRUT",43.5294,-72.9496],["1V4",44.4193,-72.0194],["KEFK",44.8888,-72.2292]];
-const map=L.map('map',{zoomControl:true}).setView([44.15,-73.05],7);
+const map=L.map('map',{zoomControl:true}).setView([44.25,-73.35],5.6);
 window.__testMap=map;
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:13,attribution:'&copy; OpenStreetMap'}).addTo(map);
 let selected={name:"KBTV",lat:44.4719,lon:-73.1533},markers=[],transect=[],line=null,drawing=false;
@@ -460,6 +462,16 @@ function fieldColor(value,min,max){
   const q=t*(stops.length-1),i=Math.min(stops.length-2,Math.floor(q)),f=q-i;
   return stops[i].map((v,k)=>Math.round(v+(stops[i+1][k]-v)*f));
 }
+function updateMapLegend(label,min,max,units,rangeLabel='fixed display scale'){
+  const el=document.getElementById('mapLegend');if(!el)return;
+  if(!Number.isFinite(min)||!Number.isFinite(max)||max<=min){
+    el.innerHTML='<div class="legend-title">Map base · OpenStreetMap</div><div class="legend-subtitle">Select a model field to display its color scale</div>';return;
+  }
+  const fmt=v=>{const a=Math.abs(v);return (a>=1000||a>0&&a<0.1)?v.toExponential(1):Number(v.toFixed(a>=100?0:a>=10?1:2)).toString();};
+  const ticks=Array.from({length:5},(_,i)=>min+(max-min)*i/4);
+  el.innerHTML='<div class="legend-title">'+label+'</div><div class="legend-scale"></div><div class="legend-ticks">'+ticks.map(v=>'<span>'+fmt(v)+'</span>').join('')+'</div><div class="legend-units">'+(units||'units unavailable')+' · '+rangeLabel+'</div>';
+}
+
 let modelOverlayLayer=null;
 function makeInterpolatedRaster(data,grid,min,max){
   if(!Array.isArray(data)||!Array.isArray(grid?.latitude)||!Array.isArray(grid?.longitude))return null;
@@ -528,6 +540,7 @@ function syncDynamicFieldOptions(payload,model){
 }
 function renderNativeFieldOverlay(payload,param,model){
   if(modelOverlayLayer){map.removeLayer(modelOverlayLayer);modelOverlayLayer=null;}
+  updateMapLegend(null,null,null,null);
   const prefix='native_'+model+'_';if(!param.startsWith(prefix))return false;
   const shortName=param.slice(prefix.length),field=model==='RAP'?findRapSurfaceField(payload,[shortName]):findHrrrField(payload,[shortName]);
   if(!field){document.getElementById('mapChip').textContent=model+' '+shortName+' is not present in this forecast hour; no substitute shown';return true;}
@@ -535,12 +548,13 @@ function renderNativeFieldOverlay(payload,param,model){
   if(!data||!grid){document.getElementById('mapChip').textContent=field.long_name+' is not a two-dimensional field in this model file';return true;}
   const range=fieldRange(data),raster=range&&makeInterpolatedRaster(data,grid,range.min,range.max);
   if(!raster){document.getElementById('mapChip').textContent=field.long_name+' could not be rendered: grid geometry or values unavailable';return true;}
-  raster.addTo(map);modelOverlayLayer=raster;
+  raster.addTo(map);modelOverlayLayer=raster;updateMapLegend(field.long_name||shortName,range.min,range.max,field.units,'3rd–97th percentile');
   document.getElementById('mapChip').textContent=model+' '+(field.long_name||shortName)+' · F'+String(payload.forecast_hour).padStart(2,'0')+' · '+payload.valid_time_utc+' · smooth 4× interpolated display · '+(field.units||'units unavailable')+' · 3rd–97th percentile';
   return true;
 }
 function renderRapGridOverlay(payload,param){
   if(modelOverlayLayer){map.removeLayer(modelOverlayLayer);modelOverlayLayer=null;}
+  updateMapLegend(null,null,null,null);
   const cfg={cape:{names:['cape'],min:0,max:3000,label:'CAPE',units:'J/kg'},pwat:{names:['pwat'],min:0,max:50,label:'PWAT',units:'kg m-2'},omega:{names:['w'],min:-2,max:2,label:'Vertical velocity',units:'Pa/s'}}[param];
   if(!cfg){document.getElementById('mapChip').textContent='This parameter is not yet available as a verified RAP grid field';return;}
   const field=findRapSurfaceField(payload,cfg.names);
@@ -549,7 +563,7 @@ function renderRapGridOverlay(payload,param){
   if(!data||!grid){document.getElementById('mapChip').textContent=cfg.label+' is not a two-dimensional field in this RAP file';return;}
   const range=fieldRange(data),raster=range&&makeInterpolatedRaster(data,grid,cfg.min,cfg.max);
   if(!raster){document.getElementById('mapChip').textContent=cfg.label+' raster could not be rendered';return;}
-  raster.addTo(map);modelOverlayLayer=raster;
+  raster.addTo(map);modelOverlayLayer=raster;updateMapLegend(cfg.label,cfg.min,cfg.max,field.units||cfg.units);
   document.getElementById('mapChip').textContent='RAP '+cfg.label+' · F'+String(payload.forecast_hour).padStart(2,'0')+' · '+payload.valid_time_utc+' · smooth 4× interpolated display · '+field.units;
 }
 function sampleComparableSurface(payload,model,names,lat,lon){
@@ -657,6 +671,7 @@ function findHrrrField(payload,names,gridId){
 }
 function renderHrrrGridOverlay(payload,param){
   if(modelOverlayLayer){map.removeLayer(modelOverlayLayer);modelOverlayLayer=null;}
+  updateMapLegend(null,null,null,null);
   const configs={
     hrrr_temp:{names:['2t'],label:'2-m temperature',min:-35,max:35,units:'°C',transform:v=>v-273.15},
     hrrr_dewpoint:{names:['2d'],label:'2-m dewpoint',min:-40,max:30,units:'°C',transform:v=>v-273.15},
@@ -693,7 +708,7 @@ function renderHrrrGridOverlay(payload,param){
   const data=Array.from({length:rows},(_,y)=>Array.from({length:cols},(_,x)=>valueAt(y,x)));
   const raster=makeInterpolatedRaster(data,grid,cfg.min,cfg.max);
   if(!raster){document.getElementById('mapChip').textContent='HRRR '+cfg.label+' raster could not be rendered';return;}
-  raster.addTo(map);modelOverlayLayer=raster;
+  raster.addTo(map);modelOverlayLayer=raster;updateMapLegend(cfg.label,cfg.min,cfg.max,cfg.units);
   document.getElementById('mapChip').textContent='HRRR '+cfg.label+' · F'+String(payload.forecast_hour).padStart(2,'0')+' · '+payload.valid_time_utc+' · smooth 4× interpolated display · '+cfg.units+' · native BTV subset';
 }
 
@@ -701,6 +716,7 @@ async function updateRapParameter(){
   const model=document.getElementById('model').value;
   const param=document.getElementById('parameter').value;
   if(param==='surface'){
+    updateMapLegend(null,null,null,null);
     if(modelOverlayLayer){map.removeLayer(modelOverlayLayer);modelOverlayLayer=null;}
     document.getElementById('mapChip').textContent=model==='HRRR'?'Choose an HRRR surface field from Map parameter':'Surface observations are not yet connected';
     return;

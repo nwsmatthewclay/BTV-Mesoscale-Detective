@@ -32,8 +32,8 @@ def test_rap_filter_uses_current_pressure_level_filename_and_btv_region():
     assert params["file"] == ["rap.t11z.awp130pgrbf00.grib2"]
     assert params["dir"] == ["/rap.20261112"]
     assert params["subregion"] == [""]
-    assert params["leftlon"] == ["-75.2"]
-    assert params["rightlon"] == ["-71.2"]
+    assert params["leftlon"] == ["-78.5"]
+    assert params["rightlon"] == ["-68.0"]
     assert params["var_TMP"] == ["on"]
     assert params["lev_1000_mb"] == ["on"]
 

@@ -15,7 +15,7 @@ from pathlib import Path
 
 import numpy as np
 
-DOMAIN = {"west": -75.2, "east": -71.2, "south": 42.3, "north": 45.3}
+DOMAIN = {"west": -78.5, "east": -68.0, "south": 40.0, "north": 48.0}
 
 
 def json_values(array, decimals=2):
@@ -90,7 +90,7 @@ def attr_value(value):
 
 
 def process_file(path: Path, model: str, cycle: str, forecast_hour: int,
-                 output: Path, max_grid_dim: int = 160):
+                 output: Path, max_grid_dim: int = 320):
     import cfgrib
     datasets = cfgrib.open_datasets(str(path), backend_kwargs={"indexpath": ""})
     fields = {}

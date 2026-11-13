@@ -177,3 +177,16 @@ def test_verified_hrrr_surface_archive_is_model_aware_and_keeps_profiles_rap_onl
         "const vField=uField&&findHrrrField(payload,['10v'],uField.grid_id)",
     ):
         assert mapping in renderer
+
+def test_expanded_upstream_domain_and_dynamic_map_legends_are_wired():
+    html = (ROOT / "index.html").read_text(encoding="utf-8")
+    process = (ROOT / "mesoscale" / "process_grib.py").read_text(encoding="utf-8")
+    subset = (ROOT / "mesoscale" / "download_subset.py").read_text(encoding="utf-8")
+    assert 'setView([44.25,-73.35],5.6)' in html
+    assert 'id="mapLegend"' in html
+    assert "function updateMapLegend(label,min,max,units" in html
+    assert "updateMapLegend(field.long_name||shortName,range.min,range.max,field.units" in html
+    assert "updateMapLegend(cfg.label,cfg.min,cfg.max,field.units||cfg.units)" in html
+    assert "updateMapLegend(cfg.label,cfg.min,cfg.max,cfg.units)" in html
+    assert '"west": -78.5, "east": -68.0, "south": 40.0, "north": 48.0' in process
+    assert '"leftlon": -78.5, "rightlon": -68.0, "toplat": 48.0, "bottomlat": 40.0' in subset
