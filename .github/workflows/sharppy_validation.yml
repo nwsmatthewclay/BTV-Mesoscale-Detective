@@ -16,8 +16,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: sharppy-validation-${{ github.ref }}
-  cancel-in-progress: true
+  group: sharppy-validation-${{ github.run_id }}
+  cancel-in-progress: false
 
 jobs:
   validate:
