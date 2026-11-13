@@ -135,14 +135,26 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
                     workspaceInlineDisplay: workspace?.style.display,
                     workspaceComputedDisplay: workspace ? getComputedStyle(workspace).display : null,
                     workspaceChildren: workspace?.children.length,
+                    workspaceWidth: workspace?.getBoundingClientRect().width,
                     crossPanelInlineDisplay: crossPanel?.style.display,
                     crossPanelComputedDisplay: crossPanel ? getComputedStyle(crossPanel).display : null,
+                    crossPanelWidth: crossPanel?.getBoundingClientRect().width,
                     plotWidth: rect?.width,
-                    plotHeight: rect?.height
+                    plotHeight: rect?.height,
+                    plotVisibility: plot ? getComputedStyle(plot).visibility : null
                 };
             }"""
         )
-        assert cross_state["activeTab"] == "cross" and cross_state["workspaceComputedDisplay"] == "grid" and cross_state["plotHeight"] > 0, {
+        assert (
+            cross_state["activeTab"] == "cross"
+            and cross_state["workspaceComputedDisplay"] == "grid"
+            and cross_state["crossPanelComputedDisplay"] == "block"
+            and cross_state["workspaceWidth"] > 700
+            and cross_state["crossPanelWidth"] > 300
+            and cross_state["plotWidth"] > 300
+            and cross_state["plotHeight"] > 0
+            and cross_state["plotVisibility"] == "visible"
+        ), {
             "state": cross_state, "pageErrors": page_errors, "consoleErrors": console_errors
         }
         assert page.locator("#crossSectionPlot").is_visible(), cross_state
