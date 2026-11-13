@@ -1182,7 +1182,7 @@ function renderHrrrGridOverlay(payload,param){
   const raster=makeInterpolatedRaster(data,grid,cfg.min,cfg.max);
   if(!raster){document.getElementById('mapChip').textContent='HRRR '+cfg.label+' raster could not be rendered';return;}
   raster.addTo(map);modelOverlayLayer=raster;setContourSource(Array.from({length:rows},(_,y)=>Array.from({length:cols},(_,x)=>valueAt(y,x))),grid,cfg.min,cfg.max,cfg.units,cfg.label);updateMapLegend(cfg.label,cfg.min,cfg.max,cfg.units);
-  document.getElementById('mapChip').textContent='HRRR '+cfg.label+' · F'+String(payload.forecast_hour).padStart(2,'0')+' · '+payload.valid_time_utc+' · smooth 4× interpolated display · '+cfg.units+' · native BTV subset';
+  document.getElementById('mapChip').textContent='HRRR '+cfg.label+' · F'+String(payload.forecast_hour).padStart(2,'0')+' · '+payload.valid_time_utc+' · smooth 4× interpolated display · '+cfg.units+' · native regional subset';
 }
 
 async function loadModelTileCatalog(){
