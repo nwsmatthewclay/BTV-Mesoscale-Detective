@@ -1,0 +1,8 @@
+name: btv-sharppy
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - numpy<2
+  - sharppy
+  - pytest
