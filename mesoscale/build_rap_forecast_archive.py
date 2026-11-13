@@ -20,7 +20,7 @@ from pathlib import Path
 import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from process_grib import DOMAIN, process_file
+from process_grib import DOMAIN, process_file, validate_grid_coverage
 from extract_profile import extract_profile
 
 MANIFEST = Path("mesoscale/data/model_manifest.json")
@@ -99,8 +99,12 @@ def _archive_file_matches(path: Path, item: dict, cycle: str, kind: str) -> bool
         ):
             return False
         if kind == "grid":
-            # Rebuild older archives when the geographic crop definition changes.
+            # Rebuild older archives when the geographic crop or actual grid coverage changes.
             if payload.get("domain") != DOMAIN:
+                return False
+            try:
+                validate_grid_coverage(payload.get("grids"), DOMAIN)
+            except (RuntimeError, TypeError, ValueError):
                 return False
             fields = payload.get("fields")
             grids = payload.get("grids")
@@ -187,6 +191,7 @@ def archive_needs_update(manifest: dict, existing_archive: dict | None,
     )
     archive_is_current = (
         existing_archive.get("model") == "RAP"
+        and existing_archive.get("domain") == DOMAIN
         and existing_time is not None
         and existing_time >= target_time
         and archived_hours == expected_hours
@@ -242,7 +247,7 @@ def main() -> None:
         grib_path = OUT / "downloads" / product["filename"]
         size = download(product["url"], grib_path, session)
         field_path = FIELDS_OUT / f"rap_f{hour:02d}.json.gz"
-        payload = process_file(grib_path, "RAP", cycle, hour, field_path, max_grid_dim=160)
+        payload = process_file(grib_path, "RAP", cycle, hour, field_path, max_grid_dim=320)
         names = {item["short_name"] for item in payload["fields"].values()}
         required = {"t", "gh", "u", "v", "q", "pres"}
         if not required.issubset(names):
@@ -267,6 +272,7 @@ def main() -> None:
             "station_file": f"fields/{station_path.name}",
             "field_count": payload["quality"]["field_count"],
             "grid_count": payload["quality"]["grid_count"],
+            "grid_coverage": payload["quality"].get("grid_coverage"),
             "station_count": len(station_profiles),
         })
         print(f"Verified RAP F{hour:02d}: {size:,} GRIB bytes, {len(names)} fields, {len(station_profiles)} station profiles")
