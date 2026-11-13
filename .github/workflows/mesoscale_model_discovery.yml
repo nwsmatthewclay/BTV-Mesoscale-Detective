@@ -1,5 +1,5 @@
 name: Mesoscale Model Discovery and Validation
-# Domain updates trigger validation so model archives are rebuilt against the current crop.
+# Validate expanded-domain code and tests before rebuilding published RAP/HRRR archives.
 
 on:
   push:
