@@ -1,0 +1,47 @@
+{
+  "model": "RAP",
+  "cycle_utc": "20261113T08:00:00Z",
+  "forecast_hour": 0,
+  "valid_time_utc": "2026-11-13T08:00:00Z",
+  "field_key": "trpp_2d_11",
+  "short_name": "trpp",
+  "long_name": "Tropopause pressure",
+  "units": "Pa",
+  "source_units": "Pa",
+  "display_transform": {
+    "scale": 1.0,
+    "offset": 0.0
+  },
+  "source_grid_shape": [
+    113,
+    89
+  ],
+  "source_grid_id": "grid_11",
+  "display_range": [
+    10200.0,
+    33900.0
+  ],
+  "contour_interval": 2000,
+  "contour_levels": [
+    12000.0,
+    14000.0,
+    16000.0,
+    18000.0,
+    20000.0,
+    22000.0,
+    24000.0,
+    26000.0,
+    28000.0,
+    30000.0,
+    32000.0,
+    34000.0
+  ],
+  "tile_size": 256,
+  "zoom_min": 3,
+  "zoom_max": 6,
+  "tile_count": 51,
+  "contour_feature_count": 185,
+  "tile_url": "rap/20261113T080000Z/f00/trpp_2d_11/tiles/{z}/{x}/{y}.png",
+  "contour_url": "rap/20261113T080000Z/f00/trpp_2d_11/contours.geojson",
+  "rendering": "linear interpolation from native model grid; contours calculated independently on native geographic grid"
+}

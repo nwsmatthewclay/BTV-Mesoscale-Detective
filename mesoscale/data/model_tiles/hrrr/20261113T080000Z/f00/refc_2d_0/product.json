@@ -1,0 +1,42 @@
+{
+  "model": "HRRR",
+  "cycle_utc": "20261113T08:00:00Z",
+  "forecast_hour": 0,
+  "valid_time_utc": "2026-11-13T08:00:00Z",
+  "field_key": "refc_2d_0",
+  "short_name": "refc",
+  "long_name": "Maximum/Composite radar reflectivity",
+  "units": "dB",
+  "source_units": "dB",
+  "display_transform": {
+    "scale": 1.0,
+    "offset": 0.0
+  },
+  "source_grid_shape": [
+    153,
+    145
+  ],
+  "source_grid_id": "grid_0",
+  "display_range": [
+    -10.0,
+    21.5
+  ],
+  "contour_interval": 5,
+  "contour_levels": [
+    -10.0,
+    -5.0,
+    0.0,
+    5.0,
+    10.0,
+    15.0,
+    20.0
+  ],
+  "tile_size": 256,
+  "zoom_min": 3,
+  "zoom_max": 6,
+  "tile_count": 51,
+  "contour_feature_count": 1116,
+  "tile_url": "hrrr/20261113T080000Z/f00/refc_2d_0/tiles/{z}/{x}/{y}.png",
+  "contour_url": "hrrr/20261113T080000Z/f00/refc_2d_0/contours.geojson",
+  "rendering": "linear interpolation from native model grid; contours calculated independently on native geographic grid"
+}

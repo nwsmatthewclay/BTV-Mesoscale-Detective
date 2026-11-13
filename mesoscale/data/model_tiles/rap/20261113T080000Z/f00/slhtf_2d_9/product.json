@@ -1,0 +1,47 @@
+{
+  "model": "RAP",
+  "cycle_utc": "20261113T08:00:00Z",
+  "forecast_hour": 0,
+  "valid_time_utc": "2026-11-13T08:00:00Z",
+  "field_key": "slhtf_2d_9",
+  "short_name": "slhtf",
+  "long_name": "Surface latent heat net flux",
+  "units": "W m**-2",
+  "source_units": "W m**-2",
+  "display_transform": {
+    "scale": 1.0,
+    "offset": 0.0
+  },
+  "source_grid_shape": [
+    113,
+    89
+  ],
+  "source_grid_id": "grid_9",
+  "display_range": [
+    -4.98,
+    572.6599999999976
+  ],
+  "contour_interval": 50,
+  "contour_levels": [
+    0.0,
+    50.0,
+    100.0,
+    150.0,
+    200.0,
+    250.0,
+    300.0,
+    350.0,
+    400.0,
+    450.0,
+    500.0,
+    550.0
+  ],
+  "tile_size": 256,
+  "zoom_min": 3,
+  "zoom_max": 6,
+  "tile_count": 51,
+  "contour_feature_count": 186,
+  "tile_url": "rap/20261113T080000Z/f00/slhtf_2d_9/tiles/{z}/{x}/{y}.png",
+  "contour_url": "rap/20261113T080000Z/f00/slhtf_2d_9/contours.geojson",
+  "rendering": "linear interpolation from native model grid; contours calculated independently on native geographic grid"
+}
