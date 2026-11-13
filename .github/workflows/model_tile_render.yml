@@ -1,6 +1,12 @@
 name: Render RAP and HRRR Model Tiles
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "mesoscale/render_model_tiles.py"
+      - "mesoscale/tests/test_model_tiles.py"
+      - ".github/workflows/model_tile_render.yml"
   workflow_run:
     workflows:
       - RAP BTV Ingestion and Forecast Archive
