@@ -98,6 +98,16 @@ Discovery of a model product is not proof that its data have been decoded, valid
 - Expand HRRR and RRFS vertical capabilities as source products permit.
 - Add end-to-end browser tests, stale-data tests, quota alarms, and operational status reporting.
 
+
+## Implementation status — 2026-11-13
+
+- The existing RAP transect browser regression passed on the current baseline; the earlier undeclared `grid_id` reference is already corrected on `main` and has a regression guard in this feature branch.
+- SHARPpy 1.4.0 installs successfully from conda-forge in an isolated Python 3.10 / NumPy 1.x environment. The adapter has passed synthetic and real archived KBTV RAP sounding tests. The latest validation run passed 10 tests; two visible NumPy masked-value warnings from SHARPpy interpolation remain under review.
+- A first reusable RAP cross-section engine is implemented and validated against the committed F00 archive. It samples distinct native grid cells along a great-circle transect, interpolates hybrid columns to common log-pressure levels, and disables extrapolation. The real-data test uses the verified RAP `w` vertical-velocity field (Pa s**-1), temperature, and geopotential height.
+- The archived RAP F00 inventory confirms 50 hybrid levels for pressure, temperature, geopotential height, specific humidity, U/V wind, and vertical velocity. Cloud-water, rain, snow, and graupel mixing ratios are also available on hybrid levels.
+- Frontogenesis is not a directly verified field in the current archive. Its calculation remains gated on retaining and validating the native grid projection and spacing metadata, then deriving Petterssen frontogenesis from potential temperature and horizontal wind gradients.
+- No changes have been made to production `main`, the operational SA dashboard, or any deployment. The feature work remains isolated in draft PR #1.
+
 ## Immediate first milestone
 
 Do not begin by adding all five models or redesigning the whole page. First:
