@@ -364,7 +364,7 @@ body{
 <footer class="foot">BTV Mesoscale Detective · Development build · Not for operational decision-making until data ingestion and verification are complete.</footer>
 <script>
 const stations=[["KBTV",44.4719,-73.1533],["KPBG",44.6509,-73.4681],["KMSS",44.9358,-74.8456],["KSLK",44.3853,-74.2062],["KMPV",44.2035,-72.5623],["KRUT",43.5294,-72.9496],["1V4",44.4193,-72.0194],["KEFK",44.8888,-72.2292]];
-const REGIONAL_DOMAIN={west:-90.0,east:-60.0,south:32.0,north:55.0};
+const REGIONAL_DOMAIN={west:-90.0,east:-61.5,south:32.0,north:52.0};
 const REGIONAL_BOUNDS=[[REGIONAL_DOMAIN.south,REGIONAL_DOMAIN.west],[REGIONAL_DOMAIN.north,REGIONAL_DOMAIN.east]];
 const map=L.map('map',{zoomControl:true,minZoom:4}).fitBounds(REGIONAL_BOUNDS,{padding:[18,18]});
 window.__testMap=map;
@@ -444,7 +444,7 @@ function cursorReadout(latlng){
   const units=currentTileProduct?.model===model&&currentTileProduct?.field_key===fieldKey?currentTileProduct.units:(meta.units||'native units');
   const label=currentTileProduct?.model===model&&currentTileProduct?.field_key===fieldKey?currentTileProduct.long_name:(meta.long_name||fieldKey);
   const distanceKm=6371*Math.sqrt(bestDistance);
-  value.textContent=label+': '+shown.toLocaleString('en-US',{maximumFractionDigits:1})+' '+units+' · nearest grid '+distanceKm.toFixed(1)+' km';
+  value.textContent=label+': '+shown.toLocaleString('en-US',{maximumFractionDigits:1})+' '+units+' · nearest native grid '+distanceKm.toFixed(1)+' km';
 }
 map.on('mousemove',event=>{lastCursorLatLng=event.latlng;if(cursorFramePending)return;cursorFramePending=true;requestAnimationFrame(()=>{cursorFramePending=false;cursorReadout(lastCursorLatLng);});});
 map.on('mouseout',()=>cursorReadout(null));
@@ -779,8 +779,16 @@ function squeezeRap2D(data){
   let a=data;while(Array.isArray(a)&&a.length===1&&Array.isArray(a[0])&&Array.isArray(a[0][0]))a=a[0];
   return Array.isArray(a)&&Array.isArray(a[0])&&a.some(row=>Array.isArray(row)&&row.some(Number.isFinite))?a:null;
 }
+function hasMatchingFieldGridGeometry(payload,field){
+  const data=squeezeRap2D(field?.data),grid=payload?.grids?.[field?.grid_id];
+  if(!Array.isArray(data)||!data.length||!Array.isArray(grid?.latitude)||!Array.isArray(grid?.longitude)||data.length!==grid.latitude.length||data.length!==grid.longitude.length)return false;
+  for(let y=0;y<data.length;y++){
+    if(!Array.isArray(data[y])||!Array.isArray(grid.latitude[y])||!Array.isArray(grid.longitude[y])||data[y].length!==grid.latitude[y].length||data[y].length!==grid.longitude[y].length)return false;
+  }
+  return true;
+}
 function findRapSurfaceField(payload,names,gridId){
-  return Object.values(payload.fields||{}).find(f=>names.includes(f.short_name)&&(!gridId||f.grid_id===gridId)&&squeezeRap2D(f.data));
+  return Object.values(payload.fields||{}).find(f=>names.includes(f.short_name)&&(!gridId||f.grid_id===gridId)&&hasMatchingFieldGridGeometry(payload,f));
 }
 function sampleRapSurface(payload,names,lat,lon){
   const field=findRapSurfaceField(payload,names);if(!field)return null;
@@ -1000,7 +1008,7 @@ function syncDynamicFieldOptions(payload,model){
   const existing=new Set(Array.from(select.options).filter(option=>option.dataset.model===model).map(option=>option.dataset.fieldKey));
   for(const [fieldKey,field] of Object.entries(payload.fields||{})){
     const shortName=field.short_name;
-    if(!shortName||shortName==='unknown'||existing.has(fieldKey)||!squeezeRap2D(field.data))continue;
+    if(!shortName||shortName==='unknown'||existing.has(fieldKey)||!hasMatchingFieldGridGeometry(payload,field))continue;
     const category=NATIVE_FIELD_CATEGORIES[shortName]||'other',option=document.createElement('option');
     option.value='native_'+model+'_key_'+encodeURIComponent(fieldKey);
     option.textContent=(field.long_name||shortName)+' · '+(field.units||'units unavailable')+' ['+fieldKey+']';
@@ -1142,7 +1150,7 @@ async function updateModelComparison(){
 }
 window.updateModelComparison=updateModelComparison;
 function findHrrrField(payload,names,gridId){
-  return Object.values(payload.fields||{}).find(field=>names.includes(field.short_name)&&(!gridId||field.grid_id===gridId)&&squeezeRap2D(field.data));
+  return Object.values(payload.fields||{}).find(field=>names.includes(field.short_name)&&(!gridId||field.grid_id===gridId)&&hasMatchingFieldGridGeometry(payload,field));
 }
 function renderHrrrGridOverlay(payload,param){
   if(modelOverlayLayer){map.removeLayer(modelOverlayLayer);modelOverlayLayer=null;}
@@ -1184,7 +1192,7 @@ function renderHrrrGridOverlay(payload,param){
   const raster=makeInterpolatedRaster(data,grid,cfg.min,cfg.max);
   if(!raster){document.getElementById('mapChip').textContent='HRRR '+cfg.label+' raster could not be rendered';return;}
   raster.addTo(map);modelOverlayLayer=raster;setContourSource(Array.from({length:rows},(_,y)=>Array.from({length:cols},(_,x)=>valueAt(y,x))),grid,cfg.min,cfg.max,cfg.units,cfg.label);updateMapLegend(cfg.label,cfg.min,cfg.max,cfg.units);
-  document.getElementById('mapChip').textContent='HRRR '+cfg.label+' · F'+String(payload.forecast_hour).padStart(2,'0')+' · '+payload.valid_time_utc+' · smooth 4× interpolated display · '+cfg.units+' · native BTV subset';
+  document.getElementById('mapChip').textContent='HRRR '+cfg.label+' · F'+String(payload.forecast_hour).padStart(2,'0')+' · '+payload.valid_time_utc+' · smooth 4× interpolated display · '+cfg.units+' · native regional subset';
 }
 
 async function loadModelTileCatalog(){
