@@ -1,5 +1,5 @@
 name: Mesoscale Model Discovery and Validation
-# Recheck the expanded-domain pipeline before publishing the refreshed regional grids.
+# Recheck the full expanded-domain pipeline before publishing regional grids.
 
 on:
   push:
