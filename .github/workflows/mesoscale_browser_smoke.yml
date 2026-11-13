@@ -2,22 +2,6 @@ name: Mesoscale Browser Smoke Test
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - regional-viewer-foundation
-    paths:
-      - "index.html"
-      - "mesoscale.html"
-      - "mesoscale/browser_tests/**"
-      - ".github/workflows/mesoscale_browser_smoke.yml"
-  pull_request:
-    branches:
-      - main
-    paths:
-      - "index.html"
-      - "mesoscale.html"
-      - "mesoscale/browser_tests/**"
-      - ".github/workflows/mesoscale_browser_smoke.yml"
 
 permissions:
   contents: read
@@ -31,10 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Check out pull request or feature branch
+      - name: Check out latest published main branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: main
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
