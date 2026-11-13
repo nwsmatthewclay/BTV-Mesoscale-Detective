@@ -165,6 +165,8 @@ async function runRapCrossSection(points){
     }catch(error){skipped.push({index:i,reason:error.message});}
   }
   const usable=profiles.length;
+  status.textContent='transect columns passed profile QC: '+usable+' of '+(samples+1)+' sampled locations';
+  status.textContent='transect columns passed profile QC: '+usable+' of '+(samples+1)+' sampled locations';
   if(usable<2){
     const reason=skipped[0]?.reason||'insufficient valid columns';
     throw new Error('Only '+usable+' distinct native grid columns passed profile QC; first rejected sample: '+reason);
@@ -437,7 +439,7 @@ function extractRegionalRapProfile(payload,lat,lon,label){
     if(!(profile[i].h>profile[i-1].h))throw new Error('RAP geopotential heights are not strictly increasing upward');
   }
   const z={pressure_hpa:profile.map(a=>a.p),temperature_k:profile.map(a=>a.t),dewpoint_k:profile.map(a=>a.td),height_agl_m:profile.map(a=>a.h),u_ms:profile.map(a=>a.u),v_ms:profile.map(a=>a.v),hybrid_level_indices:profile.map(a=>a.k)};
-  return {label,requested_location:{latitude:lat,longitude:lon},model:'RAP',model_cycle_utc:payload.model_cycle_utc,forecast_hour:payload.forecast_hour,valid_time_utc:payload.valid_time_utc,source_file:payload.source_file,profile:z,diagnostics:{diagnostics:{}},quality:{levels:profile.length,pressure_decreases_upward:true,height_increases_upward:true,profile_warnings:[]},sampled_grid_point:{latitude:pt.lat,longitude:pt.lon,distance_km:pt.d,grid_id:gridId,y:pt.y,x:pt.x,sampling_method:'nearest RAP grid point'},regional_sample:true};
+  return {label,requested_location:{latitude:lat,longitude:lon},model:'RAP',model_cycle_utc:payload.model_cycle_utc,forecast_hour:payload.forecast_hour,valid_time_utc:payload.valid_time_utc,source_file:payload.source_file,profile:z,diagnostics:{diagnostics:{}},quality:{levels:profile.length,pressure_decreases_upward:true,height_increases_upward:true,profile_warnings:[]},sampled_grid_point:{latitude:pt.lat,longitude:pt.lon,distance_km:pt.d,grid_id:gridId,sampling_method:'nearest RAP grid point',y:pt.y,x:pt.x},regional_sample:true};
 }
 
 function squeezeRap2D(data){
