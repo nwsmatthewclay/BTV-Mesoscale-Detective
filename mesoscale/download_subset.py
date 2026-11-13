@@ -10,7 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 from urllib.parse import urlencode
 
 import requests
@@ -86,13 +86,26 @@ def filter_url(model: str, product: dict) -> str:
     return f"{BASE}/{script}?{urlencode(params)}"
 
 
+def parse_cycle_hour(value: str) -> str:
+    """Return a UTC cycle hour for extended or compact ISO-8601 timestamps."""
+    if not isinstance(value, str) or not value:
+        raise ValueError("model cycle must be a non-empty UTC timestamp")
+    normalized = value.replace("Z", "+00:00")
+    try:
+        parsed = datetime.fromisoformat(normalized)
+    except ValueError:
+        # Python 3.10 does not accept the compact YYYYMMDD date form in fromisoformat.
+        parsed = datetime.strptime(normalized, "%Y%m%dT%H:%M:%S%z")
+    if parsed.tzinfo is None:
+        raise ValueError("model cycle timestamp must include a UTC offset")
+    return parsed.astimezone(timezone.utc).strftime("%H")
+
+
 def download(session, model, product, output_dir):
     url = filter_url(model, product)
     output_dir.mkdir(parents=True, exist_ok=True)
     try:
-        cycle_hour = datetime.fromisoformat(
-            product["cycle_utc"].replace("Z", "+00:00")
-        ).strftime("%H")
+        cycle_hour = parse_cycle_hour(product["cycle_utc"])
     except (KeyError, TypeError, ValueError) as exc:
         raise ValueError(f"Invalid model cycle timestamp: {product.get('cycle_utc')!r}") from exc
     filename = (
