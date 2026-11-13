@@ -6,7 +6,7 @@ from mesoscale.diagnostics import _finite_profile
 from mesoscale.extract_profile import write_profile_json
 from mesoscale.process_grib import (
     grib_metadata, grid_projection_metadata,
-    merge_grib_metadata, merge_grid_projection_metadata,
+    merge_grib_metadata, merge_grid_projection_metadata, parse_cycle_time,
 )
 
 
@@ -89,3 +89,19 @@ def test_grib_metadata_merges_projection_from_variable_attributes():
     assert projection["GRIB_DxInMetres"] == 13545.0
     assert projection["GRIB_uvRelativeToGrid"] == 1
     assert metadata["GRIB_shortName"] == "u"
+
+
+@pytest.mark.parametrize("cycle", [
+    "2026-11-13T04:00:00Z",
+    "20261113T04:00:00Z",
+    "20261113T04:00:00+00:00",
+])
+def test_parse_cycle_time_accepts_iso_and_compact_nomads_timestamps(cycle):
+    from datetime import datetime, timezone
+
+    assert parse_cycle_time(cycle) == datetime(2026, 11, 13, 4, tzinfo=timezone.utc)
+
+
+def test_parse_cycle_time_rejects_naive_timestamps():
+    with pytest.raises(ValueError, match="UTC offset"):
+        parse_cycle_time("2026-11-13T04:00:00")
