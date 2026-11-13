@@ -175,7 +175,7 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
             timeout=45000,
         )
         omega_units = page.locator("#crossSectionPlot").evaluate(
-            "element => element.data?.[0]?.colorbar?.title"
+            "element => { const title = element.data?.[0]?.colorbar?.title; return typeof title === "string" ? title : title?.text; }"
         )
         assert omega_units == "Pa s⁻¹"
 
