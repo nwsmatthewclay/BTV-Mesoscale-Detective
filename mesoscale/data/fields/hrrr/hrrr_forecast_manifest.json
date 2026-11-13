@@ -3,7 +3,7 @@
   "model": "HRRR",
   "product": "surface",
   "model_cycle_utc": "20261113T03:00:00Z",
-  "created_utc": "2026-11-13T04:39:46.378063+00:00",
+  "created_utc": "2026-11-13T05:02:05.078061+00:00",
   "domain": {
     "west": -75.2,
     "east": -71.2,
@@ -12,12 +12,12 @@
   },
   "hours": [
     {
-      "forecast_hour": 0,
-      "valid_time_utc": "2026-11-13T03:00:00Z",
-      "source_file": "hrrr.t03z.wrfsfcf00.grib2",
-      "download_bytes": 560308,
-      "grid_file": "hrrr_f00_btv.json.gz",
-      "decoded_bytes": 1142576,
+      "forecast_hour": 1,
+      "valid_time_utc": "2026-11-13T04:00:00Z",
+      "source_file": "hrrr.t03z.wrfsfcf01.grib2",
+      "download_bytes": 593968,
+      "grid_file": "hrrr_f01_btv.json.gz",
+      "decoded_bytes": 1152054,
       "grid_count": 7,
       "field_count": 20,
       "available_short_names": [
@@ -52,12 +52,12 @@
       "warnings": []
     },
     {
-      "forecast_hour": 3,
-      "valid_time_utc": "2026-11-13T06:00:00Z",
-      "source_file": "hrrr.t03z.wrfsfcf03.grib2",
-      "download_bytes": 603156,
-      "grid_file": "hrrr_f03_btv.json.gz",
-      "decoded_bytes": 1147441,
+      "forecast_hour": 4,
+      "valid_time_utc": "2026-11-13T07:00:00Z",
+      "source_file": "hrrr.t03z.wrfsfcf04.grib2",
+      "download_bytes": 591936,
+      "grid_file": "hrrr_f04_btv.json.gz",
+      "decoded_bytes": 1143207,
       "grid_count": 7,
       "field_count": 20,
       "available_short_names": [
@@ -92,12 +92,12 @@
       "warnings": []
     },
     {
-      "forecast_hour": 6,
-      "valid_time_utc": "2026-11-13T09:00:00Z",
-      "source_file": "hrrr.t03z.wrfsfcf06.grib2",
-      "download_bytes": 594180,
-      "grid_file": "hrrr_f06_btv.json.gz",
-      "decoded_bytes": 1137002,
+      "forecast_hour": 7,
+      "valid_time_utc": "2026-11-13T10:00:00Z",
+      "source_file": "hrrr.t03z.wrfsfcf07.grib2",
+      "download_bytes": 582960,
+      "grid_file": "hrrr_f07_btv.json.gz",
+      "decoded_bytes": 1134000,
       "grid_count": 7,
       "field_count": 20,
       "available_short_names": [
@@ -132,12 +132,12 @@
       "warnings": []
     },
     {
-      "forecast_hour": 9,
-      "valid_time_utc": "2026-11-13T12:00:00Z",
-      "source_file": "hrrr.t03z.wrfsfcf09.grib2",
-      "download_bytes": 578472,
-      "grid_file": "hrrr_f09_btv.json.gz",
-      "decoded_bytes": 1132103,
+      "forecast_hour": 10,
+      "valid_time_utc": "2026-11-13T13:00:00Z",
+      "source_file": "hrrr.t03z.wrfsfcf10.grib2",
+      "download_bytes": 580716,
+      "grid_file": "hrrr_f10_btv.json.gz",
+      "decoded_bytes": 1127985,
       "grid_count": 7,
       "field_count": 20,
       "available_short_names": [
@@ -172,12 +172,12 @@
       "warnings": []
     },
     {
-      "forecast_hour": 12,
-      "valid_time_utc": "2026-11-13T15:00:00Z",
-      "source_file": "hrrr.t03z.wrfsfcf12.grib2",
-      "download_bytes": 571740,
-      "grid_file": "hrrr_f12_btv.json.gz",
-      "decoded_bytes": 1124257,
+      "forecast_hour": 13,
+      "valid_time_utc": "2026-11-13T16:00:00Z",
+      "source_file": "hrrr.t03z.wrfsfcf13.grib2",
+      "download_bytes": 565008,
+      "grid_file": "hrrr_f13_btv.json.gz",
+      "decoded_bytes": 1126592,
       "grid_count": 7,
       "field_count": 20,
       "available_short_names": [
@@ -212,12 +212,12 @@
       "warnings": []
     },
     {
-      "forecast_hour": 15,
-      "valid_time_utc": "2026-11-13T18:00:00Z",
-      "source_file": "hrrr.t03z.wrfsfcf15.grib2",
-      "download_bytes": 576228,
-      "grid_file": "hrrr_f15_btv.json.gz",
-      "decoded_bytes": 1126960,
+      "forecast_hour": 16,
+      "valid_time_utc": "2026-11-13T19:00:00Z",
+      "source_file": "hrrr.t03z.wrfsfcf16.grib2",
+      "download_bytes": 569496,
+      "grid_file": "hrrr_f16_btv.json.gz",
+      "decoded_bytes": 1128775,
       "grid_count": 7,
       "field_count": 20,
       "available_short_names": [
@@ -259,15 +259,15 @@
   "publishing": true,
   "valid_time_alignment": {
     "reference_model": "RAP",
-    "reference_cycle_utc": "20261113T03:00:00Z",
+    "reference_cycle_utc": "20261113T04:00:00Z",
     "valid_times_utc": [
-      "2026-11-13T03:00:00Z",
-      "2026-11-13T06:00:00Z",
-      "2026-11-13T09:00:00Z",
-      "2026-11-13T12:00:00Z",
-      "2026-11-13T15:00:00Z",
-      "2026-11-13T18:00:00Z"
+      "2026-11-13T04:00:00Z",
+      "2026-11-13T07:00:00Z",
+      "2026-11-13T10:00:00Z",
+      "2026-11-13T13:00:00Z",
+      "2026-11-13T16:00:00Z",
+      "2026-11-13T19:00:00Z"
     ]
   },
-  "published_utc": "2026-11-13T04:39:58.716499+00:00"
+  "published_utc": "2026-11-13T05:02:18.485727+00:00"
 }
