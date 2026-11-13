@@ -8,6 +8,8 @@ on:
       - "mesoscale.html"
       - "mesoscale/**"
       - ".github/workflows/deploy_pages.yml"
+      # Tile commits deploy from the tile workflow dedicated Pages job.
+      - "!mesoscale/data/model_tiles/**"
   workflow_dispatch:
 
 permissions:
