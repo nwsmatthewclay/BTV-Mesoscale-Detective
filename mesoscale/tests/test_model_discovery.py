@@ -9,6 +9,7 @@ from mesoscale.discover_models import (
     RRFS_CYCLE_DIR_RE,
     RRFS_FILENAME_RE,
     index_summary,
+    include_index_targets_in_manifest,
     prioritize_latest_products,
     product_lead_label,
     product_lead_minutes,
@@ -266,3 +267,48 @@ def test_select_index_targets_keeps_two_rrfs_subhourly_cycles_for_fallback():
 def test_select_index_targets_rejects_zero_fallback_cycles():
     with pytest.raises(ValueError, match="limit must be at least one"):
         select_index_targets([], subhourly_cycle_limit=0)
+
+
+
+def test_indexed_fallback_product_is_retained_beyond_manifest_display_limit():
+    newest = [
+        {
+            "cycle_utc": "2026-11-13T00:00:00Z",
+            "forecast_hour": hour,
+            "product": "surface",
+            "url": f"https://example.test/newest/f{hour:03d}.grib2",
+        }
+        for hour in range(5)
+    ]
+    fallback = {
+        "cycle_utc": "2026-11-12T23:00:00Z",
+        "forecast_step": 1,
+        "forecast_lead_minutes": 15,
+        "product": "surface_subhourly_3km",
+        "url": "https://example.test/fallback/rrfs23_f001.grib2",
+        "index": {"message_count": 149, "messages": [{"byte_offset": 0}, {"byte_offset": 100}]},
+    }
+
+    selected = include_index_targets_in_manifest(newest + [fallback], [fallback], limit=3)
+
+    assert len(selected) == 4
+    assert [item["url"] for item in selected[:3]] == [
+        "https://example.test/newest/f000.grib2",
+        "https://example.test/newest/f001.grib2",
+        "https://example.test/newest/f002.grib2",
+    ]
+    assert selected[3]["url"] == fallback["url"]
+    assert selected[3]["index"]["message_count"] == 149
+
+
+def test_indexed_target_already_in_manifest_is_not_duplicated():
+    product = {
+        "cycle_utc": "2026-11-13T00:00:00Z",
+        "forecast_hour": 0,
+        "product": "surface",
+        "url": "https://example.test/current.grib2",
+    }
+
+    selected = include_index_targets_in_manifest([product], [product], limit=120)
+
+    assert len(selected) == 1

@@ -273,6 +273,24 @@ def select_index_targets(products: list[dict], subhourly_cycle_limit: int = 2) -
     return chosen
 
 
+def include_index_targets_in_manifest(
+    products: list[dict],
+    index_targets: list[dict],
+    limit: int = 120,
+) -> list[dict]:
+    """Keep the normal newest-product window and append any indexed fallback products."""
+    if limit < 1:
+        raise ValueError("manifest product limit must be at least one")
+    selected = prioritize_latest_products(products, limit=limit)
+    known = {item.get("url") or item.get("filename") for item in selected}
+    for item in index_targets:
+        key = item.get("url") or item.get("filename")
+        if key and key not in known:
+            selected.append(item)
+            known.add(key)
+    return selected
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--days-back", type=int, default=2,
@@ -298,10 +316,12 @@ def main():
                     else discover_model(session, model, max(0, args.days_back)))
         all_valid = [p for p in products if p.get("url")]
         valid = prioritize_latest_products(all_valid)
+        chosen = []
         if args.index_latest:
             # Probe the latest product in each family, plus one older RRFS
             # subhourly cycle so a transient newest-cycle index error can fall back.
-            chosen = select_index_targets(valid)
+            # Use all discovered products, not only the 120-item display window.
+            chosen = select_index_targets(all_valid)
             for item in chosen:
                 try:
                     item["index"] = index_summary(session, item["url"])
@@ -309,7 +329,7 @@ def main():
                     item["index_error"] = f"{type(exc).__name__}: {exc}"
         report["models"][model] = {
             "products_found": len(all_valid),
-            "latest_products": valid[:120],
+            "latest_products": include_index_targets_in_manifest(all_valid, chosen, limit=120),
             "directory_errors": [p for p in products if p.get("error")],
         }
 
