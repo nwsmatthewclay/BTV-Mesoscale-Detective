@@ -27,7 +27,7 @@ jobs:
   render-and-publish:
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 60
     steps:
       - name: Check out latest model archives
         uses: actions/checkout@v4
@@ -93,7 +93,7 @@ jobs:
                   command = [
                       sys.executable, "mesoscale/render_model_tiles.py",
                       "--input", str(grid_path), "--field", field_key,
-                      "--zoom-min", "3", "--zoom-max", "7"
+                      "--zoom-min", "3", "--zoom-max", "6"
                   ]
                   short_name = field.get("short_name")
                   # Convert only recognized near-surface products. Other levels
