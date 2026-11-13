@@ -300,6 +300,24 @@ body{
  @keyframes spectralPulse{0%,100%{filter:brightness(.9);opacity:.8}50%{filter:brightness(1.35);opacity:1}}
 }
 
+
+/* Focused model-exploration workspace: one reliable no-key basemap and a full-width map. */
+@media (min-width: 901px){
+  body > main.layout{flex:1 1 auto!important;min-height:0!important;height:auto!important;margin:10px clamp(12px,1.4vw,22px) 12px!important;display:grid!important;grid-template-columns:minmax(235px,275px) minmax(0,1fr)!important;gap:12px!important;overflow:hidden!important;}
+  body > main.layout > main.layout{display:grid!important;grid-template-columns:minmax(0,1fr)!important;min-width:0!important;min-height:0!important;width:100%!important;height:100%!important;flex:1 1 auto!important;margin:0!important;gap:0!important;overflow:hidden!important;}
+  body > main.layout > main.layout > .map-panel{grid-column:1/-1!important;width:100%!important;height:100%!important;min-height:0!important;}
+  body > main.layout > main.layout > .rightcol{display:none!important;}
+  body > main.layout > main.layout > .legacy-profile-host{display:none!important;}
+  .map-wrap,#map{min-height:0!important;height:100%!important;}
+  .map-panel .map-actions{flex:0 0 auto;}
+}
+@media (max-width: 900px){
+  body > main.layout{display:grid!important;grid-template-columns:minmax(0,1fr)!important;height:auto!important;max-height:none!important;overflow:visible!important;margin:10px!important;}
+  body > main.layout > main.layout{display:grid!important;grid-template-columns:minmax(0,1fr)!important;height:auto!important;min-height:0!important;margin:0!important;overflow:visible!important;}
+  body > main.layout > main.layout > .rightcol{display:none!important;}
+  body > main.layout > main.layout > .map-panel{min-height:68vh!important;}
+  body > main.layout > main.layout #map{min-height:52vh!important;}
+}
 </style>
 </head>
 <body>
@@ -342,8 +360,10 @@ const REGIONAL_DOMAIN={west:-90.0,east:-60.0,south:32.0,north:55.0};
 const REGIONAL_BOUNDS=[[REGIONAL_DOMAIN.south,REGIONAL_DOMAIN.west],[REGIONAL_DOMAIN.north,REGIONAL_DOMAIN.east]];
 const map=L.map('map',{zoomControl:true,minZoom:4}).fitBounds(REGIONAL_BOUNDS,{padding:[18,18]});
 window.__testMap=map;
-const baseTiles=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:18,attribution:'&copy; OpenStreetMap &copy; CARTO'}).addTo(map);
-const baseLabels=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:18,opacity:.9,attribution:'&copy; CARTO'}).addTo(map);
+const baseTiles=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{subdomains:'abc',maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',crossOrigin:true}).addTo(map);
+baseTiles.on('tileerror',()=>{document.getElementById('mapChip').textContent='Basemap tile unavailable · check network access';});
+map.whenReady(()=>setTimeout(()=>map.invalidateSize(true),180));
+window.addEventListener('resize',()=>map.invalidateSize({pan:false}));
 let selected={name:"KBTV",lat:44.4719,lon:-73.1533},markers=[],transect=[],line=null,drawing=false;
 function stationLayer(){markers.forEach(m=>map.removeLayer(m));markers=[];if(!document.getElementById('stations').checked)return;stations.forEach(s=>{const m=L.circleMarker([s[1],s[2]],{radius:s[0]==="KBTV"?7:5,color:"#9de7f1",weight:1.5,fillColor:"#123d59",fillOpacity:.95}).addTo(map).bindTooltip(s[0],{direction:"top"}).on('click',()=>selectPoint(s[1],s[2],s[0]));markers.push(m)});}
 function selectPoint(lat,lon,name){selected={name:name||"Custom point",lat,lon};document.getElementById('pointReadout').innerHTML='<span>Location</span><b>'+selected.name+'</b>';document.getElementById('coords').textContent=lat.toFixed(4)+'°N, '+Math.abs(lon).toFixed(4)+'°W';document.getElementById('selectionStatus').textContent='Selected: '+selected.name;document.querySelector('#investigation .detail-line:nth-child(3) b').textContent=selected.name;document.getElementById('mapChip').textContent='Selected '+selected.name+' · '+lat.toFixed(3)+', '+lon.toFixed(3);if(window.loadStationProfile)window.loadStationProfile(selected.name);if(window.activeTab==='evolution'&&window.updateRapTimeEvolution)window.updateRapTimeEvolution();if(window.activeTab==='compare'&&window.updateModelComparison)window.updateModelComparison();}
