@@ -102,10 +102,10 @@ Discovery of a model product is not proof that its data have been decoded, valid
 ## Implementation status — 2026-11-13
 
 - The existing RAP transect browser regression passed on the current baseline; the earlier undeclared `grid_id` reference is already corrected on `main` and has a regression guard in this feature branch.
-- SHARPpy 1.4.0 installs successfully from conda-forge in an isolated Python 3.10 / NumPy 1.x environment. The adapter has passed synthetic and real archived KBTV RAP sounding tests. The latest validation run passed 19 tests; two visible NumPy masked-value warnings from SHARPpy interpolation remain under review.
+- SHARPpy 1.4.0 installs successfully from conda-forge in an isolated Python 3.10 / NumPy 1.x environment. The adapter has passed synthetic and real archived KBTV RAP sounding tests. The latest completed validation run passed 24 tests, including new standard/compact UTC cycle parsing tests; two visible NumPy masked-value warnings from SHARPpy interpolation remain under review.
 - A first reusable RAP cross-section engine is implemented and validated against the committed F00 archive. It samples distinct native grid cells along a great-circle transect, interpolates hybrid columns to common log-pressure levels, and disables extrapolation. The real-data test uses the verified RAP `w` vertical-velocity field (Pa s**-1), temperature, and geopotential height.
 - The archived RAP F00 inventory confirms 50 hybrid levels for pressure, temperature, geopotential height, specific humidity, U/V wind, and vertical velocity. Cloud-water, rain, snow, and graupel mixing ratios are also available on hybrid levels.
-- The GRIB processor now retains dataset-level projection/grid-spacing metadata and variable-level GRIB attributes, including U/V orientation flags. A Petterssen frontogenesis prototype derives the 2-D diagnostic from potential temperature and horizontal wind gradients on pressure surfaces. Synthetic Lambert-grid tests pass, and the function refuses missing projection/spacing or non-grid-relative/unknown U/V orientation. The committed RAP archive predates the new metadata, so real RAP frontogenesis remains gated on regenerating and validating an archive with those metadata.
+- The GRIB processor now retains dataset-level projection/grid-spacing metadata and variable-level GRIB attributes, including U/V orientation flags. A Petterssen frontogenesis prototype derives the 2-D diagnostic from potential temperature and horizontal wind gradients on pressure surfaces. Synthetic Lambert-grid tests pass, and the function refuses missing projection/spacing or non-grid-relative/unknown U/V orientation. A read-only live RAP F00 probe then verified the actual 13,545 m Lambert grid and grid-relative U/V metadata and successfully calculated frontogenesis at 850/700/500 hPa (7 transect samples, 21 finite values). The older committed archive predates the new metadata, but the real-data engine itself is now validated on a fresh temporary source decode.
 - No changes have been made to production `main`, the operational SA dashboard, or any deployment. The feature work remains isolated in draft PR #1.
 
 ## Immediate first milestone
@@ -117,3 +117,7 @@ Do not begin by adding all five models or redesigning the whole page. First:
 4. Prototype one SHARPpy profile calculation against an existing verified RAP profile.
 
 This produces a stable scientific and storage foundation before large UI changes.
+
+
+- The first categorized variable selector has been added to the browser UI. It groups current map parameters into thermodynamics, moisture, kinematics, forcing, surface/boundary-layer, reflectivity, and aviation/visibility categories, and filters categories/parameters by selected model so empty categories are disabled. This is the navigation foundation only; a complete manifest-driven field catalog and renderers for the full decoded RAP/HRRR inventories remain the next major UI workstream.
+- PR CI now includes browser coverage for the category filtering and existing RAP/HRRR valid-time/archive switching. The new browser job is in progress; do not treat it as passed until its result is confirmed.
