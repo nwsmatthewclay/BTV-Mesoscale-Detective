@@ -128,7 +128,6 @@ jobs:
           PY
       - name: Publish tile archive
         run: |
-          git pull --rebase origin main
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A mesoscale/data/model_tiles/
@@ -137,4 +136,16 @@ jobs:
             exit 0
           fi
           git commit -m "Publish zoomable RAP and HRRR model tiles"
-          git push
+          # Other ingestion/discovery workflows can update main while rendering.
+          # Rebase and retry the push so a harmless concurrent commit cannot
+          # strand a completed tile render in the runner.
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "Push attempt $attempt failed; retrying after refreshing main."
+          done
+          echo "Unable to publish tile archive after five push attempts."
+          exit 1
