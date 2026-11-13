@@ -62,6 +62,18 @@ def test_tile_workflow_owns_its_pages_deployment_without_duplicate_pushes():
     assert ".github/workflows/deploy_pages.yml" not in paths
     assert "  workflow_run:" not in standalone
 
+def test_tile_deployment_runs_only_when_catalog_changes_or_is_manually_requested():
+    tile = (ROOT / ".github/workflows/model_tile_render.yml").read_text(encoding="utf-8")
+    render_job = tile.split("  render-and-publish:\n", 1)[1].split("\n  deploy-pages:\n", 1)[0]
+    assert "changed: \${{ steps.publish.outputs.changed }}" in render_job
+    publish = render_job.split("      - name: Publish tile archive\n", 1)[1]
+    assert 'echo "changed=false" >> "$GITHUB_OUTPUT"' in publish
+    assert 'echo "changed=true" >> "$GITHUB_OUTPUT"' in publish
+
+    deploy = tile.split("  deploy-pages:\n", 1)[1]
+    assert "needs.render-and-publish.outputs.changed == 'true'" in deploy
+    assert "github.event_name == 'workflow_dispatch'" in deploy
+
 def test_hrRR_browser_smoke_is_independent_of_pages_deployment():
     hrrr = (ROOT / ".github/workflows/hrrr_ingestion_smoke.yml").read_text(encoding="utf-8")
     browser = (ROOT / ".github/workflows/mesoscale_browser_smoke.yml").read_text(encoding="utf-8")
