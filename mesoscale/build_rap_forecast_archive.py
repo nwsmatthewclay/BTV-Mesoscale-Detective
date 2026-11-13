@@ -20,7 +20,7 @@ from pathlib import Path
 import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from process_grib import process_file
+from process_grib import DOMAIN, process_file
 from extract_profile import extract_profile
 
 MANIFEST = Path("mesoscale/data/model_manifest.json")
@@ -99,6 +99,9 @@ def _archive_file_matches(path: Path, item: dict, cycle: str, kind: str) -> bool
         ):
             return False
         if kind == "grid":
+            # Rebuild older archives when the geographic crop definition changes.
+            if payload.get("domain") != DOMAIN:
+                return False
             fields = payload.get("fields")
             grids = payload.get("grids")
             quality = payload.get("quality")
