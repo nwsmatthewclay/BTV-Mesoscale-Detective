@@ -89,23 +89,55 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
 
         page.goto("http://127.0.0.1:8765/", wait_until="domcontentloaded")
 
-        # The redesigned viewer should be map-first on desktop and reflow cleanly on mobile.
-        desktop_layout = page.evaluate(
-            """() => ({
-                columns: getComputedStyle(document.querySelector(".layout")).gridTemplateColumns.split(" ").length,
-                mapWidth: document.querySelector("#map").getBoundingClientRect().width,
-                mapHeight: document.querySelector("#map").getBoundingClientRect().height,
-                controls: getComputedStyle(document.querySelector(".control-grid")).gridTemplateColumns.split(" ").length,
-                modelControl: Boolean(document.querySelector(".control-deck #model")),
-                categoryControl: Boolean(document.querySelector(".control-deck #category")),
-                variableControl: Boolean(document.querySelector(".control-deck #parameter"))
-            })"""
+        # Reject duplicate short-name fields whose data do not match their grid geometry.
+        field_geometry = page.evaluate(
+            """() => {
+                const lat = Array.from({length: 4}, (_, y) => Array.from({length: 4}, () => 44 + y * 0.1));
+                const lon = Array.from({length: 4}, () => Array.from({length: 4}, (_, x) => -74 + x * 0.1));
+                const values = Array.from({length: 4}, (_, y) => Array.from({length: 4}, (_, x) => 280 + y + x));
+                const payload = {
+                    grids: {good: {latitude: lat, longitude: lon}},
+                    fields: {
+                        bad: {short_name: "2t", grid_id: "missing", data: values},
+                        good: {short_name: "2t", grid_id: "good", data: values}
+                    }
+                };
+                return {
+                    acceptsGood: hasMatchingGridGeometry(payload, payload.fields.good),
+                    rejectsBad: !hasMatchingGridGeometry(payload, payload.fields.bad),
+                    rapSkipsBadDuplicate: findRapSurfaceField(payload, ["2t"]) === payload.fields.good,
+                    hrrrSkipsBadDuplicate: findHrrrField(payload, ["2t"]) === payload.fields.good,
+                    nativeResolverRejectsBad: selectedTileFieldKey("RAP", "native_RAP_key_bad", payload) === null
+                };
+            }"""
         )
-        assert desktop_layout["columns"] == 2, desktop_layout
+        assert all(field_geometry.values()), field_geometry
+
+        # The current workstation has a two-column shell and a two-column analysis area.
+        desktop_layout = page.evaluate(
+            """() => {
+                const shell = document.querySelector("body > main.layout");
+                const analysis = shell?.querySelector(":scope > main.layout");
+                const sidebar = shell?.querySelector(":scope > .model-sidebar");
+                const map = analysis?.querySelector("#map");
+                if (!shell || !analysis || !sidebar || !map) return {missingStructure: true};
+                return {
+                    shellColumns: getComputedStyle(shell).gridTemplateColumns.split(/\s+/).filter(Boolean).length,
+                    analysisColumns: getComputedStyle(analysis).gridTemplateColumns.split(/\s+/).filter(Boolean).length,
+                    mapWidth: map.getBoundingClientRect().width,
+                    mapHeight: map.getBoundingClientRect().height,
+                    sidebarWidth: sidebar.getBoundingClientRect().width,
+                    controlCount: sidebar.querySelectorAll("#model,#cycle,#hour,#category,#parameter").length
+                };
+            }"""
+        )
+        assert desktop_layout.get("missingStructure") is not True, desktop_layout
+        assert desktop_layout["shellColumns"] == 2, desktop_layout
+        assert desktop_layout["analysisColumns"] == 2, desktop_layout
         assert desktop_layout["mapWidth"] > 700, desktop_layout
         assert 400 <= desktop_layout["mapHeight"] <= 650, desktop_layout
-        assert desktop_layout["controls"] == 5, desktop_layout
-        assert desktop_layout["modelControl"] and desktop_layout["categoryControl"] and desktop_layout["variableControl"]
+        assert 220 <= desktop_layout["sidebarWidth"] <= 280, desktop_layout
+        assert desktop_layout["controlCount"] == 5, desktop_layout
         desktop_fit = page.evaluate(
             """() => ({
                 viewportHeight: window.innerHeight,
@@ -120,8 +152,23 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         assert desktop_fit["lowerWorkspace"] == "none", desktop_fit
         assert not desktop_fit["soundingPanelVisible"] and not desktop_fit["hodographPanelVisible"], desktop_fit
 
-        # Analysis workspaces appear on demand without forcing the default map view to scroll.
+        # The cross-section dock must span the desktop viewport, not the sidebar column.
         page.locator('#tabs button[data-tab="cross"]').click()
+        page.wait_for_function(
+            """() => {
+                const workspace = document.querySelector("body > .bottom-grid");
+                const panel = workspace?.children[0];
+                const plot = document.querySelector("#crossSectionPlot");
+                const rect = plot?.getBoundingClientRect();
+                return document.body.dataset.activeTab === "cross"
+                    && workspace && getComputedStyle(workspace).display === "grid"
+                    && workspace.getBoundingClientRect().width > 1000
+                    && panel && getComputedStyle(panel).display !== "none"
+                    && panel.getBoundingClientRect().width > 500
+                    && rect && rect.width > 500 && rect.height > 180;
+            }""",
+            timeout=5000,
+        )
         assert page.locator("#crossSectionPlot").is_visible()
         assert not page.locator("#trend").is_visible()
         page.locator('#tabs button[data-tab="environment"]').click()
@@ -130,16 +177,23 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
 
         page.set_viewport_size({"width": 390, "height": 844})
         mobile_layout = page.evaluate(
-            """() => ({
-                columns: getComputedStyle(document.querySelector(".layout")).gridTemplateColumns.split(" ").length,
-                viewportWidth: document.documentElement.clientWidth,
-                documentWidth: document.documentElement.scrollWidth,
-                mapWidth: document.querySelector("#map").getBoundingClientRect().width,
-                controlColumns: getComputedStyle(document.querySelector(".control-grid")).gridTemplateColumns.split(" ").length
-            })"""
+            """() => {
+                const shell = document.querySelector("body > main.layout");
+                const analysis = shell?.querySelector(":scope > main.layout");
+                const sidebar = shell?.querySelector(":scope > .model-sidebar");
+                return {
+                    shellColumns: shell ? getComputedStyle(shell).gridTemplateColumns.split(/\s+/).filter(Boolean).length : 0,
+                    analysisColumns: analysis ? getComputedStyle(analysis).gridTemplateColumns.split(/\s+/).filter(Boolean).length : 0,
+                    sidebarColumns: sidebar ? getComputedStyle(sidebar).gridTemplateColumns.split(/\s+/).filter(Boolean).length : 0,
+                    viewportWidth: document.documentElement.clientWidth,
+                    documentWidth: document.documentElement.scrollWidth,
+                    mapWidth: document.querySelector("#map").getBoundingClientRect().width
+                };
+            }"""
         )
-        assert mobile_layout["columns"] == 1, mobile_layout
-        assert mobile_layout["controlColumns"] == 2, mobile_layout
+        assert mobile_layout["shellColumns"] == 1, mobile_layout
+        assert mobile_layout["analysisColumns"] == 1, mobile_layout
+        assert mobile_layout["sidebarColumns"] == 2, mobile_layout
         assert mobile_layout["documentWidth"] <= mobile_layout["viewportWidth"] + 2, mobile_layout
         assert mobile_layout["mapWidth"] <= mobile_layout["viewportWidth"], mobile_layout
         page.set_viewport_size({"width": 1440, "height": 1000})
@@ -277,6 +331,22 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         assert page.locator("#parameter").input_value() == "hrrr_temp"
         assert "HRRR 2-m temperature" in page.locator("#mapChip").inner_text()
         assert page.locator("#gridSpacing").text_content().strip() == "3 km nominal"
+
+        # Cursor sampling reports the nearest native HRRR grid value for the selected field.
+        page.evaluate(
+            """() => window.__testMap.fire("mousemove", { latlng: L.latLng(44.5, -73.2) })"""
+        )
+        page.wait_for_function(
+            """() => {
+                const coordinates = document.querySelector("#cursorCoordinates")?.textContent || "";
+                const value = document.querySelector("#cursorValue")?.textContent || "";
+                return coordinates.includes("44.500")
+                    && coordinates.includes("73.200")
+                    && value.includes("nearest grid")
+                    && !value.includes("No active gridded field");
+            }""",
+            timeout=10000,
+        )
 
         # HRRR adds its own decoded fields, including CAPE, to the same catalog.
         page.wait_for_function(
