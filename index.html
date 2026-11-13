@@ -42,7 +42,7 @@ select,input[type=range]{width:100%}select{background:#071827;color:var(--text);
 <div class="field"><label>Model</label><select id="model"><option value="RAP" selected>RAP · 13 km · decoded</option><option value="HRRR">HRRR · 3 km · surface archive</option><option value="RRFS" disabled>RRFS · 3 km · experimental subset</option></select></div>
 <div class="field"><label>Model cycle</label><select id="cycle"><option>Latest available cycle</option></select></div>
 <div class="field"><label>Forecast hour</label><div class="range-row"><input id="hour" type="range" min="0" max="18" value="0"><output id="hourOut">F00</output></div></div>
-<div class="field"><label>Variable category</label><select id="category"><option value="all">All available variables</option><option value="thermodynamics">Thermodynamics &amp; instability</option><option value="moisture">Moisture &amp; precipitation</option><option value="kinematics">Winds &amp; kinematics</option><option value="forcing">Lift &amp; forcing</option><option value="surface">Surface &amp; boundary layer</option><option value="reflectivity">Radar &amp; reflectivity</option><option value="aviation">Visibility &amp; aviation</option></select></div>
+<div class="field"><label>Variable category</label><select id="category"><option value="all">All available variables</option><option value="thermodynamics">Thermodynamics &amp; instability</option><option value="moisture">Moisture &amp; precipitation</option><option value="kinematics">Winds &amp; kinematics</option><option value="forcing">Lift &amp; forcing</option><option value="surface">Surface &amp; boundary layer</option><option value="reflectivity">Radar &amp; reflectivity</option><option value="aviation">Visibility &amp; aviation</option><option value="winter">Winter weather &amp; hydrometeors</option><option value="land">Land &amp; soil</option><option value="energy">Surface energy fluxes</option><option value="other">Other native fields</option></select></div>
 <div class="field"><label>Map parameter</label><select id="parameter"><option data-category="surface" value="surface">Surface observations</option><option data-category="thermodynamics" value="cape">CAPE / CIN</option><option data-category="kinematics" value="shear">0–6 km bulk shear</option><option data-category="kinematics" value="srh">0–1 km SRH</option><option data-category="moisture" value="pwat">Precipitable water</option><option data-category="thermodynamics" value="lapse">700–500 mb lapse rate</option><option data-category="forcing" value="fronto">850 mb frontogenesis</option><option data-category="forcing" value="omega">700 mb vertical velocity (omega)</option><option data-category="forcing" value="moisture">925 mb moisture convergence</option><option data-category="thermodynamics" value="hrrr_temp" hidden disabled>HRRR 2-m temperature</option><option data-category="thermodynamics" value="hrrr_dewpoint" hidden disabled>HRRR 2-m dewpoint</option><option data-category="kinematics" value="hrrr_wind" hidden disabled>HRRR 10-m wind speed</option><option data-category="kinematics" value="hrrr_gust" hidden disabled>HRRR wind gust</option><option data-category="reflectivity" value="hrrr_refc" hidden disabled>HRRR composite reflectivity</option><option data-category="aviation" value="hrrr_vis" hidden disabled>HRRR visibility</option><option data-category="thermodynamics" value="hrrr_cin" hidden disabled>HRRR convective inhibition</option><option data-category="surface" value="hrrr_blh" hidden disabled>HRRR boundary-layer height</option></select></div>
 <div class="field"><label>Overlays</label><div class="checks">
 <label><input type="checkbox" checked id="stations"> Stations</label><label><input type="checkbox" id="radar"> MRMS radar</label><label><input type="checkbox" id="county" checked> CWA context</label><label><input type="checkbox" id="terrain"> Terrain</label>
@@ -342,7 +342,7 @@ function extractRegionalRapProfile(payload,lat,lon,label){
 
 function squeezeRap2D(data){
   let a=data;while(Array.isArray(a)&&a.length===1&&Array.isArray(a[0])&&Array.isArray(a[0][0]))a=a[0];
-  return Array.isArray(a)&&Array.isArray(a[0])&&typeof a[0][0]==='number'?a:null;
+  return Array.isArray(a)&&Array.isArray(a[0])&&a.some(row=>Array.isArray(row)&&row.some(Number.isFinite))?a:null;
 }
 function findRapSurfaceField(payload,names,gridId){
   return Object.values(payload.fields||{}).find(f=>names.includes(f.short_name)&&(!gridId||f.grid_id===gridId)&&squeezeRap2D(f.data));
@@ -375,6 +375,62 @@ function rapColor(value,min,max){
   const c=stops[i].map((v,k)=>Math.round(v+(stops[i+1][k]-v)*f));return 'rgb('+c.join(',')+')';
 }
 let modelOverlayLayer=null;
+const NATIVE_FIELD_CATEGORIES={
+  "2t":"thermodynamics","t":"thermodynamics","pt":"thermodynamics","cape":"thermodynamics","cin":"thermodynamics","trpp":"thermodynamics",
+  "2sh":"moisture","q":"moisture","pwat":"moisture","prate":"moisture","tp":"moisture","acpcp":"moisture","bgrun":"moisture","ssrun":"moisture","cnwat":"moisture",
+  "10u":"kinematics","10v":"kinematics","u":"kinematics","v":"kinematics","gust":"kinematics","fricv":"kinematics","tke":"kinematics",
+  "w":"forcing",
+  "sp":"surface","mslma":"surface","orog":"surface","blh":"surface","lsm":"surface",
+  "refc":"reflectivity","ltng":"reflectivity","vis":"aviation",
+  "sde":"winter","sdwe":"winter","frzr":"winter","cfrzr":"winter","snmr":"winter","grle":"winter","rwmr":"winter","clwmr":"winter",
+  "soilw":"land","st":"land","slt":"land","vgtyp":"land","ci":"land",
+  "ishf":"energy","slhtf":"energy","sdlwrf":"energy","sdswrf":"energy"
+};
+function syncDynamicFieldOptions(payload,model){
+  const select=document.getElementById('parameter');
+  const existing=new Set(Array.from(select.options).filter(option=>option.dataset.model===model).map(option=>option.dataset.shortName));
+  const staticNames=model==='HRRR'?new Set(['2t','2d','gust','refc','vis','cin','blh','10u','10v']):new Set(['cape','pwat']);
+  for(const field of Object.values(payload.fields||{})){
+    const shortName=field.short_name;
+    if(!shortName||shortName==='unknown'||staticNames.has(shortName)||existing.has(shortName)||!squeezeRap2D(field.data))continue;
+    const category=NATIVE_FIELD_CATEGORIES[shortName]||'other';
+    const option=document.createElement('option');
+    option.value='native_'+model+'_'+shortName;
+    option.textContent=(field.long_name||shortName)+' · '+(field.units||'units unavailable');
+    option.dataset.model=model;
+    option.dataset.shortName=shortName;
+    option.dataset.category=category;
+    option.dataset.nativeField='true';
+    select.appendChild(option);
+    existing.add(shortName);
+  }
+  updateParameterOptions();
+}
+function renderNativeFieldOverlay(payload,param,model){
+  if(modelOverlayLayer){map.removeLayer(modelOverlayLayer);modelOverlayLayer=null;}
+  const prefix='native_'+model+'_';
+  if(!param.startsWith(prefix))return false;
+  const shortName=param.slice(prefix.length);
+  const field=model==='RAP'?findRapSurfaceField(payload,[shortName]):findHrrrField(payload,[shortName]);
+  if(!field){document.getElementById('mapChip').textContent=model+' '+shortName+' is not present in this forecast hour; no substitute shown';return true;}
+  const data=squeezeRap2D(field.data),grid=payload.grids?.[field.grid_id];
+  if(!data||!grid){document.getElementById('mapChip').textContent=field.long_name+' is not a two-dimensional field in this model file';return true;}
+  const values=data.flat().filter(Number.isFinite).sort((x,y)=>x-y);
+  if(!values.length){document.getElementById('mapChip').textContent=field.long_name+' has no finite values in this grid';return true;}
+  const percentile=p=>values[Math.max(0,Math.min(values.length-1,Math.floor((values.length-1)*p)))];
+  let min=percentile(.05),max=percentile(.95);
+  if(!(max>min)){min=values[0];max=values[values.length-1];}
+  if(!(max>min)){min-=.5;max+=.5;}
+  const layer=L.layerGroup(),step=Math.max(1,Math.floor(Math.max(grid.shape[0],grid.shape[1])/45));
+  for(let y=0;y<grid.latitude.length;y+=step)for(let x=0;x<grid.latitude[y].length;x+=step){
+    const value=data[y]?.[x],lat=grid.latitude[y][x],lon=grid.longitude[y][x];
+    if(!Number.isFinite(value)||!Number.isFinite(lat)||!Number.isFinite(lon))continue;
+    L.circleMarker([lat,lon],{radius:5,stroke:false,fillColor:rapColor(value,min,max),fillOpacity:.62,interactive:false}).addTo(layer);
+  }
+  layer.addTo(map);modelOverlayLayer=layer;
+  document.getElementById('mapChip').textContent=model+' '+(field.long_name||shortName)+' · F'+String(payload.forecast_hour).padStart(2,'0')+' · '+payload.valid_time_utc+' · native field · '+(field.units||'units unavailable')+' · color range 5th–95th percentile';
+  return true;
+}
 function renderRapGridOverlay(payload,param){
   if(modelOverlayLayer){map.removeLayer(modelOverlayLayer);modelOverlayLayer=null;}
   const cfg={cape:{names:['cape'],min:0,max:3000,label:'CAPE',units:'J/kg'},pwat:{names:['pwat'],min:0,max:50,label:'PWAT',units:'kg m-2'},omega:{names:['w'],min:-2,max:2,label:'Vertical velocity',units:'Pa/s'} }[param];
@@ -545,7 +601,7 @@ async function updateRapParameter(){
     return;
   }
   if(model==='HRRR'){
-    try{const payload=await loadHrrrGrid(activeHrrrHour);renderHrrrGridOverlay(payload,param);}
+    try{const payload=await loadHrrrGrid(activeHrrrHour);syncDynamicFieldOptions(payload,'HRRR');if(!renderNativeFieldOverlay(payload,param,'HRRR'))renderHrrrGridOverlay(payload,param);}
     catch(e){document.getElementById('mapChip').textContent='HRRR grid unavailable: '+e.message;console.error(e);}
     return;
   }
@@ -554,7 +610,7 @@ async function updateRapParameter(){
     document.getElementById('mapChip').textContent='RRFS experimental subset is not published to the dashboard';
     return;
   }
-  try{const payload=await loadRapGrid(activeRapHour);renderRapGridOverlay(payload,param);}
+  try{const payload=await loadRapGrid(activeRapHour);syncDynamicFieldOptions(payload,'RAP');if(!renderNativeFieldOverlay(payload,param,'RAP'))renderRapGridOverlay(payload,param);}
   catch(e){document.getElementById('mapChip').textContent='RAP grid unavailable: '+e.message;console.error(e);}
 }
 
