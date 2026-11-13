@@ -1,5 +1,5 @@
 name: Render RAP and HRRR Model Tiles
-# Initial five-product publication: RAP 2t/CAPE and HRRR 2t/gust/reflectivity.
+# Automatically publish every eligible 2-D field in each verified forecast archive.
 
 on:
   push:
@@ -53,6 +53,8 @@ jobs:
             python - "$manifest" "$model" <<'PY'
           import gzip, json, subprocess, sys
           from pathlib import Path
+          import numpy as np
+
           manifest_path, model = Path(sys.argv[1]), sys.argv[2]
           manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
           if manifest.get("model") != model:
@@ -60,32 +62,42 @@ jobs:
           if (manifest.get("quality") or {}).get("status") != "passed":
               raise SystemExit(f"Refusing to render unverified {model} archive")
           root = manifest_path.parent
-          allow = {
-              "RAP": ["2t", "cape"],
-              "HRRR": ["2t", "gust", "refc"]
-          }[model]
-          for hour in manifest.get("hours", [])[:1]:
+          rendered = 0
+          skipped = []
+          for hour in manifest.get("hours", []):
               grid_path = root / hour["grid_file"]
               if not grid_path.is_file():
                   raise SystemExit(f"Missing {model} grid {grid_path}")
               with gzip.open(grid_path, "rt", encoding="utf-8") as stream:
                   payload = json.load(stream)
-              if payload.get("model") != model or payload.get("model_cycle_utc") != manifest.get("model_cycle_utc"):
+              if (payload.get("model") != model
+                      or payload.get("model_cycle_utc") != manifest.get("model_cycle_utc")
+                      or int(payload.get("forecast_hour", -1)) != int(hour["forecast_hour"])):
                   raise SystemExit(f"{model} grid provenance mismatch: {grid_path}")
-              available = {}
-              for key, field in payload.get("fields", {}).items():
-                  if field.get("short_name") in allow:
-                      import numpy as np
-                      data = np.squeeze(np.asarray(field.get("data"), dtype=float))
-                      if data.ndim == 2:
-                          available.setdefault(field["short_name"], key)
-              for short_name, key in available.items():
+              if hour.get("valid_time_utc") and payload.get("valid_time_utc") != hour["valid_time_utc"]:
+                  raise SystemExit(f"{model} grid valid time mismatch: {grid_path}")
+              for field_key, field in payload.get("fields", {}).items():
+                  data = np.squeeze(np.asarray(field.get("data"), dtype=float))
+                  if data.ndim != 2:
+                      continue
+                  grid = payload.get("grids", {}).get(field.get("grid_id"), {})
+                  lat = np.asarray(grid.get("latitude", []), dtype=float)
+                  lon = np.asarray(grid.get("longitude", []), dtype=float)
+                  if data.shape != lat.shape or data.shape != lon.shape:
+                      skipped.append((hour["forecast_hour"], field_key, "field/grid shape mismatch"))
+                      continue
+                  valid = np.isfinite(data) & np.isfinite(lat) & np.isfinite(lon)
+                  if int(valid.sum()) < 12 or float(np.nanmax(data[valid]) - np.nanmin(data[valid])) <= 0:
+                      skipped.append((hour["forecast_hour"], field_key, "insufficient or constant valid data"))
+                      continue
                   command = [
                       sys.executable, "mesoscale/render_model_tiles.py",
-                      "--input", str(grid_path), "--field", key,
+                      "--input", str(grid_path), "--field", field_key,
                       "--zoom-min", "3", "--zoom-max", "7"
                   ]
-                  # Normalize common user-facing units while preserving source values in metadata.
+                  short_name = field.get("short_name")
+                  # Convert only recognized near-surface products. Other levels
+                  # retain their native model units and remain explicitly labelled.
                   if short_name in ("2t", "2d"):
                       command += ["--offset", "-273.15", "--display-units", "°C",
                                   "--display-label", "2-m temperature" if short_name == "2t" else "2-m dewpoint"]
@@ -94,6 +106,12 @@ jobs:
                   elif short_name == "vis":
                       command += ["--scale", "0.001", "--display-units", "km", "--display-label", "Visibility"]
                   subprocess.run(command, check=True)
+                  rendered += 1
+          print(f"{model}: rendered {rendered} 2-D fields across {len(manifest.get('hours', []))} forecast hours")
+          if skipped:
+              print(f"{model}: skipped {len(skipped)} fields with invalid geometry/data; first examples: {skipped[:12]}")
+          if rendered == 0:
+              raise SystemExit(f"No eligible 2-D {model} fields were rendered")
           PY
           }
           render_archive mesoscale/data/fields/forecast/forecast_manifest.json RAP
@@ -116,15 +134,11 @@ jobs:
           }
           (root / "catalog.json").write_text(json.dumps(catalog, indent=2) + "\n", encoding="utf-8")
           models = {product["model"] for product in products}
-          if not {"RAP", "HRRR"}.issubset(models):
-              raise SystemExit(f"Expected initial RAP and HRRR tile products; found models: {sorted(models)}")
-          expected = {"RAP": {"2t", "cape"}, "HRRR": {"2t", "gust", "refc"}}
-          for model, fields in expected.items():
-              found = {p["short_name"] for p in products if p["model"] == model}
-              missing = fields - found
-              if missing:
-                  raise SystemExit(f"Missing initial {model} tile products: {sorted(missing)}")
-          print(f"Published {len(products)} initial model tile products")
+          for model in ("RAP", "HRRR"):
+              model_products = [product for product in products if product["model"] == model]
+              if not model_products:
+                  raise SystemExit(f"No eligible 2-D {model} model tile products were generated")
+                    print(f"Published {len(products)} initial model tile products")
           PY
       - name: Publish tile archive
         run: |
