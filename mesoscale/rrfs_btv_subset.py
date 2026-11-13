@@ -23,6 +23,12 @@ HEADERS = {
 }
 REQUIRED_FIELDS = ("TMP", "DPT", "UGRD", "VGRD")
 ECCODES_ALIASES = {"TMP": "2t", "DPT": "2d", "UGRD": "10u", "VGRD": "10v"}
+EXPECTED_LEVELS = {"TMP": 2, "DPT": 2, "UGRD": 10, "VGRD": 10}
+EXPECTED_UNITS = {"TMP": {"k"}, "DPT": {"k"}, "UGRD": {"ms-1", "m/s"}, "VGRD": {"ms-1", "m/s"}}
+
+
+def normalize_units(value):
+    return str(value or "").strip().lower().replace(" ", "").replace("**", "").replace("^", "")
 GRID_KEYS = (
     "grid_type", "ni", "nj", "number_of_points",
     "i_scans_negatively", "j_scans_positively",
@@ -132,6 +138,14 @@ def build_btv_subset(product, decoded_fields, domain=BTV_DOMAIN):
         alias = str(meta.get("short_name") or "").lower()
         if alias != ECCODES_ALIASES[name]:
             raise ValueError(f"RRFS {name} decoded as {alias!r}; expected {ECCODES_ALIASES[name]!r}")
+        expected_level = EXPECTED_LEVELS[name]
+        if str(meta.get("type_of_level") or "").lower() != "heightaboveground":
+            raise ValueError(f"RRFS {name} must be heightAboveGround; got {meta.get('type_of_level')!r}")
+        if meta.get("level") is None or int(meta["level"]) != expected_level:
+            raise ValueError(f"RRFS {name} must be at {expected_level} m AGL; got {meta.get('level')!r}")
+        units = normalize_units(meta.get("units"))
+        if units not in EXPECTED_UNITS[name]:
+            raise ValueError(f"RRFS {name} has unexpected units {meta.get('units')!r}")
         for key in GRID_KEYS:
             if meta.get(key) != base_meta.get(key):
                 raise ValueError(f"RRFS {name} grid metadata differs at {key}")
