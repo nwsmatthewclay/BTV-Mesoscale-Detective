@@ -64,7 +64,9 @@ jobs:
           root = manifest_path.parent
           rendered = 0
           skipped = []
-          for hour in manifest.get("hours", []):
+          # Stage 1 publishes the complete variable inventory at the latest cycle's F00.
+          # Other forecast hours continue to use the native-grid renderer until staged expansion.
+          for hour in manifest.get("hours", [])[:1]:
               grid_path = root / hour["grid_file"]
               if not grid_path.is_file():
                   raise SystemExit(f"Missing {model} grid {grid_path}")
