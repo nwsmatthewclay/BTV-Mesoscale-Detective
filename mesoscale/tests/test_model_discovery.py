@@ -10,6 +10,7 @@ from mesoscale.discover_models import (
     RRFS_FILENAME_RE,
     index_summary,
     prioritize_latest_products,
+    product_lead_minutes,
     rap_product_role,
     rrfs_product_role,
 )
@@ -92,8 +93,7 @@ def test_prioritize_latest_products_uses_true_subhourly_lead_minutes():
 
     ordered = prioritize_latest_products(products)
 
-    assert [product.get("forecast_lead_minutes", product.get("forecast_hour") * 60)
-            for product in ordered] == [15, 45, 60]
+    assert [product_lead_minutes(product) for product in ordered] == [15, 45, 60]
 
 
 def test_rap_operational_filename_families():
