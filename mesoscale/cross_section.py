@@ -153,13 +153,16 @@ def build_cross_section(payload: Mapping, start: tuple[float, float],
     if np.any(targets <= 0) or not np.all(np.diff(targets) < 0):
         raise ValueError("Pressure levels must be positive and strictly descending")
 
-    reference = next(
-        (field for field in payload.get("fields", {}).values()
-         if field.get("short_name") == "t" and "hybrid" in field.get("dimensions", [])),
-        None,
-    )
-    if reference is None:
-        raise ValueError("No hybrid temperature field found to establish the RAP grid")
+    reference_matches = [
+        field for field in payload.get("fields", {}).values()
+        if field.get("short_name") == "t" and "hybrid" in field.get("dimensions", [])
+    ]
+    if len(reference_matches) != 1:
+        raise ValueError(
+            f"Expected exactly one hybrid temperature field to establish the RAP grid; "
+            f"found {len(reference_matches)}"
+        )
+    reference = reference_matches[0]
     grid_id = reference.get("grid_id")
     if not grid_id or grid_id not in payload.get("grids", {}):
         raise ValueError("Hybrid temperature field has no valid grid reference")
