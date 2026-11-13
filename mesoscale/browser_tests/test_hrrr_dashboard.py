@@ -157,6 +157,28 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         page.locator("#category").select_option("all")
         page.locator("#parameter").select_option("cape")
 
+        # Draw a real transect and switch the vertical variable from temperature to omega.
+        page.evaluate(
+            """() => {
+                document.querySelector("#drawTransect").click();
+                window.__testMap.fire("click", {latlng: L.latLng(44.4719, -73.1533)});
+                window.__testMap.fire("click", {latlng: L.latLng(44.2035, -72.5623)});
+            }"""
+        )
+        page.wait_for_function(
+            "() => document.querySelector('#crossSectionStatus').textContent.includes('Temperature') && document.querySelector('#crossSectionStatus').textContent.includes('distinct native-grid columns')",
+            timeout=45000,
+        )
+        page.locator("#crossVariable").select_option("omega")
+        page.wait_for_function(
+            "() => document.querySelector('#crossSectionStatus').textContent.includes('Vertical velocity / omega')",
+            timeout=45000,
+        )
+        omega_units = page.locator("#crossSectionPlot").evaluate(
+            "element => element.data?.[0]?.colorbar?.title"
+        )
+        assert omega_units == "Pa s⁻¹"
+
         # Verify the published RAP sounding and hodograph, not just the map grid.
         page.wait_for_function(
             """() => window.rapKbtvProfile
