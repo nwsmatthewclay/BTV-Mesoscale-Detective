@@ -112,6 +112,9 @@ def process_file(path: Path, model: str, cycle: str, forecast_hour: int,
                               "projection": grid_projection_metadata(ds.attrs)}
 
             for name, variable in ds.data_vars.items():
+                grids[grid_id]["projection"].update(
+                    merge_grid_projection_metadata(ds.attrs, variable.attrs)
+                )
                 dims = list(variable.dims)
                 y_dim = ds[lat_name].dims[0]
                 x_dim = ds[lat_name].dims[1]
