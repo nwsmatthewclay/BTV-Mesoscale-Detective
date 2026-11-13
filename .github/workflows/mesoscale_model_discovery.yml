@@ -21,6 +21,7 @@ on:
       - ".github/workflows/hrrr_ingestion_smoke.yml"
       - ".github/workflows/rrfs_range_smoke.yml"
       - "mesoscale/rrfs_range_smoke.py"
+      - "mesoscale/rrfs_btv_subset.py"
   workflow_dispatch:
 
 permissions:

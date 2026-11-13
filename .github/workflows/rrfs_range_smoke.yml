@@ -1,4 +1,4 @@
-name: RRFS 3-km Indexed Range Smoke Test
+name: RRFS BTV Regional Subset Smoke Test
 
 on:
   workflow_run:
@@ -11,11 +11,11 @@ permissions:
   contents: read
 
 concurrency:
-  group: rrfs-indexed-range-smoke
+  group: rrfs-btv-subset-smoke
   cancel-in-progress: false
 
 jobs:
-  rrfs-range-smoke:
+  rrfs-btv-subset-smoke:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -30,23 +30,22 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install RRFS range-smoke dependencies
+      - name: Install RRFS subset dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install requests numpy eccodes pytest
-      - name: Run indexed-range unit tests
-        run: python -m pytest -q mesoscale/tests/test_rrfs_range_smoke.py
-      - name: Fetch and decode bounded RRFS GRIB messages
+      - name: Run indexed-range and BTV-subset unit tests
+        run: python -m pytest -q mesoscale/tests/test_rrfs_range_smoke.py mesoscale/tests/test_rrfs_btv_subset.py
+      - name: Fetch, decode, and write the BTV-masked RRFS subset
         run: |
-          python mesoscale/rrfs_range_smoke.py \
+          python mesoscale/rrfs_btv_subset.py \
             --manifest mesoscale/data/model_manifest.json \
-            --messages 4 \
-            --output "$RUNNER_TEMP/rrfs_range_smoke.json"
-      - name: Upload RRFS range-smoke report
+            --output-dir "$RUNNER_TEMP/rrfs_btv_subset"
+      - name: Upload non-published RRFS BTV subset artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: rrfs-indexed-range-smoke-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/rrfs_range_smoke.json
+          name: rrfs-btv-subset-smoke-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rrfs_btv_subset/
           if-no-files-found: ignore
           retention-days: 7
