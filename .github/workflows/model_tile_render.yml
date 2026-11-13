@@ -9,8 +9,8 @@ on:
       - "mesoscale/tests/test_model_tiles.py"
       - ".github/workflows/model_tile_render.yml"
   workflow_run:
+    # HRRR is downstream of successful RAP ingestion; render once after HRRR completes.
     workflows:
-      - RAP BTV Ingestion and Forecast Archive
       - HRRR BTV Surface Ingestion and Archive
     types: [completed]
     branches: [main]
