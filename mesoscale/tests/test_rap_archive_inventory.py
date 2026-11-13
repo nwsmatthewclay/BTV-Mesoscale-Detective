@@ -68,6 +68,7 @@ def test_print_verified_rap_field_inventory():
 
 
 def test_sharppy_calculates_from_real_archived_kbtv_rap_profile():
+    pytest.importorskip("sharppy", reason="SHARPpy is optional outside the dedicated diagnostics environment")
     pytest.importorskip('sharppy', reason='SHARPpy is an optional sounding dependency')
     station_archive = ARCHIVE.with_name("rap_f00_stations.json")
     assert station_archive.is_file()
