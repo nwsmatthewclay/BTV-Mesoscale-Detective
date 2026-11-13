@@ -190,3 +190,14 @@ def test_expanded_upstream_domain_and_dynamic_map_legends_are_wired():
     assert "updateMapLegend(cfg.label,cfg.min,cfg.max,cfg.units)" in html
     assert '"west": -78.5, "east": -68.0, "south": 40.0, "north": 48.0' in process
     assert '"leftlon": -78.5, "rightlon": -68.0, "toplat": 48.0, "bottomlat": 40.0' in subset
+
+
+def test_map_legend_uses_plain_numbers_and_cursor_readout_samples_active_field():
+    html = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "toExponential" not in html
+    assert 'id="cursorReadout"' in html
+    assert "map.on('mousemove',e=>updateCursorReadout(e.latlng))" in html
+    assert "activeCursorSampler=(lat,lon)=>" in html
+    assert "field=model==='RAP'?findRapSurfaceField" not in html
+    archive = (ROOT / "mesoscale" / "build_rap_forecast_archive.py").read_text(encoding="utf-8")
+    assert "max_grid_dim=320" in archive
