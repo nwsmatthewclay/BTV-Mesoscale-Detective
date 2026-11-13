@@ -239,6 +239,40 @@ def prioritize_latest_products(products: list[dict], limit: int = 120) -> list[d
     return ordered[:limit]
 
 
+def select_index_targets(products: list[dict], subhourly_cycle_limit: int = 2) -> list[dict]:
+    """Select index probes, retaining an older RRFS subhourly cycle as fallback.
+
+    The newest RRFS index can briefly be present as an HTML/empty response while
+    the GRIB file is still being published. Keep one near-term subhourly product
+    from each of the two newest cycles so the smoke test can use the latest
+    successfully indexed cycle without mixing cycles.
+    """
+    if subhourly_cycle_limit < 1:
+        raise ValueError("subhourly cycle limit must be at least one")
+
+    ordered = prioritize_latest_products(
+        [item for item in products if item.get("url")],
+        limit=max(1, len(products)),
+    )
+    chosen = []
+    families = sorted({item.get("product") for item in ordered if item.get("product")})
+    for family in families:
+        family_items = [item for item in ordered if item.get("product") == family]
+        if family == "surface_subhourly_3km":
+            seen_cycles = set()
+            for item in family_items:
+                cycle = item.get("cycle_utc")
+                if not cycle or cycle in seen_cycles:
+                    continue
+                chosen.append(item)
+                seen_cycles.add(cycle)
+                if len(seen_cycles) >= subhourly_cycle_limit:
+                    break
+        elif family_items:
+            chosen.append(family_items[0])
+    return chosen
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--days-back", type=int, default=2,
@@ -265,14 +299,9 @@ def main():
         all_valid = [p for p in products if p.get("url")]
         valid = prioritize_latest_products(all_valid)
         if args.index_latest:
-            # Index the nearest-term product in each family (F00 where available).
-            # This keeps useful index metadata without making ingestion depend on it.
-            chosen = []
-            families = sorted({p["product"] for p in valid})
-            for family in families:
-                item = next((p for p in valid if p["product"] == family), None)
-                if item:
-                    chosen.append(item)
+            # Probe the latest product in each family, plus one older RRFS
+            # subhourly cycle so a transient newest-cycle index error can fall back.
+            chosen = select_index_targets(valid)
             for item in chosen:
                 try:
                     item["index"] = index_summary(session, item["url"])

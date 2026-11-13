@@ -14,6 +14,7 @@ from mesoscale.discover_models import (
     product_lead_minutes,
     rap_product_role,
     rrfs_product_role,
+    select_index_targets,
 )
 
 
@@ -204,3 +205,64 @@ def test_index_summary_rejects_html_error_pages_returned_with_http_200():
 
     with pytest.raises(ValueError, match="no valid GRIB index records"):
         index_summary(session, "https://example.test/rrfs.grib2")
+
+
+
+def test_select_index_targets_keeps_two_rrfs_subhourly_cycles_for_fallback():
+    products = [
+        {
+            "product": "surface_subhourly_3km",
+            "cycle_utc": "2026-11-13T00:00:00Z",
+            "forecast_step": 1,
+            "forecast_lead_minutes": 15,
+            "url": "https://example.test/rrfs00_f001.grib2",
+        },
+        {
+            "product": "surface_subhourly_3km",
+            "cycle_utc": "2026-11-13T00:00:00Z",
+            "forecast_step": 2,
+            "forecast_lead_minutes": 30,
+            "url": "https://example.test/rrfs00_f002.grib2",
+        },
+        {
+            "product": "surface_subhourly_3km",
+            "cycle_utc": "2026-11-12T23:00:00Z",
+            "forecast_step": 1,
+            "forecast_lead_minutes": 15,
+            "url": "https://example.test/rrfs23_f001.grib2",
+        },
+        {
+            "product": "surface_subhourly_3km",
+            "cycle_utc": "2026-11-12T22:00:00Z",
+            "forecast_step": 1,
+            "forecast_lead_minutes": 15,
+            "url": "https://example.test/rrfs22_f001.grib2",
+        },
+        {
+            "product": "surface_2d_3km",
+            "cycle_utc": "2026-11-13T00:00:00Z",
+            "forecast_hour": 0,
+            "url": "https://example.test/rrfs00_surface.grib2",
+        },
+        {
+            "product": "pressure_levels_3km",
+            "cycle_utc": "2026-11-13T00:00:00Z",
+            "forecast_hour": 0,
+            "url": "https://example.test/rrfs00_pressure.grib2",
+        },
+    ]
+
+    selected = select_index_targets(products)
+    subhourly = [item for item in selected if item["product"] == "surface_subhourly_3km"]
+
+    assert [(item["cycle_utc"], item["forecast_step"]) for item in subhourly] == [
+        ("2026-11-13T00:00:00Z", 1),
+        ("2026-11-12T23:00:00Z", 1),
+    ]
+    assert sum(item["product"] == "surface_2d_3km" for item in selected) == 1
+    assert sum(item["product"] == "pressure_levels_3km" for item in selected) == 1
+
+
+def test_select_index_targets_rejects_zero_fallback_cycles():
+    with pytest.raises(ValueError, match="limit must be at least one"):
+        select_index_targets([], subhourly_cycle_limit=0)
