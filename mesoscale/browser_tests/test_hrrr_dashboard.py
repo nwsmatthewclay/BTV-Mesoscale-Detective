@@ -196,6 +196,28 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         for entry in rap["hours"]:
             _select_and_wait_for_hour(page, "RAP", entry, rap["model_cycle_utc"])
 
+        # Model comparison must load both grids at the same exact valid time.
+        page.locator('button[data-tab="compare"]').click()
+        page.wait_for_function(
+            "() => document.querySelector('#comparisonStatus').textContent.includes('Exact valid-time match')",
+            timeout=45000,
+        )
+        comparison_status = page.locator("#comparisonStatus").inner_text()
+        assert "RAP " + rap["model_cycle_utc"] in comparison_status
+        assert "HRRR " + hrrr["model_cycle_utc"] in comparison_status
+        assert rap["hours"][-1]["valid_time_utc"] in page.locator("#comparisonMeta").inner_text()
+
+        # Exercise a real two-point RAP transect and require a rendered cross-section.
+        page.locator('button[data-tab="cross"]').click()
+        page.locator("#drawTransect").click()
+        page.locator("#map").click(position={"x": 280, "y": 260})
+        page.locator("#map").click(position={"x": 510, "y": 350})
+        page.wait_for_function(
+            "() => document.querySelector('#crossSectionStatus').textContent.includes('nearest-grid samples')",
+            timeout=45000,
+        )
+        assert "RAP " in page.locator("#crossSectionStatus").inner_text()
+
         browser.close()
 
     assert not page_errors, "Uncaught browser errors: " + "; ".join(page_errors)
