@@ -89,12 +89,12 @@ def test_rap_cross_section_uses_selected_archive_hour_and_reports_native_spacing
     assert "async function runRapCrossSection(points)" in html
     assert "const payload=await loadRapGrid(activeRapHour)" in html
     assert "extractRegionalRapProfile(payload,lat,lon,'Transect '+i)" in html
-    assert "transect columns passed profile QC" in html
+    assert "Distinct native-grid columns passed profile QC" in html
     assert "sampled_grid_point:{latitude:pt.lat,longitude:pt.lon,distance_km:pt.d,grid_id:gridId" in html
     assert "await Plotly.react('crossSectionPlot'" in html
     assert "vertical interpolation to 250 m spacing only" in html
     assert "not a 3-km analysis" in html
-    assert "usable nearest-grid samples" in html
+    assert "nearest-grid sampling only" in html
 
 
 def test_model_comparison_requires_exact_shared_valid_time_and_samples_both_models():
@@ -190,3 +190,23 @@ def test_expanded_upstream_domain_and_dynamic_map_legends_are_wired():
     assert "updateMapLegend(cfg.label,cfg.min,cfg.max,cfg.units)" in html
     assert '"west": -90.0, "east": -60.0, "south": 32.0, "north": 55.0' in process
     assert '"leftlon": -90.0, "rightlon": -60.0, "toplat": 55.0, "bottomlat": 32.0' in subset
+
+
+def test_map_legend_uses_plain_numbers_and_cursor_readout_samples_native_fields():
+    html = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "toExponential" not in html
+    assert 'id="cursorReadout"' in html
+    assert "function formatCursorValue(value)" in html
+    assert "nearest native grid" in html
+    assert "map.on('mousemove',e=>{" in html
+    assert "updateCursorReadout(cursorReadoutLatest)" in html
+    assert "activeCursorSampler=(lat,lon)=>" in html
+    assert "field=Object.values(payload.fields||{}).find(f=>f.short_name===shortName&&squeezeRap2D(f.data)&&payload.grids?.[f.grid_id])" in html
+    rap_start = html.index("function findRapSurfaceField")
+    rap_end = html.index("\n}", rap_start)
+    assert "payload.grids?.[f.grid_id]" in html[rap_start:rap_end]
+    hrrr_start = html.index("function findHrrrField")
+    hrrr_end = html.index("\n}", hrrr_start)
+    assert "payload.grids?.[field.grid_id]" in html[hrrr_start:hrrr_end]
+    archive = (ROOT / "mesoscale" / "build_rap_forecast_archive.py").read_text(encoding="utf-8")
+    assert "max_grid_dim=320" in archive
