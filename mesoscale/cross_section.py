@@ -229,7 +229,8 @@ def build_cross_section(payload: Mapping, start: tuple[float, float],
                 "long_name": field.get("long_name"),
                 "values": values,
             }
-            for name, (field, values) in sampled.items()
+            for name, values in sampled.items()
+            for field, _ in [selected[name]]
         },
         "quality": {
             "status": "passed",
