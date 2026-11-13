@@ -21,7 +21,7 @@ permissions:
 
 concurrency:
   group: mesoscale-model-tile-render
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   render-and-publish:
