@@ -18,7 +18,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from mesoscale.build_rap_forecast_archive import choose_cycle_products, download
 from mesoscale.frontogenesis import build_frontogenesis_cross_section
-from mesoscale.process_grib import process_file
+from mesoscale.process_grib import RAP_MAX_GRID_DIM, process_file
+
+
+def decode_probe_product(grib_path: Path, cycle: str, output_path: Path) -> dict:
+    """Decode the probe with the same RAP sampling policy used by production archives."""
+    return process_file(
+        grib_path, "RAP", cycle, 0, output_path, max_grid_dim=RAP_MAX_GRID_DIM
+    )
 
 
 def main() -> None:
@@ -34,7 +41,7 @@ def main() -> None:
         grib_path = root / product["filename"]
         output_path = root / "rap_f00.json.gz"
         size = download(product["url"], grib_path, session)
-        payload = process_file(grib_path, "RAP", cycle, 0, output_path, max_grid_dim=160)
+        payload = decode_probe_product(grib_path, cycle, output_path)
 
         temperature = [
             field for field in payload["fields"].values()
@@ -43,7 +50,8 @@ def main() -> None:
         if len(temperature) != 1:
             raise RuntimeError(f"Expected one hybrid temperature field, found {len(temperature)}")
         grid_id = temperature[0]["grid_id"]
-        projection = payload["grids"][grid_id].get("projection") or {}
+        grid = payload["grids"][grid_id]
+        projection = grid.get("projection") or {}
         u_fields = [
             field for field in payload["fields"].values()
             if field.get("short_name") == "u" and field.get("grid_id") == grid_id
@@ -68,7 +76,9 @@ def main() -> None:
             "source_file": product["filename"],
             "download_bytes": size,
             "grid_id": grid_id,
-            "grid_shape": payload["grids"][grid_id]["shape"],
+            "grid_shape": grid["shape"],
+            "sampling": grid.get("sampling"),
+            "processing": payload.get("processing"),
             "projection": projection,
             "u_grib_metadata": u_fields[0].get("grib_metadata"),
             "v_grib_metadata": v_fields[0].get("grib_metadata"),
