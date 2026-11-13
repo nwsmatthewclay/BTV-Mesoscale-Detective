@@ -174,12 +174,15 @@ class FakeIndexResponse:
 
 class FakeIndexSession:
     def __init__(self, text):
-        self.text = text
+        self.responses = list(text) if isinstance(text, (list, tuple)) else [text]
         self.requested_url = None
+        self.calls = 0
 
     def get(self, url, timeout):
         self.requested_url = url
-        return FakeIndexResponse(self.text)
+        response_text = self.responses[min(self.calls, len(self.responses) - 1)]
+        self.calls += 1
+        return FakeIndexResponse(response_text)
 
 
 def test_index_summary_parses_only_valid_nomads_grib_index_records():
@@ -196,9 +199,29 @@ def test_index_summary_parses_only_valid_nomads_grib_index_records():
     assert result["messages"][1]["message"] == "12.1"
     assert result["messages"][1]["short_name"] == "UGRD"
     assert result["messages"][1]["level"] == "100 mb"
+    assert session.calls == 1
 
 
-def test_index_summary_rejects_html_error_pages_returned_with_http_200():
+def test_index_summary_retries_transient_empty_index_response(monkeypatch):
+    waits = []
+    monkeypatch.setattr(discover_models.time, "sleep", waits.append)
+    session = FakeIndexSession([
+        "<!doctype html><html><body>Index is still publishing</body></html>",
+        "1:0:d=2026111300:TMP:2 m above ground:15 min fcst:\n",
+    ])
+
+    result = index_summary(
+        session, "https://example.test/rrfs.grib2", attempts=3, retry_delay=1
+    )
+
+    assert result["message_count"] == 1
+    assert result["messages"][0]["short_name"] == "TMP"
+    assert session.calls == 2
+    assert waits == [1]
+
+
+def test_index_summary_rejects_html_error_pages_returned_with_http_200(monkeypatch):
+    monkeypatch.setattr(discover_models.time, "sleep", lambda _delay: None)
     session = FakeIndexSession(
         "<!doctype html><html><head><style>body { font: 16px Helvetica; }</style>"
         "</head><body>Not Found</body></html>"
@@ -206,7 +229,7 @@ def test_index_summary_rejects_html_error_pages_returned_with_http_200():
 
     with pytest.raises(ValueError, match="no valid GRIB index records"):
         index_summary(session, "https://example.test/rrfs.grib2")
-
+    assert session.calls == 3
 
 
 def test_select_index_targets_keeps_two_rrfs_subhourly_cycles_for_fallback():

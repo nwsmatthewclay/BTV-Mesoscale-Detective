@@ -16,6 +16,7 @@ import argparse
 import json
 import re
 import sys
+import time
 from datetime import datetime, timedelta, timezone
 from html.parser import HTMLParser
 from pathlib import Path
@@ -53,34 +54,69 @@ def get_listing(session: requests.Session, url: str) -> list[str]:
     return [urljoin(url, href) for href in parser.hrefs]
 
 
-def index_summary(session: requests.Session, grib_url: str) -> dict:
-    """Parse a NOMADS GRIB index, rejecting HTML/error pages returned as HTTP 200."""
+def index_summary(
+    session: requests.Session,
+    grib_url: str,
+    attempts: int = 3,
+    retry_delay: float = 2.0,
+) -> dict:
+    """Parse a NOMADS GRIB index, retrying transient empty/error responses.
+
+    New RRFS cycles can briefly expose an empty or HTML .idx response while
+    the GRIB and index are still being published. Retry those responses with
+    a short bounded backoff; permanent HTTP errors such as 404 still fail
+    immediately so missing products are not hidden.
+    """
+    if attempts < 1:
+        raise ValueError("index fetch attempts must be at least one")
+    if retry_delay < 0:
+        raise ValueError("index retry delay cannot be negative")
+
     idx_url = grib_url + ".idx"
-    response = session.get(idx_url, timeout=TIMEOUT)
-    response.raise_for_status()
-    lines = [line.strip().lstrip("\ufeff") for line in response.text.splitlines() if line.strip()]
-    messages = []
-    for line in lines:
-        parts = line.split(":")
-        if (
-            len(parts) < 5
-            or not re.fullmatch(r"\d+(?:\.\d+)?", parts[0])
-            or not parts[1].isdigit()
-            or not parts[2].startswith("d=")
-            or not parts[3].strip()
-        ):
-            continue
-        messages.append({
-            "message": parts[0],
-            "byte_offset": int(parts[1]),
-            "reference": parts[2],
-            "short_name": parts[3],
-            "level": parts[4],
-            "description": ":".join(parts[4:]),
-        })
-    if not messages:
-        raise ValueError(f"NOMADS index response contained no valid GRIB index records: {idx_url}")
-    return {"url": idx_url, "message_count": len(messages), "messages": messages}
+    last_error = None
+    retryable_statuses = {408, 425, 429, 500, 502, 503, 504}
+    for attempt in range(attempts):
+        try:
+            response = session.get(idx_url, timeout=TIMEOUT)
+            response.raise_for_status()
+        except requests.RequestException as exc:
+            status = getattr(getattr(exc, "response", None), "status_code", None)
+            if status is not None and status not in retryable_statuses:
+                raise
+            last_error = exc
+        else:
+            lines = [line.strip().lstrip("\ufeff") for line in response.text.splitlines() if line.strip()]
+            messages = []
+            for line in lines:
+                parts = line.split(":")
+                if (
+                    len(parts) < 5
+                    or not re.fullmatch(r"\d+(?:\.\d+)?", parts[0])
+                    or not parts[1].isdigit()
+                    or not parts[2].startswith("d=")
+                    or not parts[3].strip()
+                ):
+                    continue
+                messages.append({
+                    "message": parts[0],
+                    "byte_offset": int(parts[1]),
+                    "reference": parts[2],
+                    "short_name": parts[3],
+                    "level": parts[4],
+                    "description": ":".join(parts[4:]),
+                })
+            if messages:
+                return {"url": idx_url, "message_count": len(messages), "messages": messages}
+            last_error = ValueError(
+                f"NOMADS index response contained no valid GRIB index records: {idx_url}"
+            )
+
+        if attempt + 1 < attempts and retry_delay:
+            time.sleep(retry_delay * (attempt + 1))
+
+    if last_error is not None:
+        raise last_error
+    raise RuntimeError(f"Could not retrieve NOMADS GRIB index: {idx_url}")
 
 
 def rap_product_role(family: str) -> str:
