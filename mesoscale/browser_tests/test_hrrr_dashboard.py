@@ -95,16 +95,16 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
                 columns: getComputedStyle(document.querySelector(".layout")).gridTemplateColumns.split(" ").length,
                 mapWidth: document.querySelector("#map").getBoundingClientRect().width,
                 mapHeight: document.querySelector("#map").getBoundingClientRect().height,
-                controls: getComputedStyle(document.querySelector(".control-grid")).gridTemplateColumns.split(" ").length,
-                modelControl: Boolean(document.querySelector(".control-deck #model")),
-                categoryControl: Boolean(document.querySelector(".control-deck #category")),
-                variableControl: Boolean(document.querySelector(".control-deck #parameter"))
+                controlCount: document.querySelectorAll(".sidebar #model,.sidebar #cycle,.sidebar #hour,.sidebar #category,.sidebar #parameter").length,
+                modelControl: Boolean(document.querySelector(".sidebar #model")),
+                categoryControl: Boolean(document.querySelector(".sidebar #category")),
+                variableControl: Boolean(document.querySelector(".sidebar #parameter"))
             })"""
         )
         assert desktop_layout["columns"] == 2, desktop_layout
         assert desktop_layout["mapWidth"] > 700, desktop_layout
         assert 400 <= desktop_layout["mapHeight"] <= 650, desktop_layout
-        assert desktop_layout["controls"] == 5, desktop_layout
+        assert desktop_layout["controlCount"] == 5, desktop_layout
         assert desktop_layout["modelControl"] and desktop_layout["categoryControl"] and desktop_layout["variableControl"]
         desktop_fit = page.evaluate(
             """() => ({
@@ -135,11 +135,11 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
                 viewportWidth: document.documentElement.clientWidth,
                 documentWidth: document.documentElement.scrollWidth,
                 mapWidth: document.querySelector("#map").getBoundingClientRect().width,
-                controlColumns: getComputedStyle(document.querySelector(".control-grid")).gridTemplateColumns.split(" ").length
+                controlCount: document.querySelectorAll(".sidebar #model,.sidebar #cycle,.sidebar #hour,.sidebar #category,.sidebar #parameter").length
             })"""
         )
         assert mobile_layout["columns"] == 1, mobile_layout
-        assert mobile_layout["controlColumns"] == 2, mobile_layout
+        assert mobile_layout["controlCount"] == 5, mobile_layout
         assert mobile_layout["documentWidth"] <= mobile_layout["viewportWidth"] + 2, mobile_layout
         assert mobile_layout["mapWidth"] <= mobile_layout["viewportWidth"], mobile_layout
         page.set_viewport_size({"width": 1440, "height": 1000})
@@ -291,6 +291,20 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         )
         page.locator("#category").select_option("all")
         page.locator("#parameter").select_option("hrrr_temp")
+        page.wait_for_function(
+            "() => window.hrrrGridPayload?.model === 'HRRR' && document.querySelector('#mapChip').textContent.includes('HRRR 2-m temperature')",
+            timeout=15000,
+        )
+        page.evaluate(
+            "window.__testMap.fire('mousemove', { latlng: L.latLng(44.4719, -73.1533) })"
+        )
+        page.wait_for_function(
+            "() => document.querySelector('#cursorReadout')?.textContent.includes('nearest native grid')",
+            timeout=15000,
+        )
+        cursor_readout = page.locator("#cursorReadout").inner_text()
+        assert "km" in cursor_readout, cursor_readout
+        assert "e+" not in cursor_readout.lower() and "e-" not in cursor_readout.lower(), cursor_readout
 
         for entry in hrrr["hours"]:
             _select_and_wait_for_hour(page, "HRRR", entry, hrrr["model_cycle_utc"])
@@ -391,7 +405,7 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
             page.wait_for_function(
                 """() => {
                     const status = document.querySelector('#crossSectionStatus')?.textContent || '';
-                    return status.includes('distinct native-grid columns') || status.startsWith('Cross-section unavailable:');
+                    return status.toLowerCase().includes('distinct native-grid columns') || status.startsWith('Cross-section unavailable:');
                 }""",
                 timeout=60000,
             )
@@ -406,7 +420,7 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
             )
             raise AssertionError(f"RAP transect did not finish: {state}; page errors: {page_errors}; console errors: {console_errors}") from exc
         cross_status = page.locator("#crossSectionStatus").inner_text()
-        assert "distinct native-grid columns" in cross_status, f"RAP transect failed: {cross_status}"
+        assert "distinct native-grid columns" in cross_status.lower(), f"RAP transect failed: {cross_status}"
         assert "native RAP (~13 km)" in cross_status, f"Cross-section must report native horizontal resolution: {cross_status}"
 
         browser.close()
