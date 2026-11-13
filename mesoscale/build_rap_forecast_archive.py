@@ -239,7 +239,7 @@ def main() -> None:
         grib_path = OUT / "downloads" / product["filename"]
         size = download(product["url"], grib_path, session)
         field_path = FIELDS_OUT / f"rap_f{hour:02d}.json.gz"
-        payload = process_file(grib_path, "RAP", cycle, hour, field_path, max_grid_dim=160)
+        payload = process_file(grib_path, "RAP", cycle, hour, field_path, max_grid_dim=320)
         names = {item["short_name"] for item in payload["fields"].values()}
         required = {"t", "gh", "u", "v", "q", "pres"}
         if not required.issubset(names):
