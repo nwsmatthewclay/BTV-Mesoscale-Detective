@@ -97,7 +97,7 @@
 </div></section>
 <main class="layout">
 <section class="panel map-panel"><div class="panel-heading"><div><span class="eyebrow">Regional analysis</span><h2 id="mapTitle">Environment · Surface observations</h2></div><span class="eyebrow">BTV forecast area</span></div><div class="map-wrap"><div id="map"></div><div class="map-chip" id="mapChip">BTV CWA · Click map to interrogate a point</div><div class="map-legend" id="mapLegend"><div class="legend-title">Map base · OpenStreetMap</div><div class="legend-subtitle">Select a model field to display its color scale</div></div></div>
-<div class="map-actions"><div class="overlay-tools"><span class="tool-label">Overlays</span><div class="checks"><label><input type="checkbox" checked id="stations"> Stations</label><label><input type="checkbox" id="radar"> MRMS radar</label><label><input type="checkbox" checked id="county"> CWA context</label><label><input type="checkbox" id="terrain"> Terrain</label></div></div><button class="btn" id="drawTransect">Draw cross-section line</button><button class="btn" id="clearTransect">Clear line</button><button class="btn" id="locateBtv">Select KBTV</button><button class="btn primary" id="reset">Reset view</button><div class="point-badge"><span>Selected point</span><span id="pointReadout"><b>KBTV</b></span><span id="coords">44.4719°N, 73.1533°W</span></div><span id="selectionStatus">Selected: KBTV</span></div></section>
+<div class="map-actions"><div class="overlay-tools"><span class="tool-label">Overlays</span><div class="checks"><label><input type="checkbox" checked id="stations"> Stations</label><label><input type="checkbox" id="radar"> MRMS radar</label><label><input type="checkbox" checked id="county"> CWA context</label><label><input type="checkbox" checked id="contours"> Contours</label><label><input type="checkbox" id="terrain"> Terrain</label></div></div><button class="btn" id="drawTransect">Draw cross-section line</button><button class="btn" id="clearTransect">Clear line</button><button class="btn" id="locateBtv">Select KBTV</button><button class="btn primary" id="reset">Reset view</button><div class="point-badge"><span>Selected point</span><span id="pointReadout"><b>KBTV</b></span><span id="coords">44.4719°N, 73.1533°W</span></div><span id="selectionStatus">Selected: KBTV</span></div></section>
 <aside class="rightcol">
 <section class="panel"><h2>Point diagnostics</h2><div class="metrics" id="metrics"><div class="metric"><span>MUCAPE</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>MLCAPE</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>MLCIN</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>PWAT</span><strong>—</strong><small>mm</small></div><div class="metric"><span>0–6 km shear</span><strong>—</strong><small>kt</small></div><div class="metric"><span>0–1 km SRH</span><strong>—</strong><small>m²/s²</small></div></div><div class="placeholder">RAP profiles are available at the eight listed stations only. Custom map points will not inherit station diagnostics.</div></section>
 
@@ -112,7 +112,9 @@
 <footer class="foot">BTV Mesoscale Detective · Development build · Not for operational decision-making until data ingestion and verification are complete.</footer>
 <script>
 const stations=[["KBTV",44.4719,-73.1533],["KPBG",44.6509,-73.4681],["KMSS",44.9358,-74.8456],["KSLK",44.3853,-74.2062],["KMPV",44.2035,-72.5623],["KRUT",43.5294,-72.9496],["1V4",44.4193,-72.0194],["KEFK",44.8888,-72.2292]];
-const map=L.map('map',{zoomControl:true}).setView([44.25,-73.35],5.6);
+const REGIONAL_DOMAIN={west:-84.0,east:-65.0,south:36.5,north:51.5};
+const REGIONAL_BOUNDS=[[REGIONAL_DOMAIN.south,REGIONAL_DOMAIN.west],[REGIONAL_DOMAIN.north,REGIONAL_DOMAIN.east]];
+const map=L.map('map',{zoomControl:true,minZoom:4}).fitBounds(REGIONAL_BOUNDS,{padding:[18,18]});
 window.__testMap=map;
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:13,attribution:'&copy; OpenStreetMap'}).addTo(map);
 let selected={name:"KBTV",lat:44.4719,lon:-73.1533},markers=[],transect=[],line=null,drawing=false;
@@ -120,6 +122,11 @@ function stationLayer(){markers.forEach(m=>map.removeLayer(m));markers=[];if(!do
 function selectPoint(lat,lon,name){selected={name:name||"Custom point",lat,lon};document.getElementById('pointReadout').innerHTML='<span>Location</span><b>'+selected.name+'</b>';document.getElementById('coords').textContent=lat.toFixed(4)+'°N, '+Math.abs(lon).toFixed(4)+'°W';document.getElementById('selectionStatus').textContent='Selected: '+selected.name;document.querySelector('#investigation .detail-line:nth-child(3) b').textContent=selected.name;document.getElementById('mapChip').textContent='Selected '+selected.name+' · '+lat.toFixed(3)+', '+lon.toFixed(3);if(window.loadStationProfile)window.loadStationProfile(selected.name);if(window.activeTab==='evolution'&&window.updateRapTimeEvolution)window.updateRapTimeEvolution();if(window.activeTab==='compare'&&window.updateModelComparison)window.updateModelComparison();}
 map.on('click',e=>{if(drawing){transect.push([e.latlng.lat,e.latlng.lng]);if(transect.length===2){if(line)map.removeLayer(line);line=L.polyline(transect,{color:'#ffd166',weight:3,dashArray:'7 5'}).addTo(map);drawing=false;runRapCrossSection(transect).catch(e=>{console.error('RAP cross-section failed',e);document.getElementById('crossSectionStatus').textContent='Cross-section unavailable: '+e.message;});document.getElementById('drawTransect').textContent='Draw cross-section line';document.getElementById('mapChip').textContent='Transect selected · Cross-Sections tab';}return;}selectPoint(e.latlng.lat,e.latlng.lng,'Custom point');});
 stationLayer();document.getElementById('stations').addEventListener('change',stationLayer);
+document.getElementById('contours').addEventListener('change',()=>{
+  updateModelContours();
+  const label=document.querySelector('#mapLegend .legend-title')?.textContent;
+  if(label&&contourSource)updateMapLegend(label,contourSource.min,contourSource.max,contourSource.units);
+});
 
 const CROSS_SECTION_VARIABLES={
   temperature:{label:'Temperature',units:'°C',source:'profile_temperature',transform:v=>v-273.15,colorscale:'RdYlBu',reverse:true},
@@ -208,7 +215,13 @@ document.getElementById('crossVariable').addEventListener('change',()=>{
 
 document.getElementById('drawTransect').onclick=()=>{document.querySelector('#tabs button[data-tab="cross"]').click();transect=[];drawing=true;document.getElementById('drawTransect').textContent='Click start, then end point';document.getElementById('mapChip').textContent='Choose two points on the map to define a transect';};
 document.getElementById('clearTransect').onclick=()=>{transect=[];drawing=false;if(line){map.removeLayer(line);line=null;}document.getElementById('drawTransect').textContent='Draw cross-section line';document.getElementById('mapChip').textContent='BTV CWA · Click map to interrogate a point';};
-document.getElementById('reset').onclick=document.getElementById('locateBtv').onclick=()=>{map.setView([44.4719,-73.1533],7);selectPoint(44.4719,-73.1533,'KBTV');};
+document.getElementById('locateBtv').onclick=()=>{
+  map.setView([44.4719,-73.1533],7);selectPoint(44.4719,-73.1533,'KBTV');
+};
+document.getElementById('reset').onclick=()=>{
+  map.fitBounds(REGIONAL_BOUNDS,{padding:[18,18]});
+  document.getElementById('mapChip').textContent='Expanded regional domain · Great Lakes to New England and the Mid-Atlantic';
+};
 document.getElementById('hour').oninput=e=>document.getElementById('hourOut').textContent='F'+String(e.target.value).padStart(2,'0');
 document.getElementById('model').onchange=e=>{
   const model=e.target.value;
@@ -467,9 +480,11 @@ function updateMapLegend(label,min,max,units,rangeLabel='fixed display scale'){
   if(!Number.isFinite(min)||!Number.isFinite(max)||max<=min){
     el.innerHTML='<div class="legend-title">Map base · OpenStreetMap</div><div class="legend-subtitle">Select a model field to display its color scale</div>';return;
   }
-  const fmt=v=>{const a=Math.abs(v);return (a>=1000||a>0&&a<0.1)?v.toExponential(1):Number(v.toFixed(a>=100?0:a>=10?1:2)).toString();};
+  // Always use ordinary decimal labels. Never expose JavaScript exponential notation.
+  const fmt=v=>Number(v.toFixed(2)).toLocaleString('en-US',{maximumFractionDigits:2});
   const ticks=Array.from({length:5},(_,i)=>min+(max-min)*i/4);
-  el.innerHTML='<div class="legend-title">'+label+'</div><div class="legend-scale"></div><div class="legend-ticks">'+ticks.map(v=>'<span>'+fmt(v)+'</span>').join('')+'</div><div class="legend-units">'+(units||'units unavailable')+' · '+rangeLabel+'</div>';
+  const contourText=document.getElementById('contours')?.checked?'Contours on':'Contours off';
+  el.innerHTML='<div class="legend-title">'+label+'</div><div class="legend-scale"></div><div class="legend-ticks">'+ticks.map(v=>'<span>'+fmt(v)+'</span>').join('')+'</div><div class="legend-units">'+(units||'units unavailable')+' · '+rangeLabel+'</div><div class="legend-subtitle">'+contourText+' · hover a line for its value</div>';
 }
 
 let modelOverlayLayer=null;
@@ -506,6 +521,62 @@ function makeInterpolatedRaster(data,grid,min,max){
   const bounds=[[south,west],[north,east]];
   return L.imageOverlay(canvas.toDataURL('image/png'),bounds,{opacity:.88,interactive:false,className:'model-raster-overlay',alt:'Bilinearly interpolated model field'}); 
 }
+let modelContourLayer=null,contourSource=null;
+function clearModelContours(){
+  if(modelContourLayer){map.removeLayer(modelContourLayer);modelContourLayer=null;}
+}
+function contourInterval(min,max){
+  const rough=(max-min)/6;
+  if(!(rough>0))return 1;
+  const power=Math.pow(10,Math.floor(Math.log10(rough)));
+  const scaled=rough/power;
+  return (scaled<=1?1:scaled<=2?2:scaled<=5?5:10)*power;
+}
+function updateModelContours(){
+  clearModelContours();
+  if(!document.getElementById('contours')?.checked||!contourSource)return;
+  const {data,grid,min,max,units}=contourSource;
+  if(!Array.isArray(data)||!Array.isArray(grid?.latitude)||!Array.isArray(grid?.longitude))return;
+  const rows=Math.min(data.length,grid.latitude.length,grid.longitude.length);
+  const cols=Math.min(...data.slice(0,rows).map(r=>Array.isArray(r)?r.length:0),...grid.latitude.slice(0,rows).map(r=>Array.isArray(r)?r.length:0),...grid.longitude.slice(0,rows).map(r=>Array.isArray(r)?r.length:0));
+  if(rows<2||cols<2)return;
+  const step=contourInterval(min,max),first=Math.ceil(min/step)*step,segmentsByLevel=[];
+  for(let level=first;level<=max+step*1e-6&&segmentsByLevel.length<9;level+=step){
+    const segments=[];
+    for(let y=0;y<rows-1;y++)for(let x=0;x<cols-1;x++){
+      const values=[data[y]?.[x],data[y]?.[x+1],data[y+1]?.[x+1],data[y+1]?.[x]];
+      const coords=[
+        [grid.latitude[y]?.[x],grid.longitude[y]?.[x]],
+        [grid.latitude[y]?.[x+1],grid.longitude[y]?.[x+1]],
+        [grid.latitude[y+1]?.[x+1],grid.longitude[y+1]?.[x+1]],
+        [grid.latitude[y+1]?.[x],grid.longitude[y+1]?.[x]]
+      ];
+      if(!values.every(Number.isFinite)||!coords.every(p=>p.every(Number.isFinite)))continue;
+      const crossings=[];
+      for(let edge=0;edge<4;edge++){
+        const next=(edge+1)%4,a=values[edge],b=values[next];
+        if((a<level&&b>=level)||(a>=level&&b<level)){
+          const t=(level-a)/(b-a),p=coords[edge],q=coords[next];
+          crossings.push([p[0]+(q[0]-p[0])*t,p[1]+(q[1]-p[1])*t]);
+        }
+      }
+      if(crossings.length===2)segments.push(crossings);
+      else if(crossings.length===4){segments.push([crossings[0],crossings[1]],[crossings[2],crossings[3]]);}
+    }
+    if(segments.length)segmentsByLevel.push({level,segments});
+  }
+  if(!segmentsByLevel.length)return;
+  const layers=segmentsByLevel.map((item,index)=>{
+    const layer=L.polyline(item.segments,{color:index%2?'#f4f7fb':'#142b3c',weight:index%2?1.25:1.5,opacity:.82,interactive:true,smoothFactor:1});
+    layer.bindTooltip(Number(item.level.toFixed(2)).toLocaleString('en-US',{maximumFractionDigits:2})+' '+(units||''),{sticky:true,direction:'top',className:'contour-tooltip'});
+    return layer;
+  });
+  modelContourLayer=L.layerGroup(layers).addTo(map);
+}
+function setContourSource(data,grid,min,max,units){
+  contourSource={data,grid,min,max,units};
+  updateModelContours();
+}
 function fieldRange(data){
   const values=data.flat().filter(Number.isFinite).sort((a,b)=>a-b);
   if(!values.length)return null;
@@ -540,6 +611,7 @@ function syncDynamicFieldOptions(payload,model){
 }
 function renderNativeFieldOverlay(payload,param,model){
   if(modelOverlayLayer){map.removeLayer(modelOverlayLayer);modelOverlayLayer=null;}
+  clearModelContours();contourSource=null;
   updateMapLegend(null,null,null,null);
   const prefix='native_'+model+'_';if(!param.startsWith(prefix))return false;
   const shortName=param.slice(prefix.length),field=model==='RAP'?findRapSurfaceField(payload,[shortName]):findHrrrField(payload,[shortName]);
@@ -548,12 +620,13 @@ function renderNativeFieldOverlay(payload,param,model){
   if(!data||!grid){document.getElementById('mapChip').textContent=field.long_name+' is not a two-dimensional field in this model file';return true;}
   const range=fieldRange(data),raster=range&&makeInterpolatedRaster(data,grid,range.min,range.max);
   if(!raster){document.getElementById('mapChip').textContent=field.long_name+' could not be rendered: grid geometry or values unavailable';return true;}
-  raster.addTo(map);modelOverlayLayer=raster;updateMapLegend(field.long_name||shortName,range.min,range.max,field.units,'3rd–97th percentile');
+  raster.addTo(map);modelOverlayLayer=raster;setContourSource(data,grid,range.min,range.max,field.units);updateMapLegend(field.long_name||shortName,range.min,range.max,field.units,'3rd–97th percentile');
   document.getElementById('mapChip').textContent=model+' '+(field.long_name||shortName)+' · F'+String(payload.forecast_hour).padStart(2,'0')+' · '+payload.valid_time_utc+' · smooth 4× interpolated display · '+(field.units||'units unavailable')+' · 3rd–97th percentile';
   return true;
 }
 function renderRapGridOverlay(payload,param){
   if(modelOverlayLayer){map.removeLayer(modelOverlayLayer);modelOverlayLayer=null;}
+  clearModelContours();contourSource=null;
   updateMapLegend(null,null,null,null);
   const cfg={cape:{names:['cape'],min:0,max:3000,label:'CAPE',units:'J/kg'},pwat:{names:['pwat'],min:0,max:50,label:'PWAT',units:'kg m-2'},omega:{names:['w'],min:-2,max:2,label:'Vertical velocity',units:'Pa/s'}}[param];
   if(!cfg){document.getElementById('mapChip').textContent='This parameter is not yet available as a verified RAP grid field';return;}
@@ -563,7 +636,7 @@ function renderRapGridOverlay(payload,param){
   if(!data||!grid){document.getElementById('mapChip').textContent=cfg.label+' is not a two-dimensional field in this RAP file';return;}
   const range=fieldRange(data),raster=range&&makeInterpolatedRaster(data,grid,cfg.min,cfg.max);
   if(!raster){document.getElementById('mapChip').textContent=cfg.label+' raster could not be rendered';return;}
-  raster.addTo(map);modelOverlayLayer=raster;updateMapLegend(cfg.label,cfg.min,cfg.max,field.units||cfg.units);
+  raster.addTo(map);modelOverlayLayer=raster;setContourSource(data,grid,cfg.min,cfg.max,field.units||cfg.units);updateMapLegend(cfg.label,cfg.min,cfg.max,field.units||cfg.units);
   document.getElementById('mapChip').textContent='RAP '+cfg.label+' · F'+String(payload.forecast_hour).padStart(2,'0')+' · '+payload.valid_time_utc+' · smooth 4× interpolated display · '+field.units;
 }
 function sampleComparableSurface(payload,model,names,lat,lon){
@@ -717,6 +790,7 @@ async function updateRapParameter(){
   const param=document.getElementById('parameter').value;
   if(param==='surface'){
     updateMapLegend(null,null,null,null);
+    clearModelContours();contourSource=null;
     if(modelOverlayLayer){map.removeLayer(modelOverlayLayer);modelOverlayLayer=null;}
     document.getElementById('mapChip').textContent=model==='HRRR'?'Choose an HRRR surface field from Map parameter':'Surface observations are not yet connected';
     return;
