@@ -35,15 +35,15 @@ def write_hrrr_archive_files(archive_root, archive):
             "valid_time_utc": entry["valid_time_utc"],
             "domain": DOMAIN,
             "grids": {
-                "btv": {
-                    "latitude": [[44.5]],
-                    "longitude": [[-73.2]],
+                "regional": {
+                    "latitude": [[32.0, 32.0], [52.0, 52.0]],
+                    "longitude": [[-90.0, -61.5], [-90.0, -61.5]],
                 }
             },
             "fields": {
-                "temperature": {"short_name": "2t", "data": [[280.0]]},
-                "u_wind": {"short_name": "10u", "data": [[1.0]]},
-                "v_wind": {"short_name": "10v", "data": [[-1.0]]},
+                "temperature": {"short_name": "2t", "grid_id": "regional", "data": [[280.0, 281.0], [282.0, 283.0]]},
+                "u_wind": {"short_name": "10u", "grid_id": "regional", "data": [[1.0, 1.1], [1.2, 1.3]]},
+                "v_wind": {"short_name": "10v", "grid_id": "regional", "data": [[-1.0, -1.1], [-1.2, -1.3]]},
             },
             "quality": {"field_count": 3, "grid_count": 1, "warnings": []},
         }
@@ -104,6 +104,7 @@ def published_hrrr_archive(cycle, hours=(0, 3, 6, 9), publishing=True, quality="
     return {
         "model": "HRRR",
         "product": "surface",
+        "domain": DOMAIN,
         "model_cycle_utc": cycle,
         "publishing": publishing,
         "hours": [
@@ -135,6 +136,17 @@ def test_hrrr_freshness_keeps_complete_archive_when_newer_cycle_is_still_filling
 
     assert target == complete
     assert needs_update is False
+
+
+def test_hrrr_freshness_rebuilds_archive_with_stale_domain_metadata():
+    cycle = "20261112T16:00:00Z"
+    manifest = {"models": {"HRRR": {"latest_products": [
+        *[product(cycle, hour) for hour in (0, 3, 6, 9)],
+    ]}}}
+    archive = published_hrrr_archive(cycle)
+    archive["domain"] = {"west": -75.2, "east": -71.2, "south": 42.3, "north": 45.3}
+
+    assert archive_needs_update(manifest, archive, (0, 3, 6, 9))[0] is True
 
 
 def test_hrrr_freshness_requests_update_for_a_newer_complete_cycle():
