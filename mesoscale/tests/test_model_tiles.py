@@ -37,3 +37,36 @@ def test_render_native_grid_to_xyz_raster_and_independent_contours(tmp_path: Pat
     geojson = json.loads((product_path.parent / "contours.geojson").read_text())
     assert geojson["type"] == "FeatureCollection"
     assert all(feature["geometry"]["type"] == "LineString" for feature in geojson["features"])
+
+
+def test_tile_renderer_rejects_ambiguous_short_names(tmp_path: Path):
+    lat = np.linspace(40, 42, 5)
+    lon = np.linspace(-75, -73, 6)
+    lon2, lat2 = np.meshgrid(lon, lat)
+    base = {
+        "model": "RAP", "model_cycle_utc": "2026-11-13T00:00:00Z",
+        "forecast_hour": 0, "valid_time_utc": "2026-11-13T00:00:00Z",
+        "grids": {"g": {"latitude": lat2.tolist(), "longitude": lon2.tolist()}},
+        "fields": {},
+    }
+    for suffix in ("surface", "column"):
+        base["fields"][f"t_{suffix}"] = {
+            "short_name": "t", "grid_id": "g",
+            "data": (np.ones_like(lat2) * (270 if suffix == "surface" else 260)).tolist(),
+        }
+    import pytest
+    with pytest.raises(ValueError, match="matched 2"):
+        render_tiles(base, "t", tmp_path, 3, 3)
+
+
+def test_model_tile_frontend_uses_catalog_and_keeps_pages_sources_synchronized():
+    root = Path(__file__).resolve().parents[2]
+    html = (root / "index.html").read_text(encoding="utf-8")
+    mirror = (root / "mesoscale.html").read_text(encoding="utf-8")
+    assert html == mirror
+    assert "async function loadModelTileCatalog()" in html
+    assert "L.tileLayer(tileUrl" in html
+    assert "L.geoJSON(geojson" in html
+    assert "await renderPublishedModelTiles(payload,'RAP',param)" in html
+    assert "await renderPublishedModelTiles(payload,'HRRR',param)" in html
+    assert "light_nolabels" in html
