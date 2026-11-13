@@ -121,6 +121,7 @@ jobs:
           import json
           from datetime import datetime, timezone
           from pathlib import Path
+          from mesoscale.process_grib import DOMAIN, validate_grid_coverage
 
           root = Path("hrrr-artifact")
           manifest_path = root / "hrrr_forecast_manifest.json"
@@ -129,6 +130,8 @@ jobs:
               raise SystemExit("Refusing to publish a non-HRRR surface archive")
           if (manifest.get("quality") or {}).get("status") != "passed":
               raise SystemExit("Refusing to publish an archive without passed quality status")
+          if manifest.get("domain") != DOMAIN:
+              raise SystemExit(f"Refusing to publish an HRRR manifest with stale domain metadata: {manifest.get('domain')!r}")
           hours = manifest.get("hours") or []
           rap_manifest = json.loads(
               Path("mesoscale/data/fields/forecast/forecast_manifest.json").read_text(encoding="utf-8")
@@ -150,6 +153,12 @@ jobs:
                   raise SystemExit(f"Missing or undersized HRRR grid: {grid_path}")
               with gzip.open(grid_path, "rt", encoding="utf-8") as stream:
                   payload = json.load(stream)
+              if payload.get("domain") != DOMAIN:
+                  raise SystemExit(f"HRRR grid domain mismatch: {grid_path}")
+              try:
+                  validate_grid_coverage(payload.get("grids"), DOMAIN)
+              except (RuntimeError, TypeError, ValueError) as exc:
+                  raise SystemExit(f"HRRR grid coverage verification failed for {grid_path}: {exc}") from exc
               if (payload.get("model") != "HRRR"
                       or payload.get("model_cycle_utc") != manifest["model_cycle_utc"]
                       or int(payload.get("forecast_hour", -1)) != int(item["forecast_hour"])):
