@@ -23,7 +23,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from mesoscale.download_subset import download
-from mesoscale.process_grib import process_file
+from mesoscale.process_grib import DOMAIN, process_file
 from mesoscale.validate_hrrr_ingestion import validate_payload
 
 DEFAULT_MANIFEST = Path("mesoscale/data/model_manifest.json")
@@ -180,6 +180,7 @@ def archive_needs_update(
                 payload = json.load(stream)
             if (
                 not isinstance(payload, dict)
+                or payload.get("domain") != DOMAIN
                 or payload.get("model") != "HRRR"
                 or payload.get("model_cycle_utc") != existing_cycle
                 or int(payload.get("forecast_hour", -1)) != int(item["forecast_hour"])
