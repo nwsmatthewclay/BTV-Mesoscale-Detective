@@ -190,6 +190,7 @@ def test_plan_index_ranges_selects_standard_fields_by_index_name():
 
     planned = plan_index_ranges(
         messages,
+        limit=4,
         preferred_short_names=("TMP", "DPT", "UGRD", "VGRD"),
     )
 
@@ -284,5 +285,6 @@ def test_plan_index_ranges_requires_both_wind_components():
     with pytest.raises(ValueError, match="missing required smoke-test fields: VGRD"):
         plan_index_ranges(
             messages,
+            limit=4,
             preferred_short_names=("TMP", "DPT", "UGRD", "VGRD"),
         )
