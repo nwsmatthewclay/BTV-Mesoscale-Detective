@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+from mesoscale.process_grib import DOMAIN
 from mesoscale.validate_hrrr_ingestion import validate_payload
 
 
@@ -19,14 +20,14 @@ def sample_payload():
         "valid_time_utc": CYCLE,
         "grids": {
             "grid_0": {
-                "latitude": [[44.5, 44.6]],
-                "longitude": [[-73.2, -73.3]],
+                "latitude": [[32.0, 32.0], [52.0, 52.0]],
+                "longitude": [[-90.0, -61.5], [-90.0, -61.5]],
             }
         },
         "fields": {
-            "temperature": {"short_name": "2t", "data": [[280.0, 281.0]]},
-            "u_wind": {"short_name": "10u", "data": [[2.0, 3.0]]},
-            "v_wind": {"short_name": "10v", "data": [[-1.0, -2.0]]},
+            "temperature": {"short_name": "2t", "grid_id": "grid_0", "data": [[280.0, 281.0], [282.0, 283.0]]},
+            "u_wind": {"short_name": "10u", "grid_id": "grid_0", "data": [[2.0, 3.0], [2.5, 3.5]]},
+            "v_wind": {"short_name": "10v", "grid_id": "grid_0", "data": [[-1.0, -2.0], [-1.5, -2.5]]},
         },
         "quality": {"field_count": 3, "grid_count": 1, "warnings": []},
     }
@@ -56,11 +57,11 @@ def test_hrrr_validator_rejects_missing_surface_wind_component():
         validate_payload(payload, CYCLE, 0)
 
 
-def test_hrrr_validator_rejects_grid_outside_btv_domain():
+def test_hrrr_validator_rejects_grid_that_does_not_cover_the_shared_domain():
     payload = sample_payload()
-    payload["grids"]["grid_0"]["latitude"] = [[40.0, 40.1]]
-    payload["grids"]["grid_0"]["longitude"] = [[-73.2, -73.3]]
-    with pytest.raises(RuntimeError, match="no coordinates inside the BTV domain"):
+    payload["grids"]["grid_0"]["latitude"] = [[44.5, 44.6], [44.5, 44.6]]
+    payload["grids"]["grid_0"]["longitude"] = [[-73.2, -73.3], [-73.2, -73.3]]
+    with pytest.raises(RuntimeError, match="does not cover required domain"):
         validate_payload(payload, CYCLE, 0)
 
 
