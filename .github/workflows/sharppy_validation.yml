@@ -1,0 +1,83 @@
+name: SHARPpy Adapter Validation
+
+on:
+  pull_request:
+    paths:
+      - "mesoscale/sharppy_adapter.py"
+      - "mesoscale/cross_section.py"
+      - "mesoscale/frontogenesis.py"
+      - "mesoscale/tests/test_frontogenesis.py"
+      - "mesoscale/tests/test_cross_section_engine.py"
+      - "mesoscale/tests/test_rap_archive_inventory.py"
+      - "mesoscale/tests/test_profile_validation.py"
+      - "mesoscale/process_grib.py"
+      - "mesoscale/inspect_grib.py"
+      - "mesoscale/probe_rap_projection.py"
+      - "mesoscale/environment-sharppy.yml"
+      - "mesoscale/tests/test_sharppy_adapter.py"
+      - "index.html"
+      - "mesoscale.html"
+      - "mesoscale/browser_tests/**"
+      - ".github/workflows/mesoscale_browser_smoke.yml"
+      - ".github/workflows/sharppy_validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sharppy-validation-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Miniforge
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          activate-environment: btv-sharppy
+          environment-file: mesoscale/environment-sharppy.yml
+          auto-activate: true
+      - name: Validate SHARPpy adapter
+        shell: bash -el {0}
+        run: PYTHONPATH=. pytest -s -q mesoscale/tests/test_sharppy_adapter.py mesoscale/tests/test_cross_section_engine.py mesoscale/tests/test_rap_archive_inventory.py mesoscale/tests/test_profile_validation.py mesoscale/tests/test_frontogenesis.py
+      - name: Install read-only live GRIB probe dependencies
+        shell: bash -el {0}
+        run: python -m pip install xarray cfgrib eccodes requests
+      - name: Probe current RAP projection and wind-orientation metadata
+        shell: bash -el {0}
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: python mesoscale/probe_rap_projection.py
+
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Playwright and Chromium
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest playwright
+          python -m playwright install --with-deps chromium
+      - name: Start local dashboard server
+        run: |
+          python -m http.server 8765 --bind 127.0.0.1 > /tmp/mesoscale-http.log 2>&1 &
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:8765/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/mesoscale-http.log
+          exit 1
+      - name: Test categorized model selector and verified archives
+        run: pytest -q mesoscale/browser_tests

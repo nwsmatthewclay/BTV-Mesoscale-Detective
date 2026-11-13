@@ -88,6 +88,41 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         page.route("**/tile.openstreetmap.org/**", lambda route: route.abort())
 
         page.goto("http://127.0.0.1:8765/", wait_until="domcontentloaded")
+
+        # The redesigned viewer should be map-first on desktop and reflow cleanly on mobile.
+        desktop_layout = page.evaluate(
+            """() => ({
+                columns: getComputedStyle(document.querySelector(".layout")).gridTemplateColumns.split(" ").length,
+                mapWidth: document.querySelector("#map").getBoundingClientRect().width,
+                mapHeight: document.querySelector("#map").getBoundingClientRect().height,
+                controls: getComputedStyle(document.querySelector(".control-grid")).gridTemplateColumns.split(" ").length,
+                modelControl: Boolean(document.querySelector(".control-deck #model")),
+                categoryControl: Boolean(document.querySelector(".control-deck #category")),
+                variableControl: Boolean(document.querySelector(".control-deck #parameter"))
+            })"""
+        )
+        assert desktop_layout["columns"] == 2, desktop_layout
+        assert desktop_layout["mapWidth"] > 700, desktop_layout
+        assert desktop_layout["mapHeight"] >= 500, desktop_layout
+        assert desktop_layout["controls"] == 5, desktop_layout
+        assert desktop_layout["modelControl"] and desktop_layout["categoryControl"] and desktop_layout["variableControl"]
+
+        page.set_viewport_size({"width": 390, "height": 844})
+        mobile_layout = page.evaluate(
+            """() => ({
+                columns: getComputedStyle(document.querySelector(".layout")).gridTemplateColumns.split(" ").length,
+                viewportWidth: document.documentElement.clientWidth,
+                documentWidth: document.documentElement.scrollWidth,
+                mapWidth: document.querySelector("#map").getBoundingClientRect().width,
+                controlColumns: getComputedStyle(document.querySelector(".control-grid")).gridTemplateColumns.split(" ").length
+            })"""
+        )
+        assert mobile_layout["columns"] == 1, mobile_layout
+        assert mobile_layout["controlColumns"] == 2, mobile_layout
+        assert mobile_layout["documentWidth"] <= mobile_layout["viewportWidth"] + 2, mobile_layout
+        assert mobile_layout["mapWidth"] <= mobile_layout["viewportWidth"], mobile_layout
+        page.set_viewport_size({"width": 1440, "height": 1000})
+
         archives = page.evaluate(
             """async () => {
                 const load = async path => {
@@ -117,6 +152,21 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         page.evaluate("(manifest) => { window.__testRapManifest = manifest; }", rap)
         page.evaluate("(manifest) => { window.__testHrrrManifest = manifest; }", hrrr)
 
+        # The category selector should filter to model-supported variables.
+        page.locator("#category").select_option("thermodynamics")
+        assert page.locator("#parameter").input_value() == "cape"
+        visible_parameters = page.locator("#parameter option").evaluate_all(
+            "(options) => options.filter(option => !option.hidden && !option.disabled).map(option => option.value)"
+        )
+        assert {"cape", "lapse", "native_RAP_2t"}.issubset(set(visible_parameters))
+        assert "fronto" not in visible_parameters
+        page.locator("#category").select_option("forcing")
+        visible_parameters = page.locator("#parameter option").evaluate_all(
+            "(options) => options.filter(option => !option.hidden && !option.disabled).map(option => option.value)"
+        )
+        assert set(visible_parameters) == {"fronto", "omega", "moisture"}
+        page.locator("#category").select_option("all")
+
         # Force the initial RAP request and wait until it is the archived cycle,
         # not the temporary latest-grid fallback.
         page.locator("#parameter").select_option("cape")
@@ -127,6 +177,42 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
                 && window.rapGridPayload.valid_time_utc === window.__testRapManifest.hours[0].valid_time_utc""",
             timeout=45000,
         )
+
+        # The catalog is built from actual decoded fields, not a fixed menu.
+        page.wait_for_function(
+            "() => Array.from(document.querySelector('#parameter').options).some(option => option.value === 'native_RAP_sde')",
+            timeout=15000,
+        )
+        page.locator("#category").select_option("winter")
+        page.locator("#parameter").select_option("native_RAP_sde")
+        page.wait_for_function(
+            "() => document.querySelector('#mapChip').textContent.includes('Snow depth')",
+            timeout=15000,
+        )
+        page.locator("#category").select_option("all")
+        page.locator("#parameter").select_option("cape")
+
+        # Draw a real transect and switch the vertical variable from temperature to omega.
+        page.evaluate(
+            """() => {
+                document.querySelector("#drawTransect").click();
+                window.__testMap.fire("click", {latlng: L.latLng(44.4719, -73.1533)});
+                window.__testMap.fire("click", {latlng: L.latLng(44.2035, -72.5623)});
+            }"""
+        )
+        page.wait_for_function(
+            "() => document.querySelector('#crossSectionStatus').textContent.includes('Temperature') && document.querySelector('#crossSectionStatus').textContent.includes('distinct native-grid columns')",
+            timeout=45000,
+        )
+        page.locator("#crossVariable").select_option("omega")
+        page.wait_for_function(
+            "() => document.querySelector('#crossSectionStatus').textContent.includes('Vertical velocity / omega')",
+            timeout=45000,
+        )
+        omega_units = page.locator("#crossSectionPlot").evaluate(
+            "element => String(element.data?.[0]?.colorbar?.title?.text || element.data?.[0]?.colorbar?.title || '')"
+        )
+        assert omega_units == "Pa s⁻¹"
 
         # Verify the published RAP sounding and hodograph, not just the map grid.
         page.wait_for_function(
@@ -170,6 +256,20 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         assert page.locator("#parameter").input_value() == "hrrr_temp"
         assert "HRRR 2-m temperature" in page.locator("#mapChip").inner_text()
         assert page.locator("#gridSpacing").text_content().strip() == "3 km nominal"
+
+        # HRRR adds its own decoded fields, including CAPE, to the same catalog.
+        page.wait_for_function(
+            "() => Array.from(document.querySelector('#parameter').options).some(option => option.value === 'native_HRRR_cape')",
+            timeout=15000,
+        )
+        page.locator("#category").select_option("thermodynamics")
+        page.locator("#parameter").select_option("native_HRRR_cape")
+        page.wait_for_function(
+            "() => document.querySelector('#mapChip').textContent.includes('Convective available potential energy')",
+            timeout=15000,
+        )
+        page.locator("#category").select_option("all")
+        page.locator("#parameter").select_option("hrrr_temp")
 
         for entry in hrrr["hours"]:
             _select_and_wait_for_hour(page, "HRRR", entry, hrrr["model_cycle_utc"])
@@ -270,7 +370,7 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
             page.wait_for_function(
                 """() => {
                     const status = document.querySelector('#crossSectionStatus')?.textContent || '';
-                    return status.includes('nearest-grid samples') || status.startsWith('Cross-section unavailable:');
+                    return status.includes('distinct native-grid columns') || status.startsWith('Cross-section unavailable:');
                 }""",
                 timeout=60000,
             )
@@ -285,7 +385,8 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
             )
             raise AssertionError(f"RAP transect did not finish: {state}; page errors: {page_errors}; console errors: {console_errors}") from exc
         cross_status = page.locator("#crossSectionStatus").inner_text()
-        assert "nearest-grid samples" in cross_status, f"RAP transect failed: {cross_status}"
+        assert "distinct native-grid columns" in cross_status, f"RAP transect failed: {cross_status}"
+        assert "native RAP (~13 km)" in cross_status, f"Cross-section must report native horizontal resolution: {cross_status}"
 
         browser.close()
 

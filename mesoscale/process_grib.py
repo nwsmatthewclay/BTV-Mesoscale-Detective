@@ -24,6 +24,60 @@ def json_values(array, decimals=2):
     return np.where(np.isfinite(arr), np.round(arr, decimals), None).tolist()
 
 
+GRID_METADATA_KEYS = {
+    "GRIB_gridType", "GRIB_Nx", "GRIB_Ny", "GRIB_LaDInDegrees",
+    "GRIB_LoVInDegrees", "GRIB_Latin1InDegrees", "GRIB_Latin2InDegrees",
+    "GRIB_DxInMetres", "GRIB_DyInMetres",
+    "GRIB_orientationOfTheGridInDegrees",
+    "GRIB_iScansNegatively", "GRIB_jScansPositively",
+    "GRIB_jPointsAreConsecutive", "GRIB_uvRelativeToGrid",
+    "GRIB_resolutionAndComponentFlags",
+}
+
+
+def grib_metadata(attrs):
+    """Preserve GRIB projection, orientation, level and step metadata."""
+    return {
+        key: attr_value(value)
+        for key, value in attrs.items()
+        if key.startswith("GRIB_")
+    }
+
+
+def grid_projection_metadata(attrs):
+    """Return only GRIB keys needed to reconstruct native grid geometry."""
+    return {
+        key: attr_value(value)
+        for key, value in attrs.items()
+        if key in GRID_METADATA_KEYS
+    }
+
+
+def merge_grib_metadata(dataset_attrs, variable_attrs):
+    """Merge dataset and variable GRIB attributes, preferring variable values."""
+    return grib_metadata({**dataset_attrs, **variable_attrs})
+
+
+def merge_grid_projection_metadata(dataset_attrs, variable_attrs):
+    """Merge projection attributes that cfgrib may attach at either level."""
+    return grid_projection_metadata({**dataset_attrs, **variable_attrs})
+
+
+def parse_cycle_time(value):
+    """Parse standard ISO and compact NOMADS UTC cycle timestamps."""
+    if not isinstance(value, str) or not value:
+        raise ValueError("model cycle must be a non-empty UTC timestamp")
+    normalized = value.replace("Z", "+00:00")
+    try:
+        parsed = datetime.fromisoformat(normalized)
+    except ValueError:
+        # NOMADS manifests commonly use YYYYMMDDTHH:MM:SSZ (or +00:00).
+        parsed = datetime.strptime(normalized, "%Y%m%dT%H:%M:%S%z")
+    if parsed.tzinfo is None:
+        raise ValueError("model cycle timestamp must include a UTC offset")
+    return parsed.astimezone(timezone.utc)
+
+
 def attr_value(value):
     if hasattr(value, "item"):
         try:
@@ -69,9 +123,13 @@ def process_file(path: Path, model: str, cycle: str, forecast_hour: int,
             grid_id = f"grid_{ds_index}"
             grids[grid_id] = {"latitude": json_values(lat_crop, 4),
                               "longitude": json_values(lon_crop, 4),
-                              "shape": list(lat_crop.shape), "stride": stride}
+                              "shape": list(lat_crop.shape), "stride": stride,
+                              "projection": grid_projection_metadata(ds.attrs)}
 
             for name, variable in ds.data_vars.items():
+                grids[grid_id]["projection"].update(
+                    merge_grid_projection_metadata(ds.attrs, variable.attrs)
+                )
                 dims = list(variable.dims)
                 y_dim = ds[lat_name].dims[0]
                 x_dim = ds[lat_name].dims[1]
@@ -103,6 +161,7 @@ def process_file(path: Path, model: str, cycle: str, forecast_hour: int,
                     "variable_name": name,
                     "long_name": variable.attrs.get("long_name"),
                     "units": variable.attrs.get("units"),
+                    "grib_metadata": merge_grib_metadata(ds.attrs, variable.attrs),
                     "dimensions": other_dims,
                     "levels": level_meta,
                     "grid_id": grid_id,
@@ -120,7 +179,7 @@ def process_file(path: Path, model: str, cycle: str, forecast_hour: int,
         "model": model,
         "model_cycle_utc": cycle,
         "forecast_hour": forecast_hour,
-        "valid_time_utc": (datetime.fromisoformat(cycle.replace("Z", "+00:00")) + timedelta(hours=forecast_hour)).isoformat().replace("+00:00", "Z"),
+        "valid_time_utc": (parse_cycle_time(cycle) + timedelta(hours=forecast_hour)).isoformat().replace("+00:00", "Z"),
         "source_file": path.name,
         "domain": DOMAIN,
         "grids": grids,
