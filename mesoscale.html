@@ -39,7 +39,7 @@ select,input[type=range]{width:100%}select{background:#071827;color:var(--text);
 <nav id="tabs"><button class="active" data-tab="environment">Environment</button><button data-tab="soundings">Soundings</button><button data-tab="kinematics">Kinematics &amp; Forcing</button><button data-tab="cross">Cross-Sections</button><button data-tab="compare">Model Compare</button><button data-tab="evolution">Time Evolution</button></nav>
 <main class="layout">
 <aside class="panel"><h2>Analysis Controls</h2><div class="pad">
-<div class="field"><label>Model</label><select id="model"><option value="RAP" selected>RAP · 13 km · decoded</option><option value="HRRR">HRRR · 3 km · surface archive</option><option value="RRFS" disabled>RRFS · 3 km · discovery only</option></select></div>
+<div class="field"><label>Model</label><select id="model"><option value="RAP" selected>RAP · 13 km · decoded</option><option value="HRRR">HRRR · 3 km · surface archive</option><option value="RRFS" disabled>RRFS · 3 km · experimental subset</option></select></div>
 <div class="field"><label>Model cycle</label><select id="cycle"><option>Latest available cycle</option></select></div>
 <div class="field"><label>Forecast hour</label><div class="range-row"><input id="hour" type="range" min="0" max="18" value="0"><output id="hourOut">F00</output></div></div>
 <div class="field"><label>Map parameter</label><select id="parameter"><option value="surface">Surface observations</option><option value="cape">CAPE / CIN</option><option value="shear">0–6 km bulk shear</option><option value="srh">0–1 km SRH</option><option value="pwat">Precipitable water</option><option value="lapse">700–500 mb lapse rate</option><option value="fronto">850 mb frontogenesis</option><option value="omega">700 mb vertical velocity</option><option value="moisture">925 mb moisture convergence</option><option value="hrrr_temp" hidden disabled>HRRR 2-m temperature</option><option value="hrrr_dewpoint" hidden disabled>HRRR 2-m dewpoint</option><option value="hrrr_wind" hidden disabled>HRRR 10-m wind speed</option><option value="hrrr_gust" hidden disabled>HRRR wind gust</option><option value="hrrr_refc" hidden disabled>HRRR composite reflectivity</option><option value="hrrr_vis" hidden disabled>HRRR visibility</option><option value="hrrr_cin" hidden disabled>HRRR convective inhibition</option><option value="hrrr_blh" hidden disabled>HRRR boundary-layer height</option></select></div>
@@ -82,6 +82,7 @@ select,input[type=range]{width:100%}select{background:#071827;color:var(--text);
 <script>
 const stations=[["KBTV",44.4719,-73.1533],["KPBG",44.6509,-73.4681],["KMSS",44.9358,-74.8456],["KSLK",44.3853,-74.2062],["KMPV",44.2035,-72.5623],["KRUT",43.5294,-72.9496],["1V4",44.4193,-72.0194],["KEFK",44.8888,-72.2292]];
 const map=L.map('map',{zoomControl:true}).setView([44.15,-73.05],7);
+window.__testMap=map;
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:13,attribution:'&copy; OpenStreetMap'}).addTo(map);
 let selected={name:"KBTV",lat:44.4719,lon:-73.1533},markers=[],transect=[],line=null,drawing=false;
 function stationLayer(){markers.forEach(m=>map.removeLayer(m));markers=[];if(!document.getElementById('stations').checked)return;stations.forEach(s=>{const m=L.circleMarker([s[1],s[2]],{radius:s[0]==="KBTV"?7:5,color:"#9de7f1",weight:1.5,fillColor:"#123d59",fillOpacity:.95}).addTo(map).bindTooltip(s[0],{direction:"top"}).on('click',()=>selectPoint(s[1],s[2],s[0]));markers.push(m)});}
@@ -95,25 +96,45 @@ async function runRapCrossSection(points){
     status.textContent='Cross-sections require RAP hybrid-level profiles; HRRR surface grids do not contain vertical levels.';
     return;
   }
-  status.textContent='Loading RAP grid and sampling transect…';
-  const payload=await loadRapGrid(),samples=24,distances=[],profiles=[];
-  const [a,b]=points;
-  const rad=Math.PI/180,latMid=(a[0]+b[0])/2*rad;
+  if(!Array.isArray(points)||points.length!==2)throw new Error('A transect requires exactly two map points');
+  status.textContent='Loading RAP F'+String(activeRapHour).padStart(2,'0')+' and sampling the transect…';
+  const payload=await loadRapGrid(activeRapHour),samples=24,distances=[],profiles=[],skipped=[];
+  const [a,b]=points,rad=Math.PI/180,latMid=(a[0]+b[0])/2*rad;
   const totalKm=Math.hypot((b[0]-a[0])*111.32,(b[1]-a[1])*111.32*Math.cos(latMid));
   for(let i=0;i<=samples;i++){
     const f=i/samples,lat=a[0]+(b[0]-a[0])*f,lon=a[1]+(b[1]-a[1])*f;
-    const p=extractRegionalRapProfile(payload,lat,lon,'Transect '+i);
-    distances.push(totalKm*f);profiles.push(p);
+    distances.push(totalKm*f);
+    try{
+      profiles.push(extractRegionalRapProfile(payload,lat,lon,'Transect '+i));
+    }catch(error){
+      profiles.push(null);
+      skipped.push({index:i,reason:error.message});
+    }
   }
-  const heights=Array.from({length:49},(_,i)=>i*250),z=heights.map(h=>profiles.map(p=>{
-    const q=p.profile,hs=q.height_agl_m,ts=q.temperature_k.map(v=>v-273.15);
-    if(h<Math.min(...hs)||h>Math.max(...hs))return null;
-    let k=0;while(k<hs.length-1&&hs[k+1]<h)k++;
-    if(k>=hs.length-1)return ts[ts.length-1];
-    const f=(h-hs[k])/(hs[k+1]-hs[k]);return ts[k]+f*(ts[k+1]-ts[k]);
+  const usable=profiles.filter(Boolean).length;
+  if(usable<Math.max(8,Math.ceil(profiles.length*0.5))){
+    const reason=skipped[0]?.reason||'insufficient valid columns';
+    throw new Error('Only '+usable+'/'+profiles.length+' transect columns passed profile QC; first rejected column: '+reason);
+  }
+  const heights=Array.from({length:49},(_,i)=>i*250);
+  const z=heights.map(h=>profiles.map(p=>{
+    if(!p)return null;
+    const hs=p.profile.height_agl_m,ts=p.profile.temperature_k;
+    if(h<hs[0]||h>hs[hs.length-1])return null;
+    let k=0;
+    while(k<hs.length-1&&hs[k+1]<h)k++;
+    if(k>=hs.length-1)return Number.isFinite(ts[k])?ts[k]-273.15:null;
+    const span=hs[k+1]-hs[k];
+    if(!(span>0))return null;
+    const f=(h-hs[k])/span,value=ts[k]+f*(ts[k+1]-ts[k])-273.15;
+    return Number.isFinite(value)?value:null;
   }));
-  Plotly.react('crossSectionPlot',[{type:'heatmap',x:distances,y:heights,z,colorscale:'RdYlBu',reversescale:true,colorbar:{title:'°C'},hovertemplate:'Distance %{x:.1f} km<br>Height %{y:.0f} m AGL<br>Temperature %{z:.1f} °C<extra></extra>'}],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:58,r:25,t:18,b:48},xaxis:{title:'Distance along transect (km)',color:'#9cb2c5',gridcolor:'#24435e'},yaxis:{title:'Height AGL (m)',color:'#9cb2c5',gridcolor:'#24435e'},font:{color:'#dceaf4'}},{displayModeBar:false,responsive:true});
-  status.textContent='RAP '+payload.valid_time_utc+' · '+profiles.length+' nearest-grid samples · temperature interpolated to 250 m vertical spacing. Horizontal sampling follows native RAP grid spacing; not a 3-km analysis.';
+  const finiteCells=z.reduce((sum,row)=>sum+row.filter(Number.isFinite).length,0);
+  if(finiteCells<20)throw new Error('The sampled transect did not produce enough finite temperature values');
+  const offsets=profiles.filter(Boolean).map(p=>p.sampled_grid_point.distance_km).filter(Number.isFinite);
+  const maxOffset=offsets.length?Math.max(...offsets):null;
+  await Plotly.react('crossSectionPlot',[{type:'heatmap',x:distances,y:heights,z,colorscale:'RdYlBu',reversescale:true,colorbar:{title:'°C'},hovertemplate:'Distance %{x:.1f} km<br>Height %{y:.0f} m AGL<br>Temperature %{z:.1f} °C<extra></extra>'}],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:58,r:25,t:18,b:48},xaxis:{title:'Distance along transect (km)',color:'#9cb2c5',gridcolor:'#24435e'},yaxis:{title:'Height AGL (m)',color:'#9cb2c5',gridcolor:'#24435e'},font:{color:'#dceaf4'}},{displayModeBar:false,responsive:true});
+  status.textContent='RAP '+payload.valid_time_utc+' · '+usable+'/'+profiles.length+' usable nearest-grid samples · '+skipped.length+' skipped · max nearest-cell offset '+(maxOffset===null?'unavailable':maxOffset.toFixed(1)+' km')+' · temperature interpolated to 250 m vertical spacing. Horizontal sampling follows native RAP grid spacing; not a 3-km analysis.';
 }
 
 document.getElementById('drawTransect').onclick=()=>{transect=[];drawing=true;document.getElementById('drawTransect').textContent='Click start, then end point';document.getElementById('mapChip').textContent='Choose two points on the map to define a transect';};
@@ -277,35 +298,52 @@ function rapField(payload,shortName,gridId,hybrid=true){
   return Object.values(payload.fields).find(f=>f.short_name===shortName&&f.grid_id===gridId&&(!hybrid||f.dimensions.some(d=>String(d).toLowerCase().includes('hybrid'))));
 }
 function extractRegionalRapProfile(payload,lat,lon,label){
-  const tempField=Object.values(payload.fields).find(f=>f.short_name==='t'&&f.dimensions.some(d=>String(d).toLowerCase().includes('hybrid')));
+  const tempField=Object.values(payload.fields||{}).find(f=>f.short_name==='t'&&f.dimensions.some(d=>String(d).toLowerCase().includes('hybrid')));
   if(!tempField)throw new Error('RAP hybrid temperature field not found');
-  const gridId=tempField.grid_id,grid=payload.grids[gridId],pt=nearestRapGridPoint(grid,lat,lon);
-  const fields={};for(const n of ['pres','t','q','gh','u','v']){fields[n]=rapField(payload,n,gridId,true);if(!fields[n])throw new Error('RAP hybrid '+n+' field missing');}
-  const orog=Object.values(payload.fields).find(f=>f.short_name==='orog');
+  const gridId=tempField.grid_id,grid=payload.grids?.[gridId];
+  if(!grid||!Array.isArray(grid.latitude)||!Array.isArray(grid.longitude))throw new Error('RAP hybrid grid geometry is unavailable');
+  const pt=nearestRapGridPoint(grid,lat,lon);
+  const fields={};
+  for(const n of ['pres','t','q','gh','u','v']){
+    fields[n]=rapField(payload,n,gridId,true);
+    if(!fields[n])throw new Error('RAP hybrid '+n+' field missing');
+  }
+  const orog=Object.values(payload.fields||{}).find(f=>f.short_name==='orog');
   if(!orog)throw new Error('RAP terrain/orography field missing');
-  const og=payload.grids[orog.grid_id],op=nearestRapGridPoint(og,lat,lon);
-  const terrain=orog.data[op.y][op.x];
+  const og=payload.grids?.[orog.grid_id];
+  if(!og)throw new Error('RAP orography grid geometry is unavailable');
+  const op=nearestRapGridPoint(og,lat,lon),terrain=orog.data?.[op.y]?.[op.x];
+  if(!Number.isFinite(terrain))throw new Error('No finite RAP terrain value at the nearest grid point');
+  const nlev=Math.min(...['pres','t','q','gh','u','v'].map(n=>Array.isArray(fields[n].data)?fields[n].data.length:0));
+  if(nlev<20)throw new Error('RAP hybrid fields contain only '+nlev+' common levels');
   const profile=[];
-  const nlev=fields.t.data.length;
   for(let k=0;k<nlev;k++){
-    const p=fields.pres.data[k][pt.y][pt.x]/100,t=fields.t.data[k][pt.y][pt.x],q=fields.q.data[k][pt.y][pt.x];
-    const h=fields.gh.data[k][pt.y][pt.x]-terrain,u=fields.u.data[k][pt.y][pt.x],v=fields.v.data[k][pt.y][pt.x];
+    const p=fields.pres.data[k]?.[pt.y]?.[pt.x]/100;
+    const t=fields.t.data[k]?.[pt.y]?.[pt.x];
+    const q=fields.q.data[k]?.[pt.y]?.[pt.x];
+    const h=fields.gh.data[k]?.[pt.y]?.[pt.x]-terrain;
+    const u=fields.u.data[k]?.[pt.y]?.[pt.x],v=fields.v.data[k]?.[pt.y]?.[pt.x];
     if(![p,t,q,h,u,v].every(Number.isFinite)||p<=0||q<=0||q>=1)continue;
     const e=(q*p)/(0.622+0.378*q),le=Math.log(e/6.112),tdC=243.5*le/(17.67-le);
+    if(!Number.isFinite(tdC))continue;
     profile.push({p,t,td:tdC+273.15,h,u,v});
   }
   profile.sort((a,b)=>b.p-a.p);
   if(profile.length<20)throw new Error('Only '+profile.length+' valid hybrid levels at this grid point');
+  for(let i=1;i<profile.length;i++){
+    if(!(profile[i].p<profile[i-1].p))throw new Error('RAP pressure levels are not strictly decreasing upward');
+    if(!(profile[i].h>profile[i-1].h))throw new Error('RAP geopotential heights are not strictly increasing upward');
+  }
   const z={pressure_hpa:profile.map(a=>a.p),temperature_k:profile.map(a=>a.t),dewpoint_k:profile.map(a=>a.td),height_agl_m:profile.map(a=>a.h),u_ms:profile.map(a=>a.u),v_ms:profile.map(a=>a.v)};
-  return {label,requested_location:{latitude:lat,longitude:lon},model:'RAP',model_cycle_utc:payload.model_cycle_utc,forecast_hour:payload.forecast_hour,valid_time_utc:payload.valid_time_utc,source_file:payload.source_file,profile:z,diagnostics:{diagnostics:{}},quality:{levels:profile.length,profile_warnings:[]},sampled_grid_point:{latitude:pt.lat,longitude:pt.lon,distance_km:pt.d,grid_id,sampling_method:'nearest RAP grid point'},regional_sample:true};
+  return {label,requested_location:{latitude:lat,longitude:lon},model:'RAP',model_cycle_utc:payload.model_cycle_utc,forecast_hour:payload.forecast_hour,valid_time_utc:payload.valid_time_utc,source_file:payload.source_file,profile:z,diagnostics:{diagnostics:{}},quality:{levels:profile.length,pressure_decreases_upward:true,height_increases_upward:true,profile_warnings:[]},sampled_grid_point:{latitude:pt.lat,longitude:pt.lon,distance_km:pt.d,grid_id,sampling_method:'nearest RAP grid point'},regional_sample:true};
 }
 
 function squeezeRap2D(data){
   let a=data;while(Array.isArray(a)&&a.length===1&&Array.isArray(a[0])&&Array.isArray(a[0][0]))a=a[0];
   return Array.isArray(a)&&Array.isArray(a[0])&&typeof a[0][0]==='number'?a:null;
 }
-function findRapSurfaceField(payload,names){
-  return Object.values(payload.fields).find(f=>names.includes(f.short_name)&&squeezeRap2D(f.data));
+function findRapSurfaceField(payload,names,gridId){
+  return Object.values(payload.fields||{}).find(f=>names.includes(f.short_name)&&(!gridId||f.grid_id===gridId)&&squeezeRap2D(f.data));
 }
 function sampleRapSurface(payload,names,lat,lon){
   const field=findRapSurfaceField(payload,names);if(!field)return null;
@@ -366,15 +404,23 @@ function comparableTemperature(sample){
   return null;
 }
 function comparableWind(payload,model,lat,lon){
-  const u=sampleComparableSurface(payload,model,['10u'],lat,lon);
-  const v=sampleComparableSurface(payload,model,['10v'],lat,lon);
-  if(!u||!v)return null;
-  const unit=(u.units+' '+v.units).toLowerCase();
-  let speed=Math.hypot(u.value,v.value);
-  if(unit.includes('m s')||unit.includes('m/s'))speed*=1.943844;
-  else if(unit.includes('knot')||unit.includes('kt')){}
-  else return null;
-  return {value:speed,units:'kt',distance_km:Math.max(u.distance_km,v.distance_km)};
+  const uField=model==='RAP'?findRapSurfaceField(payload,['10u']):findHrrrField(payload,['10u']);
+  if(!uField)return null;
+  const vField=model==='RAP'?findRapSurfaceField(payload,['10v'],uField.grid_id):findHrrrField(payload,['10v'],uField.grid_id);
+  if(!vField)return null;
+  const grid=payload.grids?.[uField.grid_id],uData=squeezeRap2D(uField.data),vData=squeezeRap2D(vField.data);
+  if(!grid||!uData||!vData)return null;
+  const point=nearestRapGridPoint(grid,lat,lon),u=uData?.[point.y]?.[point.x],v=vData?.[point.y]?.[point.x];
+  if(!Number.isFinite(u)||!Number.isFinite(v))return null;
+  const toKnots=(value,units)=>{
+    const unit=String(units||'').toLowerCase().replace(/\s+/g,'');
+    if(unit==='m/s'||unit==='ms-1'||unit==='ms**-1'||unit==='ms^-1')return value*1.943844;
+    if(unit==='kt'||unit==='kts'||unit.includes('knot'))return value;
+    return null;
+  };
+  const uKt=toKnots(u,uField.units),vKt=toKnots(v,vField.units);
+  if(!Number.isFinite(uKt)||!Number.isFinite(vKt))return null;
+  return {value:Math.hypot(uKt,vKt),units:'kt',distance_km:point.d,grid_id:uField.grid_id};
 }
 let modelComparisonRequest=0;
 async function updateModelComparison(){
@@ -405,12 +451,13 @@ async function updateModelComparison(){
     if(requestId!==modelComparisonRequest)return;
     if(rap.valid_time_utc!==validTime||hrrr.valid_time_utc!==validTime)throw new Error('Loaded grid valid times do not exactly match the selected time');
     const lat=selected.lat,lon=selected.lon;
-    const tRap=comparableTemperature(sampleComparableSurface(rap,'RAP',['2t','t2m'],lat,lon));
-    const tHrrr=comparableTemperature(sampleComparableSurface(hrrr,'HRRR',['2t'],lat,lon));
-    const tdRap=comparableTemperature(sampleComparableSurface(rap,'RAP',['2d','d2m'],lat,lon));
-    const tdHrrr=comparableTemperature(sampleComparableSurface(hrrr,'HRRR',['2d'],lat,lon));
-    const windRap=comparableWind(rap,'RAP',lat,lon);
-    const windHrrr=comparableWind(hrrr,'HRRR',lat,lon);
+    const tRapSample=sampleComparableSurface(rap,'RAP',['2t','t2m'],lat,lon);
+    const tHrrrSample=sampleComparableSurface(hrrr,'HRRR',['2t'],lat,lon);
+    const tdRapSample=sampleComparableSurface(rap,'RAP',['2d','d2m'],lat,lon);
+    const tdHrrrSample=sampleComparableSurface(hrrr,'HRRR',['2d'],lat,lon);
+    const tRap=comparableTemperature(tRapSample),tHrrr=comparableTemperature(tHrrrSample);
+    const tdRap=comparableTemperature(tdRapSample),tdHrrr=comparableTemperature(tdHrrrSample);
+    const windRap=comparableWind(rap,'RAP',lat,lon),windHrrr=comparableWind(hrrr,'HRRR',lat,lon);
     const metrics=[
       {label:'2-m temperature',a:tRap,b:tHrrr,unit:'°C'},
       {label:'2-m dewpoint',a:tdRap,b:tdHrrr,unit:'°C'},
@@ -421,9 +468,17 @@ async function updateModelComparison(){
       const delta=Number.isFinite(item.a)&&Number.isFinite(item.b)?(item.b-item.a).toFixed(1)+' '+item.unit:'—';
       return '<tr><td style="padding:9px;border-bottom:1px solid var(--line)">'+item.label+'</td><td style="padding:9px;border-bottom:1px solid var(--line)">'+fmt(item.a)+'</td><td style="padding:9px;border-bottom:1px solid var(--line)">'+fmt(item.b)+'</td><td style="padding:9px;border-bottom:1px solid var(--line)">'+delta+'</td></tr>';
     }).join('');
-    const rp=rap.sampled_grid_point?.distance_km,hp=hrrr.sampled_grid_point?.distance_km;
-    status.textContent='Exact valid-time match · RAP '+rap.model_cycle_utc+' F'+String(rap.forecast_hour).padStart(2,'0')+' · HRRR '+hrrr.model_cycle_utc+' F'+String(hrrr.forecast_hour).padStart(2,'0')+' · sampled at '+lat.toFixed(3)+', '+lon.toFixed(3)+'. Each model retains its own native grid; missing source fields are not estimated.';
-    document.getElementById('comparisonMeta').innerHTML='<span>Shared valid time · grid distance from selected point</span><b>'+validTime+' · RAP '+(Number.isFinite(rp)?rp.toFixed(1)+' km':'—')+' / HRRR '+(Number.isFinite(hp)?hp.toFixed(1)+' km':'—')+'</b>';
+    const distanceFor=samples=>{
+      const values=samples.map(sample=>sample?.distance_km).filter(Number.isFinite);
+      return values.length?Math.max(...values):null;
+    };
+    const rapDistance=distanceFor([tRapSample,tdRapSample,windRap]);
+    const hrrrDistance=distanceFor([tHrrrSample,tdHrrrSample,windHrrr]);
+    const distanceLabel=value=>value===null?'unavailable':value.toFixed(1)+' km';
+    const missing=metrics.filter(item=>!Number.isFinite(item.a)||!Number.isFinite(item.b)).map(item=>item.label);
+    const missingLabel=missing.length?' · unavailable source values: '+missing.join(', '):'';
+    status.textContent='Exact valid-time match · RAP '+rap.model_cycle_utc+' F'+String(rap.forecast_hour).padStart(2,'0')+' · HRRR '+hrrr.model_cycle_utc+' F'+String(hrrr.forecast_hour).padStart(2,'0')+' · sampled at '+lat.toFixed(3)+', '+lon.toFixed(3)+'. Nearest-cell offsets RAP '+distanceLabel(rapDistance)+' / HRRR '+distanceLabel(hrrrDistance)+'. Missing source fields or unsupported units remain Unavailable; no proxy fields or nearest-time substitution.'+missingLabel;
+    document.getElementById('comparisonMeta').innerHTML='<span>Shared valid time · maximum native-grid sample offset</span><b>'+validTime+' · RAP '+distanceLabel(rapDistance)+' / HRRR '+distanceLabel(hrrrDistance)+'</b>';
   }catch(error){
     if(requestId!==modelComparisonRequest)return;
     status.textContent='Model comparison unavailable: '+error.message;
@@ -494,7 +549,7 @@ async function updateRapParameter(){
   }
   if(model!=='RAP'){
     if(modelOverlayLayer){map.removeLayer(modelOverlayLayer);modelOverlayLayer=null;}
-    document.getElementById('mapChip').textContent='RRFS regional fields are not yet decoded';
+    document.getElementById('mapChip').textContent='RRFS experimental subset is not published to the dashboard';
     return;
   }
   try{const payload=await loadRapGrid(activeRapHour);renderRapGridOverlay(payload,param);}
@@ -516,9 +571,9 @@ async function loadStationProfile(station){
     return;
   }
   if(selectedModel!=='RAP'){
-    metrics.innerHTML='';if(notes[0])notes[0].textContent='RRFS products are discovered but regional fields are not yet decoded.';
+    metrics.innerHTML='';if(notes[0])notes[0].textContent='RRFS has a non-published experimental subset extraction; no verified multi-hour archive or station profiles are available.';
     if(notes[1])notes[1].textContent='No verified RRFS profile is available; use RAP for soundings, hodographs and cross-sections.';
-    document.getElementById('feedStatus').textContent='RRFS NOT DECODED';document.getElementById('feedStatus').style.color='var(--amber)';return;
+    document.getElementById('feedStatus').textContent='RRFS EXPERIMENTAL · NOT PUBLISHED';document.getElementById('feedStatus').style.color='var(--amber)';return;
   }
   try{
     const collection=await loadRapStationCollection(activeRapHour);window.rapStationProfiles=collection;
@@ -564,11 +619,11 @@ async function loadStationProfile(station){
     const dew=z.dewpoint_k.map((v,i)=>skewX(v-273.15,z.pressure_hpa[i]));
     traces.push({x:temp,y:z.pressure_hpa,mode:'lines+markers',name:'Temperature',line:{color:'#f07878',width:2.5},marker:{size:3}});
     traces.push({x:dew,y:z.pressure_hpa,mode:'lines+markers',name:'Dewpoint',line:{color:'#53d1d8',width:2.5},marker:{size:3}});
-    Plotly.react('profile',traces,{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:52,r:12,t:28,b:42},xaxis:{title:'Skewed temperature coordinate (°C at 1000 hPa)',color:'#9cb2c5',gridcolor:'#24435e',tickvals:[-40,-30,-20,-10,0,10,20,30,40,50],ticktext:['-40','-30','-20','-10','0','10','20','30','40','50']},yaxis:{title:'Pressure (hPa)',type:'log',range:[Math.log10(1050),Math.log10(100)],autorange:'reversed',color:'#9cb2c5',gridcolor:'#24435e'},showlegend:true,legend:{font:{color:'#dceaf4'},orientation:'h',y:1.12}},{displayModeBar:false,responsive:true});
+    await Plotly.react('profile',traces,{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:52,r:12,t:28,b:42},xaxis:{title:'Skewed temperature coordinate (°C at 1000 hPa)',color:'#9cb2c5',gridcolor:'#24435e',tickvals:[-40,-30,-20,-10,0,10,20,30,40,50],ticktext:['-40','-30','-20','-10','0','10','20','30','40','50']},yaxis:{title:'Pressure (hPa)',type:'log',range:[Math.log10(1050),Math.log10(100)],autorange:'reversed',color:'#9cb2c5',gridcolor:'#24435e'},showlegend:true,legend:{font:{color:'#dceaf4'},orientation:'h',y:1.12}},{displayModeBar:false,responsive:true});
     const knots=1.943844,zkm=z.height_agl_m.map(v=>v/1000),u=z.u_ms.map(v=>v*knots),v=z.v_ms.map(v=>v*knots);
     const selectedLevels=[0,0.5,1,2,3,4,5,6,8,10];
     const marks=selectedLevels.map(h=>{let best=0;for(let j=1;j<zkm.length;j++)if(Math.abs(zkm[j]-h)<Math.abs(zkm[best]-h))best=j;return best;}).filter((n,i,a)=>a.indexOf(n)===i&&zkm[n]<=10);
-    Plotly.react('hodograph',[{x:u,y:v,mode:'lines+markers',name:'RAP wind',line:{color:'#8bc7ff',width:2.5},marker:{size:5,color:zkm,colorscale:'Turbo',showscale:true,colorbar:{title:'km',tickfont:{color:'#9cb2c5'},titlefont:{color:'#9cb2c5'}}},text:zkm.map(h=>h.toFixed(1)+' km'),hovertemplate:'U %{x:.1f} kt<br>V %{y:.1f} kt<br>%{text}<extra></extra>'},{x:marks.map(n=>u[n]),y:marks.map(n=>v[n]),mode:'text',text:marks.map(n=>zkm[n].toFixed(1)),textposition:'top center',showlegend:false,hoverinfo:'skip'}],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:48,r:55,t:18,b:42},xaxis:{title:'U wind (kt)',zeroline:true,zerolinecolor:'#7892a8',color:'#9cb2c5',gridcolor:'#24435e'},yaxis:{title:'V wind (kt)',zeroline:true,zerolinecolor:'#7892a8',color:'#9cb2c5',gridcolor:'#24435e',scaleanchor:'x',scaleratio:1},showlegend:false},{displayModeBar:false,responsive:true});
+    await Plotly.react('hodograph',[{x:u,y:v,mode:'lines+markers',name:'RAP wind',line:{color:'#8bc7ff',width:2.5},marker:{size:5,color:zkm,colorscale:'Turbo',showscale:true,colorbar:{title:'km',tickfont:{color:'#9cb2c5'},titlefont:{color:'#9cb2c5'}}},text:zkm.map(h=>h.toFixed(1)+' km'),hovertemplate:'U %{x:.1f} kt<br>V %{y:.1f} kt<br>%{text}<extra></extra>'},{x:marks.map(n=>u[n]),y:marks.map(n=>v[n]),mode:'text',text:marks.map(n=>zkm[n].toFixed(1)),textposition:'top center',showlegend:false,hoverinfo:'skip'}],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:48,r:55,t:18,b:42},xaxis:{title:'U wind (kt)',zeroline:true,zerolinecolor:'#7892a8',color:'#9cb2c5',gridcolor:'#24435e'},yaxis:{title:'V wind (kt)',zeroline:true,zerolinecolor:'#7892a8',color:'#9cb2c5',gridcolor:'#24435e',scaleanchor:'x',scaleratio:1},showlegend:false},{displayModeBar:false,responsive:true});
     document.getElementById('feedStatus').textContent='RAP PROFILE · '+station;document.getElementById('feedStatus').style.color='var(--green)';
     document.getElementById('provModel').textContent=p.regional_sample?'RAP · regional grid sample':'RAP · verified station profile';
     document.querySelector('#investigation .detail-line:nth-child(2) b').textContent=p.model_cycle_utc;
@@ -602,7 +657,7 @@ async function updateRapTimeEvolution(){
   const status=document.getElementById('trendStatus');
   const requestId=++rapTimeEvolutionRequest;
   if(document.getElementById('model').value!=='RAP'){
-    const message=document.getElementById('model').value==='HRRR'?'HRRR surface grids have no vertical profiles; Time Evolution remains RAP-only.':'RRFS is discovery-only; no verified station profiles are published.';
+    const message=document.getElementById('model').value==='HRRR'?'HRRR surface grids have no vertical profiles; Time Evolution remains RAP-only.':'RRFS has a non-published experimental subset extraction; no verified multi-hour archive or station profiles are available.';
     status.textContent=message;
     showRapTimeEvolutionMessage(message);
     return;
@@ -643,7 +698,7 @@ async function updateRapTimeEvolution(){
       return;
     }
     const labels=points.map(point=>'F'+String(point.hour).padStart(2,'0')+' · '+new Date(point.validTime).toISOString().slice(11,16)+'Z');
-    Plotly.react('trend',[{
+    await Plotly.react('trend',[{
       x:labels,y:points.map(point=>point.value),mode:'lines+markers',name:metric.label,
       line:{color:'#8bc7ff',width:2.5},marker:{size:8,color:'#8bc7ff'},
       customdata:points.map(point=>point.validTime),
@@ -732,7 +787,7 @@ async function loadModelManifest(){
     document.getElementById('provModel').textContent=selectedModel+' · discovered';
     document.querySelector('#investigation .detail-line:nth-child(2) b').textContent=cycles[0];
     if(selectedModel==='HRRR')badge.textContent='HRRR PRODUCTS DISCOVERED · SURFACE ARCHIVE NOT VERIFIED';
-    else if(selectedModel==='RRFS')badge.textContent='RRFS PRODUCTS DISCOVERED · NOT DECODED';
+    else if(selectedModel==='RRFS')badge.textContent='RRFS EXPERIMENTAL SUBSET · NOT PUBLISHED';
     else badge.textContent='RAP PRODUCTS DISCOVERED · ARCHIVE UNAVAILABLE';
     badge.style.color='var(--amber)';
     document.getElementById('mapTitle').textContent=selectedModel+' · discovery status';

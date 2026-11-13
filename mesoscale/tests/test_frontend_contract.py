@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 import re
 import shutil
 import subprocess
@@ -86,11 +87,13 @@ def test_model_discovery_orchestrates_rap_and_hrrr_ingestion_and_pages():
 def test_rap_cross_section_uses_selected_archive_hour_and_reports_native_spacing():
     html = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "async function runRapCrossSection(points)" in html
-    assert "const payload=await loadRapGrid()" in html
+    assert "const payload=await loadRapGrid(activeRapHour)" in html
     assert "extractRegionalRapProfile(payload,lat,lon,'Transect '+i)" in html
+    assert "profile columns passed profile QC" in html
+    assert "await Plotly.react('crossSectionPlot'" in html
     assert "temperature interpolated to 250 m vertical spacing" in html
     assert "not a 3-km analysis" in html
-    assert "nearest-grid samples" in html
+    assert "usable nearest-grid samples" in html
 
 
 def test_model_comparison_requires_exact_shared_valid_time_and_samples_both_models():
@@ -102,6 +105,10 @@ def test_model_comparison_requires_exact_shared_valid_time_and_samples_both_mode
     assert "No exact shared valid time exists" in html
     assert "window.updateModelComparison=updateModelComparison" in html
     assert "comparableWind" in html
+    assert "function findRapSurfaceField(payload,names,gridId)" in html
+    assert "Nearest-cell offsets RAP " in html
+    assert "Missing source fields or unsupported units remain Unavailable" in html
+    assert "findRapSurfaceField(payload,['10v'],uField.grid_id)" in html
 
 
 def test_rap_grid_payload_must_match_the_published_archive_cycle():
@@ -118,6 +125,27 @@ def test_forecast_hour_slider_snaps_to_published_hours_and_shows_cycle_age():
     handler = html[start:end]
     assert "nearestAvailableRapHour(Number(slider.value))" in handler
     assert "slider.value=String(h)" in handler
+
+
+
+
+def test_rrfs_is_labeled_as_a_nonpublished_experimental_subset():
+    html = (ROOT / "index.html").read_text(encoding="utf-8")
+    config = json.loads((ROOT / "mesoscale" / "config" / "diagnostics.json").read_text(encoding="utf-8"))
+    assert "RRFS · 3 km · experimental subset" in html
+    assert "RRFS EXPERIMENTAL" in html
+    assert config["models"]["RRFS"]["status"] == "experimental_non_published_subset_multi_hour_archive_pending"
+
+
+def test_automatic_browser_smoke_is_downstream_of_hrrr_alignment():
+    standalone = (ROOT / ".github" / "workflows" / "mesoscale_browser_smoke.yml").read_text(encoding="utf-8")
+    hrrr = (ROOT / ".github" / "workflows" / "hrrr_ingestion_smoke.yml").read_text(encoding="utf-8")
+    assert "workflow_dispatch:" in standalone
+    assert "push:" not in standalone
+    assert "browser-smoke:" in hrrr
+    assert "needs: [hrrr-smoke, publish-hrrr]" in hrrr
+    assert "needs.hrrr-smoke.result == 'success'" in hrrr
+    assert "needs.publish-hrrr.result == 'success' || needs.publish-hrrr.result == 'skipped'" in hrrr
 
 
 def test_verified_hrrr_surface_archive_is_model_aware_and_keeps_profiles_rap_only():

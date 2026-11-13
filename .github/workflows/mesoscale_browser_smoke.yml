@@ -1,14 +1,6 @@
 name: Mesoscale Browser Smoke Test
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "index.html"
-      - "mesoscale.html"
-      - "mesoscale/data/fields/**"
-      - "mesoscale/browser_tests/**"
-      - ".github/workflows/mesoscale_browser_smoke.yml"
   workflow_dispatch:
 
 permissions:

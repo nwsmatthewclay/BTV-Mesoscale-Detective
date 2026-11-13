@@ -35,7 +35,7 @@
         "surface_2d",
         "surface_subhourly"
       ],
-      "status": "discovery_enabled_extraction_pending_validation"
+      "status": "experimental_non_published_subset_multi_hour_archive_pending"
     }
   },
   "diagnostics": [

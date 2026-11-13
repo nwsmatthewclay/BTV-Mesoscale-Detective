@@ -78,11 +78,13 @@ def _select_and_wait_for_hour(page, model, entry, cycle):
 
 def test_hrrr_surface_parameter_and_all_forecast_hours():
     page_errors = []
+    console_errors = []
 
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
         page = browser.new_page(viewport={"width": 1440, "height": 1000})
         page.on("pageerror", lambda error: page_errors.append(str(error)))
+        page.on("console", lambda message: console_errors.append(message.text) if message.type == "error" else None)
         page.route("**/tile.openstreetmap.org/**", lambda route: route.abort())
 
         page.goto("http://127.0.0.1:8765/", wait_until="domcontentloaded")
@@ -124,6 +126,19 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
                 && window.rapGridPayload.model_cycle_utc === window.__testRapManifest.model_cycle_utc
                 && window.rapGridPayload.valid_time_utc === window.__testRapManifest.hours[0].valid_time_utc""",
             timeout=45000,
+        )
+
+        # Verify the published RAP sounding and hodograph, not just the map grid.
+        page.wait_for_function(
+            """() => window.rapKbtvProfile
+                && window.rapKbtvProfile.profile?.pressure_hpa?.length >= 20
+                && window.rapKbtvProfile.quality?.pressure_decreases_upward === true
+                && window.rapKbtvProfile.quality?.height_increases_upward === true""",
+            timeout=30000,
+        )
+        page.wait_for_function(
+            "() => document.querySelector('#profile')?.data?.length >= 2 && document.querySelector('#hodograph')?.data?.length >= 1",
+            timeout=30000,
         )
         for entry in rap["hours"]:
             _select_and_wait_for_hour(page, "RAP", entry, rap["model_cycle_utc"])
@@ -196,6 +211,33 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         for entry in rap["hours"]:
             _select_and_wait_for_hour(page, "RAP", entry, rap["model_cycle_utc"])
 
+        # Validate forecast soundings and six-hour diagnostics at all eight supported stations.
+        page.locator('button[data-tab="evolution"]').click()
+        page.wait_for_function(
+            "() => document.querySelector('#trendStatus').textContent.includes('6/6 verified values')",
+            timeout=45000,
+        )
+        assert page.locator("#trend").evaluate("(element) => element.data?.[0]?.x?.length") == 6
+        for station_name in ["KPBG", "KMSS", "KSLK", "KMPV", "KRUT", "1V4", "KEFK"]:
+            page.evaluate(
+                """name => {
+                    const station = stations.find(item => item[0] === name);
+                    if (!station) throw new Error("Unsupported station " + name);
+                    selectPoint(station[1], station[2], station[0]);
+                }""",
+                station_name,
+            )
+            page.wait_for_function(
+                """name => window.rapKbtvProfile?.label === name
+                    && window.rapKbtvProfile.profile?.pressure_hpa?.length >= 20
+                    && document.querySelector('#trendStatus').textContent.includes(name)
+                    && document.querySelector('#trendStatus').textContent.includes('6/6 verified values')""",
+                arg=station_name,
+                timeout=20000,
+            )
+            assert page.locator("#trend").evaluate("(element) => element.data?.[0]?.x?.length") == 6
+        page.evaluate("selectPoint(44.4719, -73.1533, 'KBTV')")
+
         # Model comparison must load both grids at the same exact valid time.
         page.locator('button[data-tab="compare"]').click()
         page.wait_for_function(
@@ -206,17 +248,44 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         assert "RAP " + rap["model_cycle_utc"] in comparison_status
         assert "HRRR " + hrrr["model_cycle_utc"] in comparison_status
         assert rap["hours"][-1]["valid_time_utc"] in page.locator("#comparisonMeta").inner_text()
+        comparison_rows = page.locator("#comparisonRows tr").all_text_contents()
+        assert len(comparison_rows) == 3, comparison_rows
+        assert "Unavailable" not in comparison_rows[0], comparison_rows[0]
+        assert "Unavailable" not in comparison_rows[2], comparison_rows[2]
+        assert "RAP " in page.locator("#comparisonMeta").inner_text()
+        assert "HRRR " in page.locator("#comparisonMeta").inner_text()
 
-        # Exercise a real two-point RAP transect and require a rendered cross-section.
+        # Exercise the real Leaflet map-click handler using known in-domain coordinates.
         page.locator('button[data-tab="cross"]').click()
         page.locator("#drawTransect").click()
-        page.locator("#map").click(position={"x": 280, "y": 260})
-        page.locator("#map").click(position={"x": 510, "y": 350})
-        page.wait_for_function(
-            "() => document.querySelector('#crossSectionStatus').textContent.includes('nearest-grid samples')",
-            timeout=45000,
+        assert page.locator("#drawTransect").inner_text() == "Click start, then end point"
+        page.evaluate(
+            """() => {
+                window.__testMap.fire('click', { latlng: L.latLng(44.9, -74.7) });
+                window.__testMap.fire('click', { latlng: L.latLng(43.1, -72.4) });
+            }"""
         )
-        assert "RAP " in page.locator("#crossSectionStatus").inner_text()
+        assert page.locator("#drawTransect").inner_text() == "Draw cross-section line"
+        try:
+            page.wait_for_function(
+                """() => {
+                    const status = document.querySelector('#crossSectionStatus')?.textContent || '';
+                    return status.includes('nearest-grid samples') || status.startsWith('Cross-section unavailable:');
+                }""",
+                timeout=60000,
+            )
+        except Exception as exc:
+            state = page.evaluate(
+                """() => ({
+                    status: document.querySelector('#crossSectionStatus')?.textContent,
+                    drawingLabel: document.querySelector('#drawTransect')?.textContent,
+                    model: document.querySelector('#model')?.value,
+                    hour: document.querySelector('#hour')?.value
+                })"""
+            )
+            raise AssertionError(f"RAP transect did not finish: {state}; page errors: {page_errors}; console errors: {console_errors}") from exc
+        cross_status = page.locator("#crossSectionStatus").inner_text()
+        assert "nearest-grid samples" in cross_status, f"RAP transect failed: {cross_status}"
 
         browser.close()
 
