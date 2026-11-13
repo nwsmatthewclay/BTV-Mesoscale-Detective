@@ -53,6 +53,17 @@ def test_cross_section_samples_hybrid_field_on_common_log_pressure_levels():
     assert result["fields"]["omega"]["values"][0][-1] == pytest.approx(-0.35)
 
 
+def test_cross_section_disables_vertical_extrapolation():
+    result = build_cross_section(
+        sample_payload(), (44.0, -73.2), (44.2, -73.0),
+        {"omega": "w"}, pressure_levels_hpa=[1100, 900, 700, 500, 300], sample_count=3,
+    )
+    values = result["fields"]["omega"]["values"][0]
+    assert values[0] is None
+    assert values[-1] is None
+    assert values[1] is not None
+
+
 def test_cross_section_refuses_fields_on_different_hybrid_coordinates():
     payload = sample_payload()
     payload["fields"]["omega"]["levels"] = {"hybrid": [1, 2, 3, 5]}
