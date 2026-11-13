@@ -96,6 +96,22 @@ def test_build_btv_subset_rejects_step_range_mismatch():
         subset.build_btv_subset(product(), fields)
 
 
+@pytest.mark.parametrize(
+    ("field", "key", "value", "message"),
+    [
+        ("TMP", "level", 10, "must be at 2 m AGL"),
+        ("UGRD", "type_of_level", "isobaricInhPa", "must be heightAboveGround"),
+        ("VGRD", "units", "knots", "unexpected units"),
+    ],
+)
+def test_build_btv_subset_rejects_wrong_level_or_units(field, key, value, message):
+    fields = decoded_fields()
+    target = next(item for item in fields if item["index_short_name"] == field)
+    target["decoded"]["metadata"][key] = value
+    with pytest.raises(ValueError, match=message):
+        subset.build_btv_subset(product(), fields)
+
+
 def test_build_btv_subset_rejects_missing_field():
     with pytest.raises(ValueError, match="requires fields in this order"):
         subset.build_btv_subset(product(), decoded_fields()[:-1])
