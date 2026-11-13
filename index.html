@@ -83,20 +83,143 @@
 
 \n/* Smooth model rasters sit beneath crisp geographic context and station markers. */\n.model-raster-overlay{image-rendering:auto;filter:saturate(1.08) contrast(1.025);}\n
 .map-legend{min-width:260px;max-width:min(390px,calc(100% - 28px));padding:9px 11px 10px;pointer-events:none;backdrop-filter:blur(9px)}.legend-title{font-size:10px;font-weight:750;letter-spacing:.06em;color:#e5f2fa}.legend-subtitle{margin-top:2px;font-size:9px;color:#9fb6c7}.legend-scale{height:10px;margin:8px 0 4px;border:1px solid rgba(220,237,248,.2);border-radius:3px;background:linear-gradient(90deg,rgb(35,67,125),rgb(48,112,170),rgb(80,166,198),rgb(151,207,211),rgb(222,235,218),rgb(250,232,157),rgb(247,177,91),rgb(230,104,65),rgb(174,48,59))}.legend-ticks{display:flex;justify-content:space-between;gap:5px;color:#c4d5e1;font-size:9px;font-variant-numeric:tabular-nums}.legend-units{margin-top:3px;color:#9fb6c7;font-size:9px}
+
+/* === BTV NEON GLASS WORKSTATION REDESIGN === */
+:root{color-scheme:dark;--bg:#050b16;--bg-soft:#091426;--surface:rgba(12,25,46,.78);--surface-2:rgba(17,34,61,.78);--surface-3:#1a3154;--line:rgba(95,166,221,.22);--line-soft:rgba(116,184,232,.13);--text:#edf7ff;--muted:#91a9c4;--blue:#49c7ff;--cyan:#62f1ed;--green:#69edbb;--amber:#ffd27a;--red:#ff7eae;--shadow:0 18px 50px rgba(0,0,0,.36);--radius:15px}
+html,body{background:#050b16}
+body{background:radial-gradient(ellipse at 16% -8%,rgba(24,119,190,.20),transparent 35%),radial-gradient(ellipse at 88% 10%,rgba(112,61,207,.13),transparent 30%),linear-gradient(145deg,#050b16 0%,#071326 55%,#080d1b 100%);color:var(--text)}
+.topbar{min-height:66px;padding:9px clamp(16px,2.2vw,32px);background:rgba(5,12,25,.76);border-bottom:1px solid rgba(98,198,255,.22);box-shadow:0 8px 32px rgba(0,0,0,.22);backdrop-filter:blur(22px)}
+.mark{border:1px solid rgba(98,241,237,.7);border-radius:13px;background:linear-gradient(145deg,rgba(17,108,153,.65),rgba(69,46,145,.55));color:#c7fffc;box-shadow:0 0 18px rgba(59,213,255,.22),inset 0 0 20px rgba(98,241,237,.13)}
+.brand h1{font-size:19px;letter-spacing:.035em;text-shadow:0 0 18px rgba(73,199,255,.22)}
+.brand p{color:#8eaed0;letter-spacing:.13em}
+.status{border:1px solid rgba(98,241,237,.28);background:rgba(25,111,126,.13);color:#8ff8ee;box-shadow:0 0 18px rgba(53,226,222,.08)}
+#clock{color:#b9d8f0}
+#tabs{padding:8px clamp(14px,2.2vw,32px);gap:7px;background:rgba(7,16,32,.72);border-bottom:1px solid rgba(92,169,226,.17);backdrop-filter:blur(22px)}
+#tabs button{position:relative;padding:9px 14px;border:1px solid transparent;border-radius:9px;color:#9bb4ce;background:transparent;transition:all .2s ease}
+#tabs button:hover{color:#e7fbff;border-color:rgba(73,199,255,.3);background:rgba(39,149,207,.10);box-shadow:0 0 17px rgba(45,183,255,.12),inset 0 0 12px rgba(45,183,255,.05)}
+#tabs button.active{color:#e9fdff;border-color:rgba(73,199,255,.55);background:linear-gradient(135deg,rgba(22,135,190,.27),rgba(93,67,190,.20));box-shadow:0 0 18px rgba(40,182,255,.18),inset 0 0 15px rgba(75,211,255,.09)}
+#tabs button.active:after{content:"";position:absolute;left:18%;right:18%;bottom:-1px;height:2px;border-radius:4px;background:linear-gradient(90deg,#48cfff,#8d83ff,#64f4e9);box-shadow:0 0 10px #4bd8ff}
+.layout{display:grid;grid-template-columns:minmax(228px,260px) minmax(0,1fr) minmax(285px,325px);gap:12px;margin:12px clamp(12px,2.2vw,32px) 12px;max-width:none;min-height:0}
+.panel,.model-sidebar{border:1px solid rgba(106,178,235,.19);border-radius:15px;background:linear-gradient(150deg,rgba(15,31,56,.82),rgba(8,19,38,.82));box-shadow:0 15px 38px rgba(0,0,0,.25),inset 0 1px 0 rgba(218,244,255,.035);backdrop-filter:blur(20px)}
+.model-sidebar{display:flex;flex-direction:column;gap:0;min-width:0;overflow:auto;padding:0}
+.sidebar-heading{padding:17px 16px 15px;background:linear-gradient(135deg,rgba(26,112,158,.17),rgba(102,70,180,.12));border-bottom:1px solid rgba(111,186,240,.16)}
+.sidebar-heading .eyebrow{font-size:9px;letter-spacing:.17em;color:#69e9ef}
+.sidebar-heading h2{margin:5px 0 3px;font-size:17px;letter-spacing:.015em;color:#f0faff}
+.sidebar-heading p{margin:0;color:#91a9c4;font-size:10px}
+.sidebar-section{padding:14px 14px 13px;border-bottom:1px solid rgba(115,172,218,.12);display:flex;flex-direction:column;gap:11px}
+.sidebar-section-title{display:flex;align-items:center;gap:8px;color:#a9c5df;font-size:9px;font-weight:800;letter-spacing:.15em}
+.sidebar-pulse{width:6px;height:6px;border-radius:50%;background:#55e8ec;box-shadow:0 0 9px #55e8ec,0 0 17px rgba(85,232,236,.55);flex:0 0 auto}
+.sidebar-pulse.violet{background:#a78bff;box-shadow:0 0 9px #a78bff,0 0 17px rgba(167,139,255,.55)}
+.model-sidebar .field{margin:0}
+.model-sidebar .field label{color:#9cb5ce;font-size:9px;letter-spacing:.11em;margin-bottom:6px}
+.model-sidebar select{min-height:39px;border:1px solid rgba(105,174,229,.27);border-radius:9px;background:rgba(4,13,28,.78);color:#e5f5ff;box-shadow:inset 0 1px 0 rgba(255,255,255,.035);font-size:11px}
+.model-sidebar select:hover{border-color:rgba(76,207,255,.55);box-shadow:0 0 13px rgba(59,190,255,.10)}
+.model-sidebar select:focus{border-color:#55d7ff;box-shadow:0 0 0 2px rgba(75,203,255,.13),0 0 18px rgba(75,203,255,.13)}
+.range-row{border:1px solid rgba(105,174,229,.28);border-radius:9px;background:rgba(4,13,28,.82);min-height:40px}
+.range-row input{accent-color:#58e9ed}
+.range-row output{color:#78f4ef;text-shadow:0 0 10px rgba(98,241,237,.35)}
+.forecast-shortcuts{display:flex;flex-direction:column;gap:4px;padding:9px 10px;border:1px solid rgba(112,160,220,.14);border-radius:9px;background:rgba(10,24,47,.58)}
+.forecast-shortcuts span{font-size:8px;letter-spacing:.15em;color:#829dbb}
+.forecast-shortcuts b{font-size:10px;color:#c5e7ff;font-weight:600}
+.sidebar-footer{display:flex;align-items:flex-start;gap:8px;margin-top:auto;padding:13px 14px;color:#7f9ab7;font-size:9px;line-height:1.5}
+.map-panel{min-width:0;min-height:0;display:flex;flex-direction:column;border-color:rgba(81,190,245,.25);box-shadow:0 18px 55px rgba(0,0,0,.3),0 0 28px rgba(31,148,217,.055),inset 0 1px 0 rgba(225,248,255,.05)}
+.panel-heading{padding:13px 16px;background:linear-gradient(100deg,rgba(18,52,82,.68),rgba(32,34,78,.35));border-bottom:1px solid rgba(94,178,232,.17)}
+.panel-heading h2{font-size:15px;color:#effaff}
+.map-panel .panel-heading>.eyebrow{padding:6px 9px;border:1px solid rgba(86,205,244,.22);border-radius:7px;background:rgba(31,141,179,.09);color:#78dff0;font-size:8px}
+.map-wrap{position:relative;flex:1;min-height:0;background:#081426}
+#map{min-height:0;height:100%;background:#081426}
+.map-corner-label{position:absolute;z-index:500;top:12px;right:13px;padding:7px 10px;border:1px solid rgba(92,196,237,.2);border-radius:7px;background:rgba(5,15,30,.78);backdrop-filter:blur(12px);color:#b4cde3;font-size:8px;letter-spacing:.14em;pointer-events:none}
+.map-corner-label span{color:#5dece5;padding:0 4px}
+.map-chip{border:1px solid rgba(99,199,238,.28);border-radius:10px;background:rgba(5,15,30,.83);box-shadow:0 8px 24px rgba(0,0,0,.28),0 0 18px rgba(48,172,227,.08);backdrop-filter:blur(16px)}
+.map-legend{border:1px solid rgba(106,194,235,.25);border-radius:10px;background:rgba(5,14,28,.88);box-shadow:0 8px 24px rgba(0,0,0,.28),0 0 18px rgba(48,172,227,.08);backdrop-filter:blur(16px)}
+.map-actions{border-top:1px solid rgba(109,180,228,.16);background:rgba(7,17,34,.83)}
+.btn{border:1px solid rgba(100,172,226,.34);border-radius:8px;background:linear-gradient(135deg,rgba(21,53,83,.88),rgba(19,34,65,.9));color:#cfeaff;box-shadow:inset 0 1px 0 rgba(255,255,255,.055);transition:all .18s ease}
+.btn:hover{border-color:rgba(80,217,255,.75);background:linear-gradient(135deg,rgba(20,105,139,.72),rgba(58,47,119,.68));color:#fff;box-shadow:0 0 12px rgba(53,202,255,.23),0 0 25px rgba(53,202,255,.10),inset 0 0 12px rgba(77,223,255,.09);transform:translateY(-1px)}
+.btn.primary{border-color:rgba(82,226,242,.8);background:linear-gradient(120deg,rgba(16,136,166,.85),rgba(55,77,164,.82));color:#fff;box-shadow:0 0 13px rgba(64,221,236,.24),inset 0 1px 0 rgba(255,255,255,.17)}
+.btn.primary:hover{box-shadow:0 0 17px rgba(64,221,236,.4),0 0 34px rgba(64,221,236,.17),inset 0 0 14px rgba(255,255,255,.12)}
+.checks label{color:#b6cce0}
+.rightcol{gap:11px;min-width:0;min-height:0}
+.panel>h2,.rightcol .panel>h2{padding:12px 14px;background:linear-gradient(100deg,rgba(18,52,82,.55),rgba(32,34,78,.24));border-bottom:1px solid rgba(94,178,232,.14);color:#e5f6ff;font-size:11px;letter-spacing:.11em;text-transform:uppercase}
+.metric{border:1px solid rgba(94,178,232,.18);border-radius:10px;background:linear-gradient(145deg,rgba(21,53,83,.56),rgba(9,22,44,.72));box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}
+.metric strong{color:#effaff;text-shadow:0 0 14px rgba(75,190,255,.12)}
+.placeholder{border-color:rgba(111,178,220,.22);background:rgba(5,16,32,.43);color:#9ab2cb}
+.pad{padding:11px 14px}
+.detail-line{border-bottom-color:rgba(115,172,218,.13)}
+.detail-line span:first-child{color:#8fa9c5}
+.detail-line b{color:#d9efff}
+.notice{border-color:rgba(255,202,117,.22);background:rgba(255,190,90,.055);color:#d8c28e}
+.bottom-grid{gap:12px;margin:0 clamp(12px,2.2vw,32px) 12px}
+.leaflet-control-zoom a{background:rgba(7,20,39,.92)!important;color:#bceeff!important;border-color:rgba(93,180,230,.35)!important;box-shadow:0 0 12px rgba(47,175,235,.08)!important}
+.leaflet-control-attribution{background:rgba(4,12,25,.78)!important;color:#8ca8c2!important}
+.leaflet-control-attribution a{color:#69d9ef!important}
+@media(min-width:901px){
+ html,body{height:100%;overflow:hidden}
+ body{height:100vh;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+ .topbar{flex:0 0 auto}
+ #tabs{flex:0 0 auto}
+ .layout{flex:1 1 auto;height:calc(100vh - 150px);min-height:0;overflow:hidden}
+ .model-sidebar{height:100%;min-height:0}
+ .map-panel{height:100%;min-height:0}
+ .map-wrap{min-height:0;flex:1 1 auto}
+ #map{height:100%;min-height:0}
+ .rightcol{overflow:auto}
+ .bottom-grid,#modelComparisonPanel,.foot,.legacy-profile-host{display:none!important}
+ body[data-active-tab="cross"] .layout,body[data-active-tab="evolution"] .layout{height:42vh;flex:0 0 42vh}
+ body[data-active-tab="cross"] .bottom-grid,body[data-active-tab="evolution"] .bottom-grid{display:grid!important;flex:0 0 34vh;height:34vh;min-height:0;margin:0 clamp(12px,2.2vw,32px) 8px;grid-template-columns:minmax(0,1.3fr) minmax(260px,1fr)}
+ body[data-active-tab="cross"] #crossSectionPlot,body[data-active-tab="evolution"] #trend{height:25vh!important;min-height:0!important}
+ body[data-active-tab="compare"] .layout{height:36vh;flex:0 0 36vh}
+ body[data-active-tab="compare"] #modelComparisonPanel{display:block!important;flex:0 0 38vh;height:38vh;overflow:auto;margin:0 clamp(12px,2.2vw,32px) 8px!important}
+}
+@media(max-width:900px){
+ body{display:block;height:auto;min-height:100vh;overflow:auto}
+ .layout{display:grid;grid-template-columns:minmax(0,1fr);height:auto;min-height:0;overflow:visible}
+ .model-sidebar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible}
+ .sidebar-heading,.sidebar-footer{grid-column:1/-1}
+ .sidebar-section{padding:12px}
+ .map-panel{height:auto;min-height:550px}
+ .map-wrap,#map{height:500px;min-height:500px}
+ .rightcol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+ .rightcol>.panel:nth-child(2){grid-row:span 2}
+ .bottom-grid{display:grid}
+ .foot{display:block}
+}
+@media(max-width:620px){
+ .topbar{align-items:flex-start;flex-direction:column}
+ .header-right{width:100%;justify-content:space-between}
+ #tabs{padding:7px 9px}
+ #tabs button{padding:8px 10px;font-size:10px}
+ .layout,.bottom-grid{margin-left:9px;margin-right:9px;gap:9px}
+ .model-sidebar{grid-template-columns:1fr}
+ .sidebar-heading,.sidebar-footer{grid-column:auto}
+ .rightcol{display:flex;flex-direction:column}
+ .map-panel{min-height:520px}
+ .map-wrap,#map{height:450px;min-height:450px}
+ .map-corner-label{top:8px;right:8px;font-size:7px}
+}
+
 </style>
 </head>
 <body>
 <header class="topbar"><div class="brand"><div class="mark">BTV</div><div><h1>Mesoscale Detective</h1><p>NWS Burlington · Vermont &amp; Northern New York</p></div></div><div class="header-right"><span class="status" id="feedStatus">MODEL FEED NOT CONNECTED</span><span id="clock">--:-- UTC</span></div></header>
 <nav id="tabs" aria-label="Analysis workspaces"><button class="active" data-tab="environment">Environment</button><button data-tab="soundings">Soundings</button><button data-tab="kinematics">Kinematics &amp; Forcing</button><button data-tab="cross">Cross-Sections</button><button data-tab="compare">Model Compare</button><button data-tab="evolution">Time Evolution</button></nav>
-<section class="control-deck" aria-label="Model and forecast controls"><div class="deck-topline"><span class="eyebrow">Model explorer</span><span class="deck-hint">Choose a model, valid cycle, forecast hour and field to update the regional map</span></div><div class="control-grid">
-<div class="field"><label for="model">Model</label><select id="model"><option value="RAP" selected>RAP · 13 km · decoded</option><option value="HRRR">HRRR · 3 km · surface archive</option><option value="RRFS" disabled>RRFS · 3 km · experimental subset</option></select></div>
-<div class="field"><label for="cycle">Model cycle · UTC</label><select id="cycle"><option>Latest available cycle</option></select></div>
-<div class="field"><label for="hour">Forecast hour</label><div class="range-row"><input id="hour" type="range" min="0" max="18" value="0"><output id="hourOut">F00</output></div></div>
-<div class="field"><label for="category">Variable category</label><select id="category"><option value="all">All available variables</option><option value="thermodynamics">Thermodynamics &amp; instability</option><option value="moisture">Moisture &amp; precipitation</option><option value="kinematics">Winds &amp; kinematics</option><option value="forcing">Lift &amp; forcing</option><option value="surface">Surface &amp; boundary layer</option><option value="reflectivity">Radar &amp; reflectivity</option><option value="aviation">Visibility &amp; aviation</option><option value="winter">Winter weather &amp; hydrometeors</option><option value="land">Land &amp; soil</option><option value="energy">Surface energy fluxes</option><option value="other">Other native fields</option></select></div>
-<div class="field"><label for="parameter">Map variable</label><select id="parameter"><option data-category="surface" value="surface">Surface observations</option><option data-category="thermodynamics" value="cape">CAPE / CIN</option><option data-category="kinematics" value="shear">0–6 km bulk shear</option><option data-category="kinematics" value="srh">0–1 km SRH</option><option data-category="moisture" value="pwat">Precipitable water</option><option data-category="thermodynamics" value="lapse">700–500 mb lapse rate</option><option data-category="forcing" value="fronto">850 mb frontogenesis</option><option data-category="forcing" value="omega">700 mb vertical velocity (omega)</option><option data-category="forcing" value="moisture">925 mb moisture convergence</option><option data-category="thermodynamics" value="hrrr_temp" hidden disabled>HRRR 2-m temperature</option><option data-category="thermodynamics" value="hrrr_dewpoint" hidden disabled>HRRR 2-m dewpoint</option><option data-category="kinematics" value="hrrr_wind" hidden disabled>HRRR 10-m wind speed</option><option data-category="kinematics" value="hrrr_gust" hidden disabled>HRRR wind gust</option><option data-category="reflectivity" value="hrrr_refc" hidden disabled>HRRR composite reflectivity</option><option data-category="aviation" value="hrrr_vis" hidden disabled>HRRR visibility</option><option data-category="thermodynamics" value="hrrr_cin" hidden disabled>HRRR convective inhibition</option><option data-category="surface" value="hrrr_blh" hidden disabled>HRRR boundary-layer height</option></select></div>
-</div></section>
 <main class="layout">
-<section class="panel map-panel"><div class="panel-heading"><div><span class="eyebrow">Regional analysis</span><h2 id="mapTitle">Environment · Surface observations</h2></div><span class="eyebrow">BTV forecast area</span></div><div class="map-wrap"><div id="map"></div><div class="map-chip" id="mapChip">BTV CWA · Click map to interrogate a point</div><div class="map-legend" id="mapLegend"><div class="legend-title">Map base · OpenStreetMap</div><div class="legend-subtitle">Select a model field to display its color scale</div></div></div>
+<aside class="model-sidebar panel" aria-label="Model and field controls">
+  <div class="sidebar-heading"><span class="eyebrow">Atmospheric workstation</span><h2>Model Explorer</h2><p>Choose a guidance source and map field</p></div>
+  <div class="sidebar-section"><div class="sidebar-section-title"><span class="sidebar-pulse"></span> MODEL &amp; CYCLE</div>
+    <div class="field"><label for="model">Model guidance</label><select id="model"><option value="RAP" selected>RAP · 13 km · decoded</option><option value="HRRR">HRRR · 3 km · surface archive</option><option value="RRFS" disabled>RRFS · 3 km · experimental subset</option></select></div>
+    <div class="field"><label for="cycle">Initialization · UTC</label><select id="cycle"><option>Latest available cycle</option></select></div>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-title"><span class="sidebar-pulse violet"></span> FORECAST LEAD</div>
+    <div class="field"><label for="hour">Forecast hour</label><div class="range-row"><input id="hour" type="range" min="0" max="18" value="0"><output id="hourOut">F00</output></div></div>
+    <div class="forecast-shortcuts"><span>VALID TIME</span><b id="sidebarValidTime">Awaiting model archive</b></div>
+  </div>
+  <div class="sidebar-section field-stack"><div class="sidebar-section-title"><span class="sidebar-pulse"></span> MAP FIELD</div>
+    <div class="field"><label for="category">Product category</label><select id="category"><option value="all">All available variables</option><option value="thermodynamics">Thermodynamics &amp; instability</option><option value="moisture">Moisture &amp; precipitation</option><option value="kinematics">Winds &amp; kinematics</option><option value="forcing">Lift &amp; forcing</option><option value="surface">Surface &amp; boundary layer</option><option value="reflectivity">Radar &amp; reflectivity</option><option value="aviation">Visibility &amp; aviation</option><option value="winter">Winter weather &amp; hydrometeors</option><option value="land">Land &amp; soil</option><option value="energy">Surface energy fluxes</option><option value="other">Other native fields</option></select></div>
+    <div class="field"><label for="parameter">Meteorological variable</label><select id="parameter"><option data-category="surface" value="surface">Surface observations</option><option data-category="thermodynamics" value="cape">CAPE / CIN</option><option data-category="kinematics" value="shear">0–6 km bulk shear</option><option data-category="kinematics" value="srh">0–1 km SRH</option><option data-category="moisture" value="pwat">Precipitable water</option><option data-category="thermodynamics" value="lapse">700–500 mb lapse rate</option><option data-category="forcing" value="fronto">850 mb frontogenesis</option><option data-category="forcing" value="omega">700 mb vertical velocity (omega)</option><option data-category="forcing" value="moisture">925 mb moisture convergence</option><option data-category="thermodynamics" value="hrrr_temp" hidden disabled>HRRR 2-m temperature</option><option data-category="thermodynamics" value="hrrr_dewpoint" hidden disabled>HRRR 2-m dewpoint</option><option data-category="kinematics" value="hrrr_wind" hidden disabled>HRRR 10-m wind speed</option><option data-category="kinematics" value="hrrr_gust" hidden disabled>HRRR wind gust</option><option data-category="reflectivity" value="hrrr_refc" hidden disabled>HRRR composite reflectivity</option><option data-category="aviation" value="hrrr_vis" hidden disabled>HRRR visibility</option><option data-category="thermodynamics" value="hrrr_cin" hidden disabled>HRRR convective inhibition</option><option data-category="surface" value="hrrr_blh" hidden disabled>HRRR boundary-layer height</option></select></div>
+  </div>
+  <div class="sidebar-footer"><span class="sidebar-pulse"></span><span>Verified fields only · source metadata retained</span></div>
+</aside><main class="layout">
+<section class="panel map-panel"><div class="panel-heading"><div><span class="eyebrow">Regional analysis</span><h2 id="mapTitle">Environment · Surface observations</h2></div><span class="eyebrow">BTV forecast area</span></div><div class="map-wrap"><div class="map-corner-label">LIVE MODEL FIELD <span>•</span> NORTHEAST DOMAIN</div><div id="map"></div><div class="map-chip" id="mapChip">BTV CWA · Click map to interrogate a point</div><div class="map-legend" id="mapLegend"><div class="legend-title">Map base · OpenStreetMap</div><div class="legend-subtitle">Select a model field to display its color scale</div></div></div>
 <div class="map-actions"><div class="overlay-tools"><span class="tool-label">Overlays</span><div class="checks"><label><input type="checkbox" checked id="stations"> Stations</label><label><input type="checkbox" id="radar"> MRMS radar</label><label><input type="checkbox" checked id="county"> CWA context</label><label><input type="checkbox" checked id="contours"> Base contours</label><label><input type="checkbox" id="terrain"> Terrain</label></div></div><button class="btn" id="drawTransect">Draw cross-section line</button><button class="btn" id="clearTransect">Clear line</button><button class="btn" id="locateBtv">Select KBTV</button><button class="btn primary" id="reset">Reset view</button><div class="point-badge"><span>Selected point</span><span id="pointReadout"><b>KBTV</b></span><span id="coords">44.4719°N, 73.1533°W</span></div><span id="selectionStatus">Selected: KBTV</span></div></section>
 <aside class="rightcol">
 <section class="panel"><h2>Point diagnostics</h2><div class="metrics" id="metrics"><div class="metric"><span>MUCAPE</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>MLCAPE</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>MLCIN</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>PWAT</span><strong>—</strong><small>mm</small></div><div class="metric"><span>0–6 km shear</span><strong>—</strong><small>kt</small></div><div class="metric"><span>0–1 km SRH</span><strong>—</strong><small>m²/s²</small></div></div><div class="placeholder">RAP profiles are available at the eight listed stations only. Custom map points will not inherit station diagnostics.</div></section>
