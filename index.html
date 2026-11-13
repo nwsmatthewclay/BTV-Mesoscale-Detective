@@ -822,8 +822,10 @@ function updateParameterOptions(){
   }
   const selected=select.selectedOptions[0];
   if(!selected||selected.hidden||selected.disabled){
-    const first=Array.from(select.options).find(option=>!option.hidden&&!option.disabled);
-    if(first)select.value=first.value;
+    const available=Array.from(select.options).filter(option=>!option.hidden&&!option.disabled);
+    const preferred=available.find(option=>option.value===(model==='HRRR'?'hrrr_temp':'cape'));
+    const fallback=preferred||available[0];
+    if(fallback)select.value=fallback.value;
   }
 }
 document.getElementById('model').addEventListener('change',async()=>{
