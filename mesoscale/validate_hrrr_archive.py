@@ -226,6 +226,7 @@ def archive_needs_update(
     quality_passed = isinstance(quality, dict) and quality.get("status") == "passed"
     archive_is_current = (
         existing_archive.get("model") == "HRRR"
+        and existing_archive.get("domain") == DOMAIN
         and existing_archive.get("product") == "surface"
         and existing_archive.get("publishing") is True
         and existing_cycle_time is not None
@@ -252,7 +253,7 @@ def main() -> None:
         default="",
         help="RAP model cycle used to define the requested valid times",
     )
-    parser.add_argument("--max-grid-dim", type=int, default=160)
+    parser.add_argument("--max-grid-dim", type=int, default=320)
     args = parser.parse_args()
 
     hours = tuple(sorted({int(value) for value in args.hours.split(",") if value.strip()}))
@@ -306,7 +307,7 @@ def main() -> None:
         "product": "surface",
         "model_cycle_utc": cycle,
         "created_utc": datetime.now(timezone.utc).isoformat(),
-        "domain": {"west": -75.2, "east": -71.2, "south": 42.3, "north": 45.3},
+        "domain": dict(DOMAIN),
         "hours": entries,
         "quality": {"status": "passed", "hours_verified": len(entries)},
         "publishing": False,
