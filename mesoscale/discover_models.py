@@ -185,27 +185,45 @@ def discover_rrfs(session, days_back):
                 family = match.group("family")
                 forecast = match.group("forecast")
                 subhourly = bool(match.group("subhourly"))
-                found.append({
+                item = {
                     "model": "RRFS", "date": date_str,
                     "cycle_utc": f"{date_str}T{cycle}:00:00Z",
-                    "forecast_hour": int(forecast),
                     "product": rrfs_product_role(family, subhourly=subhourly),
                     "resolution_km": 3, "domain": "conus",
                     "filename": filename, "url": url,
-                })
+                }
+                if subhourly:
+                    # RRFS subh F001 is a 15-minute lead, not one forecast hour.
+                    item.update({
+                        "forecast_step": int(forecast),
+                        "forecast_lead_minutes": int(forecast) * 15,
+                        "forecast_interval_minutes": 15,
+                    })
+                else:
+                    item["forecast_hour"] = int(forecast)
+                found.append(item)
     return found
 
 
-def prioritize_latest_products(products: list[dict], limit: int = 120) -> list[dict]:
-    """Keep the newest cycle first while retaining the shortest forecast hours.
+def product_lead_minutes(product: dict) -> int:
+    """Return a product's forecast lead in minutes without assuming all steps are hourly."""
+    if product.get("forecast_lead_minutes") is not None:
+        return int(product["forecast_lead_minutes"])
+    if product.get("forecast_hour") is not None:
+        return int(product["forecast_hour"]) * 60
+    return 0
 
-    Short-range RAP fields are needed for the BTV forecast archive. Sorting
-    forecast hour descending before truncation silently dropped F00-F09 once
-    longer RAP forecast hours became available.
+
+def prioritize_latest_products(products: list[dict], limit: int = 120) -> list[dict]:
+    """Keep the newest cycle first while retaining the shortest forecast leads.
+
+    RAP/HRRR and hourly RRFS products use forecast_hour. RRFS sub-hourly
+    products carry forecast_lead_minutes because their FFFF token is a
+    15-minute step number, not an integer number of hours.
     """
     ordered = sorted(
         products,
-        key=lambda p: (p["cycle_utc"], -int(p["forecast_hour"]), p["product"]),
+        key=lambda p: (p["cycle_utc"], -product_lead_minutes(p), p["product"]),
         reverse=True,
     )
     return ordered[:limit]

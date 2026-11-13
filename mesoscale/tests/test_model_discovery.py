@@ -1,5 +1,9 @@
+from datetime import datetime, timezone
+from urllib.parse import urljoin
+
 import pytest
 
+from mesoscale import discover_models
 from mesoscale.discover_models import (
     RAP_FILENAME_RE,
     RRFS_CYCLE_DIR_RE,
@@ -51,6 +55,45 @@ def test_rrfs_cycle_directory_is_two_digits():
     assert RRFS_CYCLE_DIR_RE.fullmatch("21")
     assert not RRFS_CYCLE_DIR_RE.fullmatch("conus")
     assert not RRFS_CYCLE_DIR_RE.fullmatch("20261112")
+
+
+def test_discover_rrfs_records_subhourly_lead_in_minutes(monkeypatch):
+    date = datetime.now(timezone.utc).strftime("%Y%m%d")
+    day_dir = f"{discover_models.BASE}/rrfs/prod/rrfs.{date}/"
+    filename = "rrfs.t21z.2dfld.3km.subh.f003.conus.grib2"
+
+    def fake_get_listing(session, url):
+        if url == day_dir:
+            return [urljoin(url, "21/")]
+        if url.endswith("/21/"):
+            return [urljoin(url, filename)]
+        return []
+
+    monkeypatch.setattr(discover_models, "get_listing", fake_get_listing)
+    products = discover_models.discover_rrfs(object(), 0)
+    item = next(product for product in products if product["filename"] == filename)
+
+    assert item["product"] == "surface_subhourly_3km"
+    assert item["forecast_step"] == 3
+    assert item["forecast_lead_minutes"] == 45
+    assert item["forecast_interval_minutes"] == 15
+    assert "forecast_hour" not in item
+
+
+def test_prioritize_latest_products_uses_true_subhourly_lead_minutes():
+    cycle = "20261112T22:00:00Z"
+    products = [
+        {"cycle_utc": cycle, "forecast_hour": 1, "product": "surface_2d_3km"},
+        {"cycle_utc": cycle, "forecast_step": 3, "forecast_lead_minutes": 45,
+         "product": "surface_subhourly_3km"},
+        {"cycle_utc": cycle, "forecast_step": 1, "forecast_lead_minutes": 15,
+         "product": "surface_subhourly_3km"},
+    ]
+
+    ordered = prioritize_latest_products(products)
+
+    assert [product.get("forecast_lead_minutes", product.get("forecast_hour") * 60)
+            for product in ordered] == [15, 45, 60]
 
 
 def test_rap_operational_filename_families():
