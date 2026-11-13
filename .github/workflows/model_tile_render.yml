@@ -1,5 +1,5 @@
 name: Render RAP and HRRR Model Tiles
-# Automatically publish every eligible 2-D field in each verified forecast archive.
+# Render the latest cycle's F00 variable inventory; other forecast hours remain native-grid-only.
 
 on:
   push:
@@ -54,6 +54,7 @@ jobs:
           import gzip, json, subprocess, sys
           from pathlib import Path
           import numpy as np
+          from mesoscale.render_model_tiles import summarize_forecast_hour_coverage
 
           manifest_path, model = Path(sys.argv[1]), sys.argv[2]
           manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -63,8 +64,9 @@ jobs:
               raise SystemExit(f"Refusing to render unverified {model} archive")
           root = manifest_path.parent
           rendered = 0
+          rendered_forecast_hours = []
           skipped = []
-          # Stage 1 publishes the complete variable inventory at the latest cycle's F00.
+          # Stage 1 renders the complete variable inventory at the latest cycle's F00 only.
           # Other forecast hours continue to use the native-grid renderer until staged expansion.
           for hour in manifest.get("hours", [])[:1]:
               grid_path = root / hour["grid_file"]
@@ -78,6 +80,7 @@ jobs:
                   raise SystemExit(f"{model} grid provenance mismatch: {grid_path}")
               if hour.get("valid_time_utc") and payload.get("valid_time_utc") != hour["valid_time_utc"]:
                   raise SystemExit(f"{model} grid valid time mismatch: {grid_path}")
+              hour_rendered = 0
               for field_key, field in payload.get("fields", {}).items():
                   data = np.squeeze(np.asarray(field.get("data"), dtype=float))
                   if data.ndim != 2:
@@ -116,7 +119,21 @@ jobs:
                           continue
                       raise RuntimeError(f"Tile rendering failed for {model} {field_key}: {message[-3000:]}")
                   rendered += 1
-          print(f"{model}: rendered {rendered} 2-D fields across {len(manifest.get('hours', []))} forecast hours")
+                  hour_rendered += 1
+              if hour_rendered:
+                  rendered_forecast_hours.append(int(hour["forecast_hour"]))
+          coverage = summarize_forecast_hour_coverage(manifest.get("hours", []), rendered_forecast_hours)
+          print(
+              f"{model}: rendered {rendered} 2-D fields for forecast hours "
+              f"{coverage['rendered_hours']} ({len(coverage['rendered_hours'])}/"
+              f"{len(coverage['archive_hours'])} verified archive hours)"
+          )
+          if coverage["not_rendered_hours"]:
+              print(
+                  f"{model}: tile products not generated for forecast hours "
+                  f"{coverage['not_rendered_hours']}; those hours remain available "
+                  "through the native-grid viewer"
+              )
           if skipped:
               print(f"{model}: skipped {len(skipped)} fields with invalid geometry/data; first examples: {skipped[:12]}")
           if rendered == 0:
@@ -150,6 +167,7 @@ jobs:
           print(f"Published {len(products)} model tile products")
           PY
       - name: Publish tile archive
+        id: publish
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -172,3 +190,36 @@ jobs:
           done
           echo "Unable to publish tile archive after five push attempts."
           exit 1
+
+  deploy-pages:
+    needs: render-and-publish
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out latest published main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .
+      - name: Wait for GitHub Pages artifact metadata
+        run: sleep 10
+      - name: Deploy tile catalog and model archives to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}

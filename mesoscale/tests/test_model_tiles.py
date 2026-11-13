@@ -8,7 +8,32 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from mesoscale.render_model_tiles import TILE_MAX_GRID_DIM, render_tiles
+from mesoscale.render_model_tiles import (
+    TILE_MAX_GRID_DIM,
+    render_tiles,
+    summarize_forecast_hour_coverage,
+)
+
+
+def test_tile_coverage_reports_only_forecast_hours_actually_rendered():
+    hours = [{"forecast_hour": value} for value in (0, 3, 6, 9, 12, 15)]
+
+    coverage = summarize_forecast_hour_coverage(hours, [0])
+
+    assert coverage == {
+        "archive_hours": [0, 3, 6, 9, 12, 15],
+        "rendered_hours": [0],
+        "not_rendered_hours": [3, 6, 9, 12, 15],
+    }
+
+
+def test_tile_coverage_rejects_unknown_or_duplicate_forecast_hours():
+    import pytest
+
+    with pytest.raises(ValueError, match="absent from the archive"):
+        summarize_forecast_hour_coverage([{"forecast_hour": 0}], [3])
+    with pytest.raises(ValueError, match="duplicate forecast hours"):
+        summarize_forecast_hour_coverage([{"forecast_hour": 0}, {"forecast_hour": 0}], [0])
 
 
 def test_render_native_grid_to_xyz_raster_and_independent_contours(tmp_path: Path):
