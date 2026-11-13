@@ -8,6 +8,12 @@ ROOT = Path(__file__).resolve().parents[2]
 ARCHIVE = ROOT / "mesoscale/data/fields/forecast/fields/rap_f00.json.gz"
 
 
+def _shape(value):
+    return [len(value), *_shape(value[0])] if isinstance(value, list) and value else (
+        [0] if isinstance(value, list) else []
+    )
+
+
 def test_print_verified_rap_field_inventory():
     assert ARCHIVE.is_file(), f"Expected committed RAP archive not found: {ARCHIVE}"
     with gzip.open(ARCHIVE, "rt", encoding="utf-8") as stream:
@@ -28,11 +34,7 @@ def test_print_verified_rap_field_inventory():
                 for name, values in levels.items()
             },
             "grid_id": field.get("grid_id"),
-            "shape": [
-                len(field["data"]),
-                len(field["data"][0]) if field["data"] else 0,
-                len(field["data"][0][0]) if field["data"] and field["data"][0] else 0,
-            ],
+            "shape": _shape(field.get("data", [])),
         })
 
     print("VERIFIED_RAP_F00_FIELD_INVENTORY=" + json.dumps(catalog, sort_keys=True))
