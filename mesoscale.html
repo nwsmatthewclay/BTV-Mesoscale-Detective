@@ -42,7 +42,8 @@ select,input[type=range]{width:100%}select{background:#071827;color:var(--text);
 <div class="field"><label>Model</label><select id="model"><option value="RAP" selected>RAP · 13 km · decoded</option><option value="HRRR">HRRR · 3 km · surface archive</option><option value="RRFS" disabled>RRFS · 3 km · experimental subset</option></select></div>
 <div class="field"><label>Model cycle</label><select id="cycle"><option>Latest available cycle</option></select></div>
 <div class="field"><label>Forecast hour</label><div class="range-row"><input id="hour" type="range" min="0" max="18" value="0"><output id="hourOut">F00</output></div></div>
-<div class="field"><label>Map parameter</label><select id="parameter"><option value="surface">Surface observations</option><option value="cape">CAPE / CIN</option><option value="shear">0–6 km bulk shear</option><option value="srh">0–1 km SRH</option><option value="pwat">Precipitable water</option><option value="lapse">700–500 mb lapse rate</option><option value="fronto">850 mb frontogenesis</option><option value="omega">700 mb vertical velocity</option><option value="moisture">925 mb moisture convergence</option><option value="hrrr_temp" hidden disabled>HRRR 2-m temperature</option><option value="hrrr_dewpoint" hidden disabled>HRRR 2-m dewpoint</option><option value="hrrr_wind" hidden disabled>HRRR 10-m wind speed</option><option value="hrrr_gust" hidden disabled>HRRR wind gust</option><option value="hrrr_refc" hidden disabled>HRRR composite reflectivity</option><option value="hrrr_vis" hidden disabled>HRRR visibility</option><option value="hrrr_cin" hidden disabled>HRRR convective inhibition</option><option value="hrrr_blh" hidden disabled>HRRR boundary-layer height</option></select></div>
+<div class="field"><label>Variable category</label><select id="category"><option value="all">All available variables</option><option value="thermodynamics">Thermodynamics &amp; instability</option><option value="moisture">Moisture &amp; precipitation</option><option value="kinematics">Winds &amp; kinematics</option><option value="forcing">Lift &amp; forcing</option><option value="surface">Surface &amp; boundary layer</option><option value="reflectivity">Radar &amp; reflectivity</option><option value="aviation">Visibility &amp; aviation</option></select></div>
+<div class="field"><label>Map parameter</label><select id="parameter"><option data-category="surface" value="surface">Surface observations</option><option data-category="thermodynamics" value="cape">CAPE / CIN</option><option data-category="kinematics" value="shear">0–6 km bulk shear</option><option data-category="kinematics" value="srh">0–1 km SRH</option><option data-category="moisture" value="pwat">Precipitable water</option><option data-category="thermodynamics" value="lapse">700–500 mb lapse rate</option><option data-category="forcing" value="fronto">850 mb frontogenesis</option><option data-category="forcing" value="omega">700 mb vertical velocity (omega)</option><option data-category="forcing" value="moisture">925 mb moisture convergence</option><option data-category="thermodynamics" value="hrrr_temp" hidden disabled>HRRR 2-m temperature</option><option data-category="thermodynamics" value="hrrr_dewpoint" hidden disabled>HRRR 2-m dewpoint</option><option data-category="kinematics" value="hrrr_wind" hidden disabled>HRRR 10-m wind speed</option><option data-category="kinematics" value="hrrr_gust" hidden disabled>HRRR wind gust</option><option data-category="reflectivity" value="hrrr_refc" hidden disabled>HRRR composite reflectivity</option><option data-category="aviation" value="hrrr_vis" hidden disabled>HRRR visibility</option><option data-category="thermodynamics" value="hrrr_cin" hidden disabled>HRRR convective inhibition</option><option data-category="surface" value="hrrr_blh" hidden disabled>HRRR boundary-layer height</option></select></div>
 <div class="field"><label>Overlays</label><div class="checks">
 <label><input type="checkbox" checked id="stations"> Stations</label><label><input type="checkbox" id="radar"> MRMS radar</label><label><input type="checkbox" id="county" checked> CWA context</label><label><input type="checkbox" id="terrain"> Terrain</label>
 </div></div>
@@ -145,6 +146,7 @@ document.getElementById('model').onchange=e=>{
   const model=e.target.value;
   document.getElementById('gridSpacing').textContent=model==='HRRR'?'3 km nominal':(model==='RAP'?'13 km nominal':'3 km nominal · not decoded');
   document.querySelector('#investigation .detail-line:nth-child(1) b').textContent=model;
+  if(typeof updateParameterOptions==='function')updateParameterOptions();
 };
 document.getElementById('parameter').onchange=e=>{
   const label=e.target.options[e.target.selectedIndex].text;
@@ -800,14 +802,20 @@ async function loadModelManifest(){
 }
 function updateParameterOptions(){
   const model=document.getElementById('model').value;
+  const category=document.getElementById('category').value;
   const select=document.getElementById('parameter');
   for(const option of select.options){
     const hrrrOption=option.value.startsWith('hrrr_');
-    const show=model==='HRRR'?hrrrOption:!hrrrOption;
+    const modelAvailable=model==='HRRR'?hrrrOption:!hrrrOption;
+    const categoryAvailable=category==='all'||option.dataset.category===category;
+    const show=modelAvailable&&categoryAvailable;
     option.hidden=!show;option.disabled=!show;
   }
-  if(model==='HRRR'&&!select.value.startsWith('hrrr_'))select.value='hrrr_temp';
-  if(model!=='HRRR'&&select.value.startsWith('hrrr_'))select.value='cape';
+  const selected=select.selectedOptions[0];
+  if(!selected||selected.hidden||selected.disabled){
+    const first=Array.from(select.options).find(option=>!option.hidden&&!option.disabled);
+    if(first)select.value=first.value;
+  }
 }
 document.getElementById('model').addEventListener('change',async()=>{
   const nextModel=document.getElementById('model').value;
@@ -828,6 +836,7 @@ document.getElementById('model').addEventListener('change',async()=>{
   if(window.activeTab==='evolution')updateRapTimeEvolution();
   if(window.activeTab==='compare')updateModelComparison();
 });
+document.getElementById('category').addEventListener('change',()=>{updateParameterOptions();updateRapParameter();});
 document.getElementById('parameter').addEventListener('change',updateRapParameter);
 document.getElementById('hour').addEventListener('input',()=>{
   const slider=document.getElementById('hour');
