@@ -22,7 +22,8 @@ MAX_DOWNLOAD_BYTES = 250_000_000
 RAP_PRODUCT = "pressure_levels_conus_13km"
 HRRR_PRODUCT = "surface"
 
-RAP_VARIABLES = ["TMP", "RH", "HGT", "UGRD", "VGRD"]
+RAP_VARIABLES = ["TMP", "RH", "HGT", "UGRD", "VGRD", "SNOD", "WEASD"]
+RAP_SURFACE_LEVELS = ["surface"]
 RAP_LEVELS = [
     1000, 975, 950, 925, 900, 875, 850, 825, 800, 775, 750, 725,
     700, 675, 650, 625, 600, 575, 550, 525, 500, 475, 450, 425,
@@ -63,7 +64,7 @@ def filter_url(model: str, product: dict) -> str:
         script = "filter_rap.pl"
         directory = f"/rap.{product['date']}"
         variables = RAP_VARIABLES
-        levels = [f"{level}_mb" for level in RAP_LEVELS]
+        levels = [f"{level}_mb" for level in RAP_LEVELS] + RAP_SURFACE_LEVELS
     elif model == "HRRR":
         if product.get("product") != HRRR_PRODUCT:
             raise ValueError(f"HRRR subset requires {HRRR_PRODUCT}, got {product.get('product')!r}")
