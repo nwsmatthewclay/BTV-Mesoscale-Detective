@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Non-publishing HRRR surface-subset smoke test for the BTV domain."""
+"""Non-publishing HRRR surface-subset smoke test for the shared regional domain."""
 from __future__ import annotations
 
 import argparse
@@ -16,11 +16,10 @@ if str(REPO_ROOT) not in sys.path:
 import requests
 
 from mesoscale.download_subset import download, select_product
-from mesoscale.process_grib import process_file
+from mesoscale.process_grib import DOMAIN, process_file, validate_grid_coverage
 
 DEFAULT_MANIFEST = Path("mesoscale/data/model_manifest.json")
 DEFAULT_OUTPUT = Path("mesoscale/data/ingestion_smoke/hrrr")
-BTV = {"west": -75.2, "east": -71.2, "south": 42.3, "north": 45.3}
 REQUIRED_GROUPS = {
     "2-m temperature": {"2t", "t2m"},
     "10-m u wind": {"10u", "u10"},
@@ -41,7 +40,7 @@ def finite_value_count(value) -> int:
 
 
 def validate_payload(payload: dict, expected_cycle: str, expected_hour: int) -> dict:
-    """Validate decoded HRRR metadata, BTV grid coverage, and core surface fields."""
+    """Validate decoded HRRR metadata, full regional grid coverage, and core surface fields."""
     if payload.get("model") != "HRRR":
         raise RuntimeError(f"Expected HRRR payload, got {payload.get('model')!r}")
     if payload.get("model_cycle_utc") != expected_cycle:
@@ -59,19 +58,12 @@ def validate_payload(payload: dict, expected_cycle: str, expected_hour: int) -> 
     if not grids or not fields:
         raise RuntimeError("Decoded HRRR payload contains no regional grids or fields")
 
-    btv_coverage = False
-    for grid in grids.values():
-        latitudes = list(iter_finite_numbers(grid.get("latitude")))
-        longitudes = list(iter_finite_numbers(grid.get("longitude")))
-        if any(
-            BTV["south"] <= lat <= BTV["north"]
-            and BTV["west"] <= lon <= BTV["east"]
-            for lat, lon in zip(latitudes, longitudes)
-        ):
-            btv_coverage = True
-            break
-    if not btv_coverage:
-        raise RuntimeError("Decoded HRRR grids contain no coordinates inside the BTV domain")
+    if payload.get("domain") != DOMAIN:
+        raise RuntimeError(
+            f"HRRR payload domain mismatch: expected {DOMAIN}, got {payload.get('domain')!r}"
+        )
+    grid_coverage = validate_grid_coverage(grids, DOMAIN)
+    valid_grid_ids = {item["grid_id"] for item in grid_coverage["grid_bounds"]}
 
     found_groups = {}
     missing_groups = []
@@ -79,6 +71,7 @@ def validate_payload(payload: dict, expected_cycle: str, expected_hour: int) -> 
         matches = [
             field for field in fields.values()
             if field.get("short_name") in accepted_names
+            and field.get("grid_id") in valid_grid_ids
             and finite_value_count(field.get("data")) > 0
         ]
         if not matches:
@@ -103,6 +96,7 @@ def validate_payload(payload: dict, expected_cycle: str, expected_hour: int) -> 
             if field.get("short_name")
         }),
         "required_field_groups": found_groups,
+        "grid_coverage": grid_coverage,
         "warnings": (payload.get("quality") or {}).get("warnings", []),
     }
 
@@ -112,7 +106,7 @@ def main() -> None:
     parser.add_argument("--manifest", default=str(DEFAULT_MANIFEST))
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT))
     parser.add_argument("--forecast-hour", type=int, default=0)
-    parser.add_argument("--max-grid-dim", type=int, default=160)
+    parser.add_argument("--max-grid-dim", type=int, default=320)
     args = parser.parse_args()
 
     output_dir = Path(args.output_dir)
