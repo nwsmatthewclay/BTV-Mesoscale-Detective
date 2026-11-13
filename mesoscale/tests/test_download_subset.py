@@ -35,6 +35,9 @@ def test_rap_filter_uses_current_pressure_level_filename_and_btv_region():
     assert params["leftlon"] == ["-90.0"]
     assert params["rightlon"] == ["-60.0"]
     assert params["var_TMP"] == ["on"]
+    assert params["var_SNOD"] == ["on"]
+    assert params["var_WEASD"] == ["on"]
+    assert params["lev_surface"] == ["on"]
     assert params["lev_1000_mb"] == ["on"]
 
 
