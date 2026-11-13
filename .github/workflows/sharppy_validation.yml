@@ -15,6 +15,10 @@ on:
       - "mesoscale/probe_rap_projection.py"
       - "mesoscale/environment-sharppy.yml"
       - "mesoscale/tests/test_sharppy_adapter.py"
+      - "index.html"
+      - "mesoscale.html"
+      - "mesoscale/browser_tests/**"
+      - ".github/workflows/mesoscale_browser_smoke.yml"
       - ".github/workflows/sharppy_validation.yml"
   workflow_dispatch:
 
@@ -49,3 +53,31 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: python mesoscale/probe_rap_projection.py
+
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Playwright and Chromium
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest playwright
+          python -m playwright install --with-deps chromium
+      - name: Start local dashboard server
+        run: |
+          python -m http.server 8765 --bind 127.0.0.1 > /tmp/mesoscale-http.log 2>&1 &
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:8765/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/mesoscale-http.log
+          exit 1
+      - name: Test categorized model selector and verified archives
+        run: pytest -q mesoscale/browser_tests
