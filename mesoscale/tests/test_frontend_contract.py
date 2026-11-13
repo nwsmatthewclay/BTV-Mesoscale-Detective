@@ -89,12 +89,11 @@ def test_rap_cross_section_uses_selected_archive_hour_and_reports_native_spacing
     assert "async function runRapCrossSection(points)" in html
     assert "const payload=await loadRapGrid(activeRapHour)" in html
     assert "extractRegionalRapProfile(payload,lat,lon,'Transect '+i)" in html
-    assert "transect columns passed profile QC" in html
+    assert "distinct native-grid columns from" in html
     assert "sampled_grid_point:{latitude:pt.lat,longitude:pt.lon,distance_km:pt.d,grid_id:gridId" in html
     assert "await Plotly.react('crossSectionPlot'" in html
-    assert "temperature interpolated to 250 m vertical spacing" in html
-    assert "not a 3-km analysis" in html
-    assert "usable nearest-grid samples" in html
+    assert "max nearest-cell offset" in html
+    assert "vertical interpolation to 250 m spacing only; horizontal resolution remains native RAP (~13 km)" in html
 
 
 def test_model_comparison_requires_exact_shared_valid_time_and_samples_both_models():
@@ -157,7 +156,7 @@ def test_verified_hrrr_surface_archive_is_model_aware_and_keeps_profiles_rap_onl
     assert "function renderHrrrGridOverlay" in html
     assert "payload.model_cycle_utc!==hrrrForecastManifest.model_cycle_utc" in html
     assert "nearestAvailableHrrrHour(Number(slider.value))" in html
-    assert "Cross-sections require RAP hybrid-level profiles" in html
+    assert "Vertical cross-sections require RAP hybrid-level data; HRRR currently contains only a verified surface archive." in html
     assert "HRRR surface grids have no vertical profiles" in html
     for parameter in ("hrrr_temp", "hrrr_dewpoint", "hrrr_wind", "hrrr_gust", "hrrr_refc", "hrrr_vis", "hrrr_cin", "hrrr_blh"):
         assert f'value="{parameter}"' in html
@@ -182,7 +181,8 @@ def test_expanded_upstream_domain_and_dynamic_map_legends_are_wired():
     html = (ROOT / "index.html").read_text(encoding="utf-8")
     process = (ROOT / "mesoscale" / "process_grib.py").read_text(encoding="utf-8")
     subset = (ROOT / "mesoscale" / "download_subset.py").read_text(encoding="utf-8")
-    assert 'setView([44.25,-73.35],5.6)' in html
+    assert "const REGIONAL_DOMAIN={west:-84.0,east:-65.0,south:36.5,north:51.5}" in html
+    assert "fitBounds(REGIONAL_BOUNDS,{padding:[18,18]})" in html
     assert 'id="mapLegend"' in html
     assert "function updateMapLegend(label,min,max,units" in html
     assert "updateMapLegend(field.long_name||shortName,range.min,range.max,field.units" in html
