@@ -76,4 +76,6 @@ def test_sharppy_calculates_from_real_archived_kbtv_rap_profile():
     assert result["library"] == "SHARPpy"
     assert result["quality"]["input_levels"] == 50
     assert set(result["parcels"]) == {"surface", "most_unstable", "mixed_layer"}
+    assert result["parcels"]["surface"]["cape_jkg"] is not None
+    assert result["kinematics"]["bulk_shear_0_6km_kt"] is not None
     assert result["units"]["cape"] == "J/kg"
