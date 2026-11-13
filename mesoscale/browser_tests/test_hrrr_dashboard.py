@@ -92,19 +92,19 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         # The redesigned viewer should be map-first on desktop and reflow cleanly on mobile.
         desktop_layout = page.evaluate(
             """() => ({
-                columns: getComputedStyle(document.querySelector(".layout")).gridTemplateColumns.split(" ").length,
-                mapWidth: document.querySelector("#map").getBoundingClientRect().width,
-                mapHeight: document.querySelector("#map").getBoundingClientRect().height,
-                controls: getComputedStyle(document.querySelector(".control-grid")).gridTemplateColumns.split(" ").length,
-                modelControl: Boolean(document.querySelector(".control-deck #model")),
-                categoryControl: Boolean(document.querySelector(".control-deck #category")),
-                variableControl: Boolean(document.querySelector(".control-deck #parameter"))
+                columns: getComputedStyle(document.querySelector("body > main.layout")).gridTemplateColumns.split(/\\s+/).filter(Boolean).length,
+                mapWidth: document.querySelector("body > main.layout > main.layout #map").getBoundingClientRect().width,
+                mapHeight: document.querySelector("body > main.layout > main.layout #map").getBoundingClientRect().height,
+                controlCount: document.querySelectorAll(".model-sidebar #model,.model-sidebar #cycle,.model-sidebar #hour,.model-sidebar #category,.model-sidebar #parameter").length,
+                modelControl: Boolean(document.querySelector(".model-sidebar #model")),
+                categoryControl: Boolean(document.querySelector(".model-sidebar #category")),
+                variableControl: Boolean(document.querySelector(".model-sidebar #parameter"))
             })"""
         )
         assert desktop_layout["columns"] == 2, desktop_layout
         assert desktop_layout["mapWidth"] > 700, desktop_layout
         assert 400 <= desktop_layout["mapHeight"] <= 650, desktop_layout
-        assert desktop_layout["controls"] == 5, desktop_layout
+        assert desktop_layout["controlCount"] == 5, desktop_layout
         assert desktop_layout["modelControl"] and desktop_layout["categoryControl"] and desktop_layout["variableControl"]
         desktop_fit = page.evaluate(
             """() => ({
@@ -131,11 +131,11 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         page.set_viewport_size({"width": 390, "height": 844})
         mobile_layout = page.evaluate(
             """() => ({
-                columns: getComputedStyle(document.querySelector(".layout")).gridTemplateColumns.split(" ").length,
+                columns: getComputedStyle(document.querySelector("body > main.layout")).gridTemplateColumns.split(/\\s+/).filter(Boolean).length,
                 viewportWidth: document.documentElement.clientWidth,
                 documentWidth: document.documentElement.scrollWidth,
                 mapWidth: document.querySelector("#map").getBoundingClientRect().width,
-                controlColumns: getComputedStyle(document.querySelector(".control-grid")).gridTemplateColumns.split(" ").length
+                controlColumns: getComputedStyle(document.querySelector(".model-sidebar")).gridTemplateColumns.split(/\\s+/).filter(Boolean).length
             })"""
         )
         assert mobile_layout["columns"] == 1, mobile_layout
@@ -277,6 +277,22 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         assert page.locator("#parameter").input_value() == "hrrr_temp"
         assert "HRRR 2-m temperature" in page.locator("#mapChip").inner_text()
         assert page.locator("#gridSpacing").text_content().strip() == "3 km nominal"
+
+        # The cursor readout must sample the active HRRR field at the nearest native grid cell.
+        page.evaluate(
+            """() => window.__testMap.fire("mousemove", { latlng: L.latLng(44.5, -73.2) })"""
+        )
+        page.wait_for_function(
+            """() => {
+                const coordinates = document.querySelector("#cursorCoordinates")?.textContent || "";
+                const value = document.querySelector("#cursorValue")?.textContent || "";
+                return coordinates.includes("44.500")
+                    && coordinates.includes("73.200")
+                    && value.includes("nearest grid")
+                    && !value.includes("No active gridded field");
+            }""",
+            timeout=10000,
+        )
 
         # HRRR adds its own decoded fields, including CAPE, to the same catalog.
         page.wait_for_function(
