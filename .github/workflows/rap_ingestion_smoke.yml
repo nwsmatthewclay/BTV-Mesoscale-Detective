@@ -98,6 +98,30 @@ jobs:
       - name: Build verified multi-hour RAP forecast archive
         if: steps.freshness.outputs.needs_update == 'true'
         run: python mesoscale/build_rap_forecast_archive.py --hours 0,3,6,9,12,15
+      - name: Verify regional RAP archive coverage before publishing
+        if: steps.freshness.outputs.needs_update == 'true'
+        run: |
+          python - <<'PY'
+          import gzip
+          import json
+          from pathlib import Path
+          from mesoscale.process_grib import DOMAIN, validate_grid_coverage
+
+          root = Path("mesoscale/data/forecast_archive")
+          manifest = json.loads((root / "forecast_manifest.json").read_text(encoding="utf-8"))
+          if manifest.get("domain") != DOMAIN:
+              raise SystemExit(f"RAP archive manifest domain mismatch: {manifest.get('domain')!r}")
+          for entry in manifest.get("hours", []):
+              grid_path = root / entry["grid_file"]
+              with gzip.open(grid_path, "rt", encoding="utf-8") as stream:
+                  payload = json.load(stream)
+              if payload.get("domain") != DOMAIN:
+                  raise SystemExit(f"RAP grid domain mismatch: {grid_path}")
+              validate_grid_coverage(payload.get("grids"), DOMAIN)
+          if len(manifest.get("hours", [])) != 6:
+              raise SystemExit("RAP archive must contain all six verified forecast hours")
+          print(f"Verified {len(manifest['hours'])} RAP forecast grids over {DOMAIN}")
+
       - name: Publish verified RAP fields and KBTV profile
         id: publish
         if: steps.freshness.outputs.needs_update == 'true'
