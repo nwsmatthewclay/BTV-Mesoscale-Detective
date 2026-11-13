@@ -997,15 +997,16 @@ const NATIVE_FIELD_CATEGORIES={
 };
 function syncDynamicFieldOptions(payload,model){
   const select=document.getElementById('parameter');
-  const existing=new Set(Array.from(select.options).filter(option=>option.dataset.model===model).map(option=>option.dataset.shortName));
+  const existing=new Set(Array.from(select.options).filter(option=>option.dataset.model===model).map(option=>option.dataset.fieldKey));
   const staticNames=model==='HRRR'?new Set(['2t','2d','gust','refc','vis','cin','blh','10u','10v']):new Set(['cape','pwat']);
-  for(const field of Object.values(payload.fields||{})){
+  for(const [fieldKey,field] of Object.entries(payload.fields||{})){
     const shortName=field.short_name;
-    if(!shortName||shortName==='unknown'||staticNames.has(shortName)||existing.has(shortName)||!squeezeRap2D(field.data))continue;
+    if(!shortName||shortName==='unknown'||staticNames.has(shortName)||existing.has(fieldKey)||!squeezeRap2D(field.data))continue;
     const category=NATIVE_FIELD_CATEGORIES[shortName]||'other',option=document.createElement('option');
-    option.value='native_'+model+'_'+shortName;option.textContent=(field.long_name||shortName)+' · '+(field.units||'units unavailable');
-    option.dataset.model=model;option.dataset.shortName=shortName;option.dataset.category=category;option.dataset.nativeField='true';
-    select.appendChild(option);existing.add(shortName);
+    option.value='native_'+model+'_key_'+encodeURIComponent(fieldKey);
+    option.textContent=(field.long_name||shortName)+' · '+(field.units||'units unavailable')+' ['+fieldKey+']';
+    option.dataset.model=model;option.dataset.shortName=shortName;option.dataset.fieldKey=fieldKey;option.dataset.category=category;option.dataset.nativeField='true';
+    select.appendChild(option);existing.add(fieldKey);
   }
   updateParameterOptions();
 }
