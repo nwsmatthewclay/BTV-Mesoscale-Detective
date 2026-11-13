@@ -89,7 +89,7 @@ def test_rap_cross_section_uses_selected_archive_hour_and_reports_native_spacing
     assert "async function runRapCrossSection(points)" in html
     assert "const payload=await loadRapGrid(activeRapHour)" in html
     assert "extractRegionalRapProfile(payload,lat,lon,'Transect '+i)" in html
-    assert "profile columns passed profile QC" in html
+    assert "transect columns passed profile QC" in html
     assert "await Plotly.react('crossSectionPlot'" in html
     assert "temperature interpolated to 250 m vertical spacing" in html
     assert "not a 3-km analysis" in html
