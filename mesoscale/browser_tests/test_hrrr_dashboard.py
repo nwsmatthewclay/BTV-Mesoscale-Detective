@@ -117,6 +117,20 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         page.evaluate("(manifest) => { window.__testRapManifest = manifest; }", rap)
         page.evaluate("(manifest) => { window.__testHrrrManifest = manifest; }", hrrr)
 
+        # The category selector should filter to model-supported variables.
+        page.locator("#category").select_option("thermodynamics")
+        assert page.locator("#parameter").input_value() == "cape"
+        visible_parameters = page.locator("#parameter option").evaluate_all(
+            "(options) => options.filter(option => !option.hidden && !option.disabled).map(option => option.value)"
+        )
+        assert visible_parameters == ["cape", "lapse"]
+        page.locator("#category").select_option("forcing")
+        visible_parameters = page.locator("#parameter option").evaluate_all(
+            "(options) => options.filter(option => !option.hidden && !option.disabled).map(option => option.value)"
+        )
+        assert set(visible_parameters) == {"fronto", "omega", "moisture"}
+        page.locator("#category").select_option("all")
+
         # Force the initial RAP request and wait until it is the archived cycle,
         # not the temporary latest-grid fallback.
         page.locator("#parameter").select_option("cape")
