@@ -542,7 +542,7 @@ function syncDynamicFieldOptions(payload,model){
 }
 function renderNativeFieldOverlay(payload,param,model){
   if(modelOverlayLayer){map.removeLayer(modelOverlayLayer);modelOverlayLayer=null;}
-  updateMapLegend(null,null,null,null);
+  activeCursorSampler=null;updateMapLegend(null,null,null,null);
   const prefix='native_'+model+'_';if(!param.startsWith(prefix))return false;
   const shortName=param.slice(prefix.length),field=Object.values(payload.fields||{}).find(f=>f.short_name===shortName&&squeezeRap2D(f.data)&&payload.grids?.[f.grid_id]);
   if(!field){document.getElementById('mapChip').textContent=model+' '+shortName+' is not present in this forecast hour; no substitute shown';return true;}
@@ -556,7 +556,7 @@ function renderNativeFieldOverlay(payload,param,model){
 }
 function renderRapGridOverlay(payload,param){
   if(modelOverlayLayer){map.removeLayer(modelOverlayLayer);modelOverlayLayer=null;}
-  updateMapLegend(null,null,null,null);
+  activeCursorSampler=null;updateMapLegend(null,null,null,null);
   const cfg={cape:{names:['cape'],min:0,max:3000,label:'CAPE',units:'J/kg'},pwat:{names:['pwat'],min:0,max:50,label:'PWAT',units:'kg m-2'},omega:{names:['w'],min:-2,max:2,label:'Vertical velocity',units:'Pa/s'}}[param];
   if(!cfg){document.getElementById('mapChip').textContent='This parameter is not yet available as a verified RAP grid field';return;}
   const field=findRapSurfaceField(payload,cfg.names);
@@ -673,7 +673,7 @@ function findHrrrField(payload,names,gridId){
 }
 function renderHrrrGridOverlay(payload,param){
   if(modelOverlayLayer){map.removeLayer(modelOverlayLayer);modelOverlayLayer=null;}
-  updateMapLegend(null,null,null,null);
+  activeCursorSampler=null;updateMapLegend(null,null,null,null);
   const configs={
     hrrr_temp:{names:['2t'],label:'2-m temperature',min:-35,max:35,units:'°C',transform:v=>v-273.15},
     hrrr_dewpoint:{names:['2d'],label:'2-m dewpoint',min:-40,max:30,units:'°C',transform:v=>v-273.15},
