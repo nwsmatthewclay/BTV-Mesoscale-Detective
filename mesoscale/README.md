@@ -21,7 +21,7 @@ This is a development/research workspace, not an operationally approved decision
 ## Architecture
 
 1. **Acquisition:** discover RAP, HRRR and RRFS production products. The RAP ingestion workflow refreshes discovery before downloading verified hybrid-level source files; the HRRR workflow builds a six-point surface archive whose valid times align with the published RAP archive and publishes it only after validation.
-2. **Subsetting:** crop decoded grids to the padded BTV analysis domain before serialization.
+2. **Subsetting:** crop decoded grids to the expanded Great Lakes–Northeast upstream analysis domain before serialization.
 3. **Processing:** use xarray/cfgrib, MetPy, NumPy and SciPy for GRIB decoding, unit-aware diagnostics, vertical interpolation and profile quality checks.
 4. **Products:** publish compact gzip JSON grids and station profiles with model, cycle, forecast hour, valid time, units, grid geometry and quality metadata.
 5. **Frontend:** Leaflet handles map selection and overlays; Plotly renders profiles, hodographs, cross-sections and time series. The model selector currently offers RAP and HRRR according to verified archive availability. The categorized variable selector groups thermodynamics, moisture, kinematics, forcing, surface/boundary-layer, reflectivity, aviation/visibility, winter hydrometeors, land/soil, surface energy and other fields. After a verified model grid loads, the browser inspects its decoded field inventory and adds each unique native 2-D field to the appropriate category. These dynamically added layers use the source units and a per-grid 5th–95th percentile display stretch; they are explicitly labeled as native fields. Model-specific options are filtered so a RAP field cannot appear as an HRRR field. Hybrid/vertical fields are kept separate for the cross-section and profile workstream.
@@ -35,11 +35,13 @@ This is a development/research workspace, not an operationally approved decision
 
 ## Initial BTV domain
 
-Use a padded rectangle around Vermont and northern New York, approximately:
-- west: -75.2
-- east: -71.2
-- south: 42.3
-- north: 45.3
+Use a broad upstream regional rectangle around the Great Lakes, southern Ontario/Quebec, New England and the Mid-Atlantic, approximately:
+- west: -84.0
+- east: -65.0
+- south: 36.5
+- north: 51.5
+
+This expanded grid preserves the BTV CWA while adding upstream context from the Great Lakes and Ohio Valley. The published raster remains bounded by the model grid crop; map reset fits this full regional rectangle.
 
 The map is for analysis and display; the actual CWA boundary should be supplied as a GeoJSON overlay rather than inferred from this rectangle.
 
