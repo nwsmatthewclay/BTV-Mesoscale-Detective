@@ -805,8 +805,23 @@ function squeezeRap2D(data){
   let a=data;while(Array.isArray(a)&&a.length===1&&Array.isArray(a[0])&&Array.isArray(a[0][0]))a=a[0];
   return Array.isArray(a)&&Array.isArray(a[0])&&a.some(row=>Array.isArray(row)&&row.some(Number.isFinite))?a:null;
 }
+function hasMatchingGridGeometry(payload,field){
+  const data=squeezeRap2D(field?.data),grid=payload?.grids?.[field?.grid_id];
+  if(!data||!grid||!Array.isArray(grid.latitude)||!Array.isArray(grid.longitude)
+      ||data.length!==grid.latitude.length||data.length!==grid.longitude.length)return false;
+  let valid=0;
+  for(let y=0;y<data.length;y++){
+    const row=data[y],lat=grid.latitude[y],lon=grid.longitude[y];
+    if(!Array.isArray(row)||!Array.isArray(lat)||!Array.isArray(lon)
+        ||row.length!==lat.length||row.length!==lon.length)return false;
+    for(let x=0;x<row.length;x++){
+      if(Number.isFinite(row[x])&&Number.isFinite(lat[x])&&Number.isFinite(lon[x]))valid++;
+    }
+  }
+  return valid>=12;
+}
 function findRapSurfaceField(payload,names,gridId){
-  return Object.values(payload.fields||{}).find(f=>names.includes(f.short_name)&&(!gridId||f.grid_id===gridId)&&squeezeRap2D(f.data));
+  return Object.values(payload.fields||{}).find(f=>names.includes(f.short_name)&&(!gridId||f.grid_id===gridId)&&hasMatchingGridGeometry(payload,f));
 }
 function sampleRapSurface(payload,names,lat,lon){
   const field=findRapSurfaceField(payload,names);if(!field)return null;
@@ -1026,7 +1041,7 @@ function syncDynamicFieldOptions(payload,model){
   const existing=new Set(Array.from(select.options).filter(option=>option.dataset.model===model).map(option=>option.dataset.fieldKey));
   for(const [fieldKey,field] of Object.entries(payload.fields||{})){
     const shortName=field.short_name;
-    if(!shortName||shortName==='unknown'||existing.has(fieldKey)||!squeezeRap2D(field.data))continue;
+    if(!shortName||shortName==='unknown'||existing.has(fieldKey)||!hasMatchingGridGeometry(payload,field))continue;
     const category=NATIVE_FIELD_CATEGORIES[shortName]||'other',option=document.createElement('option');
     option.value='native_'+model+'_key_'+encodeURIComponent(fieldKey);
     option.textContent=(field.long_name||shortName)+' · '+(field.units||'units unavailable')+' ['+fieldKey+']';
@@ -1043,7 +1058,16 @@ function renderNativeFieldOverlay(payload,param,model){
   const fieldKey=selectedTileFieldKey(model,param,payload);
   const field=fieldKey&&payload.fields?payload.fields[fieldKey]:null;
   const shortName=field&&field.short_name?field.short_name:param.slice(prefix.length);
-  if(!field){document.getElementById('mapChip').textContent=model+' '+shortName+' is not present in this forecast hour; no substitute shown';return true;}
+  if(!field){
+    let requestedKey=null;
+    try{requestedKey=decodeURIComponent(param.slice(prefix.length));}catch(_){}
+    const rawField=requestedKey&&payload.fields?.[requestedKey];
+    const label=rawField?.long_name||rawField?.short_name||shortName;
+    document.getElementById('mapChip').textContent=rawField
+      ?model+' '+label+' exists but its 2-D data/grid geometry is not renderable; no substitute shown'
+      :model+' '+shortName+' is not present in this forecast hour; no substitute shown';
+    return true;
+  }
   const data=squeezeRap2D(field.data),grid=payload.grids?.[field.grid_id];
   if(!data||!grid){document.getElementById('mapChip').textContent=field.long_name+' is not a two-dimensional field in this model file';return true;}
   const range=fieldRange(data),raster=range&&makeInterpolatedRaster(data,grid,range.min,range.max);
@@ -1168,7 +1192,7 @@ async function updateModelComparison(){
 }
 window.updateModelComparison=updateModelComparison;
 function findHrrrField(payload,names,gridId){
-  return Object.values(payload.fields||{}).find(field=>names.includes(field.short_name)&&(!gridId||field.grid_id===gridId)&&squeezeRap2D(field.data));
+  return Object.values(payload.fields||{}).find(field=>names.includes(field.short_name)&&(!gridId||field.grid_id===gridId)&&hasMatchingGridGeometry(payload,field));
 }
 function renderHrrrGridOverlay(payload,param){
   if(modelOverlayLayer){map.removeLayer(modelOverlayLayer);modelOverlayLayer=null;}
@@ -1235,11 +1259,11 @@ function selectedTileFieldKey(model,param,payload){
   if(!payload||!payload.fields)return null;
   if(!shortName){
     const direct=payload.fields[param];
-    if(direct&&squeezeRap2D(direct.data))return param;
+    if(direct&&hasMatchingGridGeometry(payload,direct))return param;
     const aliases={omega:'w'};
     const alias=aliases[param];
     if(alias){
-      const pair=Object.entries(payload.fields).find(entry=>entry[1].short_name===alias&&squeezeRap2D(entry[1].data));
+      const pair=Object.entries(payload.fields).find(entry=>entry[1].short_name===alias&&hasMatchingGridGeometry(payload,entry[1]));
       if(pair)return pair[0];
     }
     return null;
@@ -1249,7 +1273,7 @@ function selectedTileFieldKey(model,param,payload){
     const pair=Object.entries(payload.fields).find(entry=>entry[1]===preferred);
     if(pair)return pair[0];
   }
-  const pair=Object.entries(payload.fields).find(entry=>entry[1].short_name===shortName&&squeezeRap2D(entry[1].data));
+  const pair=Object.entries(payload.fields).find(entry=>entry[1].short_name===shortName&&hasMatchingGridGeometry(payload,entry[1]));
   return pair?pair[0]:null;
 }
 function clearPreRenderedModelLayers(){
