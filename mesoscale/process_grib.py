@@ -15,7 +15,7 @@ from pathlib import Path
 
 import numpy as np
 
-DOMAIN = {"west": -78.5, "east": -68.0, "south": 40.0, "north": 48.0}
+DOMAIN = {"west": -84.0, "east": -65.0, "south": 36.5, "north": 51.5}
 
 
 def json_values(array, decimals=2):
