@@ -195,9 +195,16 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         )
         assert mobile_layout["shellColumns"] == 1, mobile_layout
         assert mobile_layout["analysisColumns"] == 1, mobile_layout
-        assert mobile_layout["sidebarColumns"] == 2, mobile_layout
+        assert mobile_layout["sidebarColumns"] == 1, mobile_layout
         assert mobile_layout["documentWidth"] <= mobile_layout["viewportWidth"] + 2, mobile_layout
         assert mobile_layout["mapWidth"] <= mobile_layout["viewportWidth"], mobile_layout
+
+        # Tablet widths retain the two-column sidebar; narrow phones intentionally stack it.
+        page.set_viewport_size({"width": 768, "height": 900})
+        tablet_sidebar_columns = page.locator(".model-sidebar").evaluate(
+            "element => getComputedStyle(element).gridTemplateColumns.trim().split(' ').filter(Boolean).length"
+        )
+        assert tablet_sidebar_columns == 2, {"tabletSidebarColumns": tablet_sidebar_columns}
         page.set_viewport_size({"width": 1440, "height": 1000})
 
         archives = page.evaluate(
