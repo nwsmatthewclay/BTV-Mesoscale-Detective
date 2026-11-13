@@ -53,6 +53,11 @@ def inspect_file(path: Path) -> dict:
                 "standard_name": variable.attrs.get("standard_name"),
                 "level_type": variable.attrs.get("GRIB_typeOfLevel"),
                 "step_type": variable.attrs.get("GRIB_stepType"),
+                "grib_metadata": {
+                    key: describe_value(value)
+                    for key, value in variable.attrs.items()
+                    if key.startswith("GRIB_")
+                },
             }
         coordinates = {}
         for name, coord in ds.coords.items():
@@ -64,10 +69,11 @@ def inspect_file(path: Path) -> dict:
                 "shape": list(coord.shape),
                 "values_preview": preview,
             }
-        attrs = {k: describe_value(v) for k, v in ds.attrs.items()
-                 if k in {"GRIB_centre", "GRIB_dataDate", "GRIB_dataTime",
-                          "GRIB_forecastTime", "GRIB_stepUnits",
-                          "GRIB_typeOfLevel", "GRIB_gridType"}}
+        attrs = {
+            key: describe_value(value)
+            for key, value in ds.attrs.items()
+            if key.startswith("GRIB_")
+        }
         result["datasets"].append({
             "dataset_index": index,
             "attrs": attrs,
