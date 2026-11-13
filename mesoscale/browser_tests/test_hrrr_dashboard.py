@@ -89,6 +89,28 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
 
         page.goto("http://127.0.0.1:8765/", wait_until="domcontentloaded")
 
+        field_geometry = page.evaluate(
+            """() => {
+                const lat = Array.from({length: 4}, (_, y) => Array.from({length: 4}, () => 44 + y * 0.1));
+                const lon = Array.from({length: 4}, () => Array.from({length: 4}, (_, x) => -74 + x * 0.1));
+                const values = Array.from({length: 4}, (_, y) => Array.from({length: 4}, (_, x) => 280 + y + x));
+                const payload = {
+                    grids: {good: {latitude: lat, longitude: lon}},
+                    fields: {
+                        bad: {short_name: "2t", grid_id: "missing", data: values},
+                        good: {short_name: "2t", grid_id: "good", data: values}
+                    }
+                };
+                return {
+                    acceptsGood: hasMatchingGridGeometry(payload, payload.fields.good),
+                    rejectsBad: !hasMatchingGridGeometry(payload, payload.fields.bad),
+                    rapSkipsBadDuplicate: findRapSurfaceField(payload, ["2t"]) === payload.fields.good,
+                    hrrrSkipsBadDuplicate: findHrrrField(payload, ["2t"]) === payload.fields.good
+                };
+            }"""
+        )
+        assert all(field_geometry.values()), field_geometry
+
         # The redesigned viewer should be map-first on desktop and reflow cleanly on mobile.
         desktop_layout = page.evaluate(
             """() => ({
