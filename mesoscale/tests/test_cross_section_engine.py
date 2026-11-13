@@ -67,7 +67,7 @@ def test_cross_section_disables_vertical_extrapolation():
 def test_cross_section_refuses_fields_on_different_hybrid_coordinates():
     payload = sample_payload()
     payload["fields"]["omega"]["levels"] = {"hybrid": [1, 2, 3, 5]}
-    with pytest.raises(ValueError, match="identical hybrid coordinates"):
+    with pytest.raises(ValueError, match="share reference hybrid coordinates"):
         build_cross_section(payload, (44.0, -73.2), (44.2, -73.0), {"omega": "w"}, sample_count=3)
 
 
