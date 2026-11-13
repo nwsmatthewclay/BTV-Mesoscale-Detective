@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "created_utc": "2026-11-13T00:14:08.073367+00:00",
+  "created_utc": "2026-11-13T00:18:45.444230+00:00",
   "source": "NCEP NOMADS operational production directories",
   "domain": {
     "west": -75.2,
@@ -14854,7 +14854,7 @@
       ]
     },
     "HRRR": {
-      "products_found": 2290,
+      "products_found": 2296,
       "latest_products": [
         {
           "model": "HRRR",
@@ -21233,6 +21233,60 @@
         {
           "model": "HRRR",
           "date": "20261112",
+          "cycle_utc": "20261112T23:00:00Z",
+          "forecast_hour": 12,
+          "product": "surface",
+          "filename": "hrrr.t23z.wrfsfcf12.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t23z.wrfsfcf12.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261112",
+          "cycle_utc": "20261112T23:00:00Z",
+          "forecast_hour": 12,
+          "product": "pressure_levels",
+          "filename": "hrrr.t23z.wrfprsf12.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t23z.wrfprsf12.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261112",
+          "cycle_utc": "20261112T23:00:00Z",
+          "forecast_hour": 13,
+          "product": "surface",
+          "filename": "hrrr.t23z.wrfsfcf13.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t23z.wrfsfcf13.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261112",
+          "cycle_utc": "20261112T23:00:00Z",
+          "forecast_hour": 13,
+          "product": "pressure_levels",
+          "filename": "hrrr.t23z.wrfprsf13.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t23z.wrfprsf13.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261112",
+          "cycle_utc": "20261112T23:00:00Z",
+          "forecast_hour": 14,
+          "product": "surface",
+          "filename": "hrrr.t23z.wrfsfcf14.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t23z.wrfsfcf14.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261112",
+          "cycle_utc": "20261112T23:00:00Z",
+          "forecast_hour": 14,
+          "product": "pressure_levels",
+          "filename": "hrrr.t23z.wrfprsf14.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t23z.wrfprsf14.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261112",
           "cycle_utc": "20261112T22:00:00Z",
           "forecast_hour": 0,
           "product": "surface",
@@ -22039,60 +22093,6 @@
           "product": "pressure_levels",
           "filename": "hrrr.t20z.wrfprsf06.grib2",
           "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t20z.wrfprsf06.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261112",
-          "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 7,
-          "product": "surface",
-          "filename": "hrrr.t20z.wrfsfcf07.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t20z.wrfsfcf07.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261112",
-          "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 7,
-          "product": "pressure_levels",
-          "filename": "hrrr.t20z.wrfprsf07.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t20z.wrfprsf07.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261112",
-          "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 8,
-          "product": "surface",
-          "filename": "hrrr.t20z.wrfsfcf08.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t20z.wrfsfcf08.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261112",
-          "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 8,
-          "product": "pressure_levels",
-          "filename": "hrrr.t20z.wrfprsf08.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t20z.wrfprsf08.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261112",
-          "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 9,
-          "product": "surface",
-          "filename": "hrrr.t20z.wrfsfcf09.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t20z.wrfsfcf09.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261112",
-          "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 9,
-          "product": "pressure_levels",
-          "filename": "hrrr.t20z.wrfprsf09.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261112/conus/hrrr.t20z.wrfprsf09.grib2"
         }
       ],
       "directory_errors": [
@@ -22110,12 +22110,14 @@
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T22:00:00Z",
-          "forecast_hour": 1,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t22z.2dfld.3km.subh.f001.conus.grib2",
           "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f001.conus.grib2",
+          "forecast_step": 1,
+          "forecast_lead_minutes": 15,
+          "forecast_interval_minutes": 15,
           "index": {
             "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f001.conus.grib2.idx",
             "message_count": 149,
@@ -23170,199 +23172,233 @@
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T22:00:00Z",
-          "forecast_hour": 2,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t22z.2dfld.3km.subh.f002.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f002.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f002.conus.grib2",
+          "forecast_step": 2,
+          "forecast_lead_minutes": 30,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T22:00:00Z",
-          "forecast_hour": 3,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t22z.2dfld.3km.subh.f003.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f003.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f003.conus.grib2",
+          "forecast_step": 3,
+          "forecast_lead_minutes": 45,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T22:00:00Z",
-          "forecast_hour": 4,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t22z.2dfld.3km.subh.f004.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f004.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f004.conus.grib2",
+          "forecast_step": 4,
+          "forecast_lead_minutes": 60,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T22:00:00Z",
-          "forecast_hour": 5,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t22z.2dfld.3km.subh.f005.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f005.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f005.conus.grib2",
+          "forecast_step": 5,
+          "forecast_lead_minutes": 75,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T22:00:00Z",
-          "forecast_hour": 6,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t22z.2dfld.3km.subh.f006.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f006.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f006.conus.grib2",
+          "forecast_step": 6,
+          "forecast_lead_minutes": 90,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T22:00:00Z",
-          "forecast_hour": 7,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t22z.2dfld.3km.subh.f007.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f007.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f007.conus.grib2",
+          "forecast_step": 7,
+          "forecast_lead_minutes": 105,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T22:00:00Z",
-          "forecast_hour": 8,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t22z.2dfld.3km.subh.f008.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f008.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f008.conus.grib2",
+          "forecast_step": 8,
+          "forecast_lead_minutes": 120,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T22:00:00Z",
-          "forecast_hour": 9,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t22z.2dfld.3km.subh.f009.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f009.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f009.conus.grib2",
+          "forecast_step": 9,
+          "forecast_lead_minutes": 135,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T22:00:00Z",
-          "forecast_hour": 10,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t22z.2dfld.3km.subh.f010.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f010.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f010.conus.grib2",
+          "forecast_step": 10,
+          "forecast_lead_minutes": 150,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T22:00:00Z",
-          "forecast_hour": 11,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t22z.2dfld.3km.subh.f011.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f011.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f011.conus.grib2",
+          "forecast_step": 11,
+          "forecast_lead_minutes": 165,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T22:00:00Z",
-          "forecast_hour": 12,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t22z.2dfld.3km.subh.f012.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f012.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f012.conus.grib2",
+          "forecast_step": 12,
+          "forecast_lead_minutes": 180,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T22:00:00Z",
-          "forecast_hour": 13,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t22z.2dfld.3km.subh.f013.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f013.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f013.conus.grib2",
+          "forecast_step": 13,
+          "forecast_lead_minutes": 195,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T22:00:00Z",
-          "forecast_hour": 14,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t22z.2dfld.3km.subh.f014.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f014.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f014.conus.grib2",
+          "forecast_step": 14,
+          "forecast_lead_minutes": 210,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T22:00:00Z",
-          "forecast_hour": 15,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t22z.2dfld.3km.subh.f015.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f015.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f015.conus.grib2",
+          "forecast_step": 15,
+          "forecast_lead_minutes": 225,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T22:00:00Z",
-          "forecast_hour": 16,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t22z.2dfld.3km.subh.f016.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f016.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f016.conus.grib2",
+          "forecast_step": 16,
+          "forecast_lead_minutes": 240,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T22:00:00Z",
-          "forecast_hour": 17,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t22z.2dfld.3km.subh.f017.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f017.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f017.conus.grib2",
+          "forecast_step": 17,
+          "forecast_lead_minutes": 255,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T22:00:00Z",
-          "forecast_hour": 18,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t22z.2dfld.3km.subh.f018.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f018.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/22/rrfs.t22z.2dfld.3km.subh.f018.conus.grib2",
+          "forecast_step": 18,
+          "forecast_lead_minutes": 270,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 0,
           "product": "surface_2d_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.2dfld.3km.f000.conus.grib2",
           "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f000.conus.grib2",
+          "forecast_hour": 0,
           "index": {
             "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f000.conus.grib2.idx",
             "message_count": 262,
@@ -25208,12 +25244,12 @@
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 0,
           "product": "pressure_levels_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.prslev.3km.f000.conus.grib2",
           "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f000.conus.grib2",
+          "forecast_hour": 0,
           "index": {
             "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f000.conus.grib2.idx",
             "message_count": 675,
@@ -29950,1101 +29986,1221 @@
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 1,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.2dfld.3km.subh.f001.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f001.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f001.conus.grib2",
+          "forecast_step": 1,
+          "forecast_lead_minutes": 15,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 1,
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.2dfld.3km.f001.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f001.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 1,
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.prslev.3km.f001.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f001.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 2,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.2dfld.3km.subh.f002.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f002.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f002.conus.grib2",
+          "forecast_step": 2,
+          "forecast_lead_minutes": 30,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 2,
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.2dfld.3km.f002.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f002.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 2,
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.prslev.3km.f002.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f002.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 3,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.2dfld.3km.subh.f003.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f003.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f003.conus.grib2",
+          "forecast_step": 3,
+          "forecast_lead_minutes": 45,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 3,
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.2dfld.3km.f003.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f003.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 3,
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.prslev.3km.f003.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f003.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 4,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.2dfld.3km.subh.f004.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f004.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f004.conus.grib2",
+          "forecast_step": 4,
+          "forecast_lead_minutes": 60,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 4,
           "product": "surface_2d_3km",
           "resolution_km": 3,
           "domain": "conus",
-          "filename": "rrfs.t21z.2dfld.3km.f004.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f004.conus.grib2"
+          "filename": "rrfs.t21z.2dfld.3km.f001.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f001.conus.grib2",
+          "forecast_hour": 1
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 4,
           "product": "pressure_levels_3km",
           "resolution_km": 3,
           "domain": "conus",
-          "filename": "rrfs.t21z.prslev.3km.f004.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f004.conus.grib2"
+          "filename": "rrfs.t21z.prslev.3km.f001.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f001.conus.grib2",
+          "forecast_hour": 1
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 5,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.2dfld.3km.subh.f005.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f005.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f005.conus.grib2",
+          "forecast_step": 5,
+          "forecast_lead_minutes": 75,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 5,
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.2dfld.3km.f005.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f005.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 5,
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.prslev.3km.f005.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f005.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 6,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.2dfld.3km.subh.f006.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f006.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f006.conus.grib2",
+          "forecast_step": 6,
+          "forecast_lead_minutes": 90,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 6,
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.2dfld.3km.f006.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f006.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 6,
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.prslev.3km.f006.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f006.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 7,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.2dfld.3km.subh.f007.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f007.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f007.conus.grib2",
+          "forecast_step": 7,
+          "forecast_lead_minutes": 105,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 7,
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.2dfld.3km.f007.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f007.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 7,
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.prslev.3km.f007.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f007.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 8,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.2dfld.3km.subh.f008.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f008.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f008.conus.grib2",
+          "forecast_step": 8,
+          "forecast_lead_minutes": 120,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 8,
           "product": "surface_2d_3km",
           "resolution_km": 3,
           "domain": "conus",
-          "filename": "rrfs.t21z.2dfld.3km.f008.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f008.conus.grib2"
+          "filename": "rrfs.t21z.2dfld.3km.f002.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f002.conus.grib2",
+          "forecast_hour": 2
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 8,
           "product": "pressure_levels_3km",
           "resolution_km": 3,
           "domain": "conus",
-          "filename": "rrfs.t21z.prslev.3km.f008.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f008.conus.grib2"
+          "filename": "rrfs.t21z.prslev.3km.f002.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f002.conus.grib2",
+          "forecast_hour": 2
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 9,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.2dfld.3km.subh.f009.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f009.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f009.conus.grib2",
+          "forecast_step": 9,
+          "forecast_lead_minutes": 135,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 9,
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.2dfld.3km.f009.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f009.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 9,
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.prslev.3km.f009.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f009.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 10,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.2dfld.3km.subh.f010.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f010.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f010.conus.grib2",
+          "forecast_step": 10,
+          "forecast_lead_minutes": 150,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 10,
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.2dfld.3km.f010.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f010.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 10,
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.prslev.3km.f010.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f010.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 11,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.2dfld.3km.subh.f011.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f011.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f011.conus.grib2",
+          "forecast_step": 11,
+          "forecast_lead_minutes": 165,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 11,
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.2dfld.3km.f011.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f011.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 11,
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.prslev.3km.f011.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f011.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 12,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.2dfld.3km.subh.f012.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f012.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f012.conus.grib2",
+          "forecast_step": 12,
+          "forecast_lead_minutes": 180,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 12,
           "product": "surface_2d_3km",
           "resolution_km": 3,
           "domain": "conus",
-          "filename": "rrfs.t21z.2dfld.3km.f012.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f012.conus.grib2"
+          "filename": "rrfs.t21z.2dfld.3km.f003.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f003.conus.grib2",
+          "forecast_hour": 3
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 12,
           "product": "pressure_levels_3km",
           "resolution_km": 3,
           "domain": "conus",
-          "filename": "rrfs.t21z.prslev.3km.f012.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f012.conus.grib2"
+          "filename": "rrfs.t21z.prslev.3km.f003.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f003.conus.grib2",
+          "forecast_hour": 3
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 13,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.2dfld.3km.subh.f013.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f013.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f013.conus.grib2",
+          "forecast_step": 13,
+          "forecast_lead_minutes": 195,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 13,
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.2dfld.3km.f013.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f013.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 13,
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.prslev.3km.f013.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f013.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 14,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.2dfld.3km.subh.f014.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f014.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f014.conus.grib2",
+          "forecast_step": 14,
+          "forecast_lead_minutes": 210,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 14,
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.2dfld.3km.f014.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f014.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 14,
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.prslev.3km.f014.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f014.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 15,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.2dfld.3km.subh.f015.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f015.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f015.conus.grib2",
+          "forecast_step": 15,
+          "forecast_lead_minutes": 225,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 15,
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.2dfld.3km.f015.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f015.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 15,
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.prslev.3km.f015.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f015.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 16,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.2dfld.3km.subh.f016.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f016.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f016.conus.grib2",
+          "forecast_step": 16,
+          "forecast_lead_minutes": 240,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 16,
           "product": "surface_2d_3km",
           "resolution_km": 3,
           "domain": "conus",
-          "filename": "rrfs.t21z.2dfld.3km.f016.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f016.conus.grib2"
+          "filename": "rrfs.t21z.2dfld.3km.f004.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f004.conus.grib2",
+          "forecast_hour": 4
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 16,
           "product": "pressure_levels_3km",
           "resolution_km": 3,
           "domain": "conus",
-          "filename": "rrfs.t21z.prslev.3km.f016.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f016.conus.grib2"
+          "filename": "rrfs.t21z.prslev.3km.f004.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f004.conus.grib2",
+          "forecast_hour": 4
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 17,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.2dfld.3km.subh.f017.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f017.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f017.conus.grib2",
+          "forecast_step": 17,
+          "forecast_lead_minutes": 255,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 17,
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.2dfld.3km.f017.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f017.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 17,
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t21z.prslev.3km.f017.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f017.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 18,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.2dfld.3km.subh.f018.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f018.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.subh.f018.conus.grib2",
+          "forecast_step": 18,
+          "forecast_lead_minutes": 270,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 18,
+          "product": "surface_2d_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.2dfld.3km.f005.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f005.conus.grib2",
+          "forecast_hour": 5
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "pressure_levels_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.prslev.3km.f005.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f005.conus.grib2",
+          "forecast_hour": 5
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "surface_2d_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.2dfld.3km.f006.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f006.conus.grib2",
+          "forecast_hour": 6
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "pressure_levels_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.prslev.3km.f006.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f006.conus.grib2",
+          "forecast_hour": 6
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "surface_2d_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.2dfld.3km.f007.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f007.conus.grib2",
+          "forecast_hour": 7
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "pressure_levels_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.prslev.3km.f007.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f007.conus.grib2",
+          "forecast_hour": 7
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "surface_2d_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.2dfld.3km.f008.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f008.conus.grib2",
+          "forecast_hour": 8
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "pressure_levels_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.prslev.3km.f008.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f008.conus.grib2",
+          "forecast_hour": 8
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "surface_2d_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.2dfld.3km.f009.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f009.conus.grib2",
+          "forecast_hour": 9
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "pressure_levels_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.prslev.3km.f009.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f009.conus.grib2",
+          "forecast_hour": 9
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "surface_2d_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.2dfld.3km.f010.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f010.conus.grib2",
+          "forecast_hour": 10
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "pressure_levels_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.prslev.3km.f010.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f010.conus.grib2",
+          "forecast_hour": 10
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "surface_2d_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.2dfld.3km.f011.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f011.conus.grib2",
+          "forecast_hour": 11
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "pressure_levels_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.prslev.3km.f011.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f011.conus.grib2",
+          "forecast_hour": 11
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "surface_2d_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.2dfld.3km.f012.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f012.conus.grib2",
+          "forecast_hour": 12
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "pressure_levels_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.prslev.3km.f012.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f012.conus.grib2",
+          "forecast_hour": 12
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "surface_2d_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.2dfld.3km.f013.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f013.conus.grib2",
+          "forecast_hour": 13
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "pressure_levels_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.prslev.3km.f013.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f013.conus.grib2",
+          "forecast_hour": 13
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "surface_2d_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.2dfld.3km.f014.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f014.conus.grib2",
+          "forecast_hour": 14
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "pressure_levels_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.prslev.3km.f014.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f014.conus.grib2",
+          "forecast_hour": 14
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "surface_2d_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.2dfld.3km.f015.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f015.conus.grib2",
+          "forecast_hour": 15
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "pressure_levels_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.prslev.3km.f015.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f015.conus.grib2",
+          "forecast_hour": 15
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "surface_2d_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.2dfld.3km.f016.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f016.conus.grib2",
+          "forecast_hour": 16
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "pressure_levels_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.prslev.3km.f016.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f016.conus.grib2",
+          "forecast_hour": 16
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "surface_2d_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.2dfld.3km.f017.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f017.conus.grib2",
+          "forecast_hour": 17
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
+          "product": "pressure_levels_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t21z.prslev.3km.f017.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f017.conus.grib2",
+          "forecast_hour": 17
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T21:00:00Z",
           "product": "surface_2d_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.2dfld.3km.f018.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f018.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.2dfld.3km.f018.conus.grib2",
+          "forecast_hour": 18
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T21:00:00Z",
-          "forecast_hour": 18,
           "product": "pressure_levels_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t21z.prslev.3km.f018.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f018.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/21/rrfs.t21z.prslev.3km.f018.conus.grib2",
+          "forecast_hour": 18
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 1,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t20z.2dfld.3km.subh.f001.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f001.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f001.conus.grib2",
+          "forecast_step": 1,
+          "forecast_lead_minutes": 15,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 2,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t20z.2dfld.3km.subh.f002.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f002.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f002.conus.grib2",
+          "forecast_step": 2,
+          "forecast_lead_minutes": 30,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 3,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t20z.2dfld.3km.subh.f003.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f003.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f003.conus.grib2",
+          "forecast_step": 3,
+          "forecast_lead_minutes": 45,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 4,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t20z.2dfld.3km.subh.f004.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f004.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f004.conus.grib2",
+          "forecast_step": 4,
+          "forecast_lead_minutes": 60,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 5,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t20z.2dfld.3km.subh.f005.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f005.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f005.conus.grib2",
+          "forecast_step": 5,
+          "forecast_lead_minutes": 75,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 6,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t20z.2dfld.3km.subh.f006.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f006.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f006.conus.grib2",
+          "forecast_step": 6,
+          "forecast_lead_minutes": 90,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 7,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t20z.2dfld.3km.subh.f007.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f007.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f007.conus.grib2",
+          "forecast_step": 7,
+          "forecast_lead_minutes": 105,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 8,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t20z.2dfld.3km.subh.f008.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f008.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f008.conus.grib2",
+          "forecast_step": 8,
+          "forecast_lead_minutes": 120,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 9,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t20z.2dfld.3km.subh.f009.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f009.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f009.conus.grib2",
+          "forecast_step": 9,
+          "forecast_lead_minutes": 135,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 10,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t20z.2dfld.3km.subh.f010.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f010.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f010.conus.grib2",
+          "forecast_step": 10,
+          "forecast_lead_minutes": 150,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 11,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t20z.2dfld.3km.subh.f011.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f011.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f011.conus.grib2",
+          "forecast_step": 11,
+          "forecast_lead_minutes": 165,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 12,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t20z.2dfld.3km.subh.f012.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f012.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f012.conus.grib2",
+          "forecast_step": 12,
+          "forecast_lead_minutes": 180,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 13,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t20z.2dfld.3km.subh.f013.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f013.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f013.conus.grib2",
+          "forecast_step": 13,
+          "forecast_lead_minutes": 195,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 14,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t20z.2dfld.3km.subh.f014.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f014.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f014.conus.grib2",
+          "forecast_step": 14,
+          "forecast_lead_minutes": 210,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 15,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t20z.2dfld.3km.subh.f015.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f015.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f015.conus.grib2",
+          "forecast_step": 15,
+          "forecast_lead_minutes": 225,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 16,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t20z.2dfld.3km.subh.f016.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f016.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f016.conus.grib2",
+          "forecast_step": 16,
+          "forecast_lead_minutes": 240,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 17,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t20z.2dfld.3km.subh.f017.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f017.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f017.conus.grib2",
+          "forecast_step": 17,
+          "forecast_lead_minutes": 255,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T20:00:00Z",
-          "forecast_hour": 18,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t20z.2dfld.3km.subh.f018.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f018.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/20/rrfs.t20z.2dfld.3km.subh.f018.conus.grib2",
+          "forecast_step": 18,
+          "forecast_lead_minutes": 270,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T19:00:00Z",
-          "forecast_hour": 1,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t19z.2dfld.3km.subh.f001.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f001.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f001.conus.grib2",
+          "forecast_step": 1,
+          "forecast_lead_minutes": 15,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T19:00:00Z",
-          "forecast_hour": 2,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t19z.2dfld.3km.subh.f002.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f002.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f002.conus.grib2",
+          "forecast_step": 2,
+          "forecast_lead_minutes": 30,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T19:00:00Z",
-          "forecast_hour": 3,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t19z.2dfld.3km.subh.f003.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f003.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f003.conus.grib2",
+          "forecast_step": 3,
+          "forecast_lead_minutes": 45,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T19:00:00Z",
-          "forecast_hour": 4,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t19z.2dfld.3km.subh.f004.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f004.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f004.conus.grib2",
+          "forecast_step": 4,
+          "forecast_lead_minutes": 60,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T19:00:00Z",
-          "forecast_hour": 5,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t19z.2dfld.3km.subh.f005.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f005.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f005.conus.grib2",
+          "forecast_step": 5,
+          "forecast_lead_minutes": 75,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T19:00:00Z",
-          "forecast_hour": 6,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t19z.2dfld.3km.subh.f006.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f006.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f006.conus.grib2",
+          "forecast_step": 6,
+          "forecast_lead_minutes": 90,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T19:00:00Z",
-          "forecast_hour": 7,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t19z.2dfld.3km.subh.f007.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f007.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f007.conus.grib2",
+          "forecast_step": 7,
+          "forecast_lead_minutes": 105,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T19:00:00Z",
-          "forecast_hour": 8,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t19z.2dfld.3km.subh.f008.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f008.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f008.conus.grib2",
+          "forecast_step": 8,
+          "forecast_lead_minutes": 120,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T19:00:00Z",
-          "forecast_hour": 9,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t19z.2dfld.3km.subh.f009.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f009.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f009.conus.grib2",
+          "forecast_step": 9,
+          "forecast_lead_minutes": 135,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T19:00:00Z",
-          "forecast_hour": 10,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t19z.2dfld.3km.subh.f010.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f010.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f010.conus.grib2",
+          "forecast_step": 10,
+          "forecast_lead_minutes": 150,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T19:00:00Z",
-          "forecast_hour": 11,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t19z.2dfld.3km.subh.f011.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f011.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f011.conus.grib2",
+          "forecast_step": 11,
+          "forecast_lead_minutes": 165,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T19:00:00Z",
-          "forecast_hour": 12,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t19z.2dfld.3km.subh.f012.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f012.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f012.conus.grib2",
+          "forecast_step": 12,
+          "forecast_lead_minutes": 180,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T19:00:00Z",
-          "forecast_hour": 13,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t19z.2dfld.3km.subh.f013.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f013.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f013.conus.grib2",
+          "forecast_step": 13,
+          "forecast_lead_minutes": 195,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T19:00:00Z",
-          "forecast_hour": 14,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t19z.2dfld.3km.subh.f014.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f014.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f014.conus.grib2",
+          "forecast_step": 14,
+          "forecast_lead_minutes": 210,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T19:00:00Z",
-          "forecast_hour": 15,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t19z.2dfld.3km.subh.f015.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f015.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f015.conus.grib2",
+          "forecast_step": 15,
+          "forecast_lead_minutes": 225,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T19:00:00Z",
-          "forecast_hour": 16,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t19z.2dfld.3km.subh.f016.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f016.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f016.conus.grib2",
+          "forecast_step": 16,
+          "forecast_lead_minutes": 240,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T19:00:00Z",
-          "forecast_hour": 17,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t19z.2dfld.3km.subh.f017.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f017.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f017.conus.grib2",
+          "forecast_step": 17,
+          "forecast_lead_minutes": 255,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T19:00:00Z",
-          "forecast_hour": 18,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t19z.2dfld.3km.subh.f018.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f018.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/19/rrfs.t19z.2dfld.3km.subh.f018.conus.grib2",
+          "forecast_step": 18,
+          "forecast_lead_minutes": 270,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T18:00:00Z",
-          "forecast_hour": 0,
           "product": "surface_2d_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t18z.2dfld.3km.f000.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/18/rrfs.t18z.2dfld.3km.f000.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/18/rrfs.t18z.2dfld.3km.f000.conus.grib2",
+          "forecast_hour": 0
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T18:00:00Z",
-          "forecast_hour": 0,
           "product": "pressure_levels_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t18z.prslev.3km.f000.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/18/rrfs.t18z.prslev.3km.f000.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/18/rrfs.t18z.prslev.3km.f000.conus.grib2",
+          "forecast_hour": 0
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T18:00:00Z",
-          "forecast_hour": 1,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t18z.2dfld.3km.subh.f001.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/18/rrfs.t18z.2dfld.3km.subh.f001.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/18/rrfs.t18z.2dfld.3km.subh.f001.conus.grib2",
+          "forecast_step": 1,
+          "forecast_lead_minutes": 15,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T18:00:00Z",
-          "forecast_hour": 1,
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t18z.2dfld.3km.f001.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/18/rrfs.t18z.2dfld.3km.f001.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T18:00:00Z",
-          "forecast_hour": 1,
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t18z.prslev.3km.f001.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/18/rrfs.t18z.prslev.3km.f001.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T18:00:00Z",
-          "forecast_hour": 2,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t18z.2dfld.3km.subh.f002.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/18/rrfs.t18z.2dfld.3km.subh.f002.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/18/rrfs.t18z.2dfld.3km.subh.f002.conus.grib2",
+          "forecast_step": 2,
+          "forecast_lead_minutes": 30,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T18:00:00Z",
-          "forecast_hour": 2,
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t18z.2dfld.3km.f002.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/18/rrfs.t18z.2dfld.3km.f002.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T18:00:00Z",
-          "forecast_hour": 2,
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t18z.prslev.3km.f002.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/18/rrfs.t18z.prslev.3km.f002.conus.grib2"
-        },
-        {
-          "model": "RRFS",
-          "date": "20261112",
-          "cycle_utc": "20261112T18:00:00Z",
-          "forecast_hour": 3,
           "product": "surface_subhourly_3km",
           "resolution_km": 3,
           "domain": "conus",
           "filename": "rrfs.t18z.2dfld.3km.subh.f003.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/18/rrfs.t18z.2dfld.3km.subh.f003.conus.grib2"
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/18/rrfs.t18z.2dfld.3km.subh.f003.conus.grib2",
+          "forecast_step": 3,
+          "forecast_lead_minutes": 45,
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
           "date": "20261112",
           "cycle_utc": "20261112T18:00:00Z",
-          "forecast_hour": 3,
+          "product": "surface_subhourly_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t18z.2dfld.3km.subh.f004.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/18/rrfs.t18z.2dfld.3km.subh.f004.conus.grib2",
+          "forecast_step": 4,
+          "forecast_lead_minutes": 60,
+          "forecast_interval_minutes": 15
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T18:00:00Z",
           "product": "surface_2d_3km",
           "resolution_km": 3,
           "domain": "conus",
-          "filename": "rrfs.t18z.2dfld.3km.f003.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/18/rrfs.t18z.2dfld.3km.f003.conus.grib2"
+          "filename": "rrfs.t18z.2dfld.3km.f001.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/18/rrfs.t18z.2dfld.3km.f001.conus.grib2",
+          "forecast_hour": 1
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T18:00:00Z",
+          "product": "pressure_levels_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t18z.prslev.3km.f001.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/18/rrfs.t18z.prslev.3km.f001.conus.grib2",
+          "forecast_hour": 1
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T18:00:00Z",
+          "product": "surface_subhourly_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t18z.2dfld.3km.subh.f005.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/18/rrfs.t18z.2dfld.3km.subh.f005.conus.grib2",
+          "forecast_step": 5,
+          "forecast_lead_minutes": 75,
+          "forecast_interval_minutes": 15
+        },
+        {
+          "model": "RRFS",
+          "date": "20261112",
+          "cycle_utc": "20261112T18:00:00Z",
+          "product": "surface_subhourly_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t18z.2dfld.3km.subh.f006.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/18/rrfs.t18z.2dfld.3km.subh.f006.conus.grib2",
+          "forecast_step": 6,
+          "forecast_lead_minutes": 90,
+          "forecast_interval_minutes": 15
         }
       ],
       "directory_errors": [
@@ -31052,6 +31208,11 @@
           "date": "20261113",
           "directory": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261113/",
           "error": "HTTPError: 404 Client Error: Not Found for url: https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261113/"
+        },
+        {
+          "date": "20261112",
+          "directory": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/23/",
+          "error": "HTTPError: 403 Client Error: Forbidden for url: https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261112/23/"
         }
       ]
     }
