@@ -1,0 +1,55 @@
+{
+  "model": "HRRR",
+  "cycle_utc": "20261113T20:00:00Z",
+  "forecast_hour": 0,
+  "valid_time_utc": "2026-11-13T20:00:00Z",
+  "field_key": "2t_2d_3",
+  "short_name": "2t",
+  "long_name": "2-m temperature",
+  "units": "\u00b0C",
+  "source_units": "K",
+  "display_transform": {
+    "scale": 1.0,
+    "offset": -273.15
+  },
+  "source_grid_shape": [
+    153,
+    145
+  ],
+  "render_grid_shape": [
+    153,
+    145
+  ],
+  "source_grid_id": "grid_3",
+  "source_grid_stride": 5,
+  "render_stride": 1,
+  "source_effective_spacing_m": {
+    "x": 15000.0,
+    "y": 15000.0
+  },
+  "render_effective_spacing_m": {
+    "x": 15000.0,
+    "y": 15000.0
+  },
+  "display_range": [
+    -1.669999999999959,
+    23.640000000000043
+  ],
+  "contour_interval": 5,
+  "contour_levels": [
+    0.0,
+    5.0,
+    10.0,
+    15.0,
+    20.0,
+    25.0
+  ],
+  "tile_size": 256,
+  "zoom_min": 3,
+  "zoom_max": 6,
+  "tile_count": 51,
+  "contour_feature_count": 208,
+  "tile_url": "hrrr/20261113T200000Z/f00/2t_2d_3/tiles/{z}/{x}/{y}.png",
+  "contour_url": "hrrr/20261113T200000Z/f00/2t_2d_3/contours.geojson",
+  "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling"
+}

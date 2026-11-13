@@ -1,0 +1,57 @@
+{
+  "model": "RAP",
+  "cycle_utc": "20261113T20:00:00Z",
+  "forecast_hour": 0,
+  "valid_time_utc": "2026-11-13T20:00:00Z",
+  "field_key": "10u_2d_3",
+  "short_name": "10u",
+  "long_name": "10 metre U wind component",
+  "units": "m s**-1",
+  "source_units": "m s**-1",
+  "display_transform": {
+    "scale": 1.0,
+    "offset": 0.0
+  },
+  "source_grid_shape": [
+    226,
+    177
+  ],
+  "render_grid_shape": [
+    226,
+    177
+  ],
+  "source_grid_id": "grid_3",
+  "source_grid_stride": 1,
+  "render_stride": 1,
+  "source_effective_spacing_m": {
+    "x": 13545.0,
+    "y": 13545.0
+  },
+  "render_effective_spacing_m": {
+    "x": 13545.0,
+    "y": 13545.0
+  },
+  "display_range": [
+    -3.14,
+    12.48
+  ],
+  "contour_interval": 2,
+  "contour_levels": [
+    -2.0,
+    0.0,
+    2.0,
+    4.0,
+    6.0,
+    8.0,
+    10.0,
+    12.0
+  ],
+  "tile_size": 256,
+  "zoom_min": 3,
+  "zoom_max": 6,
+  "tile_count": 51,
+  "contour_feature_count": 217,
+  "tile_url": "rap/20261113T200000Z/f00/10u_2d_3/tiles/{z}/{x}/{y}.png",
+  "contour_url": "rap/20261113T200000Z/f00/10u_2d_3/contours.geojson",
+  "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling"
+}
