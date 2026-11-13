@@ -88,6 +88,25 @@ jobs:
           }
           render_archive mesoscale/data/fields/forecast/forecast_manifest.json RAP
           render_archive mesoscale/data/fields/hrrr/hrrr_forecast_manifest.json HRRR
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path("mesoscale/data/model_tiles")
+          products = []
+          for product_path in sorted(root.glob("**/product.json")):
+              product = json.loads(product_path.read_text(encoding="utf-8"))
+              product["product_path"] = product_path.relative_to(root).as_posix()
+              products.append(product)
+          root.mkdir(parents=True, exist_ok=True)
+          catalog = {
+              "schema_version": 1,
+              "generated_utc": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(),
+              "tile_scheme": "XYZ",
+              "products": products,
+          }
+          (root / "catalog.json").write_text(json.dumps(catalog, indent=2) + "\\n", encoding="utf-8")
+          print(f"Published tile catalog with {len(products)} products")
+          PY
       - name: Publish tile archive
         run: |
           git pull --rebase origin main
