@@ -8,7 +8,61 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from mesoscale.render_model_tiles import TILE_MAX_GRID_DIM, render_tiles
+from mesoscale.render_model_tiles import (
+    TILE_MAX_GRID_DIM,
+    render_tiles,
+    summarize_forecast_hour_coverage,
+)
+
+
+def test_tile_coverage_reports_only_forecast_hours_actually_rendered():
+    hours = [{"forecast_hour": value} for value in (0, 3, 6, 9, 12, 15)]
+
+    coverage = summarize_forecast_hour_coverage(hours, [0])
+
+    assert coverage == {
+        "archive_hours": [0, 3, 6, 9, 12, 15],
+        "rendered_hours": [0],
+        "not_rendered_hours": [3, 6, 9, 12, 15],
+    }
+
+
+def test_tile_coverage_rejects_unknown_or_duplicate_forecast_hours():
+    import pytest
+
+    with pytest.raises(ValueError, match="absent from the archive"):
+        summarize_forecast_hour_coverage([{"forecast_hour": 0}], [3])
+    with pytest.raises(ValueError, match="duplicate forecast hours"):
+        summarize_forecast_hour_coverage([{"forecast_hour": 0}, {"forecast_hour": 0}], [0])
+
+
+def test_tile_catalog_preserves_timestamp_when_product_inventory_is_unchanged():
+    from mesoscale.render_model_tiles import build_tile_catalog
+
+    products = [{"model": "RAP", "cycle_utc": "20261113T20:00:00Z", "forecast_hour": 0}]
+    previous = {
+        "schema_version": 1,
+        "generated_utc": "2026-11-13T22:09:28Z",
+        "tile_scheme": "XYZ",
+        "products": products,
+    }
+
+    catalog = build_tile_catalog(products, previous, "2026-11-13T23:00:00Z")
+
+    assert catalog["generated_utc"] == previous["generated_utc"]
+    assert catalog["products"] == products
+
+
+def test_tile_catalog_advances_timestamp_when_product_inventory_changes():
+    from mesoscale.render_model_tiles import build_tile_catalog
+
+    previous = {"generated_utc": "2026-11-13T22:09:28Z", "products": []}
+    products = [{"model": "HRRR", "cycle_utc": "20261113T23:00:00Z", "forecast_hour": 0}]
+
+    catalog = build_tile_catalog(products, previous, "2026-11-13T23:10:00Z")
+
+    assert catalog["generated_utc"] == "2026-11-13T23:10:00Z"
+    assert catalog["products"] == products
 
 
 def test_render_native_grid_to_xyz_raster_and_independent_contours(tmp_path: Path):

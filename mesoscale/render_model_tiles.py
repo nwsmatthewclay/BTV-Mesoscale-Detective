@@ -33,6 +33,48 @@ def display_sampling_stride(shape: tuple[int, int], max_grid_dim: int = TILE_MAX
     return max(1, (max(int(value) for value in shape) + max_grid_dim - 1) // max_grid_dim)
 
 
+def summarize_forecast_hour_coverage(
+    archive_hours: list[dict[str, Any]], rendered_forecast_hours: list[int]
+) -> dict[str, Any]:
+    """Describe exactly which verified archive hours have tile products."""
+    declared = [int(item["forecast_hour"]) for item in archive_hours]
+    if len(set(declared)) != len(declared):
+        raise ValueError("Archive contains duplicate forecast hours")
+    rendered_set = {int(hour) for hour in rendered_forecast_hours}
+    unknown = rendered_set.difference(declared)
+    if unknown:
+        raise ValueError(f"Rendered forecast hours are absent from the archive: {sorted(unknown)}")
+    rendered = [hour for hour in declared if hour in rendered_set]
+    return {
+        "archive_hours": declared,
+        "rendered_hours": rendered,
+        "not_rendered_hours": [hour for hour in declared if hour not in rendered_set],
+    }
+
+
+def build_tile_catalog(
+    products: list[dict[str, Any]],
+    existing_catalog: dict[str, Any] | None = None,
+    generated_utc: str | None = None,
+) -> dict[str, Any]:
+    """Build a deterministic catalog, preserving its timestamp when inventory is unchanged."""
+    previous = existing_catalog if isinstance(existing_catalog, dict) else {}
+    previous_products = previous.get("products")
+    previous_timestamp = previous.get("generated_utc")
+    if previous_products == products and isinstance(previous_timestamp, str) and previous_timestamp:
+        timestamp = previous_timestamp
+    else:
+        timestamp = generated_utc
+    if not isinstance(timestamp, str) or not timestamp:
+        raise ValueError("generated_utc is required when the tile product inventory changes")
+    return {
+        "schema_version": 1,
+        "generated_utc": timestamp,
+        "tile_scheme": "XYZ",
+        "products": products,
+    }
+
+
 def load_payload(path: Path) -> dict[str, Any]:
     opener = gzip.open if path.suffix == ".gz" else open
     with opener(path, "rt", encoding="utf-8") as stream:

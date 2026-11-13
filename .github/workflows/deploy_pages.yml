@@ -7,12 +7,10 @@ on:
       - "index.html"
       - "mesoscale.html"
       - "mesoscale/**"
-      - ".github/workflows/deploy_pages.yml"
-  workflow_run:
-    workflows:
-      - Render RAP and HRRR Model Tiles
-    types: [completed]
-    branches: [main]
+      # Tile generation and deployment are owned by model_tile_render.yml.
+      - "!mesoscale/data/model_tiles/**"
+      - "!mesoscale/render_model_tiles.py"
+      - "!mesoscale/tests/**"
   workflow_dispatch:
 
 permissions:
@@ -26,7 +24,6 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
