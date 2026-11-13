@@ -183,6 +183,7 @@ def test_expanded_upstream_domain_and_dynamic_map_legends_are_wired():
     process = (ROOT / "mesoscale" / "process_grib.py").read_text(encoding="utf-8")
     subset = (ROOT / "mesoscale" / "download_subset.py").read_text(encoding="utf-8")
     assert 'fitBounds(REGIONAL_BOUNDS' in html
+    assert 'const REGIONAL_DOMAIN={west:-90.0,east:-61.5,south:32.0,north:52.0};' in html
     assert 'id="mapLegend"' in html
     assert "function updateMapLegend(label,min,max,units" in html
     assert "updateMapLegend(field.long_name||shortName,range.min,range.max,field.units" in html
@@ -197,5 +198,6 @@ def test_native_field_catalog_and_renderers_require_matching_grid_geometry():
     assert "Array.isArray(payload.grids?.[field.grid_id]?.longitude)" in html
     assert "Array.isArray(payload.grids?.[f.grid_id]?.latitude)" in html
     assert "nearest native grid" in html
+    assert "native regional subset" in html
     assert "shown.toLocaleString('en-US',{maximumFractionDigits:1})" in html
     assert "toExponential" not in html
