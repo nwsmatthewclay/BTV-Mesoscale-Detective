@@ -1,5 +1,5 @@
 name: Mesoscale Model Discovery and Validation
-# Validate expanded-domain code and tests before rebuilding published RAP/HRRR archives.
+# Revalidate expanded-domain code and tests before rebuilding published RAP/HRRR archives.
 
 on:
   push:
