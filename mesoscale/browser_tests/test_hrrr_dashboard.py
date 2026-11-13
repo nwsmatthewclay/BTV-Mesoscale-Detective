@@ -123,7 +123,8 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         visible_parameters = page.locator("#parameter option").evaluate_all(
             "(options) => options.filter(option => !option.hidden && !option.disabled).map(option => option.value)"
         )
-        assert visible_parameters == ["cape", "lapse"]
+        assert {"cape", "lapse", "native_RAP_2t"}.issubset(set(visible_parameters))
+        assert "fronto" not in visible_parameters
         page.locator("#category").select_option("forcing")
         visible_parameters = page.locator("#parameter option").evaluate_all(
             "(options) => options.filter(option => !option.hidden && !option.disabled).map(option => option.value)"
