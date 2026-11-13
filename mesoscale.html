@@ -601,12 +601,17 @@ function buildContourFieldControls(payload,model){
     const normalized=normalizeContourField(field);if(!normalized)continue;
     const key=model+':'+field.short_name+':'+field.grid_id;
     if(candidates.some(item=>item.key===key))continue;
-    candidates.push({key,shortName:field.short_name,...normalized});
+    const grid=payload.grids?.[field.grid_id];if(!grid)continue;
+    candidates.push({key,shortName:field.short_name,...normalized,grid});
   }
-  candidates.sort((a,b)=>a.label.localeCompare(b.label));
+  candidates.sort((a,b)=>{
+    const priority={2t:0,2d:1,t:2,d:3,2sh:4,pwat:5,10u:6,10v:7};
+    return (priority[a.shortName]??20)-(priority[b.shortName]??20)||a.label.localeCompare(b.label);
+  });
   if(!candidates.length){host.innerHTML='<span class="contour-empty">No additional 2-D fields in this model hour</span>';additionalContourSources=[];return;}
-  candidates.slice(0,18).forEach((item,index)=>{
+  candidates.slice(0,24).forEach((item,index)=>{
     const label=document.createElement('label'),input=document.createElement('input');
+    label.style.borderLeft='3px solid '+CONTOUR_COLORS[(index+1)%CONTOUR_COLORS.length];
     input.type='checkbox';input.value=item.key;input.dataset.model=model;
     input.addEventListener('change',()=>{
       additionalContourSources=Array.from(host.querySelectorAll('input:checked')).map(control=>{
