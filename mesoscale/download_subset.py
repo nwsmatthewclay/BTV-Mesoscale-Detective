@@ -16,7 +16,7 @@ from urllib.parse import urlencode
 import requests
 
 BASE = "https://nomads.ncep.noaa.gov/cgi-bin"
-REGION = {"leftlon": -75.2, "rightlon": -71.2, "toplat": 45.3, "bottomlat": 42.3}
+REGION = {"leftlon": -78.5, "rightlon": -68.0, "toplat": 48.0, "bottomlat": 40.0}
 MAX_DOWNLOAD_BYTES = 100_000_000
 
 RAP_PRODUCT = "pressure_levels_conus_13km"
