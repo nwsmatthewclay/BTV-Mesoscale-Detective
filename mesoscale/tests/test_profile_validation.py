@@ -4,6 +4,7 @@ import pytest
 
 from mesoscale.diagnostics import _finite_profile
 from mesoscale.extract_profile import write_profile_json
+from mesoscale.process_grib import grib_metadata, grid_projection_metadata
 
 
 def test_profile_rejects_mismatched_arrays():
@@ -48,3 +49,22 @@ def test_profile_json_writer_writes_parseable_json(tmp_path):
     serialized = output.read_text(encoding="utf-8")
     assert serialized.endswith("\n")
     assert json.loads(serialized) == profile
+
+
+
+def test_grib_projection_metadata_preserves_native_geometry_and_wind_orientation():
+    attrs = {
+        "GRIB_gridType": "lambert",
+        "GRIB_LoVInDegrees": -97.5,
+        "GRIB_Latin1InDegrees": 38.5,
+        "GRIB_DxInMetres": 13000,
+        "GRIB_DyInMetres": 13000,
+        "GRIB_uvRelativeToGrid": 1,
+        "unrelated": "omit",
+    }
+    projection = grid_projection_metadata(attrs)
+    assert projection["GRIB_gridType"] == "lambert"
+    assert projection["GRIB_DxInMetres"] == 13000
+    assert projection["GRIB_uvRelativeToGrid"] == 1
+    assert "unrelated" not in projection
+    assert grib_metadata(attrs)["GRIB_uvRelativeToGrid"] == 1
