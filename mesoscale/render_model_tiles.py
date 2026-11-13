@@ -100,12 +100,21 @@ def build_contours(data: np.ndarray, lat: np.ndarray, lon: np.ndarray,
     fig, ax = plt.subplots()
     contour = ax.contour(lon, lat, np.ma.masked_invalid(data), levels=levels)
     features = []
-    for level, collection in zip(contour.levels, contour.collections):
-        for path in collection.get_paths():
-            vertices = path.vertices
-            if len(vertices) < 2:
+    for level, path in zip(contour.levels, contour.get_paths()):
+        vertices = path.vertices
+        codes = path.codes
+        if codes is None:
+            segments = [vertices]
+        else:
+            starts = np.flatnonzero(codes == 1)  # matplotlib.path.Path.MOVETO
+            segments = [
+                vertices[start:(starts[i + 1] if i + 1 < len(starts) else len(vertices))]
+                for i, start in enumerate(starts)
+            ]
+        for segment in segments:
+            if len(segment) < 2:
                 continue
-            coords = [[float(x), float(y)] for x, y in vertices if np.isfinite(x) and np.isfinite(y)]
+            coords = [[float(x), float(y)] for x, y in segment if np.isfinite(x) and np.isfinite(y)]
             if len(coords) >= 2:
                 features.append({
                     "type": "Feature",
