@@ -16,7 +16,7 @@ if str(REPO_ROOT) not in sys.path:
 import requests
 
 from mesoscale.download_subset import download, select_product
-from mesoscale.process_grib import process_file
+from mesoscale.process_grib import HRRR_MAX_GRID_DIM, process_file
 
 DEFAULT_MANIFEST = Path("mesoscale/data/model_manifest.json")
 DEFAULT_OUTPUT = Path("mesoscale/data/ingestion_smoke/hrrr")
@@ -112,7 +112,7 @@ def main() -> None:
     parser.add_argument("--manifest", default=str(DEFAULT_MANIFEST))
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT))
     parser.add_argument("--forecast-hour", type=int, default=0)
-    parser.add_argument("--max-grid-dim", type=int, default=160)
+    parser.add_argument("--max-grid-dim", type=int, default=HRRR_MAX_GRID_DIM)
     args = parser.parse_args()
 
     output_dir = Path(args.output_dir)
@@ -139,6 +139,8 @@ def main() -> None:
             int(product["forecast_hour"]), grid_path, max_grid_dim=args.max_grid_dim
         )
         report = validate_payload(payload, product["cycle_utc"], args.forecast_hour)
+        report["processing"] = payload.get("processing")
+        report["grid_sampling"] = {grid_id: grid.get("sampling") for grid_id, grid in payload.get("grids", {}).items()}
         report.update({
             "source_file": downloaded["source_file"],
             "download_bytes": downloaded["bytes"],

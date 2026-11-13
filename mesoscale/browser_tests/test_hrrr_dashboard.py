@@ -96,7 +96,7 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
                 const lon = Array.from({length: 4}, () => Array.from({length: 4}, (_, x) => -74 + x * 0.1));
                 const values = Array.from({length: 4}, (_, y) => Array.from({length: 4}, (_, x) => 280 + y + x));
                 const payload = {
-                    grids: {good: {latitude: lat, longitude: lon}},
+                    grids: {good: {latitude: lat, longitude: lon, stride: 2, projection: {GRIB_DxInMetres: 13545, GRIB_DyInMetres: 13545}}},
                     fields: {
                         bad: {short_name: "2t", grid_id: "missing", data: values},
                         good: {short_name: "2t", grid_id: "good", data: values}
@@ -108,11 +108,26 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
                     rapSkipsBadDuplicate: findRapSurfaceField(payload, ["2t"]) === payload.fields.good,
                     hrrrSkipsBadDuplicate: findHrrrField(payload, ["2t"]) === payload.fields.good,
                     nativeResolverRejectsBad: selectedTileFieldKey("RAP", "native_RAP_key_bad", payload) === null,
-                        snowFieldsCategorizedAsWinter: ["sd", "sde", "snod", "weasd"].every(name => NATIVE_FIELD_CATEGORIES[name] === "winter")
+                    effectiveSpacing: formatEffectiveGridSpacing(payload, "good").includes("27.1 × 27.1 km effective"),
+                    hrrrSpacing: formatEffectiveGridSpacing({
+                        grids: {h: {stride: 5, projection: {GRIB_DxInMetres: 3000, GRIB_DyInMetres: 3000}}}
+                    }, "h").includes("15.0 × 15.0 km effective"),
+                    snowFieldsCategorizedAsWinter: ["sd", "sde", "snod", "weasd"].every(name => NATIVE_FIELD_CATEGORIES[name] === "winter")
                 };
             }"""
         )
         assert all(field_geometry.values()), field_geometry
+        missing_source = page.evaluate(
+            """() => {
+                const payload = {
+                    grids: {g: {latitude: [[44.5]], longitude: [[-73.2]]}},
+                    fields: {temperature: {short_name: "2t", grid_id: "g", data: [[280]]}}
+                };
+                return sampleComparableSurface(payload, "RAP", ["2d"], 44.5, -73.2) === null
+                    && comparableTemperature(null) === null;
+            }"""
+        )
+        assert missing_source, "Missing source fields must remain unavailable; no alternate field proxy is allowed"
 
         # The current workstation has a two-column shell and a two-column analysis area.
         desktop_layout = page.evaluate(
@@ -296,7 +311,7 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
             }"""
         )
         page.wait_for_function(
-            "() => document.querySelector('#crossSectionStatus').textContent.includes('Temperature') && document.querySelector('#crossSectionStatus').textContent.includes('distinct native-grid columns')",
+            "() => document.querySelector('#crossSectionStatus').textContent.includes('Temperature') && document.querySelector('#crossSectionStatus').textContent.includes('distinct published-grid columns')",
             timeout=45000,
         )
         page.locator("#crossVariable").select_option("omega")
@@ -350,7 +365,9 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         )
         assert page.locator("#parameter").input_value() == "hrrr_temp"
         assert "HRRR 2-m temperature" in page.locator("#mapChip").inner_text()
-        assert page.locator("#gridSpacing").text_content().strip() == "3 km nominal"
+        expected_hrrr_spacing = page.evaluate("() => 'HRRR · ' + formatEffectiveGridSpacing(window.hrrrGridPayload)")
+        assert page.locator("#gridSpacing").text_content().strip() == expected_hrrr_spacing
+        assert "km effective" in expected_hrrr_spacing
 
         # Cursor sampling reports the nearest native HRRR grid value for the selected field.
         page.evaluate(
@@ -457,7 +474,9 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
             },
             timeout=30000,
         )
-        assert page.locator("#gridSpacing").text_content().strip() == "13 km nominal"
+        expected_rap_spacing = page.evaluate("() => 'RAP · ' + formatEffectiveGridSpacing(window.rapGridPayload)")
+        assert page.locator("#gridSpacing").text_content().strip() == expected_rap_spacing
+        assert "km effective" in expected_rap_spacing
         for entry in rap["hours"]:
             _select_and_wait_for_hour(page, "RAP", entry, rap["model_cycle_utc"])
 
@@ -520,7 +539,7 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
             page.wait_for_function(
                 """() => {
                     const status = document.querySelector('#crossSectionStatus')?.textContent || '';
-                    return status.includes('distinct native-grid columns') || status.startsWith('Cross-section unavailable:');
+                    return status.includes('distinct published-grid columns') || status.startsWith('Cross-section unavailable:');
                 }""",
                 timeout=60000,
             )
@@ -535,8 +554,9 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
             )
             raise AssertionError(f"RAP transect did not finish: {state}; page errors: {page_errors}; console errors: {console_errors}") from exc
         cross_status = page.locator("#crossSectionStatus").inner_text()
-        assert "distinct native-grid columns" in cross_status, f"RAP transect failed: {cross_status}"
-        assert "native RAP (~13 km)" in cross_status, f"Cross-section must report native horizontal resolution: {cross_status}"
+        assert "distinct published-grid columns" in cross_status, f"RAP transect failed: {cross_status}"
+        assert "effective horizontal spacing" in cross_status, f"Cross-section must report effective horizontal resolution: {cross_status}"
+        assert "native RAP (~13 km)" not in cross_status
 
         browser.close()
 

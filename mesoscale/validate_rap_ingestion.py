@@ -12,7 +12,7 @@ import requests
 
 # Allow this script to run directly from the repository root in GitHub Actions.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from process_grib import process_file
+from process_grib import RAP_MAX_GRID_DIM, process_file
 from extract_profile import extract_profile
 
 MANIFEST = Path("mesoscale/data/model_manifest.json")
@@ -161,7 +161,7 @@ def main() -> None:
         field_path = OUT / f"rap_f{int(product['forecast_hour']):02d}_btv.json.gz"
         payload = process_file(
             target, "RAP", product["cycle_utc"], int(product["forecast_hour"]),
-            field_path, max_grid_dim=160
+            field_path, max_grid_dim=RAP_MAX_GRID_DIM
         )
         required_fields = {"t", "gh", "u", "v"}
         extracted_short_names = {item["short_name"] for item in payload["fields"].values()}
@@ -171,6 +171,8 @@ def main() -> None:
             "field_count": payload["quality"]["field_count"],
             "grid_count": payload["quality"]["grid_count"],
             "warnings": payload["quality"]["warnings"],
+            "grid_sampling": {grid_id: grid.get("sampling") for grid_id, grid in payload["grids"].items()},
+            "processing": payload.get("processing"),
             "extracted_short_names": sorted(extracted_short_names),
             "required_fields_present": sorted(required_fields & extracted_short_names),
         }

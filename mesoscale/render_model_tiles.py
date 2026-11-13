@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Render GRIB-derived model grids as zoomable XYZ raster tiles and GeoJSON contours.
+"""Render published model grids as zoomable XYZ raster tiles and GeoJSON contours.
 
-The source grid remains authoritative. Raster tiles are a display product; contours
-are calculated independently from the native grid and exported as geographic vectors.
+The complete archived grid remains authoritative for cursor and point sampling. Raster
+and contour products use a bounded display resample to keep tile rendering predictable.
 """
 from __future__ import annotations
 
@@ -21,8 +21,16 @@ from scipy.spatial import Delaunay, QhullError
 
 WEB_MERCATOR_LIMIT = 20037508.342789244
 TILE_SIZE = 256
+TILE_MAX_GRID_DIM = 320
 WEB = "EPSG:3857"
 GEO = "EPSG:4326"
+
+
+def display_sampling_stride(shape: tuple[int, int], max_grid_dim: int = TILE_MAX_GRID_DIM) -> int:
+    """Bound the display grid without changing the source archive payload."""
+    if max_grid_dim < 1 or len(shape) != 2 or any(int(value) < 1 for value in shape):
+        raise ValueError("display sampling requires a positive 2-D shape and positive cap")
+    return max(1, (max(int(value) for value in shape) + max_grid_dim - 1) // max_grid_dim)
 
 
 def load_payload(path: Path) -> dict[str, Any]:
@@ -140,10 +148,32 @@ def render_tiles(payload: dict[str, Any], selector: str, output_root: Path,
     field_key, field, data, grid = choose_field(payload, selector)
     source_units = field.get("units")
     data = data * float(scale) + float(offset)
+    source_grid_shape = list(data.shape)
+    source_grid_stride = int(grid.get("stride", 1))
+    sampling = grid.get("sampling") or {}
+    source_effective_spacing = sampling.get("effective_spacing_m")
+    if not isinstance(source_effective_spacing, dict):
+        projection = grid.get("projection") or {}
+        dx, dy = projection.get("GRIB_DxInMetres"), projection.get("GRIB_DyInMetres")
+        try:
+            dx, dy = abs(float(dx)) * source_grid_stride, abs(float(dy)) * source_grid_stride
+            source_effective_spacing = {"x": dx, "y": dy} if dx > 0 and dy > 0 else None
+        except (TypeError, ValueError):
+            source_effective_spacing = None
     lat = np.asarray(grid["latitude"], dtype=float)
     lon = ((np.asarray(grid["longitude"], dtype=float) + 180) % 360) - 180
     if data.shape != lat.shape or data.shape != lon.shape:
         raise ValueError(f"Field/grid shape mismatch: data={data.shape}, lat={lat.shape}, lon={lon.shape}")
+    render_stride = display_sampling_stride(data.shape)
+    if render_stride > 1:
+        data = data[::render_stride, ::render_stride]
+        lat = lat[::render_stride, ::render_stride]
+        lon = lon[::render_stride, ::render_stride]
+    render_effective_spacing = (
+        {axis: float(source_effective_spacing[axis]) * render_stride
+         for axis in ("x", "y") if source_effective_spacing.get(axis) is not None}
+        if isinstance(source_effective_spacing, dict) else None
+    )
     valid = np.isfinite(data) & np.isfinite(lat) & np.isfinite(lon)
     if int(valid.sum()) < 12:
         raise ValueError("Fewer than 12 valid grid cells; refusing to publish a misleading map")
@@ -196,14 +226,17 @@ def render_tiles(payload: dict[str, Any], selector: str, output_root: Path,
         "field_key": field_key, "short_name": field.get("short_name"),
         "long_name": display_label or field.get("long_name"), "units": display_units or source_units,
         "source_units": source_units, "display_transform": {"scale": float(scale), "offset": float(offset)},
-        "source_grid_shape": list(data.shape), "source_grid_id": field.get("grid_id"),
+        "source_grid_shape": source_grid_shape, "render_grid_shape": list(data.shape),
+        "source_grid_id": field.get("grid_id"), "source_grid_stride": source_grid_stride,
+        "render_stride": render_stride, "source_effective_spacing_m": source_effective_spacing,
+        "render_effective_spacing_m": render_effective_spacing,
         "display_range": [low, high], "contour_interval": interval,
         "contour_levels": [float(v) for v in levels], "tile_size": TILE_SIZE,
         "zoom_min": zoom_min, "zoom_max": zoom_max, "tile_count": tile_count,
         "contour_feature_count": contour_count,
         "tile_url": f"{relative.as_posix()}/tiles/{{z}}/{{x}}/{{y}}.png",
         "contour_url": f"{relative.as_posix()}/contours.geojson",
-        "rendering": "linear interpolation from native model grid; contours calculated independently on native geographic grid",
+        "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
     }
     product_root.mkdir(parents=True, exist_ok=True)
     (product_root / "product.json").write_text(json.dumps(product, indent=2) + "\n", encoding="utf-8")

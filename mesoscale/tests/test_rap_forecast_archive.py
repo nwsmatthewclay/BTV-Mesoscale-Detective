@@ -3,7 +3,7 @@ import json
 from datetime import datetime, timedelta
 
 from mesoscale.build_rap_forecast_archive import archive_needs_update, choose_cycle_products
-from mesoscale.process_grib import DOMAIN
+from mesoscale.process_grib import DOMAIN, RAP_MAX_GRID_DIM
 
 
 def product(cycle, hour, family="hybrid_levels_conus_13km"):
@@ -72,6 +72,7 @@ def published_rap_archive(cycle, hours=(0, 3, 6, 9, 12, 15), quality="passed"):
     return {
         "model": "RAP",
         "model_cycle_utc": cycle,
+        "processing": {"max_grid_dim": RAP_MAX_GRID_DIM},
         "hours": [
             {
                 "forecast_hour": hour,
@@ -148,8 +149,14 @@ def write_rap_archive_files(archive_root, archive):
             "forecast_hour": entry["forecast_hour"],
             "valid_time_utc": entry["valid_time_utc"],
             "domain": DOMAIN,
+            "processing": {"max_grid_dim": RAP_MAX_GRID_DIM},
             "fields": {"temperature": {"short_name": "t"}},
-            "grids": {"hybrid": {"shape": [1, 1]}},
+            "grids": {"hybrid": {
+                "shape": [1, 1], "stride": 1, "max_grid_dim": RAP_MAX_GRID_DIM,
+                "sampling": {"max_grid_dim": RAP_MAX_GRID_DIM, "stride": 1,
+                             "source_spacing_m": {"x": 13545.0, "y": 13545.0},
+                             "effective_spacing_m": {"x": 13545.0, "y": 13545.0}},
+            }},
             "quality": {"field_count": 1, "grid_count": 1},
         }
         with gzip.open(grid_path, "wt", encoding="utf-8") as stream:
@@ -257,4 +264,42 @@ def test_rap_freshness_rebuilds_archive_with_inconsistent_valid_times():
 
     assert archive_needs_update(
         manifest, archive, (0, 3, 6, 9, 12, 15)
+    )[0] is True
+
+
+def test_rap_freshness_rebuilds_when_sampling_cap_changes():
+    cycle = "2026-11-12T16:00:00Z"
+    manifest = {"models": {"RAP": {"latest_products": [
+        *[product(cycle, hour) for hour in (0, 3, 6, 9, 12, 15)],
+    ]}}}
+    archive = published_rap_archive(cycle)
+    archive["processing"]["max_grid_dim"] = 160
+
+    needs_update, target = archive_needs_update(
+        manifest, archive, (0, 3, 6, 9, 12, 15)
+    )
+
+    assert target == cycle
+    assert needs_update is True
+
+
+def test_rap_freshness_rebuilds_when_grid_sampling_metadata_is_stale(tmp_path):
+    cycle = "2026-11-12T16:00:00Z"
+    manifest = {"models": {"RAP": {"latest_products": [
+        *[product(cycle, hour) for hour in (0, 3, 6, 9, 12, 15)],
+    ]}}}
+    archive = published_rap_archive(cycle)
+    archive_root = tmp_path / "forecast"
+    write_rap_archive_files(archive_root, archive)
+    grid_path = archive_root / archive["hours"][0]["grid_file"]
+    with gzip.open(grid_path, "rt", encoding="utf-8") as stream:
+        payload = json.load(stream)
+    payload["processing"]["max_grid_dim"] = 160
+    payload["grids"]["hybrid"]["max_grid_dim"] = 160
+    payload["grids"]["hybrid"]["sampling"]["max_grid_dim"] = 160
+    with gzip.open(grid_path, "wt", encoding="utf-8") as stream:
+        json.dump(payload, stream)
+
+    assert archive_needs_update(
+        manifest, archive, (0, 3, 6, 9, 12, 15), archive_root=archive_root
     )[0] is True
