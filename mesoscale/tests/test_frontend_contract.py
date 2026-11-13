@@ -92,7 +92,7 @@ def test_rap_cross_section_uses_selected_archive_hour_and_reports_native_spacing
     assert "transect columns passed profile QC" in html
     assert "sampled_grid_point:{latitude:pt.lat,longitude:pt.lon,distance_km:pt.d,grid_id:gridId" in html
     assert "await Plotly.react('crossSectionPlot'" in html
-    assert "temperature interpolated to 250 m vertical spacing" in html
+    assert "vertical interpolation to 250 m spacing only" in html
     assert "not a 3-km analysis" in html
     assert "usable nearest-grid samples" in html
 
