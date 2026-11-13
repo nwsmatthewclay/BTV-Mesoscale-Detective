@@ -53,6 +53,16 @@ def grid_projection_metadata(attrs):
     }
 
 
+def merge_grib_metadata(dataset_attrs, variable_attrs):
+    """Merge dataset and variable GRIB attributes, preferring variable values."""
+    return grib_metadata({**dataset_attrs, **variable_attrs})
+
+
+def merge_grid_projection_metadata(dataset_attrs, variable_attrs):
+    """Merge projection attributes that cfgrib may attach at either level."""
+    return grid_projection_metadata({**dataset_attrs, **variable_attrs})
+
+
 def attr_value(value):
     if hasattr(value, "item"):
         try:
@@ -133,7 +143,7 @@ def process_file(path: Path, model: str, cycle: str, forecast_hour: int,
                     "variable_name": name,
                     "long_name": variable.attrs.get("long_name"),
                     "units": variable.attrs.get("units"),
-                    "grib_metadata": grib_metadata(variable.attrs),
+                    "grib_metadata": merge_grib_metadata(ds.attrs, variable.attrs),
                     "dimensions": other_dims,
                     "levels": level_meta,
                     "grid_id": grid_id,
