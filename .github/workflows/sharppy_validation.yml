@@ -12,6 +12,7 @@ on:
       - "mesoscale/tests/test_profile_validation.py"
       - "mesoscale/process_grib.py"
       - "mesoscale/inspect_grib.py"
+      - "mesoscale/probe_rap_projection.py"
       - "mesoscale/environment-sharppy.yml"
       - "mesoscale/tests/test_sharppy_adapter.py"
       - ".github/workflows/sharppy_validation.yml"
@@ -40,3 +41,9 @@ jobs:
       - name: Validate SHARPpy adapter
         shell: bash -el {0}
         run: PYTHONPATH=. pytest -s -q mesoscale/tests/test_sharppy_adapter.py mesoscale/tests/test_cross_section_engine.py mesoscale/tests/test_rap_archive_inventory.py mesoscale/tests/test_profile_validation.py mesoscale/tests/test_frontogenesis.py
+      - name: Install read-only live GRIB probe dependencies
+        run: python -m pip install xarray cfgrib eccodes requests
+      - name: Probe current RAP projection and wind-orientation metadata
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: python mesoscale/probe_rap_projection.py
