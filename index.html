@@ -687,16 +687,14 @@ function renderHrrrGridOverlay(payload,param){
       return Number.isFinite(raw)?(cfg.transform?cfg.transform(raw):raw):null;
     };
   }
-  const grid=payload.grids[gridId];
+  const grid=payload.grids?.[gridId];
   if(!grid||!Array.isArray(grid.latitude)||!Array.isArray(grid.longitude)){document.getElementById('mapChip').textContent='HRRR grid geometry is unavailable';return;}
-  const layer=L.layerGroup(),step=Math.max(1,Math.floor(Math.max(grid.shape[0],grid.shape[1])/45));
-  for(let y=0;y<grid.latitude.length;y+=step)for(let x=0;x<grid.latitude[y].length;x+=step){
-    const value=valueAt(y,x),lat=grid.latitude[y][x],lon=grid.longitude[y][x];
-    if(!Number.isFinite(value)||!Number.isFinite(lat)||!Number.isFinite(lon))continue;
-    L.circleMarker([lat,lon],{radius:5,stroke:false,fillColor:rapColor(value,cfg.min,cfg.max),fillOpacity:.62,interactive:false}).addTo(layer);
-  }
-  layer.addTo(map);modelOverlayLayer=layer;
-  document.getElementById('mapChip').textContent='HRRR '+cfg.label+' · F'+String(payload.forecast_hour).padStart(2,'0')+' · '+payload.valid_time_utc+' · '+cfg.units+' · native BTV subset';
+  const rows=grid.latitude.length,cols=Math.min(...grid.latitude.map(r=>Array.isArray(r)?r.length:0));
+  const data=Array.from({length:rows},(_,y)=>Array.from({length:cols},(_,x)=>valueAt(y,x)));
+  const raster=makeInterpolatedRaster(data,grid,cfg.min,cfg.max);
+  if(!raster){document.getElementById('mapChip').textContent='HRRR '+cfg.label+' raster could not be rendered';return;}
+  raster.addTo(map);modelOverlayLayer=raster;
+  document.getElementById('mapChip').textContent='HRRR '+cfg.label+' · F'+String(payload.forecast_hour).padStart(2,'0')+' · '+payload.valid_time_utc+' · smooth 4× interpolated display · '+cfg.units+' · native BTV subset';
 }
 
 async function updateRapParameter(){
