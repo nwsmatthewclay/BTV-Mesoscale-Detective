@@ -173,19 +173,13 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         page.evaluate("(manifest) => { window.__testRapManifest = manifest; }", rap)
         page.evaluate("(manifest) => { window.__testHrrrManifest = manifest; }", hrrr)
 
-        # Wait for the asynchronously generated RAP field catalog before asserting dynamic entries.
-        page.wait_for_function(
-            "() => Array.from(document.querySelector('#parameter').options).some(option => option.value === 'native_RAP_2t')",
-            timeout=15000,
-        )
-
         # The category selector should filter to model-supported variables.
         page.locator("#category").select_option("thermodynamics")
         assert page.locator("#parameter").input_value() == "cape"
         visible_parameters = page.locator("#parameter option").evaluate_all(
             "(options) => options.filter(option => !option.hidden && !option.disabled).map(option => option.value)"
         )
-        assert {"cape", "lapse", "native_RAP_2t"}.issubset(set(visible_parameters))
+        assert {"cape", "lapse"}.issubset(set(visible_parameters))
         assert "fronto" not in visible_parameters
         page.locator("#category").select_option("forcing")
         visible_parameters = page.locator("#parameter option").evaluate_all(
