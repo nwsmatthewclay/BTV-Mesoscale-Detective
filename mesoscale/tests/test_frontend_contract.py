@@ -83,6 +83,16 @@ def test_model_discovery_orchestrates_rap_and_hrrr_ingestion_and_pages():
     assert "needs.hrrr-smoke.outputs.needs_update == 'true'" in hrrr
 
 
+def test_rap_cross_section_uses_selected_archive_hour_and_reports_native_spacing():
+    html = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "async function runRapCrossSection(points)" in html
+    assert "const payload=await loadRapGrid()" in html
+    assert "extractRegionalRapProfile(payload,lat,lon,'Transect '+i)" in html
+    assert "temperature interpolated to 250 m vertical spacing" in html
+    assert "not a 3-km analysis" in html
+    assert "nearest-grid samples" in html
+
+
 def test_model_comparison_requires_exact_shared_valid_time_and_samples_both_models():
     html = (ROOT / "index.html").read_text(encoding="utf-8")
     assert 'id="modelComparisonPanel"' in html
