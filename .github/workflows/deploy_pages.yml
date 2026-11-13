@@ -7,9 +7,10 @@ on:
       - "index.html"
       - "mesoscale.html"
       - "mesoscale/**"
-      - ".github/workflows/deploy_pages.yml"
-      # Tile commits deploy from the tile workflow dedicated Pages job.
+      # Tile generation and deployment are owned by model_tile_render.yml.
       - "!mesoscale/data/model_tiles/**"
+      - "!mesoscale/render_model_tiles.py"
+      - "!mesoscale/tests/test_model_tiles.py"
   workflow_dispatch:
 
 permissions:
