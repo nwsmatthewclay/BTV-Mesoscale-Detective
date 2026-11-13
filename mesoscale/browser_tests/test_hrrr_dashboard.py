@@ -142,6 +142,20 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
             timeout=45000,
         )
 
+        # The catalog is built from actual decoded fields, not a fixed menu.
+        page.wait_for_function(
+            "() => Array.from(document.querySelector('#parameter').options).some(option => option.value === 'native_RAP_sde')",
+            timeout=15000,
+        )
+        page.locator("#category").select_option("winter")
+        page.locator("#parameter").select_option("native_RAP_sde")
+        page.wait_for_function(
+            "() => document.querySelector('#mapChip').textContent.includes('Snow depth')",
+            timeout=15000,
+        )
+        page.locator("#category").select_option("all")
+        page.locator("#parameter").select_option("cape")
+
         # Verify the published RAP sounding and hodograph, not just the map grid.
         page.wait_for_function(
             """() => window.rapKbtvProfile
@@ -184,6 +198,20 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         assert page.locator("#parameter").input_value() == "hrrr_temp"
         assert "HRRR 2-m temperature" in page.locator("#mapChip").inner_text()
         assert page.locator("#gridSpacing").text_content().strip() == "3 km nominal"
+
+        # HRRR adds its own decoded fields, including CAPE, to the same catalog.
+        page.wait_for_function(
+            "() => Array.from(document.querySelector('#parameter').options).some(option => option.value === 'native_HRRR_cape')",
+            timeout=15000,
+        )
+        page.locator("#category").select_option("thermodynamics")
+        page.locator("#parameter").select_option("native_HRRR_cape")
+        page.wait_for_function(
+            "() => document.querySelector('#mapChip').textContent.includes('Convective available potential energy')",
+            timeout=15000,
+        )
+        page.locator("#category").select_option("all")
+        page.locator("#parameter").select_option("hrrr_temp")
 
         for entry in hrrr["hours"]:
             _select_and_wait_for_hour(page, "HRRR", entry, hrrr["model_cycle_utc"])
