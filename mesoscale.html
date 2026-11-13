@@ -303,20 +303,20 @@ body{
 
 /* Focused model-exploration workspace: one reliable no-key basemap and a full-width map. */
 @media (min-width: 901px){
-  body > main.layout{flex:1 1 auto!important;min-height:0!important;height:auto!important;margin:10px clamp(12px,1.4vw,22px) 12px!important;display:grid!important;grid-template-columns:minmax(235px,275px) minmax(0,1fr)!important;gap:12px!important;overflow:hidden!important;}
-  body > main.layout > main.layout{display:grid!important;grid-template-columns:minmax(0,1fr)!important;min-width:0!important;min-height:0!important;width:100%!important;height:100%!important;flex:1 1 auto!important;margin:0!important;gap:0!important;overflow:hidden!important;}
-  body > main.layout > main.layout > .map-panel{grid-column:1/-1!important;width:100%!important;height:100%!important;min-height:0!important;}
-  body > main.layout > main.layout > .rightcol{display:none!important;}
-  body > main.layout > main.layout > .legacy-profile-host{display:none!important;}
+  body > .app-shell.layout{flex:1 1 auto!important;min-height:0!important;height:auto!important;margin:10px clamp(12px,1.4vw,22px) 12px!important;display:grid!important;grid-template-columns:minmax(235px,275px) minmax(0,1fr)!important;gap:12px!important;overflow:hidden!important;}
+  body > .app-shell.layout > main.layout{display:grid!important;grid-template-columns:minmax(0,1fr)!important;min-width:0!important;min-height:0!important;width:100%!important;height:100%!important;flex:1 1 auto!important;margin:0!important;gap:0!important;overflow:hidden!important;}
+  body > .app-shell.layout > main.layout > .map-panel{grid-column:1/-1!important;width:100%!important;height:100%!important;min-height:0!important;}
+  body > .app-shell.layout > main.layout > .rightcol{display:none!important;}
+  body > .app-shell.layout > main.layout > .legacy-profile-host{display:none!important;}
   .map-wrap,#map{min-height:0!important;height:100%!important;}
   .map-panel .map-actions{flex:0 0 auto;}
 }
 @media (max-width: 900px){
-  body > main.layout{display:grid!important;grid-template-columns:minmax(0,1fr)!important;height:auto!important;max-height:none!important;overflow:visible!important;margin:10px!important;}
-  body > main.layout > main.layout{display:grid!important;grid-template-columns:minmax(0,1fr)!important;height:auto!important;min-height:0!important;margin:0!important;overflow:visible!important;}
-  body > main.layout > main.layout > .rightcol{display:none!important;}
-  body > main.layout > main.layout > .map-panel{min-height:68vh!important;}
-  body > main.layout > main.layout #map{min-height:52vh!important;}
+  body > .app-shell.layout{display:grid!important;grid-template-columns:minmax(0,1fr)!important;height:auto!important;max-height:none!important;overflow:visible!important;margin:10px!important;}
+  body > .app-shell.layout > main.layout{display:grid!important;grid-template-columns:minmax(0,1fr)!important;height:auto!important;min-height:0!important;margin:0!important;overflow:visible!important;}
+  body > .app-shell.layout > main.layout > .rightcol{display:none!important;}
+  body > .app-shell.layout > main.layout > .map-panel{min-height:68vh!important;}
+  body > .app-shell.layout > main.layout #map{min-height:52vh!important;}
 }
 
 /* Geographic context and live cursor sampling overlays. */
@@ -329,13 +329,13 @@ body{
 
 /* Correct the nested workstation grids and keep the analysis dock full-width. */
 @media (min-width: 901px) {
-  body > main.layout {
+  body > .app-shell.layout {
     grid-template-columns: minmax(228px,260px) minmax(0,1fr) !important;
     width: calc(100% - 2 * clamp(12px,2.2vw,32px));
     min-width: 0;
     align-items: stretch;
   }
-  body > main.layout > main.layout {
+  body > .app-shell.layout > main.layout {
     grid-template-columns: minmax(0,1fr) minmax(285px,325px) !important;
     width: 100%;
     min-width: 0;
@@ -344,7 +344,7 @@ body{
     max-width: none;
     overflow: hidden;
   }
-  body > main.layout > .legacy-profile-host { display: none !important; }
+  body > .app-shell.layout > .legacy-profile-host { display: none !important; }
   body[data-active-tab="cross"] > .bottom-grid,
   body[data-active-tab="evolution"] > .bottom-grid {
     display: grid !important;
@@ -369,12 +369,12 @@ body{
   }
 }
 @media (max-width: 900px) {
-  body > main.layout {
+  body > .app-shell.layout {
     grid-template-columns: minmax(0,1fr) !important;
     width: auto;
     max-width: none;
   }
-  body > main.layout > main.layout {
+  body > .app-shell.layout > main.layout {
     grid-template-columns: minmax(0,1fr) !important;
     width: auto;
     height: auto;
@@ -389,7 +389,7 @@ body{
 <body>
 <header class="topbar"><div class="brand"><div class="mark">BTV</div><div><h1>Mesoscale Detective</h1><p>NWS Burlington · Vermont &amp; Northern New York</p></div></div><div class="header-right"><span class="status" id="feedStatus">MODEL FEED NOT CONNECTED</span><span id="clock">--:-- UTC</span></div></header>
 <nav id="tabs" aria-label="Analysis workspaces"><button class="active" data-tab="environment">Environment</button><button data-tab="soundings">Soundings</button><button data-tab="kinematics">Kinematics &amp; Forcing</button><button data-tab="cross">Cross-Sections</button><button data-tab="compare">Model Compare</button><button data-tab="evolution">Time Evolution</button></nav>
-<main class="layout">
+<div class="app-shell layout">
 <aside class="model-sidebar panel" aria-label="Model and field controls">
   <div class="sidebar-heading"><span class="eyebrow">Atmospheric workstation</span><h2>Model Explorer</h2><p>Choose a guidance source and map field</p></div>
   <div class="sidebar-section"><div class="sidebar-section-title"><span class="sidebar-pulse"></span> MODEL &amp; CYCLE</div>
@@ -412,7 +412,7 @@ body{
 <section class="panel"><h2>Point diagnostics</h2><div class="metrics" id="metrics"><div class="metric"><span>MUCAPE</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>MLCAPE</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>MLCIN</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>PWAT</span><strong>—</strong><small>mm</small></div><div class="metric"><span>0–6 km shear</span><strong>—</strong><small>kt</small></div><div class="metric"><span>0–1 km SRH</span><strong>—</strong><small>m²/s²</small></div></div><div class="placeholder">RAP profiles are available at the eight listed stations only. Custom map points will not inherit station diagnostics.</div></section>
 
 <section class="panel"><h2>Investigation notes</h2><div class="pad" id="investigation"><div class="detail-line"><span>Model</span><b>RAP</b></div><div class="detail-line"><span>Valid time</span><b>Awaiting feed</b></div><div class="detail-line"><span>Point</span><b>KBTV</b></div><div class="detail-line"><span>Interpretation</span><b style="color:var(--amber)">Not available</b></div></div><div class="notice">RAP station profiles: KBTV, KPBG, KMSS, KSLK, KMPV, KRUT, 1V4 and KEFK. HRRR currently provides a verified surface archive; RRFS remains experimental.</div></section>
-</aside><div class="legacy-profile-host" aria-hidden="true"><div id="profile" style="height:310px"></div><div id="hodograph" style="height:220px"></div></div></main>
+</aside><div class="legacy-profile-host" aria-hidden="true"><div id="profile" style="height:310px"></div><div id="hodograph" style="height:220px"></div></div></div>
 <div class="bottom-grid">
 <section class="panel"><h2>Vertical cross-section</h2><div class="field" style="padding:12px 14px 0"><label for="crossVariable">Cross-section variable</label><select id="crossVariable"><option value="temperature">Temperature (°C)</option><option value="dewpoint">Dewpoint (°C)</option><option value="omega">Vertical velocity / omega (Pa s⁻¹)</option><option value="u_wind">U wind (kt)</option><option value="v_wind">V wind (kt)</option><option value="specific_humidity">Specific humidity (g/kg)</option><option value="cloud_water">Cloud water mixing ratio (g/kg)</option><option value="rain_water">Rain mixing ratio (g/kg)</option><option value="snow">Snow mixing ratio (g/kg)</option><option value="graupel">Graupel mixing ratio (g/kg)</option><option value="tke">Turbulent kinetic energy (J/kg)</option></select></div><div id="crossSectionPlot" style="height:390px"></div><div class="placeholder" id="crossSectionStatus">Draw a transect on the map and select a vertical variable. RAP hybrid-level fields are sampled on native grid columns.</div></section>
 <section class="panel"><h2>Time evolution · Selected station</h2><div class="field" style="padding:12px 14px 0"><label for="trendParameter">Diagnostic</label><select id="trendParameter"><option value="sbcape_jkg">Surface-based CAPE</option><option value="mlcape_jkg">Mixed-layer CAPE</option><option value="mucape_jkg">Most-unstable CAPE</option><option value="mlcin_jkg">Mixed-layer CIN</option><option value="pwat_mm">Precipitable water</option><option value="bs06_kt">0–6 km bulk shear</option><option value="srh01_m2s2">0–1 km SRH</option><option value="lr03_k_km">0–3 km lapse rate</option></select></div><div id="trend" style="height:290px"></div><div class="placeholder" id="trendStatus">Select one of the eight verified stations to view RAP forecast-hour diagnostics. Custom points are not filled from nearby stations.</div></section>
