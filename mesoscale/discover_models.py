@@ -214,6 +214,15 @@ def product_lead_minutes(product: dict) -> int:
     return 0
 
 
+def product_lead_label(product: dict) -> str:
+    """Format a product lead without mislabeling 15-minute steps as forecast hours."""
+    if product.get("forecast_lead_minutes") is not None:
+        return f"+{int(product['forecast_lead_minutes'])} min"
+    if product.get("forecast_hour") is not None:
+        return f"F{int(product['forecast_hour']):02d}"
+    return "lead unavailable"
+
+
 def prioritize_latest_products(products: list[dict], limit: int = 120) -> list[dict]:
     """Keep the newest cycle first while retaining the shortest forecast leads.
 
@@ -280,7 +289,10 @@ def main():
     for model, data in report["models"].items():
         print(f"{model}: {data['products_found']} product(s) discovered")
         for item in data["latest_products"][:3]:
-            print(f"  {item['cycle_utc']} F{item['forecast_hour']:02d} {item['product']} {item['filename']}")
+            print(
+                f"  {item['cycle_utc']} {product_lead_label(item)} "
+                f"{item['product']} {item['filename']}"
+            )
     print(f"Manifest written: {output}")
     if not any(report["models"][m]["products_found"] for m in report["models"]):
         print("No products discovered. Check NOMADS reachability and directory conventions.", file=sys.stderr)
