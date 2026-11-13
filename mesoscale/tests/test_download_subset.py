@@ -33,7 +33,7 @@ def test_rap_filter_uses_current_pressure_level_filename_and_btv_region():
     assert params["dir"] == ["/rap.20261112"]
     assert params["subregion"] == [""]
     assert params["leftlon"] == ["-90.0"]
-    assert params["rightlon"] == ["-60.0"]
+    assert params["rightlon"] == ["-61.5"]
     assert params["var_TMP"] == ["on"]
     assert params["lev_1000_mb"] == ["on"]
 
@@ -51,6 +51,10 @@ def test_hrrr_filter_uses_current_surface_filename_and_btv_region():
     assert params["file"] == ["hrrr.t12z.wrfsfcf00.grib2"]
     assert params["dir"] == ["/hrrr.20261112/conus"]
     assert params["subregion"] == [""]
+    assert params["leftlon"] == ["-90.0"]
+    assert params["rightlon"] == ["-61.5"]
+    assert params["toplat"] == ["52.0"]
+    assert params["bottomlat"] == ["32.0"]
     assert params["var_CAPE"] == ["on"]
     assert params["lev_2_m_above_ground"] == ["on"]
 
