@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/rrfs_range_smoke.yml"
+      - "mesoscale/rrfs_range_smoke.py"
+      - "mesoscale/tests/test_rrfs_range_smoke.py"
   workflow_run:
     workflows: ["Mesoscale Model Discovery and Validation"]
     types: [completed]
@@ -44,7 +46,7 @@ jobs:
         run: |
           python mesoscale/rrfs_range_smoke.py \
             --manifest mesoscale/data/model_manifest.json \
-            --messages 3 \
+            --messages 4 \
             --output "$RUNNER_TEMP/rrfs_range_smoke.json"
       - name: Upload RRFS range-smoke report
         if: always()

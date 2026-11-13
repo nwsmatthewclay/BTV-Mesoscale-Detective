@@ -16,6 +16,7 @@ HEADERS = {
 }
 MAX_MESSAGE_BYTES = 20_000_000
 CONTENT_RANGE_RE = re.compile(r"bytes\s+(\d+)-(\d+)/(\d+)$", re.IGNORECASE)
+BTV_DOMAIN = {"west": -75.2, "east": -71.2, "south": 42.3, "north": 45.3}
 
 
 def select_rrfs_product(manifest: dict) -> dict:
@@ -72,6 +73,10 @@ def plan_index_ranges(
         offsets.append(offset)
 
     if preferred_short_names:
+        if limit < len(preferred_short_names):
+            raise ValueError(
+                f"message limit {limit} cannot include all {len(preferred_short_names)} required fields"
+            )
         selected_positions = []
         missing = []
         for short_name in preferred_short_names:
@@ -180,8 +185,48 @@ def validate_decoded_cycle(decoded: dict, cycle_utc: str) -> None:
         )
 
 
-def decode_grib_message(payload: bytes) -> dict:
-    """Decode GRIB metadata and verify that the message contains finite field values."""
+def summarize_btv_coverage(latitudes, longitudes, domain: dict = BTV_DOMAIN) -> dict:
+    """Summarize finite RRFS grid points inside the padded BTV analysis domain."""
+    try:
+        import numpy as np
+    except ImportError as exc:
+        raise RuntimeError("BTV coverage validation requires numpy") from exc
+
+    lat = np.asarray(latitudes, dtype=float).reshape(-1)
+    lon = np.asarray(longitudes, dtype=float).reshape(-1)
+    if lat.size == 0 or lon.size != lat.size:
+        raise ValueError("RRFS latitude/longitude arrays must be non-empty and have equal lengths")
+
+    # ecCodes may expose longitudes in either -180..180 or 0..360 convention.
+    normalized_lon = ((lon + 180.0) % 360.0) - 180.0
+    finite = np.isfinite(lat) & np.isfinite(normalized_lon)
+    inside = (
+        finite
+        & (normalized_lon >= float(domain["west"]))
+        & (normalized_lon <= float(domain["east"]))
+        & (lat >= float(domain["south"]))
+        & (lat <= float(domain["north"]))
+    )
+    count = int(inside.sum())
+    if count == 0:
+        raise RuntimeError("RRFS grid does not intersect the BTV analysis domain")
+
+    return {
+        "domain": dict(domain),
+        "grid_points": int(lat.size),
+        "points_inside_domain": count,
+        "fraction_inside_domain": round(count / int(lat.size), 8),
+        "bounds": {
+            "south": float(lat[inside].min()),
+            "north": float(lat[inside].max()),
+            "west": float(normalized_lon[inside].min()),
+            "east": float(normalized_lon[inside].max()),
+        },
+    }
+
+
+def decode_grib_message(payload: bytes, include_btv_coverage: bool = False) -> dict:
+    """Decode GRIB metadata, finite values, and optionally BTV geographic coverage."""
     try:
         import numpy as np
         from eccodes import (
@@ -208,16 +253,29 @@ def decode_grib_message(payload: bytes) -> dict:
             except Exception:
                 return None
 
-        return {
+        decoded = {
             "short_name": optional("shortName"),
             "type_of_level": optional("typeOfLevel"),
             "level": optional("level"),
             "data_date": optional("dataDate"),
             "data_time": optional("dataTime"),
             "step_range": optional("stepRange"),
+            "grid_type": optional("gridType"),
+            "ni": optional("Ni"),
+            "nj": optional("Nj"),
             "number_of_points": int(values.size),
             "finite_value_count": finite_count,
         }
+        if include_btv_coverage:
+            try:
+                latitudes = codes_get_array(handle, "latitudes")
+                longitudes = codes_get_array(handle, "longitudes")
+            except Exception as exc:
+                raise RuntimeError(
+                    "ecCodes could not derive RRFS latitude/longitude coordinates for BTV coverage"
+                ) from exc
+            decoded["btv_coverage"] = summarize_btv_coverage(latitudes, longitudes)
+        return decoded
     finally:
         codes_release(handle)
 
@@ -225,7 +283,7 @@ def decode_grib_message(payload: bytes) -> dict:
 def run_smoke(
     manifest: dict,
     session: requests.Session,
-    message_limit: int = 3,
+    message_limit: int = 4,
     decoder=decode_grib_message,
 ) -> dict:
     """Download and decode a small set of indexed messages entirely in memory."""
@@ -238,13 +296,17 @@ def run_smoke(
     ranges = plan_index_ranges(
         index.get("messages") or [],
         limit=message_limit,
-        preferred_short_names=("TMP", "DPT", "UGRD"),
+        preferred_short_names=("TMP", "DPT", "UGRD", "VGRD"),
     )
     decoded_messages = []
     total_bytes = 0
-    for record in ranges:
+    for message_index, record in enumerate(ranges):
         payload = fetch_indexed_message(session, product["url"], record)
-        decoded = decoder(payload)
+        decoded = decoder(payload, include_btv_coverage=(message_index == 0))
+        if message_index == 0:
+            coverage = decoded.get("btv_coverage")
+            if not isinstance(coverage, dict) or int(coverage.get("points_inside_domain") or 0) < 1:
+                raise RuntimeError("First RRFS field did not verify any grid points inside the BTV domain")
         # NOMADS index mnemonics and ecCodes shortName aliases are not guaranteed
         # to be identical (some local-table fields decode as "unknown"). Keep
         # both labels in the report; validate the decoded reference date/time
@@ -268,6 +330,7 @@ def run_smoke(
         "index_message_count": index.get("message_count", len(index.get("messages") or [])),
         "messages_verified": len(decoded_messages),
         "bytes_downloaded": total_bytes,
+        "btv_coverage": decoded_messages[0]["decoded"]["btv_coverage"],
         "publication": False,
         "messages": decoded_messages,
     }
@@ -276,7 +339,7 @@ def run_smoke(
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", default="mesoscale/data/model_manifest.json")
-    parser.add_argument("--messages", type=int, default=3)
+    parser.add_argument("--messages", type=int, default=4)
     parser.add_argument("--output", help="Optional JSON report path")
     args = parser.parse_args()
 

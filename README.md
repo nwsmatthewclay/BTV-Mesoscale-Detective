@@ -24,12 +24,13 @@ GitHub Pages is deployed after successful model ingestion and interface changes.
 
 **Automated refresh and valid-time alignment**
 - The RAP workflow is configured as the hourly ingestion orchestrator (minute 47 UTC). Scheduled and manual runs refresh the RAP/HRRR/RRFS discovery manifest with retry-safe publication before checking whether a newer complete RAP cycle should be decoded.
-- The separate model-discovery workflow remains available for code-change validation and manual discovery. The first direct scheduled RAP run is still pending verification, so hourly cadence should not yet be treated as proven.
+- The separate model-discovery workflow remains available for code-change validation and manual discovery. A direct schedule-triggered RAP run succeeded (run [43339280233](https://github.com/nwsmatthewclay/BTV-Mesoscale-Detective/actions/runs/43339280233)); only two schedule-triggered runs are visible in the inspected history, so repeated hourly cadence is not yet established.
 - HRRR ingestion follows successful RAP ingestion and selects one HRRR cycle that covers the RAP archive's valid times. It refuses to mix HRRR cycles or publish an incomplete alignment.
 
-**RRFS — discovery only**
-- Model discovery identifies RAP, HRRR and RRFS products and records their cycle/forecast-hour metadata.
-- RRFS regional decoding and publication are not enabled yet.
+**RRFS — indexed acquisition smoke-tested; no published field archive**
+- Model discovery identifies RAP, HRRR and RRFS products and records cycle, forecast-step and index metadata. RRFS subhourly F001 is represented as a 15-minute lead, not one forecast hour.
+- A live read-only smoke run ([43340803646](https://github.com/nwsmatthewclay/BTV-Mesoscale-Detective/actions/runs/43340803646)) retrieved and ecCodes-decoded three bounded messages (2-m temperature, 2-m dewpoint and 10-m u-wind) from the 23Z 3-km subhourly product. The run verified HTTP 206/Content-Range, complete GRIB message boundaries, matching 23Z reference time and 1,905,141 finite values in each decoded field; 4,578,499 bytes were transferred. Its report explicitly records `publication: false`.
+- This smoke test proves indexed acquisition and message decoding only. It does not yet crop the grid to BTV, build a multi-hour archive, or publish RRFS fields; the RRFS map option remains disabled.
 
 The model selector now enables HRRR for its verified surface archive and exposes only the supported HRRR map parameters. Soundings, hodographs, cross-sections and station Time Evolution remain RAP-only because the HRRR archive contains no vertical profiles. Do not interpret model discovery as proof of decoded data.
 
