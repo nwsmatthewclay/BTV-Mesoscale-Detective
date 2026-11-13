@@ -1,6 +1,10 @@
 name: RRFS 3-km Indexed Range Smoke Test
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/rrfs_range_smoke.yml"
   workflow_run:
     workflows: ["Mesoscale Model Discovery and Validation"]
     types: [completed]
@@ -35,7 +39,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install requests numpy eccodes pytest
       - name: Run indexed-range unit tests
-        run: pytest -q mesoscale/tests/test_rrfs_range_smoke.py
+        run: python -m pytest -q mesoscale/tests/test_rrfs_range_smoke.py
       - name: Fetch and decode bounded RRFS GRIB messages
         run: |
           python mesoscale/rrfs_range_smoke.py \
