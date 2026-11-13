@@ -60,10 +60,10 @@ jobs:
               raise SystemExit(f"Refusing to render unverified {model} archive")
           root = manifest_path.parent
           allow = {
-              "RAP": ["2t", "2d", "cape", "pwat"],
-              "HRRR": ["2t", "2d", "gust", "refc", "vis", "cin", "blh"]
+              "RAP": ["2t", "cape"],
+              "HRRR": ["2t", "gust", "refc"]
           }[model]
-          for hour in manifest.get("hours", []):
+          for hour in manifest.get("hours", [])[:1]:
               grid_path = root / hour["grid_file"]
               if not grid_path.is_file():
                   raise SystemExit(f"Missing {model} grid {grid_path}")
@@ -114,7 +114,16 @@ jobs:
               "products": products,
           }
           (root / "catalog.json").write_text(json.dumps(catalog, indent=2) + "\\n", encoding="utf-8")
-          print(f"Published tile catalog with {len(products)} products")
+          models = {product["model"] for product in products}
+          if not {"RAP", "HRRR"}.issubset(models):
+              raise SystemExit(f"Expected initial RAP and HRRR tile products; found models: {sorted(models)}")
+          expected = {"RAP": {"2t", "cape"}, "HRRR": {"2t", "gust", "refc"}}
+          for model, fields in expected.items():
+              found = {p["short_name"] for p in products if p["model"] == model}
+              missing = fields - found
+              if missing:
+                  raise SystemExit(f"Missing initial {model} tile products: {sorted(missing)}")
+          print(f"Published {len(products)} initial model tile products")
           PY
       - name: Publish tile archive
         run: |
