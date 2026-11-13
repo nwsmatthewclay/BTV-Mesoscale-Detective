@@ -605,7 +605,7 @@ function buildContourFieldControls(payload,model){
     candidates.push({key,shortName:field.short_name,...normalized,grid});
   }
   candidates.sort((a,b)=>{
-    const priority={2t:0,2d:1,t:2,d:3,2sh:4,pwat:5,10u:6,10v:7};
+    const priority={'2t':0,'2d':1,t:2,d:3,'2sh':4,pwat:5,'10u':6,'10v':7};
     return (priority[a.shortName]??20)-(priority[b.shortName]??20)||a.label.localeCompare(b.label);
   });
   if(!candidates.length){host.innerHTML='<span class="contour-empty">No additional 2-D fields in this model hour</span>';additionalContourSources=[];return;}
