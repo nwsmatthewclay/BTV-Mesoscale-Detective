@@ -198,7 +198,7 @@ def test_plan_index_ranges_selects_standard_fields_by_index_name():
 
     assert [item["short_name"] for item in planned] == ["TMP", "DPT", "UGRD", "VGRD"]
     assert [(item["start"], item["end"]) for item in planned] == [
-        (100, 249), (250, 499), (500, 699)
+        (100, 249), (250, 499), (500, 699), (700, 899)
     ]
 
 
