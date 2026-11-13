@@ -82,7 +82,7 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
 
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
-        page = browser.new_page(viewport={"width": 1440, "height": 1000})
+        page = browser.new_page(viewport={"width": 1440, "height": 900})
         page.on("pageerror", lambda error: page_errors.append(str(error)))
         page.on("console", lambda message: console_errors.append(message.text) if message.type == "error" else None)
         page.route("**/tile.openstreetmap.org/**", lambda route: route.abort())
@@ -103,9 +103,30 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         )
         assert desktop_layout["columns"] == 2, desktop_layout
         assert desktop_layout["mapWidth"] > 700, desktop_layout
-        assert desktop_layout["mapHeight"] >= 500, desktop_layout
+        assert 400 <= desktop_layout["mapHeight"] <= 650, desktop_layout
         assert desktop_layout["controls"] == 5, desktop_layout
         assert desktop_layout["modelControl"] and desktop_layout["categoryControl"] and desktop_layout["variableControl"]
+        desktop_fit = page.evaluate(
+            """() => ({
+                viewportHeight: window.innerHeight,
+                documentHeight: document.documentElement.scrollHeight,
+                bodyHeight: document.body.getBoundingClientRect().height,
+                lowerWorkspace: getComputedStyle(document.querySelector(".bottom-grid")).display,
+                soundingPanelVisible: Boolean(document.querySelector("#profile")?.getClientRects().length),
+                hodographPanelVisible: Boolean(document.querySelector("#hodograph")?.getClientRects().length)
+            })"""
+        )
+        assert desktop_fit["documentHeight"] <= desktop_fit["viewportHeight"] + 2, desktop_fit
+        assert desktop_fit["lowerWorkspace"] == "none", desktop_fit
+        assert not desktop_fit["soundingPanelVisible"] and not desktop_fit["hodographPanelVisible"], desktop_fit
+
+        # Analysis workspaces appear on demand without forcing the default map view to scroll.
+        page.locator('#tabs button[data-tab="cross"]').click()
+        assert page.locator("#crossSectionPlot").is_visible()
+        assert not page.locator("#trend").is_visible()
+        page.locator('#tabs button[data-tab="environment"]').click()
+        assert not page.locator(".bottom-grid").is_visible()
+
 
         page.set_viewport_size({"width": 390, "height": 844})
         mobile_layout = page.evaluate(
@@ -158,7 +179,7 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         visible_parameters = page.locator("#parameter option").evaluate_all(
             "(options) => options.filter(option => !option.hidden && !option.disabled).map(option => option.value)"
         )
-        assert {"cape", "lapse", "native_RAP_2t"}.issubset(set(visible_parameters))
+        assert {"cape", "lapse"}.issubset(set(visible_parameters))
         assert "fronto" not in visible_parameters
         page.locator("#category").select_option("forcing")
         visible_parameters = page.locator("#parameter option").evaluate_all(

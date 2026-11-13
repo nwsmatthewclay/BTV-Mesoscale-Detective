@@ -16,6 +16,71 @@
 .rightcol{display:flex;flex-direction:column;gap:13px;min-width:0}.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:12px}.metric{min-width:0;padding:11px 7px;border:1px solid rgba(99,150,184,.19);border-radius:9px;background:linear-gradient(145deg,rgba(19,48,70,.82),rgba(9,27,42,.9));text-align:center}.metric span{display:block;overflow:hidden;color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.07em;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}.metric strong{display:block;margin:4px 0 2px;color:#f1f7fb;font-size:21px;font-weight:650;font-variant-numeric:tabular-nums}.metric small{color:#8ea8bb;font-size:9px}.placeholder{margin:0 12px 12px;padding:10px 11px;border:1px dashed rgba(100,147,176,.32);border-radius:8px;color:#93aabd;font-size:10px;line-height:1.5;text-align:left;background:rgba(6,19,30,.3)}#profile{height:310px!important}#hodograph{height:220px!important}.rightcol h3{margin:10px 15px 0!important;color:#d8e8f2!important;font-size:11px!important;font-weight:700;letter-spacing:.06em;text-transform:uppercase}.pad{padding:13px 15px}.detail-line{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px solid rgba(119,157,184,.13);font-size:11px}.detail-line:last-child{border-bottom:0}.detail-line span:first-child{color:var(--muted)}.detail-line b{color:#e1edf5;text-align:right;font-weight:650;overflow-wrap:anywhere}.notice{margin:0 13px 13px;padding:10px 11px;border:1px solid rgba(242,193,109,.23);border-radius:8px;background:rgba(242,193,109,.06);color:#d8c08f;font-size:10px;line-height:1.5}
 .bottom-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:13px;margin:0 clamp(12px,2.4vw,34px) 14px;max-width:2200px}.bottom-grid>.panel{min-width:0}.bottom-grid>.panel:last-child{grid-column:1/-1}#crossSectionPlot{height:390px!important}#trend{height:290px!important}#modelComparisonPanel{margin:0 clamp(12px,2.4vw,34px) 14px!important;max-width:none!important}#modelComparisonPanel table th{color:#a9bfce;font-size:10px;letter-spacing:.07em;text-transform:uppercase}#modelComparisonPanel table td{padding:10px;border-bottom:1px solid var(--line-soft);color:#d8e6ef}#modelComparisonPanel .pad{padding:15px}.foot{padding:18px 14px 24px;color:#7891a4;font-size:10px;text-align:center;border-top:1px solid var(--line-soft);margin-top:16px}.leaflet-container{font:12px Inter,"Segoe UI",Arial,sans-serif}.leaflet-control-zoom a{background:#10283b!important;color:#dceaf4!important;border-color:#35536b!important}.leaflet-control-attribution{background:rgba(5,18,29,.8)!important;color:#9eb4c5!important}.leaflet-control-attribution a{color:#73c8dc!important}
 @media(min-width:1600px){.layout{grid-template-columns:minmax(0,1fr) 390px}.map-panel{min-height:760px}.map-wrap,#map{min-height:620px}}@media(max-width:1180px){.control-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.layout{grid-template-columns:minmax(0,1fr) 320px}.map-panel{min-height:630px}.map-wrap,#map{min-height:490px}}@media(max-width:900px){.layout{grid-template-columns:minmax(0,1fr)}.rightcol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.rightcol>.panel:nth-child(2){grid-row:span 2}.bottom-grid{grid-template-columns:1fr}.bottom-grid>.panel:last-child{grid-column:auto}.map-panel{min-height:590px}.map-wrap,#map{min-height:450px}}@media(max-width:620px){.topbar{align-items:flex-start;flex-direction:column;padding:12px 14px}.header-right{width:100%;justify-content:space-between}.status{max-width:78%}#tabs{padding:7px 10px}.control-deck{margin:10px 10px 11px;padding:11px}.deck-topline{align-items:flex-start;flex-direction:column;gap:3px}.deck-hint{font-size:10px}.control-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.control-grid .field:last-child{grid-column:1/-1}.layout,.bottom-grid{margin-left:10px;margin-right:10px;gap:10px}.map-panel{min-height:550px}.map-wrap,#map{min-height:400px}.map-chip{top:8px;left:8px;max-width:calc(100% - 16px);font-size:10px}.map-legend{left:8px;bottom:8px;font-size:9px}.map-actions{align-items:flex-start}.overlay-tools{width:100%;margin:0}.point-badge{flex-wrap:wrap}.rightcol{display:flex;flex-direction:column}.metrics{gap:5px;padding:9px}.metric{padding:9px 4px}.metric strong{font-size:18px}#profile{height:280px!important}#hodograph{height:200px!important}#crossSectionPlot{height:320px!important}#trend{height:260px!important}.bottom-grid>.panel:last-child{grid-column:auto}}
+
+/* Compact single-screen operational map workspace */
+@media (min-width: 901px){
+  html,body{height:100%;overflow:hidden}
+  body{height:100vh;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+  .topbar{flex:0 0 auto;min-height:60px;padding:7px clamp(14px,2vw,28px)}
+  .mark{width:40px;height:40px;flex-basis:40px;border-radius:11px}
+  .brand h1{font-size:18px}
+  #tabs{flex:0 0 auto;padding:5px clamp(12px,2vw,28px);gap:4px}
+  #tabs button{padding:7px 11px;font-size:11px}
+  .control-deck{flex:0 0 auto;margin:8px clamp(12px,2vw,28px) 7px;padding:8px 12px}
+  .deck-topline{margin-bottom:6px}
+  .control-grid{gap:8px}
+  .field label{margin-bottom:4px;font-size:9px}
+  select{min-height:34px;padding-top:6px;padding-bottom:6px;font-size:12px}
+  .range-row{min-height:34px}
+  .layout{flex:1 1 auto;min-height:0;height:calc(100vh - 218px);margin:0 clamp(12px,2vw,28px) 9px;grid-template-columns:minmax(0,1fr) minmax(285px,330px);gap:10px;overflow:hidden}
+  .map-panel{height:100%;min-height:0}
+  .panel>h2,.panel-heading{padding:9px 13px;font-size:11px}
+  .panel-heading h2{font-size:14px}
+  .map-wrap{flex:1 1 auto;min-height:0}
+  #map{height:100%;min-height:0}
+  .map-actions{padding:7px 10px;gap:6px}
+  .btn{padding:6px 8px;font-size:10px}
+  .overlay-tools{gap:7px}
+  .checks{gap:7px}
+  .checks label{font-size:9px}
+  .rightcol{min-height:0;gap:9px}
+  .rightcol>.panel{min-height:0}
+  .metrics{gap:5px;padding:8px}
+  .metric{padding:7px 4px}
+  .metric strong{font-size:18px;margin:2px 0}
+  .metric span{font-size:8px}
+  .metric small{font-size:8px}
+  .placeholder{margin:0 9px 9px;padding:7px 8px;font-size:9px}
+  .pad{padding:8px 11px}
+  .detail-line{padding:6px 0;font-size:10px}
+  .notice{margin:0 9px 9px;padding:7px 8px;font-size:9px}
+  .bottom-grid,#modelComparisonPanel,.foot,.legacy-profile-host{display:none!important}
+  body[data-active-tab="cross"] .layout,
+  body[data-active-tab="evolution"] .layout{height:42vh;flex:0 0 42vh}
+  body[data-active-tab="cross"] .bottom-grid,
+  body[data-active-tab="evolution"] .bottom-grid{display:grid!important;flex:0 0 34vh;height:34vh;min-height:0;margin:0 clamp(12px,2vw,28px) 7px;gap:9px;grid-template-columns:minmax(0,1.3fr) minmax(260px,1fr)}
+  body[data-active-tab="cross"] #crossSectionPlot,
+  body[data-active-tab="evolution"] #trend{height:25vh!important;min-height:0!important}
+  body[data-active-tab="cross"] #modelComparisonPanel,
+  body[data-active-tab="evolution"] #modelComparisonPanel{display:none!important}
+  body[data-active-tab="compare"] .layout{height:36vh;flex:0 0 36vh}
+  body[data-active-tab="compare"] #modelComparisonPanel{display:block!important;flex:0 0 38vh;height:38vh;overflow:auto;margin:0 clamp(12px,2vw,28px) 7px!important}
+  body[data-active-tab="compare"] .bottom-grid{display:none!important}
+}
+@media (max-width: 900px){
+  body{display:block;height:auto;min-height:100vh;overflow:auto}
+  .layout{height:auto;min-height:0;overflow:visible}
+  .map-panel{height:auto;min-height:500px}
+  .map-wrap,#map{min-height:420px}
+  .bottom-grid{display:grid}
+  .foot{display:block}
+  .legacy-profile-host{display:none!important}
+  body[data-active-tab="environment"] .bottom-grid,
+  body[data-active-tab="soundings"] .bottom-grid,
+  body[data-active-tab="kinematics"] .bottom-grid{display:none}
+  body[data-active-tab="compare"] #modelComparisonPanel{display:block}
+}
+
 </style>
 </head>
 <body>
@@ -33,9 +98,9 @@
 <div class="map-actions"><div class="overlay-tools"><span class="tool-label">Overlays</span><div class="checks"><label><input type="checkbox" checked id="stations"> Stations</label><label><input type="checkbox" id="radar"> MRMS radar</label><label><input type="checkbox" checked id="county"> CWA context</label><label><input type="checkbox" id="terrain"> Terrain</label></div></div><button class="btn" id="drawTransect">Draw cross-section line</button><button class="btn" id="clearTransect">Clear line</button><button class="btn" id="locateBtv">Select KBTV</button><button class="btn primary" id="reset">Reset view</button><div class="point-badge"><span>Selected point</span><span id="pointReadout"><b>KBTV</b></span><span id="coords">44.4719°N, 73.1533°W</span></div><span id="selectionStatus">Selected: KBTV</span></div></section>
 <aside class="rightcol">
 <section class="panel"><h2>Point diagnostics</h2><div class="metrics" id="metrics"><div class="metric"><span>MUCAPE</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>MLCAPE</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>MLCIN</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>PWAT</span><strong>—</strong><small>mm</small></div><div class="metric"><span>0–6 km shear</span><strong>—</strong><small>kt</small></div><div class="metric"><span>0–1 km SRH</span><strong>—</strong><small>m²/s²</small></div></div><div class="placeholder">RAP profiles are available at the eight listed stations only. Custom map points will not inherit station diagnostics.</div></section>
-<section class="panel"><h2>Skew-T · Hodograph</h2><div id="profile" style="height:310px"></div><h3>Hodograph · RAP winds</h3><div id="hodograph" style="height:220px"></div><div class="placeholder">Model-derived wind components are plotted in knots; height labels identify sampled levels. Profile diagnostics are station-based.</div></section>
+
 <section class="panel"><h2>Investigation notes</h2><div class="pad" id="investigation"><div class="detail-line"><span>Model</span><b>RAP</b></div><div class="detail-line"><span>Valid time</span><b>Awaiting feed</b></div><div class="detail-line"><span>Point</span><b>KBTV</b></div><div class="detail-line"><span>Interpretation</span><b style="color:var(--amber)">Not available</b></div></div><div class="notice">RAP station profiles: KBTV, KPBG, KMSS, KSLK, KMPV, KRUT, 1V4 and KEFK. HRRR currently provides a verified surface archive; RRFS remains experimental.</div></section>
-</aside></main>
+</aside><div class="legacy-profile-host" aria-hidden="true"><div id="profile" style="height:310px"></div><div id="hodograph" style="height:220px"></div></div></main>
 <div class="bottom-grid">
 <section class="panel"><h2>Vertical cross-section</h2><div class="field" style="padding:12px 14px 0"><label for="crossVariable">Cross-section variable</label><select id="crossVariable"><option value="temperature">Temperature (°C)</option><option value="dewpoint">Dewpoint (°C)</option><option value="omega">Vertical velocity / omega (Pa s⁻¹)</option><option value="u_wind">U wind (kt)</option><option value="v_wind">V wind (kt)</option><option value="specific_humidity">Specific humidity (g/kg)</option><option value="cloud_water">Cloud water mixing ratio (g/kg)</option><option value="rain_water">Rain mixing ratio (g/kg)</option><option value="snow">Snow mixing ratio (g/kg)</option><option value="graupel">Graupel mixing ratio (g/kg)</option><option value="tke">Turbulent kinetic energy (J/kg)</option></select></div><div id="crossSectionPlot" style="height:390px"></div><div class="placeholder" id="crossSectionStatus">Draw a transect on the map and select a vertical variable. RAP hybrid-level fields are sampled on native grid columns.</div></section>
 <section class="panel"><h2>Time evolution · Selected station</h2><div class="field" style="padding:12px 14px 0"><label for="trendParameter">Diagnostic</label><select id="trendParameter"><option value="sbcape_jkg">Surface-based CAPE</option><option value="mlcape_jkg">Mixed-layer CAPE</option><option value="mucape_jkg">Most-unstable CAPE</option><option value="mlcin_jkg">Mixed-layer CIN</option><option value="pwat_mm">Precipitable water</option><option value="bs06_kt">0–6 km bulk shear</option><option value="srh01_m2s2">0–1 km SRH</option><option value="lr03_k_km">0–3 km lapse rate</option></select></div><div id="trend" style="height:290px"></div><div class="placeholder" id="trendStatus">Select one of the eight verified stations to view RAP forecast-hour diagnostics. Custom points are not filled from nearby stations.</div></section>
@@ -139,7 +204,7 @@ document.getElementById('crossVariable').addEventListener('change',()=>{
   });
 });
 
-document.getElementById('drawTransect').onclick=()=>{transect=[];drawing=true;document.getElementById('drawTransect').textContent='Click start, then end point';document.getElementById('mapChip').textContent='Choose two points on the map to define a transect';};
+document.getElementById('drawTransect').onclick=()=>{document.querySelector('#tabs button[data-tab="cross"]').click();transect=[];drawing=true;document.getElementById('drawTransect').textContent='Click start, then end point';document.getElementById('mapChip').textContent='Choose two points on the map to define a transect';};
 document.getElementById('clearTransect').onclick=()=>{transect=[];drawing=false;if(line){map.removeLayer(line);line=null;}document.getElementById('drawTransect').textContent='Draw cross-section line';document.getElementById('mapChip').textContent='BTV CWA · Click map to interrogate a point';};
 document.getElementById('reset').onclick=document.getElementById('locateBtv').onclick=()=>{map.setView([44.4719,-73.1533],7);selectPoint(44.4719,-73.1533,'KBTV');};
 document.getElementById('hour').oninput=e=>document.getElementById('hourOut').textContent='F'+String(e.target.value).padStart(2,'0');
@@ -153,7 +218,26 @@ document.getElementById('parameter').onchange=e=>{
   const label=e.target.options[e.target.selectedIndex].text;
   document.getElementById('mapTitle').textContent='Environment · '+label;
 };
-document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('active',x===b));window.activeTab=b.dataset.tab;const titles={environment:'Environment',soundings:'Soundings',kinematics:'Kinematics & Forcing',cross:'Cross-Sections',compare:'Model Comparison',evolution:'Time Evolution'};document.getElementById('mapTitle').textContent=titles[window.activeTab]+' · Shared map selection';if(window.activeTab==='cross'&&!line)document.getElementById('mapChip').textContent='Draw a transect using the button below';if(window.activeTab==='evolution'&&window.updateRapTimeEvolution)window.updateRapTimeEvolution();document.getElementById('modelComparisonPanel').style.display=window.activeTab==='compare'?'block':'none';if(window.activeTab==='compare'&&window.updateModelComparison)window.updateModelComparison();});
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('active',x===b));
+  window.activeTab=b.dataset.tab;
+  document.body.dataset.activeTab=window.activeTab;
+  const titles={environment:'Environment',soundings:'Soundings',kinematics:'Kinematics & Forcing',cross:'Cross-Sections',compare:'Model Comparison',evolution:'Time Evolution'};
+  document.getElementById('mapTitle').textContent=titles[window.activeTab]+' · Shared map selection';
+  const workspace=document.querySelector('.bottom-grid');
+  const crossPanel=workspace.children[0],trendPanel=workspace.children[1],provenancePanel=workspace.children[2];
+  const showLower=window.activeTab==='cross'||window.activeTab==='evolution';
+  workspace.style.display=showLower?'grid':'none';
+  crossPanel.style.display=window.activeTab==='cross'?'block':'none';
+  trendPanel.style.display=window.activeTab==='evolution'?'block':'none';
+  provenancePanel.style.display=showLower?'block':'none';
+  document.getElementById('modelComparisonPanel').style.display=window.activeTab==='compare'?'block':'none';
+  if(window.activeTab==='cross'&&!line)document.getElementById('mapChip').textContent='Draw a transect using the button below';
+  if(window.activeTab==='evolution'&&window.updateRapTimeEvolution)window.updateRapTimeEvolution();
+  if(window.activeTab==='compare'&&window.updateModelComparison)window.updateModelComparison();
+  if(window.__testMap)requestAnimationFrame(()=>window.__testMap.invalidateSize());
+});
+document.body.dataset.activeTab='environment';
 function renderProfilePlaceholder(){/* profile plot is intentionally blank until real vertical data are ingested */}
 Plotly.newPlot('profile',[],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:48,r:12,t:24,b:38},xaxis:{title:'Temperature (°C)',color:'#9cb2c5',gridcolor:'#24435e'},yaxis:{title:'Pressure (hPa)',type:'log',autorange:'reversed',color:'#9cb2c5',gridcolor:'#24435e'},showlegend:true,legend:{font:{color:'#dceaf4'},orientation:'h',y:1.18}},{displayModeBar:false,responsive:true});
 
