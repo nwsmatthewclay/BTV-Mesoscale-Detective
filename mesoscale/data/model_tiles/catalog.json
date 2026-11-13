@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-11-13T09:13:09.794507+00:00",
+  "tile_scheme": "XYZ",
+  "products": [
+    {
+      "model": "HRRR",
+      "cycle_utc": "20261113T07:00:00Z",
+      "forecast_hour": 1,
+      "valid_time_utc": "2026-11-13T08:00:00Z",
+      "field_key": "2t_2d_3",
+      "short_name": "2t",
+      "long_name": "2-m temperature",
+      "units": "\u00b0C",
+      "source_units": "K",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": -273.15
+      },
+      "source_grid_shape": [
+        153,
+        145
+      ],
+      "source_grid_id": "grid_3",
+      "display_range": [
+        -5.259999999999991,
+        24.860000000000014
+      ],
+      "contour_interval": 5,
+      "contour_levels": [
+        -5.0,
+        0.0,
+        5.0,
+        10.0,
+        15.0,
+        20.0,
+        25.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 7,
+      "tile_count": 183,
+      "contour_feature_count": 266,
+      "tile_url": "hrrr/20261113T070000Z/f01/2t_2d_3/tiles/{z}/{x}/{y}.png",
+      "contour_url": "hrrr/20261113T070000Z/f01/2t_2d_3/contours.geojson",
+      "rendering": "linear interpolation from native model grid; contours calculated independently on native geographic grid",
+      "product_path": "hrrr/20261113T070000Z/f01/2t_2d_3/product.json"
+    },
+    {
+      "model": "HRRR",
+      "cycle_utc": "20261113T07:00:00Z",
+      "forecast_hour": 1,
+      "valid_time_utc": "2026-11-13T08:00:00Z",
+      "field_key": "gust_2d_6",
+      "short_name": "gust",
+      "long_name": "Wind gust",
+      "units": "kt",
+      "source_units": "m s**-1",
+      "display_transform": {
+        "scale": 1.943844,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        153,
+        145
+      ],
+      "source_grid_id": "grid_6",
+      "display_range": [
+        4.84017156,
+        33.1425402
+      ],
+      "contour_interval": 5,
+      "contour_levels": [
+        5.0,
+        10.0,
+        15.0,
+        20.0,
+        25.0,
+        30.0,
+        35.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 7,
+      "tile_count": 183,
+      "contour_feature_count": 839,
+      "tile_url": "hrrr/20261113T070000Z/f01/gust_2d_6/tiles/{z}/{x}/{y}.png",
+      "contour_url": "hrrr/20261113T070000Z/f01/gust_2d_6/contours.geojson",
+      "rendering": "linear interpolation from native model grid; contours calculated independently on native geographic grid",
+      "product_path": "hrrr/20261113T070000Z/f01/gust_2d_6/product.json"
+    },
+    {
+      "model": "HRRR",
+      "cycle_utc": "20261113T07:00:00Z",
+      "forecast_hour": 1,
+      "valid_time_utc": "2026-11-13T08:00:00Z",
+      "field_key": "refc_2d_0",
+      "short_name": "refc",
+      "long_name": "Maximum/Composite radar reflectivity",
+      "units": "dB",
+      "source_units": "dB",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        153,
+        145
+      ],
+      "source_grid_id": "grid_0",
+      "display_range": [
+        -10.0,
+        27.69
+      ],
+      "contour_interval": 5,
+      "contour_levels": [
+        -10.0,
+        -5.0,
+        0.0,
+        5.0,
+        10.0,
+        15.0,
+        20.0,
+        25.0,
+        30.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 7,
+      "tile_count": 183,
+      "contour_feature_count": 1262,
+      "tile_url": "hrrr/20261113T070000Z/f01/refc_2d_0/tiles/{z}/{x}/{y}.png",
+      "contour_url": "hrrr/20261113T070000Z/f01/refc_2d_0/contours.geojson",
+      "rendering": "linear interpolation from native model grid; contours calculated independently on native geographic grid",
+      "product_path": "hrrr/20261113T070000Z/f01/refc_2d_0/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261113T08:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-13T08:00:00Z",
+      "field_key": "2t_2d_4",
+      "short_name": "2t",
+      "long_name": "2-m temperature",
+      "units": "\u00b0C",
+      "source_units": "K",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": -273.15
+      },
+      "source_grid_shape": [
+        113,
+        89
+      ],
+      "source_grid_id": "grid_4",
+      "display_range": [
+        -5.302800000000001,
+        24.120000000000005
+      ],
+      "contour_interval": 5,
+      "contour_levels": [
+        -5.0,
+        0.0,
+        5.0,
+        10.0,
+        15.0,
+        20.0,
+        25.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 7,
+      "tile_count": 183,
+      "contour_feature_count": 79,
+      "tile_url": "rap/20261113T080000Z/f00/2t_2d_4/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261113T080000Z/f00/2t_2d_4/contours.geojson",
+      "rendering": "linear interpolation from native model grid; contours calculated independently on native geographic grid",
+      "product_path": "rap/20261113T080000Z/f00/2t_2d_4/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261113T08:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-13T08:00:00Z",
+      "field_key": "cape_2d_8",
+      "short_name": "cape",
+      "long_name": "Convective available potential energy",
+      "units": "J kg**-1",
+      "source_units": "J kg**-1",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        113,
+        89
+      ],
+      "source_grid_id": "grid_8",
+      "display_range": [
+        0.0,
+        1660.0
+      ],
+      "contour_interval": 200,
+      "contour_levels": [
+        0.0,
+        200.0,
+        400.0,
+        600.0,
+        800.0,
+        1000.0,
+        1200.0,
+        1400.0,
+        1600.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 7,
+      "tile_count": 183,
+      "contour_feature_count": 110,
+      "tile_url": "rap/20261113T080000Z/f00/cape_2d_8/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261113T080000Z/f00/cape_2d_8/contours.geojson",
+      "rendering": "linear interpolation from native model grid; contours calculated independently on native geographic grid",
+      "product_path": "rap/20261113T080000Z/f00/cape_2d_8/product.json"
+    }
+  ]
+}
