@@ -105,6 +105,7 @@ def published_hrrr_archive(cycle, hours=(0, 3, 6, 9), publishing=True, quality="
         "model": "HRRR",
         "product": "surface",
         "model_cycle_utc": cycle,
+        "domain": DOMAIN,
         "publishing": publishing,
         "hours": [
             {
