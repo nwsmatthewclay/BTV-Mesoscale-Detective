@@ -81,7 +81,7 @@
   body[data-active-tab="compare"] #modelComparisonPanel{display:block}
 }
 
-</style>
+\n/* Smooth model rasters sit beneath crisp geographic context and station markers. */\n.model-raster-overlay{image-rendering:auto;filter:saturate(1.08) contrast(1.025);}\n</style>
 </head>
 <body>
 <header class="topbar"><div class="brand"><div class="mark">BTV</div><div><h1>Mesoscale Detective</h1><p>NWS Burlington · Vermont &amp; Northern New York</p></div></div><div class="header-right"><span class="status" id="feedStatus">MODEL FEED NOT CONNECTED</span><span id="clock">--:-- UTC</span></div></header>
@@ -453,23 +453,64 @@ function updateRegionalDiagnostics(p,payload){
   const missing=items.filter(x=>!Number.isFinite(x[1])).map(x=>x[0]);
   return {cape,cin,pwat,shear,missing};
 }
-function rapColor(value,min,max){
+function fieldColor(value,min,max){
   const t=Math.max(0,Math.min(1,(value-min)/(max-min)));
-  const stops=[[49,54,149],[69,117,180],[116,173,209],[171,217,233],[224,243,248],[254,224,144],[253,174,97],[244,109,67],[215,48,39],[165,0,38]];
+  // A smooth, high-contrast weather palette: cool blues -> near-white -> warm orange/red.
+  const stops=[[35,67,125],[48,112,170],[80,166,198],[151,207,211],[222,235,218],[250,232,157],[247,177,91],[230,104,65],[174,48,59]];
   const q=t*(stops.length-1),i=Math.min(stops.length-2,Math.floor(q)),f=q-i;
-  const c=stops[i].map((v,k)=>Math.round(v+(stops[i+1][k]-v)*f));return 'rgb('+c.join(',')+')';
+  return stops[i].map((v,k)=>Math.round(v+(stops[i+1][k]-v)*f));
 }
 let modelOverlayLayer=null;
+function makeInterpolatedRaster(data,grid,min,max){
+  if(!Array.isArray(data)||!Array.isArray(grid?.latitude)||!Array.isArray(grid?.longitude))return null;
+  const rows=Math.min(data.length,grid.latitude.length,grid.longitude.length);
+  const cols=Math.min(...data.slice(0,rows).map(r=>Array.isArray(r)?r.length:0),...grid.latitude.slice(0,rows).map(r=>Array.isArray(r)?r.length:0),...grid.longitude.slice(0,rows).map(r=>Array.isArray(r)?r.length:0));
+  if(rows<2||cols<2||!Number.isFinite(min)||!Number.isFinite(max)||max<=min)return null;
+  let south=90,north=-90,west=180,east=-180,valid=0;
+  for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
+    const lat=grid.latitude[y][x],lon=grid.longitude[y][x];
+    if(Number.isFinite(lat)&&Number.isFinite(lon)){south=Math.min(south,lat);north=Math.max(north,lat);west=Math.min(west,lon);east=Math.max(east,lon);valid++;}
+  }
+  if(valid<4||north<=south||east<=west)return null;
+  // Render a 4x display grid. Values are bilinearly interpolated before color mapping,
+  // so the color field itself is smooth rather than merely enlarging colored grid cells.
+  const scale=4,outW=Math.min(2048,(cols-1)*scale+1),outH=Math.min(2048,(rows-1)*scale+1);
+  const canvas=document.createElement('canvas');canvas.width=outW;canvas.height=outH;
+  const ctx=canvas.getContext('2d',{alpha:true});if(!ctx)return null;
+  const image=ctx.createImageData(outW,outH),px=image.data;
+  for(let oy=0;oy<outH;oy++){
+    const gy=oy/(outH-1)*(rows-1),y0=Math.floor(gy),y1=Math.min(rows-1,y0+1),fy=gy-y0;
+    for(let ox=0;ox<outW;ox++){
+      const gx=ox/(outW-1)*(cols-1),x0=Math.floor(gx),x1=Math.min(cols-1,x0+1),fx=gx-x0;
+      const v00=data[y0]?.[x0],v10=data[y0]?.[x1],v01=data[y1]?.[x0],v11=data[y1]?.[x1];
+      const idx=(oy*outW+ox)*4;
+      if(![v00,v10,v01,v11].every(Number.isFinite)){px[idx+3]=0;continue;}
+      const top=v00+(v10-v00)*fx,bottom=v01+(v11-v01)*fx,value=top+(bottom-top)*fy;
+      const rgb=fieldColor(value,min,max);px[idx]=rgb[0];px[idx+1]=rgb[1];px[idx+2]=rgb[2];px[idx+3]=232;
+    }
+  }
+  ctx.putImageData(image,0,0);
+  // Leaflet imageOverlay keeps the raster in geographic space while map labels/boundaries stay crisp.
+  const bounds=[[south,west],[north,east]];
+  return L.imageOverlay(canvas.toDataURL('image/png'),bounds,{opacity:.88,interactive:false,className:'model-raster-overlay',alt:'Bilinearly interpolated model field'}); 
+}
+function fieldRange(data){
+  const values=data.flat().filter(Number.isFinite).sort((a,b)=>a-b);
+  if(!values.length)return null;
+  const p=q=>values[Math.max(0,Math.min(values.length-1,Math.floor((values.length-1)*q)))];
+  let min=p(.03),max=p(.97);
+  if(!(max>min)){min=values[0];max=values[values.length-1];}
+  if(!(max>min)){min-=.5;max+=.5;}
+  return {min,max,count:values.length};
+}
 const NATIVE_FIELD_CATEGORIES={
   "2t":"thermodynamics","t":"thermodynamics","pt":"thermodynamics","cape":"thermodynamics","cin":"thermodynamics","trpp":"thermodynamics",
   "2sh":"moisture","q":"moisture","pwat":"moisture","prate":"moisture","tp":"moisture","acpcp":"moisture","bgrun":"moisture","ssrun":"moisture","cnwat":"moisture",
   "10u":"kinematics","10v":"kinematics","u":"kinematics","v":"kinematics","gust":"kinematics","fricv":"kinematics","tke":"kinematics",
-  "w":"forcing",
-  "sp":"surface","mslma":"surface","orog":"surface","blh":"surface","lsm":"surface",
+  "w":"forcing","sp":"surface","mslma":"surface","orog":"surface","blh":"surface","lsm":"surface",
   "refc":"reflectivity","ltng":"reflectivity","vis":"aviation",
   "sde":"winter","sdwe":"winter","frzr":"winter","cfrzr":"winter","snmr":"winter","grle":"winter","rwmr":"winter","clwmr":"winter",
-  "soilw":"land","st":"land","slt":"land","vgtyp":"land","ci":"land",
-  "ishf":"energy","slhtf":"energy","sdlwrf":"energy","sdswrf":"energy"
+  "soilw":"land","st":"land","slt":"land","vgtyp":"land","ci":"land","ishf":"energy","slhtf":"energy","sdlwrf":"energy","sdswrf":"energy"
 };
 function syncDynamicFieldOptions(payload,model){
   const select=document.getElementById('parameter');
@@ -478,57 +519,38 @@ function syncDynamicFieldOptions(payload,model){
   for(const field of Object.values(payload.fields||{})){
     const shortName=field.short_name;
     if(!shortName||shortName==='unknown'||staticNames.has(shortName)||existing.has(shortName)||!squeezeRap2D(field.data))continue;
-    const category=NATIVE_FIELD_CATEGORIES[shortName]||'other';
-    const option=document.createElement('option');
-    option.value='native_'+model+'_'+shortName;
-    option.textContent=(field.long_name||shortName)+' · '+(field.units||'units unavailable');
-    option.dataset.model=model;
-    option.dataset.shortName=shortName;
-    option.dataset.category=category;
-    option.dataset.nativeField='true';
-    select.appendChild(option);
-    existing.add(shortName);
+    const category=NATIVE_FIELD_CATEGORIES[shortName]||'other',option=document.createElement('option');
+    option.value='native_'+model+'_'+shortName;option.textContent=(field.long_name||shortName)+' · '+(field.units||'units unavailable');
+    option.dataset.model=model;option.dataset.shortName=shortName;option.dataset.category=category;option.dataset.nativeField='true';
+    select.appendChild(option);existing.add(shortName);
   }
   updateParameterOptions();
 }
 function renderNativeFieldOverlay(payload,param,model){
   if(modelOverlayLayer){map.removeLayer(modelOverlayLayer);modelOverlayLayer=null;}
-  const prefix='native_'+model+'_';
-  if(!param.startsWith(prefix))return false;
-  const shortName=param.slice(prefix.length);
-  const field=model==='RAP'?findRapSurfaceField(payload,[shortName]):findHrrrField(payload,[shortName]);
+  const prefix='native_'+model+'_';if(!param.startsWith(prefix))return false;
+  const shortName=param.slice(prefix.length),field=model==='RAP'?findRapSurfaceField(payload,[shortName]):findHrrrField(payload,[shortName]);
   if(!field){document.getElementById('mapChip').textContent=model+' '+shortName+' is not present in this forecast hour; no substitute shown';return true;}
   const data=squeezeRap2D(field.data),grid=payload.grids?.[field.grid_id];
   if(!data||!grid){document.getElementById('mapChip').textContent=field.long_name+' is not a two-dimensional field in this model file';return true;}
-  const values=data.flat().filter(Number.isFinite).sort((x,y)=>x-y);
-  if(!values.length){document.getElementById('mapChip').textContent=field.long_name+' has no finite values in this grid';return true;}
-  const percentile=p=>values[Math.max(0,Math.min(values.length-1,Math.floor((values.length-1)*p)))];
-  let min=percentile(.05),max=percentile(.95);
-  if(!(max>min)){min=values[0];max=values[values.length-1];}
-  if(!(max>min)){min-=.5;max+=.5;}
-  const layer=L.layerGroup(),step=Math.max(1,Math.floor(Math.max(grid.shape[0],grid.shape[1])/45));
-  for(let y=0;y<grid.latitude.length;y+=step)for(let x=0;x<grid.latitude[y].length;x+=step){
-    const value=data[y]?.[x],lat=grid.latitude[y][x],lon=grid.longitude[y][x];
-    if(!Number.isFinite(value)||!Number.isFinite(lat)||!Number.isFinite(lon))continue;
-    L.circleMarker([lat,lon],{radius:5,stroke:false,fillColor:rapColor(value,min,max),fillOpacity:.62,interactive:false}).addTo(layer);
-  }
-  layer.addTo(map);modelOverlayLayer=layer;
-  document.getElementById('mapChip').textContent=model+' '+(field.long_name||shortName)+' · F'+String(payload.forecast_hour).padStart(2,'0')+' · '+payload.valid_time_utc+' · native field · '+(field.units||'units unavailable')+' · color range 5th–95th percentile';
+  const range=fieldRange(data),raster=range&&makeInterpolatedRaster(data,grid,range.min,range.max);
+  if(!raster){document.getElementById('mapChip').textContent=field.long_name+' could not be rendered: grid geometry or values unavailable';return true;}
+  raster.addTo(map);modelOverlayLayer=raster;
+  document.getElementById('mapChip').textContent=model+' '+(field.long_name||shortName)+' · F'+String(payload.forecast_hour).padStart(2,'0')+' · '+payload.valid_time_utc+' · smooth 4× interpolated display · '+(field.units||'units unavailable')+' · 3rd–97th percentile';
   return true;
 }
 function renderRapGridOverlay(payload,param){
   if(modelOverlayLayer){map.removeLayer(modelOverlayLayer);modelOverlayLayer=null;}
-  const cfg={cape:{names:['cape'],min:0,max:3000,label:'CAPE',units:'J/kg'},pwat:{names:['pwat'],min:0,max:50,label:'PWAT',units:'kg m-2'},omega:{names:['w'],min:-2,max:2,label:'Vertical velocity',units:'Pa/s'} }[param];
+  const cfg={cape:{names:['cape'],min:0,max:3000,label:'CAPE',units:'J/kg'},pwat:{names:['pwat'],min:0,max:50,label:'PWAT',units:'kg m-2'},omega:{names:['w'],min:-2,max:2,label:'Vertical velocity',units:'Pa/s'}}[param];
   if(!cfg){document.getElementById('mapChip').textContent='This parameter is not yet available as a verified RAP grid field';return;}
   const field=findRapSurfaceField(payload,cfg.names);
-  if(!field){document.getElementById('mapChip').textContent=cfg.label+' field not present in this RAP file; no substitute shown';return;}const fieldData=squeezeRap2D(field.data);if(!fieldData){document.getElementById('mapChip').textContent=cfg.label+' is not a two-dimensional field in this RAP file';return;}
-  const grid=payload.grids[field.grid_id],data=squeezeRap2D(field.data),layer=L.layerGroup(),step=Math.max(1,Math.floor(Math.max(grid.shape[0],grid.shape[1])/45));
-  for(let y=0;y<grid.latitude.length;y+=step)for(let x=0;x<grid.latitude[y].length;x+=step){
-    const val=fieldData[y]?.[x],lat=grid.latitude[y][x],lon=grid.longitude[y][x];if(!Number.isFinite(val)||!Number.isFinite(lat)||!Number.isFinite(lon))continue;
-    L.circleMarker([lat,lon],{radius:5*step/Math.max(1,step),stroke:false,fillColor:rapColor(val,cfg.min,cfg.max),fillOpacity:.62,interactive:false}).addTo(layer);
-  }
-  layer.addTo(map);modelOverlayLayer=layer;
-  document.getElementById('mapChip').textContent='RAP '+cfg.label+' · F'+String(payload.forecast_hour).padStart(2,'0')+' · '+payload.valid_time_utc+' · native grid samples · '+field.units;
+  if(!field){document.getElementById('mapChip').textContent=cfg.label+' field not present in this RAP file; no substitute shown';return;}
+  const data=squeezeRap2D(field.data),grid=payload.grids?.[field.grid_id];
+  if(!data||!grid){document.getElementById('mapChip').textContent=cfg.label+' is not a two-dimensional field in this RAP file';return;}
+  const range=fieldRange(data),raster=range&&makeInterpolatedRaster(data,grid,cfg.min,cfg.max);
+  if(!raster){document.getElementById('mapChip').textContent=cfg.label+' raster could not be rendered';return;}
+  raster.addTo(map);modelOverlayLayer=raster;
+  document.getElementById('mapChip').textContent='RAP '+cfg.label+' · F'+String(payload.forecast_hour).padStart(2,'0')+' · '+payload.valid_time_utc+' · smooth 4× interpolated display · '+field.units;
 }
 function sampleComparableSurface(payload,model,names,lat,lon){
   const field=model==='RAP'?findRapSurfaceField(payload,names):findHrrrField(payload,names);
