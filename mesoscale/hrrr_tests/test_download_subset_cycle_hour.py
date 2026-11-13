@@ -4,10 +4,14 @@ from mesoscale.download_subset import download
 
 
 @pytest.mark.parametrize(
-    "cycle",
-    ["20261112T15:00:00Z", "2026-11-12T15:00:00Z"],
+    ("cycle", "expected_hour"),
+    [
+        ("20261112T15:00:00Z", "15"),
+        ("2026-11-12T15:00:00Z", "15"),
+        ("2026-11-12T10:00:00-05:00", "15"),
+    ],
 )
-def test_download_filename_parses_compact_and_extended_cycle_timestamps(tmp_path, cycle):
+def test_download_filename_normalizes_cycle_timestamp_to_utc(tmp_path, cycle, expected_hour):
     product = {
         "model": "HRRR",
         "date": "20261112",
@@ -38,4 +42,4 @@ def test_download_filename_parses_compact_and_extended_cycle_timestamps(tmp_path
             return FakeResponse()
 
     result = download(FakeSession(), "HRRR", product, tmp_path)
-    assert result["file"].endswith("hrrr_20261112_15_f00_btv.grib2")
+    assert result["file"].endswith(f"hrrr_20261112_{expected_hour}_f00_btv.grib2")
