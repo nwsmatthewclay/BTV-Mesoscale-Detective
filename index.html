@@ -303,20 +303,20 @@ body{
 
 /* Focused model-exploration workspace: one reliable no-key basemap and a full-width map. */
 @media (min-width: 901px){
-  body > main.layout{flex:1 1 auto!important;min-height:0!important;height:auto!important;margin:10px clamp(12px,1.4vw,22px) 12px!important;display:grid!important;grid-template-columns:minmax(235px,275px) minmax(0,1fr)!important;gap:12px!important;overflow:hidden!important;}
-  body > main.layout > main.layout{display:grid!important;grid-template-columns:minmax(0,1fr)!important;min-width:0!important;min-height:0!important;width:100%!important;height:100%!important;flex:1 1 auto!important;margin:0!important;gap:0!important;overflow:hidden!important;}
-  body > main.layout > main.layout > .map-panel{grid-column:1/-1!important;width:100%!important;height:100%!important;min-height:0!important;}
-  body > main.layout > main.layout > .rightcol{display:none!important;}
-  body > main.layout > main.layout > .legacy-profile-host{display:none!important;}
+  body > .app-shell.layout{flex:1 1 auto!important;min-height:0!important;height:auto!important;margin:10px clamp(12px,1.4vw,22px) 12px!important;display:grid!important;grid-template-columns:minmax(235px,275px) minmax(0,1fr)!important;gap:12px!important;overflow:hidden!important;}
+  body > .app-shell.layout > main.layout{display:grid!important;grid-template-columns:minmax(0,1fr)!important;min-width:0!important;min-height:0!important;width:100%!important;height:100%!important;flex:1 1 auto!important;margin:0!important;gap:0!important;overflow:hidden!important;}
+  body > .app-shell.layout > main.layout > .map-panel{grid-column:1/-1!important;width:100%!important;height:100%!important;min-height:0!important;}
+  body > .app-shell.layout > main.layout > .rightcol{display:none!important;}
+  body > .app-shell.layout > main.layout > .legacy-profile-host{display:none!important;}
   .map-wrap,#map{min-height:0!important;height:100%!important;}
   .map-panel .map-actions{flex:0 0 auto;}
 }
 @media (max-width: 900px){
-  body > main.layout{display:grid!important;grid-template-columns:minmax(0,1fr)!important;height:auto!important;max-height:none!important;overflow:visible!important;margin:10px!important;}
-  body > main.layout > main.layout{display:grid!important;grid-template-columns:minmax(0,1fr)!important;height:auto!important;min-height:0!important;margin:0!important;overflow:visible!important;}
-  body > main.layout > main.layout > .rightcol{display:none!important;}
-  body > main.layout > main.layout > .map-panel{min-height:68vh!important;}
-  body > main.layout > main.layout #map{min-height:52vh!important;}
+  body > .app-shell.layout{display:grid!important;grid-template-columns:minmax(0,1fr)!important;height:auto!important;max-height:none!important;overflow:visible!important;margin:10px!important;}
+  body > .app-shell.layout > main.layout{display:grid!important;grid-template-columns:minmax(0,1fr)!important;height:auto!important;min-height:0!important;margin:0!important;overflow:visible!important;}
+  body > .app-shell.layout > main.layout > .rightcol{display:none!important;}
+  body > .app-shell.layout > main.layout > .map-panel{min-height:68vh!important;}
+  body > .app-shell.layout > main.layout #map{min-height:52vh!important;}
 }
 
 /* Geographic context and live cursor sampling overlays. */
@@ -326,12 +326,70 @@ body{
 #cursorCoordinates{color:#b8ccdf}#cursorValue{margin-top:3px;color:#fff;font-weight:700}
 .boundary-attribution{color:#b6c8d8;font-size:9px}
 @media(max-width:620px){.cursor-readout{top:8px;right:8px;min-width:155px;max-width:52%;padding:7px 8px;font-size:9px}.map-chip{max-width:44%;}}
+
+/* Correct the nested workstation grids and keep the analysis dock full-width. */
+@media (min-width: 901px) {
+  body > .app-shell.layout {
+    grid-template-columns: minmax(228px,260px) minmax(0,1fr) !important;
+    width: calc(100% - 2 * clamp(12px,2.2vw,32px));
+    min-width: 0;
+    align-items: stretch;
+  }
+  body > .app-shell.layout > main.layout {
+    grid-template-columns: minmax(0,1fr) minmax(285px,325px) !important;
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    margin: 0;
+    max-width: none;
+    overflow: hidden;
+  }
+  body > .app-shell.layout > .legacy-profile-host { display: none !important; }
+  body[data-active-tab="cross"] > .bottom-grid,
+  body[data-active-tab="evolution"] > .bottom-grid {
+    display: grid !important;
+    width: calc(100vw - 2 * clamp(12px,2.2vw,32px)) !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    align-self: stretch !important;
+    grid-template-columns: minmax(0,1.3fr) minmax(260px,1fr) !important;
+    margin: 0 clamp(12px,2.2vw,32px) 8px !important;
+  }
+  body[data-active-tab="cross"] > .bottom-grid > .panel:first-child {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  body[data-active-tab="cross"] #crossSectionPlot {
+    display: block !important;
+    visibility: visible !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 180px !important;
+  }
+}
+@media (max-width: 900px) {
+  body > .app-shell.layout {
+    grid-template-columns: minmax(0,1fr) !important;
+    width: auto;
+    max-width: none;
+  }
+  body > .app-shell.layout > main.layout {
+    grid-template-columns: minmax(0,1fr) !important;
+    width: auto;
+    height: auto;
+    margin: 0;
+    max-width: none;
+    overflow: visible;
+  }
+}
+
 </style>
 </head>
 <body>
 <header class="topbar"><div class="brand"><div class="mark">BTV</div><div><h1>Mesoscale Detective</h1><p>NWS Burlington · Vermont &amp; Northern New York</p></div></div><div class="header-right"><span class="status" id="feedStatus">MODEL FEED NOT CONNECTED</span><span id="clock">--:-- UTC</span></div></header>
 <nav id="tabs" aria-label="Analysis workspaces"><button class="active" data-tab="environment">Environment</button><button data-tab="soundings">Soundings</button><button data-tab="kinematics">Kinematics &amp; Forcing</button><button data-tab="cross">Cross-Sections</button><button data-tab="compare">Model Compare</button><button data-tab="evolution">Time Evolution</button></nav>
-<main class="layout">
+<div class="app-shell layout">
 <aside class="model-sidebar panel" aria-label="Model and field controls">
   <div class="sidebar-heading"><span class="eyebrow">Atmospheric workstation</span><h2>Model Explorer</h2><p>Choose a guidance source and map field</p></div>
   <div class="sidebar-section"><div class="sidebar-section-title"><span class="sidebar-pulse"></span> MODEL &amp; CYCLE</div>
@@ -354,7 +412,7 @@ body{
 <section class="panel"><h2>Point diagnostics</h2><div class="metrics" id="metrics"><div class="metric"><span>MUCAPE</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>MLCAPE</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>MLCIN</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>PWAT</span><strong>—</strong><small>mm</small></div><div class="metric"><span>0–6 km shear</span><strong>—</strong><small>kt</small></div><div class="metric"><span>0–1 km SRH</span><strong>—</strong><small>m²/s²</small></div></div><div class="placeholder">RAP profiles are available at the eight listed stations only. Custom map points will not inherit station diagnostics.</div></section>
 
 <section class="panel"><h2>Investigation notes</h2><div class="pad" id="investigation"><div class="detail-line"><span>Model</span><b>RAP</b></div><div class="detail-line"><span>Valid time</span><b>Awaiting feed</b></div><div class="detail-line"><span>Point</span><b>KBTV</b></div><div class="detail-line"><span>Interpretation</span><b style="color:var(--amber)">Not available</b></div></div><div class="notice">RAP station profiles: KBTV, KPBG, KMSS, KSLK, KMPV, KRUT, 1V4 and KEFK. HRRR currently provides a verified surface archive; RRFS remains experimental.</div></section>
-</aside><div class="legacy-profile-host" aria-hidden="true"><div id="profile" style="height:310px"></div><div id="hodograph" style="height:220px"></div></div></main>
+</aside><div class="legacy-profile-host" aria-hidden="true"><div id="profile" style="height:310px"></div><div id="hodograph" style="height:220px"></div></div></div>
 <div class="bottom-grid">
 <section class="panel"><h2>Vertical cross-section</h2><div class="field" style="padding:12px 14px 0"><label for="crossVariable">Cross-section variable</label><select id="crossVariable"><option value="temperature">Temperature (°C)</option><option value="dewpoint">Dewpoint (°C)</option><option value="omega">Vertical velocity / omega (Pa s⁻¹)</option><option value="u_wind">U wind (kt)</option><option value="v_wind">V wind (kt)</option><option value="specific_humidity">Specific humidity (g/kg)</option><option value="cloud_water">Cloud water mixing ratio (g/kg)</option><option value="rain_water">Rain mixing ratio (g/kg)</option><option value="snow">Snow mixing ratio (g/kg)</option><option value="graupel">Graupel mixing ratio (g/kg)</option><option value="tke">Turbulent kinetic energy (J/kg)</option></select></div><div id="crossSectionPlot" style="height:390px"></div><div class="placeholder" id="crossSectionStatus">Draw a transect on the map and select a vertical variable. RAP hybrid-level fields are sampled on native grid columns.</div></section>
 <section class="panel"><h2>Time evolution · Selected station</h2><div class="field" style="padding:12px 14px 0"><label for="trendParameter">Diagnostic</label><select id="trendParameter"><option value="sbcape_jkg">Surface-based CAPE</option><option value="mlcape_jkg">Mixed-layer CAPE</option><option value="mucape_jkg">Most-unstable CAPE</option><option value="mlcin_jkg">Mixed-layer CIN</option><option value="pwat_mm">Precipitable water</option><option value="bs06_kt">0–6 km bulk shear</option><option value="srh01_m2s2">0–1 km SRH</option><option value="lr03_k_km">0–3 km lapse rate</option></select></div><div id="trend" style="height:290px"></div><div class="placeholder" id="trendStatus">Select one of the eight verified stations to view RAP forecast-hour diagnostics. Custom points are not filled from nearby stations.</div></section>
@@ -423,12 +481,13 @@ function cursorReadout(latlng){
   if(!payload||!fieldKey){value.textContent='No active gridded field';return;}
   const meta=payload.fields?payload.fields[fieldKey]:null;
   const grid=meta&&payload.grids?payload.grids[meta.grid_id]:null;
-  if(!meta||!Array.isArray(meta.data)||!Array.isArray(meta.data[0])||Array.isArray(meta.data[0][0])||!grid||!grid.latitude||!grid.longitude){value.textContent='No 2-D grid sample for this variable';return;}
+  const data=meta&&squeezeRap2D(meta.data);
+  if(!meta||!data||!grid||!Array.isArray(grid.latitude)||!Array.isArray(grid.longitude)){value.textContent='No 2-D grid sample for this variable';return;}
   const shortName=meta.short_name;
   let bestDistance=Infinity,bestValue=null,bestLat=null,bestLon=null;
   const rad=Math.PI/180,cosLat=Math.cos(lat*rad);
   for(let y=0;y<grid.latitude.length;y++){
-    const latRow=grid.latitude[y],lonRow=grid.longitude[y],dataRow=meta.data[y];
+    const latRow=grid.latitude[y],lonRow=grid.longitude[y],dataRow=data[y];
     if(!Array.isArray(latRow)||!Array.isArray(lonRow)||!Array.isArray(dataRow))continue;
     for(let x=0;x<Math.min(latRow.length,lonRow.length,dataRow.length);x++){
       const glat=latRow[x],glon=lonRow[x],v=dataRow[x];
@@ -779,8 +838,23 @@ function squeezeRap2D(data){
   let a=data;while(Array.isArray(a)&&a.length===1&&Array.isArray(a[0])&&Array.isArray(a[0][0]))a=a[0];
   return Array.isArray(a)&&Array.isArray(a[0])&&a.some(row=>Array.isArray(row)&&row.some(Number.isFinite))?a:null;
 }
+function hasMatchingGridGeometry(payload,field){
+  const data=squeezeRap2D(field?.data),grid=payload?.grids?.[field?.grid_id];
+  if(!data||!grid||!Array.isArray(grid.latitude)||!Array.isArray(grid.longitude)
+      ||data.length!==grid.latitude.length||data.length!==grid.longitude.length)return false;
+  let valid=0;
+  for(let y=0;y<data.length;y++){
+    const row=data[y],lat=grid.latitude[y],lon=grid.longitude[y];
+    if(!Array.isArray(row)||!Array.isArray(lat)||!Array.isArray(lon)
+        ||row.length!==lat.length||row.length!==lon.length)return false;
+    for(let x=0;x<row.length;x++){
+      if(Number.isFinite(row[x])&&Number.isFinite(lat[x])&&Number.isFinite(lon[x]))valid++;
+    }
+  }
+  return valid>=12;
+}
 function findRapSurfaceField(payload,names,gridId){
-  return Object.values(payload.fields||{}).find(f=>names.includes(f.short_name)&&(!gridId||f.grid_id===gridId)&&squeezeRap2D(f.data));
+  return Object.values(payload.fields||{}).find(f=>names.includes(f.short_name)&&(!gridId||f.grid_id===gridId)&&hasMatchingGridGeometry(payload,f));
 }
 function sampleRapSurface(payload,names,lat,lon){
   const field=findRapSurfaceField(payload,names);if(!field)return null;
@@ -992,7 +1066,7 @@ const NATIVE_FIELD_CATEGORIES={
   "10u":"kinematics","10v":"kinematics","u":"kinematics","v":"kinematics","gust":"kinematics","fricv":"kinematics","tke":"kinematics",
   "w":"forcing","sp":"surface","mslma":"surface","orog":"surface","blh":"surface","lsm":"surface",
   "refc":"reflectivity","ltng":"reflectivity","vis":"aviation",
-  "sde":"winter","sdwe":"winter","frzr":"winter","cfrzr":"winter","snmr":"winter","grle":"winter","rwmr":"winter","clwmr":"winter",
+  "sde":"winter","sd":"winter","snod":"winter","weasd":"winter","sdwe":"winter","frzr":"winter","cfrzr":"winter","snmr":"winter","grle":"winter","rwmr":"winter","clwmr":"winter",
   "soilw":"land","st":"land","slt":"land","vgtyp":"land","ci":"land","ishf":"energy","slhtf":"energy","sdlwrf":"energy","sdswrf":"energy"
 };
 function syncDynamicFieldOptions(payload,model){
@@ -1000,7 +1074,7 @@ function syncDynamicFieldOptions(payload,model){
   const existing=new Set(Array.from(select.options).filter(option=>option.dataset.model===model).map(option=>option.dataset.fieldKey));
   for(const [fieldKey,field] of Object.entries(payload.fields||{})){
     const shortName=field.short_name;
-    if(!shortName||shortName==='unknown'||existing.has(fieldKey)||!squeezeRap2D(field.data))continue;
+    if(!shortName||shortName==='unknown'||existing.has(fieldKey)||!hasMatchingGridGeometry(payload,field))continue;
     const category=NATIVE_FIELD_CATEGORIES[shortName]||'other',option=document.createElement('option');
     option.value='native_'+model+'_key_'+encodeURIComponent(fieldKey);
     option.textContent=(field.long_name||shortName)+' · '+(field.units||'units unavailable')+' ['+fieldKey+']';
@@ -1017,7 +1091,16 @@ function renderNativeFieldOverlay(payload,param,model){
   const fieldKey=selectedTileFieldKey(model,param,payload);
   const field=fieldKey&&payload.fields?payload.fields[fieldKey]:null;
   const shortName=field&&field.short_name?field.short_name:param.slice(prefix.length);
-  if(!field){document.getElementById('mapChip').textContent=model+' '+shortName+' is not present in this forecast hour; no substitute shown';return true;}
+  if(!field){
+    let requestedKey=null;
+    try{requestedKey=decodeURIComponent(param.slice(('native_'+model+'_key_').length));}catch(_){}
+    const rawField=requestedKey&&payload.fields?.[requestedKey];
+    const label=rawField?.long_name||rawField?.short_name||shortName;
+    document.getElementById('mapChip').textContent=rawField
+      ?model+' '+label+' exists but its 2-D data/grid geometry is not renderable; no substitute shown'
+      :model+' '+shortName+' is not present in this forecast hour; no substitute shown';
+    return true;
+  }
   const data=squeezeRap2D(field.data),grid=payload.grids?.[field.grid_id];
   if(!data||!grid){document.getElementById('mapChip').textContent=field.long_name+' is not a two-dimensional field in this model file';return true;}
   const range=fieldRange(data),raster=range&&makeInterpolatedRaster(data,grid,range.min,range.max);
@@ -1142,7 +1225,7 @@ async function updateModelComparison(){
 }
 window.updateModelComparison=updateModelComparison;
 function findHrrrField(payload,names,gridId){
-  return Object.values(payload.fields||{}).find(field=>names.includes(field.short_name)&&(!gridId||field.grid_id===gridId)&&squeezeRap2D(field.data));
+  return Object.values(payload.fields||{}).find(field=>names.includes(field.short_name)&&(!gridId||field.grid_id===gridId)&&hasMatchingGridGeometry(payload,field));
 }
 function renderHrrrGridOverlay(payload,param){
   if(modelOverlayLayer){map.removeLayer(modelOverlayLayer);modelOverlayLayer=null;}
@@ -1203,17 +1286,20 @@ function selectedTileShortName(model,param,payload){
 }
 function selectedTileFieldKey(model,param,payload){
   if(param.startsWith('native_'+model+'_key_')){
-    try{return decodeURIComponent(param.slice(('native_'+model+'_key_').length));}catch(_){return null;}
+    try{
+      const key=decodeURIComponent(param.slice(('native_'+model+'_key_').length));
+      return hasMatchingGridGeometry(payload,payload.fields?.[key])?key:null;
+    }catch(_){return null;}
   }
   const shortName=selectedTileShortName(model,param,payload);
   if(!payload||!payload.fields)return null;
   if(!shortName){
     const direct=payload.fields[param];
-    if(direct&&squeezeRap2D(direct.data))return param;
+    if(direct&&hasMatchingGridGeometry(payload,direct))return param;
     const aliases={omega:'w'};
     const alias=aliases[param];
     if(alias){
-      const pair=Object.entries(payload.fields).find(entry=>entry[1].short_name===alias&&squeezeRap2D(entry[1].data));
+      const pair=Object.entries(payload.fields).find(entry=>entry[1].short_name===alias&&hasMatchingGridGeometry(payload,entry[1]));
       if(pair)return pair[0];
     }
     return null;
@@ -1223,7 +1309,7 @@ function selectedTileFieldKey(model,param,payload){
     const pair=Object.entries(payload.fields).find(entry=>entry[1]===preferred);
     if(pair)return pair[0];
   }
-  const pair=Object.entries(payload.fields).find(entry=>entry[1].short_name===shortName&&squeezeRap2D(entry[1].data));
+  const pair=Object.entries(payload.fields).find(entry=>entry[1].short_name===shortName&&hasMatchingGridGeometry(payload,entry[1]));
   return pair?pair[0]:null;
 }
 function clearPreRenderedModelLayers(){

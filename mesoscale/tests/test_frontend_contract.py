@@ -190,3 +190,13 @@ def test_expanded_upstream_domain_and_dynamic_map_legends_are_wired():
     assert "updateMapLegend(cfg.label,cfg.min,cfg.max,cfg.units)" in html
     assert '"west": -90.0, "east": -60.0, "south": 32.0, "north": 55.0' in process
     assert '"leftlon": -90.0, "rightlon": -60.0, "toplat": 55.0, "bottomlat": 32.0' in subset
+
+
+
+def test_workstation_uses_valid_non_nested_main_structure_and_geometry_aware_fields():
+    html = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert '<div class="app-shell layout">' in html
+    assert html.count('<main class="layout">') == 1
+    assert "body > .app-shell.layout > main.layout" in html
+    assert "function hasMatchingGridGeometry(payload,field)" in html
+    assert "const data=meta&&squeezeRap2D(meta.data)" in html

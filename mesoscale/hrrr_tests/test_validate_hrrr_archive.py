@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, timezone
 from mesoscale.process_grib import DOMAIN
 from mesoscale.validate_hrrr_archive import (
     archive_needs_update,
+    build_archive_manifest,
     choose_cycle_products,
     choose_cycle_products_for_valid_times,
 )
@@ -105,6 +106,7 @@ def published_hrrr_archive(cycle, hours=(0, 3, 6, 9), publishing=True, quality="
         "model": "HRRR",
         "product": "surface",
         "model_cycle_utc": cycle,
+        "domain": DOMAIN,
         "publishing": publishing,
         "hours": [
             {
@@ -331,3 +333,42 @@ def test_hrrr_freshness_treats_malformed_quality_metadata_as_stale():
     archive["quality"] = "passed"
 
     assert archive_needs_update(manifest, archive, (0, 3, 6, 9))[0] is True
+
+
+def test_hrrr_freshness_rebuilds_archive_with_stale_domain_metadata():
+    cycle = "20261112T16:00:00Z"
+    manifest = {"models": {"HRRR": {"latest_products": [
+        *[product(cycle, hour) for hour in (0, 3, 6, 9)],
+    ]}}}
+    archive = published_hrrr_archive(cycle)
+    archive["domain"] = {
+        "west": -75.2, "east": -71.2, "south": 42.3, "north": 45.3
+    }
+
+    needs_update, target = archive_needs_update(manifest, archive, (0, 3, 6, 9))
+
+    assert target == cycle
+    assert needs_update is True
+
+
+def test_hrrr_archive_manifest_uses_decoder_domain_and_exact_rap_valid_times():
+    cycle = "20261112T16:00:00Z"
+    targets = (
+        "2026-11-12T17:00:00Z",
+        "2026-11-12T20:00:00Z",
+    )
+    entries = [
+        {"forecast_hour": 1, "valid_time_utc": targets[0]},
+        {"forecast_hour": 4, "valid_time_utc": targets[1]},
+    ]
+
+    archive = build_archive_manifest(
+        cycle, entries, valid_times=targets, reference_rap_cycle="20261112T17:00:00Z"
+    )
+
+    assert archive["domain"] == DOMAIN
+    assert archive["valid_time_alignment"] == {
+        "reference_model": "RAP",
+        "reference_cycle_utc": "20261112T17:00:00Z",
+        "valid_times_utc": list(targets),
+    }
