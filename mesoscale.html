@@ -802,13 +802,22 @@ async function loadModelManifest(){
 }
 function updateParameterOptions(){
   const model=document.getElementById('model').value;
-  const category=document.getElementById('category').value;
+  const categorySelect=document.getElementById('category');
   const select=document.getElementById('parameter');
-  for(const option of select.options){
+  const isModelAvailable=option=>{
     const hrrrOption=option.value.startsWith('hrrr_');
-    const modelAvailable=model==='HRRR'?hrrrOption:!hrrrOption;
-    const categoryAvailable=category==='all'||option.dataset.category===category;
-    const show=modelAvailable&&categoryAvailable;
+    return model==='HRRR'?hrrrOption:!hrrrOption;
+  };
+  for(const categoryOption of categorySelect.options){
+    const hasModelFields=categoryOption.value==='all'||Array.from(select.options).some(
+      option=>isModelAvailable(option)&&option.dataset.category===categoryOption.value
+    );
+    categoryOption.disabled=!hasModelFields;
+  }
+  if(categorySelect.selectedOptions[0]?.disabled)categorySelect.value='all';
+  const category=categorySelect.value;
+  for(const option of select.options){
+    const show=isModelAvailable(option)&&(category==='all'||option.dataset.category===category);
     option.hidden=!show;option.disabled=!show;
   }
   const selected=select.selectedOptions[0];
