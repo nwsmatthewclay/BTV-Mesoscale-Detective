@@ -116,14 +116,15 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         # The current workstation has a two-column shell and a two-column analysis area.
         desktop_layout = page.evaluate(
             """() => {
-                const shell = document.querySelector("body > main.layout");
+                const shell = document.querySelector("body > .app-shell.layout");
                 const analysis = shell?.querySelector(":scope > main.layout");
                 const sidebar = shell?.querySelector(":scope > .model-sidebar");
                 const map = analysis?.querySelector("#map");
                 if (!shell || !analysis || !sidebar || !map) return {missingStructure: true};
                 return {
-                    shellColumns: getComputedStyle(shell).gridTemplateColumns.split(/\s+/).filter(Boolean).length,
-                    analysisColumns: getComputedStyle(analysis).gridTemplateColumns.split(/\s+/).filter(Boolean).length,
+                    shellColumns: getComputedStyle(shell).gridTemplateColumns.trim().split(" ").filter(Boolean).length,
+                    analysisColumns: getComputedStyle(analysis).gridTemplateColumns.trim().split(" ").filter(Boolean).length,
+                    mainElementCount: document.querySelectorAll("main.layout").length,
                     mapWidth: map.getBoundingClientRect().width,
                     mapHeight: map.getBoundingClientRect().height,
                     sidebarWidth: sidebar.getBoundingClientRect().width,
@@ -134,6 +135,7 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         assert desktop_layout.get("missingStructure") is not True, desktop_layout
         assert desktop_layout["shellColumns"] == 2, desktop_layout
         assert desktop_layout["analysisColumns"] == 2, desktop_layout
+        assert desktop_layout["mainElementCount"] == 1, desktop_layout
         assert desktop_layout["mapWidth"] > 700, desktop_layout
         assert 400 <= desktop_layout["mapHeight"] <= 650, desktop_layout
         assert 220 <= desktop_layout["sidebarWidth"] <= 280, desktop_layout
@@ -178,13 +180,13 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         page.set_viewport_size({"width": 390, "height": 844})
         mobile_layout = page.evaluate(
             """() => {
-                const shell = document.querySelector("body > main.layout");
+                const shell = document.querySelector("body > .app-shell.layout");
                 const analysis = shell?.querySelector(":scope > main.layout");
                 const sidebar = shell?.querySelector(":scope > .model-sidebar");
                 return {
-                    shellColumns: shell ? getComputedStyle(shell).gridTemplateColumns.split(/\s+/).filter(Boolean).length : 0,
-                    analysisColumns: analysis ? getComputedStyle(analysis).gridTemplateColumns.split(/\s+/).filter(Boolean).length : 0,
-                    sidebarColumns: sidebar ? getComputedStyle(sidebar).gridTemplateColumns.split(/\s+/).filter(Boolean).length : 0,
+                    shellColumns: shell ? getComputedStyle(shell).gridTemplateColumns.trim().split(" ").filter(Boolean).length : 0,
+                    analysisColumns: analysis ? getComputedStyle(analysis).gridTemplateColumns.trim().split(" ").filter(Boolean).length : 0,
+                    sidebarColumns: sidebar ? getComputedStyle(sidebar).gridTemplateColumns.trim().split(" ").filter(Boolean).length : 0,
                     viewportWidth: document.documentElement.clientWidth,
                     documentWidth: document.documentElement.scrollWidth,
                     mapWidth: document.querySelector("#map").getBoundingClientRect().width
