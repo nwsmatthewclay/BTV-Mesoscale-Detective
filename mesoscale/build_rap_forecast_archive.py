@@ -20,7 +20,7 @@ from pathlib import Path
 import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from process_grib import DOMAIN, process_file
+from process_grib import DOMAIN, RAP_MAX_GRID_DIM, process_file
 from extract_profile import extract_profile
 
 MANIFEST = Path("mesoscale/data/model_manifest.json")
@@ -102,12 +102,24 @@ def _archive_file_matches(path: Path, item: dict, cycle: str, kind: str) -> bool
             # Rebuild older archives when the geographic crop definition changes.
             if payload.get("domain") != DOMAIN:
                 return False
+            processing = payload.get("processing")
+            if not isinstance(processing, dict) or int(processing.get("max_grid_dim", -1)) != RAP_MAX_GRID_DIM:
+                return False
             fields = payload.get("fields")
             grids = payload.get("grids")
             quality = payload.get("quality")
+            sampling_matches = isinstance(grids, dict) and bool(grids) and all(
+                isinstance(grid, dict)
+                and int(grid.get("max_grid_dim", -1)) == RAP_MAX_GRID_DIM
+                and isinstance(grid.get("sampling"), dict)
+                and int(grid["sampling"].get("max_grid_dim", -1)) == RAP_MAX_GRID_DIM
+                and int(grid.get("stride", -1)) == int(grid["sampling"].get("stride", -2))
+                for grid in grids.values()
+            )
             return (
                 isinstance(fields, dict) and bool(fields)
                 and isinstance(grids, dict) and bool(grids)
+                and sampling_matches
                 and isinstance(quality, dict)
                 and len(fields) == int(quality.get("field_count", -1))
                 and len(grids) == int(quality.get("grid_count", -1))
@@ -189,6 +201,7 @@ def archive_needs_update(manifest: dict, existing_archive: dict | None,
         existing_archive.get("model") == "RAP"
         and existing_time is not None
         and existing_time >= target_time
+        and (existing_archive.get("processing") or {}).get("max_grid_dim") == RAP_MAX_GRID_DIM
         and archived_hours == expected_hours
         and files_complete
         and valid_times_match
@@ -242,7 +255,7 @@ def main() -> None:
         grib_path = OUT / "downloads" / product["filename"]
         size = download(product["url"], grib_path, session)
         field_path = FIELDS_OUT / f"rap_f{hour:02d}.json.gz"
-        payload = process_file(grib_path, "RAP", cycle, hour, field_path, max_grid_dim=160)
+        payload = process_file(grib_path, "RAP", cycle, hour, field_path, max_grid_dim=RAP_MAX_GRID_DIM)
         names = {item["short_name"] for item in payload["fields"].values()}
         required = {"t", "gh", "u", "v", "q", "pres"}
         if not required.issubset(names):
@@ -267,6 +280,7 @@ def main() -> None:
             "station_file": f"fields/{station_path.name}",
             "field_count": payload["quality"]["field_count"],
             "grid_count": payload["quality"]["grid_count"],
+            "grid_sampling": {grid_id: grid.get("sampling") for grid_id, grid in payload["grids"].items()},
             "station_count": len(station_profiles),
         })
         print(f"Verified RAP F{hour:02d}: {size:,} GRIB bytes, {len(names)} fields, {len(station_profiles)} station profiles")
@@ -274,6 +288,7 @@ def main() -> None:
         "schema_version": 1, "model": "RAP", "model_cycle_utc": cycle,
         "created_utc": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(),
         "domain": payload["domain"], "hours": entries,
+        "processing": {"max_grid_dim": RAP_MAX_GRID_DIM, "sampling_method": "uniform row/column stride"},
         "quality": {"status": "passed", "hours_verified": len(entries)},
     }
     (OUT / "forecast_manifest.json").write_text(

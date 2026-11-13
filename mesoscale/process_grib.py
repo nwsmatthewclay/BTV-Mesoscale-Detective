@@ -16,6 +16,8 @@ from pathlib import Path
 import numpy as np
 
 DOMAIN = {"west": -90.0, "east": -60.0, "south": 32.0, "north": 55.0}
+RAP_MAX_GRID_DIM = 320
+HRRR_MAX_GRID_DIM = 160
 
 
 def json_values(array, decimals=2):
@@ -50,6 +52,43 @@ def grid_projection_metadata(attrs):
         key: attr_value(value)
         for key, value in attrs.items()
         if key in GRID_METADATA_KEYS
+    }
+
+
+def sampling_stride(shape, max_grid_dim):
+    """Return the uniform row/column stride needed to bound a 2-D grid."""
+    if isinstance(max_grid_dim, bool):
+        raise ValueError("max_grid_dim must be a positive integer")
+    try:
+        limit = int(max_grid_dim)
+        dimensions = tuple(int(value) for value in shape)
+    except (TypeError, ValueError):
+        raise ValueError("grid shape and max_grid_dim must be integers") from None
+    if limit < 1 or len(dimensions) != 2 or any(value < 1 for value in dimensions):
+        raise ValueError("sampling requires a positive 2-D shape and positive max_grid_dim")
+    return max(1, (max(dimensions) + limit - 1) // limit)
+
+
+def grid_sampling_metadata(projection, stride, max_grid_dim):
+    """Describe source and effective horizontal spacing after array decimation."""
+    def positive_spacing(value):
+        try:
+            number = abs(float(value))
+        except (TypeError, ValueError):
+            return None
+        return number if np.isfinite(number) and number > 0 else None
+
+    source_x = positive_spacing(projection.get("GRIB_DxInMetres"))
+    source_y = positive_spacing(projection.get("GRIB_DyInMetres"))
+    stride = int(stride)
+    return {
+        "max_grid_dim": int(max_grid_dim),
+        "stride": stride,
+        "source_spacing_m": {"x": source_x, "y": source_y},
+        "effective_spacing_m": {
+            "x": source_x * stride if source_x is not None else None,
+            "y": source_y * stride if source_y is not None else None,
+        },
     }
 
 
@@ -90,7 +129,10 @@ def attr_value(value):
 
 
 def process_file(path: Path, model: str, cycle: str, forecast_hour: int,
-                 output: Path, max_grid_dim: int = 320):
+                 output: Path, max_grid_dim: int = RAP_MAX_GRID_DIM):
+    if isinstance(max_grid_dim, bool) or int(max_grid_dim) < 1:
+        raise ValueError("max_grid_dim must be a positive integer")
+    max_grid_dim = int(max_grid_dim)
     import cfgrib
     datasets = cfgrib.open_datasets(str(path), backend_kwargs={"indexpath": ""})
     fields = {}
@@ -118,12 +160,13 @@ def process_file(path: Path, model: str, cycle: str, forecast_hour: int,
             y0, y1 = int(rows.min()), int(rows.max()) + 1
             x0, x1 = int(cols.min()), int(cols.max()) + 1
             lat_crop, lon_crop = lat[y0:y1, x0:x1], lon[y0:y1, x0:x1]
-            stride = max(1, int(np.ceil(max(lat_crop.shape) / max_grid_dim)))
+            stride = sampling_stride(lat_crop.shape, max_grid_dim)
             lat_crop, lon_crop = lat_crop[::stride, ::stride], lon_crop[::stride, ::stride]
             grid_id = f"grid_{ds_index}"
             grids[grid_id] = {"latitude": json_values(lat_crop, 4),
                               "longitude": json_values(lon_crop, 4),
                               "shape": list(lat_crop.shape), "stride": stride,
+                              "max_grid_dim": max_grid_dim,
                               "projection": grid_projection_metadata(ds.attrs)}
 
             for name, variable in ds.data_vars.items():
@@ -167,6 +210,9 @@ def process_file(path: Path, model: str, cycle: str, forecast_hour: int,
                     "grid_id": grid_id,
                     "data": json_values(arr, precision),
                 }
+            grids[grid_id]["sampling"] = grid_sampling_metadata(
+                grids[grid_id]["projection"], stride, max_grid_dim
+            )
     finally:
         for ds in datasets:
             ds.close()
@@ -184,6 +230,7 @@ def process_file(path: Path, model: str, cycle: str, forecast_hour: int,
         "domain": DOMAIN,
         "grids": grids,
         "fields": fields,
+        "processing": {"max_grid_dim": max_grid_dim, "sampling_method": "uniform row/column stride"},
         "quality": {"field_count": len(fields), "grid_count": len(grids),
                     "warnings": warnings},
     }
@@ -200,7 +247,7 @@ def main():
     parser.add_argument("--cycle", required=True, help="UTC cycle ISO timestamp")
     parser.add_argument("--forecast-hour", type=int, required=True)
     parser.add_argument("--output", required=True)
-    parser.add_argument("--max-grid-dim", type=int, default=160)
+    parser.add_argument("--max-grid-dim", type=int, default=RAP_MAX_GRID_DIM)
     args = parser.parse_args()
     payload = process_file(Path(args.grib_file), args.model, args.cycle,
                            args.forecast_hour, Path(args.output), args.max_grid_dim)

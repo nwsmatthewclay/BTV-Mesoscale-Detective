@@ -5,7 +5,7 @@ import pytest
 
 from datetime import datetime, timedelta, timezone
 
-from mesoscale.process_grib import DOMAIN
+from mesoscale.process_grib import DOMAIN, HRRR_MAX_GRID_DIM
 from mesoscale.validate_hrrr_archive import (
     archive_needs_update,
     build_archive_manifest,
@@ -35,10 +35,15 @@ def write_hrrr_archive_files(archive_root, archive):
             "forecast_hour": entry["forecast_hour"],
             "valid_time_utc": entry["valid_time_utc"],
             "domain": DOMAIN,
+            "processing": {"max_grid_dim": HRRR_MAX_GRID_DIM},
             "grids": {
                 "btv": {
                     "latitude": [[44.5]],
                     "longitude": [[-73.2]],
+                    "shape": [1, 1], "stride": 1, "max_grid_dim": HRRR_MAX_GRID_DIM,
+                    "sampling": {"max_grid_dim": HRRR_MAX_GRID_DIM, "stride": 1,
+                                 "source_spacing_m": {"x": 3000.0, "y": 3000.0},
+                                 "effective_spacing_m": {"x": 15000.0, "y": 15000.0}},
                 }
             },
             "fields": {
@@ -107,6 +112,7 @@ def published_hrrr_archive(cycle, hours=(0, 3, 6, 9), publishing=True, quality="
         "product": "surface",
         "model_cycle_utc": cycle,
         "domain": DOMAIN,
+        "processing": {"max_grid_dim": HRRR_MAX_GRID_DIM},
         "publishing": publishing,
         "hours": [
             {
@@ -367,8 +373,47 @@ def test_hrrr_archive_manifest_uses_decoder_domain_and_exact_rap_valid_times():
     )
 
     assert archive["domain"] == DOMAIN
+    assert archive["processing"]["max_grid_dim"] == HRRR_MAX_GRID_DIM
     assert archive["valid_time_alignment"] == {
         "reference_model": "RAP",
         "reference_cycle_utc": "20261112T17:00:00Z",
         "valid_times_utc": list(targets),
     }
+
+
+def test_hrrr_freshness_rebuilds_when_sampling_cap_changes():
+    cycle = "20261112T16:00:00Z"
+    manifest = {"models": {"HRRR": {"latest_products": [
+        *[product(cycle, hour) for hour in (0, 3, 6, 9)],
+    ]}}}
+    archive = published_hrrr_archive(cycle)
+    archive["processing"]["max_grid_dim"] = 320
+
+    needs_update, target = archive_needs_update(
+        manifest, archive, (0, 3, 6, 9)
+    )
+
+    assert target == cycle
+    assert needs_update is True
+
+
+def test_hrrr_freshness_rebuilds_when_grid_sampling_metadata_is_stale(tmp_path):
+    cycle = "20261112T16:00:00Z"
+    manifest = {"models": {"HRRR": {"latest_products": [
+        *[product(cycle, hour) for hour in (0, 3, 6, 9)],
+    ]}}}
+    archive = published_hrrr_archive(cycle)
+    archive_root = tmp_path / "hrrr"
+    write_hrrr_archive_files(archive_root, archive)
+    grid_path = archive_root / archive["hours"][0]["grid_file"]
+    with gzip.open(grid_path, "rt", encoding="utf-8") as stream:
+        payload = json.load(stream)
+    payload["processing"]["max_grid_dim"] = 320
+    payload["grids"]["btv"]["max_grid_dim"] = 320
+    payload["grids"]["btv"]["sampling"]["max_grid_dim"] = 320
+    with gzip.open(grid_path, "wt", encoding="utf-8") as stream:
+        json.dump(payload, stream)
+
+    assert archive_needs_update(
+        manifest, archive, (0, 3, 6, 9), archive_root=archive_root
+    )[0] is True

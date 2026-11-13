@@ -8,7 +8,7 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from mesoscale.render_model_tiles import render_tiles
+from mesoscale.render_model_tiles import TILE_MAX_GRID_DIM, render_tiles
 
 
 def test_render_native_grid_to_xyz_raster_and_independent_contours(tmp_path: Path):
@@ -30,6 +30,8 @@ def test_render_native_grid_to_xyz_raster_and_independent_contours(tmp_path: Pat
     assert result["tile_count"] > 0
     assert result["contour_feature_count"] > 0
     assert result["source_grid_shape"] == [30, 40]
+    assert result["render_grid_shape"] == [30, 40]
+    assert result["render_stride"] == 1
     product_path = tmp_path / "rap" / "20261113T000000Z" / "f00" / "gh_2d" / "product.json"
     assert product_path.is_file()
     tile_paths = list(product_path.parent.glob("tiles/*/*/*.png"))
@@ -82,3 +84,35 @@ def test_model_tile_frontend_uses_catalog_and_keeps_pages_sources_synchronized()
     assert "stateBoundaryPane" in html
     assert "countyBoundaryPane" in html
 
+
+
+def test_tile_renderer_bounds_display_resample_and_preserves_source_resolution(tmp_path: Path):
+    lat = np.linspace(40, 48, 400)
+    lon = np.linspace(-80, -68, 350)
+    lon2, lat2 = np.meshgrid(lon, lat)
+    values = 1000 + 8 * np.sin((lon2 + 74) / 2) + 5 * np.cos((lat2 - 44) / 2)
+    payload = {
+        "model": "HRRR", "model_cycle_utc": "2026-11-13T14:00:00Z",
+        "forecast_hour": 0, "valid_time_utc": "2026-11-13T14:00:00Z",
+        "domain": {"west": -80, "east": -68, "south": 40, "north": 48},
+        "grids": {"g": {
+            "latitude": lat2.tolist(), "longitude": lon2.tolist(),
+            "stride": 1,
+            "sampling": {"effective_spacing_m": {"x": 3000.0, "y": 3000.0}},
+        }},
+        "fields": {"t_2d": {
+            "short_name": "t", "long_name": "Temperature",
+            "units": "K", "grid_id": "g", "data": values.tolist(),
+        }},
+    }
+
+    result = render_tiles(payload, "t", tmp_path, 3, 3, "viridis", contour_interval=2)
+
+    assert TILE_MAX_GRID_DIM == 320
+    assert result["source_grid_shape"] == [400, 350]
+    assert result["render_grid_shape"] == [200, 175]
+    assert result["render_stride"] == 2
+    assert result["source_grid_stride"] == 1
+    assert result["source_effective_spacing_m"] == {"x": 3000.0, "y": 3000.0}
+    assert result["render_effective_spacing_m"] == {"x": 6000.0, "y": 6000.0}
+    assert len(payload["grids"]["g"]["latitude"]) == 400

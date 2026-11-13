@@ -23,7 +23,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from mesoscale.download_subset import download
-from mesoscale.process_grib import DOMAIN, process_file
+from mesoscale.process_grib import DOMAIN, HRRR_MAX_GRID_DIM, process_file
 from mesoscale.validate_hrrr_ingestion import validate_payload
 
 DEFAULT_MANIFEST = Path("mesoscale/data/model_manifest.json")
@@ -188,6 +188,18 @@ def archive_needs_update(
                     != _format_valid_time(item.get("valid_time_utc"))
             ):
                 return False
+            processing = payload.get("processing")
+            grids = payload.get("grids")
+            if (not isinstance(processing, dict)
+                    or int(processing.get("max_grid_dim", -1)) != HRRR_MAX_GRID_DIM
+                    or not isinstance(grids, dict) or not grids
+                    or any(not isinstance(grid, dict)
+                           or int(grid.get("max_grid_dim", -1)) != HRRR_MAX_GRID_DIM
+                           or not isinstance(grid.get("sampling"), dict)
+                           or int(grid["sampling"].get("max_grid_dim", -1)) != HRRR_MAX_GRID_DIM
+                           or int(grid.get("stride", -1)) != int(grid["sampling"].get("stride", -2))
+                           for grid in grids.values())):
+                return False
             report = validate_payload(payload, existing_cycle, int(item["forecast_hour"]))
             if (
                 report.get("valid_time_utc") != item.get("valid_time_utc")
@@ -231,6 +243,7 @@ def archive_needs_update(
         and existing_archive.get("publishing") is True
         and existing_cycle_time is not None
         and existing_cycle_time >= target_cycle_time
+        and (existing_archive.get("processing") or {}).get("max_grid_dim") == HRRR_MAX_GRID_DIM
         and archived_hours == expected_hours
         and valid_times_match
         and files_complete
@@ -252,6 +265,7 @@ def build_archive_manifest(
         "model_cycle_utc": cycle,
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "domain": dict(DOMAIN),
+        "processing": {"max_grid_dim": HRRR_MAX_GRID_DIM, "sampling_method": "uniform row/column stride"},
         "hours": entries,
         "quality": {"status": "passed", "hours_verified": len(entries)},
         "publishing": False,
@@ -280,8 +294,10 @@ def main() -> None:
         default="",
         help="RAP model cycle used to define the requested valid times",
     )
-    parser.add_argument("--max-grid-dim", type=int, default=160)
+    parser.add_argument("--max-grid-dim", type=int, default=HRRR_MAX_GRID_DIM)
     args = parser.parse_args()
+    if args.max_grid_dim != HRRR_MAX_GRID_DIM:
+        parser.error(f"Production HRRR archive max-grid-dim is fixed at {HRRR_MAX_GRID_DIM}")
 
     hours = tuple(sorted({int(value) for value in args.hours.split(",") if value.strip()}))
     valid_times = tuple(value.strip() for value in args.valid_times.split(",") if value.strip())
@@ -318,6 +334,7 @@ def main() -> None:
             "grid_file": grid_path.name,
             "decoded_bytes": grid_path.stat().st_size,
             "grid_count": quality["grid_count"],
+            "grid_sampling": {grid_id: grid.get("sampling") for grid_id, grid in payload["grids"].items()},
             "field_count": quality["field_count"],
             "available_short_names": quality["available_short_names"],
             "required_field_groups": quality["required_field_groups"],

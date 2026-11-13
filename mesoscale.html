@@ -393,7 +393,7 @@ body{
 <aside class="model-sidebar panel" aria-label="Model and field controls">
   <div class="sidebar-heading"><span class="eyebrow">Atmospheric workstation</span><h2>Model Explorer</h2><p>Choose a guidance source and map field</p></div>
   <div class="sidebar-section"><div class="sidebar-section-title"><span class="sidebar-pulse"></span> MODEL &amp; CYCLE</div>
-    <div class="field"><label for="model">Model guidance</label><select id="model"><option value="RAP" selected>RAP · 13 km · decoded</option><option value="HRRR">HRRR · 3 km · surface archive</option><option value="RRFS" disabled>RRFS · 3 km · experimental subset</option></select></div>
+    <div class="field"><label for="model">Model guidance</label><select id="model"><option value="RAP" selected>RAP · hybrid-level archive</option><option value="HRRR">HRRR · surface archive</option><option value="RRFS" disabled>RRFS · experimental · unverified</option></select></div>
     <div class="field"><label for="cycle">Initialization · UTC</label><select id="cycle"><option>Latest available cycle</option></select></div>
   </div>
   <div class="sidebar-section"><div class="sidebar-section-title"><span class="sidebar-pulse violet"></span> FORECAST LEAD</div>
@@ -416,7 +416,7 @@ body{
 <div class="bottom-grid">
 <section class="panel"><h2>Vertical cross-section</h2><div class="field" style="padding:12px 14px 0"><label for="crossVariable">Cross-section variable</label><select id="crossVariable"><option value="temperature">Temperature (°C)</option><option value="dewpoint">Dewpoint (°C)</option><option value="omega">Vertical velocity / omega (Pa s⁻¹)</option><option value="u_wind">U wind (kt)</option><option value="v_wind">V wind (kt)</option><option value="specific_humidity">Specific humidity (g/kg)</option><option value="cloud_water">Cloud water mixing ratio (g/kg)</option><option value="rain_water">Rain mixing ratio (g/kg)</option><option value="snow">Snow mixing ratio (g/kg)</option><option value="graupel">Graupel mixing ratio (g/kg)</option><option value="tke">Turbulent kinetic energy (J/kg)</option></select></div><div id="crossSectionPlot" style="height:390px"></div><div class="placeholder" id="crossSectionStatus">Draw a transect on the map and select a vertical variable. RAP hybrid-level fields are sampled on native grid columns.</div></section>
 <section class="panel"><h2>Time evolution · Selected station</h2><div class="field" style="padding:12px 14px 0"><label for="trendParameter">Diagnostic</label><select id="trendParameter"><option value="sbcape_jkg">Surface-based CAPE</option><option value="mlcape_jkg">Mixed-layer CAPE</option><option value="mucape_jkg">Most-unstable CAPE</option><option value="mlcin_jkg">Mixed-layer CIN</option><option value="pwat_mm">Precipitable water</option><option value="bs06_kt">0–6 km bulk shear</option><option value="srh01_m2s2">0–1 km SRH</option><option value="lr03_k_km">0–3 km lapse rate</option></select></div><div id="trend" style="height:290px"></div><div class="placeholder" id="trendStatus">Select one of the eight verified stations to view RAP forecast-hour diagnostics. Custom points are not filled from nearby stations.</div></section>
-<section class="panel"><h2>Data provenance &amp; quality</h2><div class="pad"><div class="detail-line"><span>Model source</span><b id="provModel">RAP · not connected</b></div><div class="detail-line"><span>Model initialization</span><b>—</b></div><div class="detail-line"><span>Valid time</span><b>—</b></div><div class="detail-line"><span>Grid spacing</span><b id="gridSpacing">13 km nominal</b></div><div class="detail-line"><span>Processing status</span><b style="color:var(--amber)">Awaiting ingestion pipeline</b></div><div class="detail-line"><span>Observation overlay</span><b>Not loaded</b></div><p style="font-size:10px;color:var(--muted);margin:12px 0 0">Every diagnostic carries source, initialization time, valid time, units and processing status. Model analysis and observed data remain visually distinct.</p></div></section>
+<section class="panel"><h2>Data provenance &amp; quality</h2><div class="pad"><div class="detail-line"><span>Model source</span><b id="provModel">RAP · not connected</b></div><div class="detail-line"><span>Model initialization</span><b>—</b></div><div class="detail-line"><span>Valid time</span><b>—</b></div><div class="detail-line"><span>Grid spacing</span><b id="gridSpacing">Awaiting decoded grid metadata</b></div><div class="detail-line"><span>Processing status</span><b style="color:var(--amber)">Awaiting ingestion pipeline</b></div><div class="detail-line"><span>Observation overlay</span><b>Not loaded</b></div><p style="font-size:10px;color:var(--muted);margin:12px 0 0">Every diagnostic carries source, initialization time, valid time, units and processing status. Model analysis and observed data remain visually distinct.</p></div></section>
 </div>
 <section class="panel" id="modelComparisonPanel" style="display:none"><h2>Model comparison · RAP vs HRRR</h2><div class="pad"><div id="comparisonMeta" class="detail-line"><span>Comparison</span><b>Open Model Compare to load matching valid times</b></div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr><th style="padding:9px;border-bottom:1px solid var(--line)">Parameter</th><th style="padding:9px;border-bottom:1px solid var(--line)">RAP</th><th style="padding:9px;border-bottom:1px solid var(--line)">HRRR</th><th style="padding:9px;border-bottom:1px solid var(--line)">HRRR − RAP</th></tr></thead><tbody id="comparisonRows"><tr><td colspan="4" style="padding:12px;color:var(--muted)">Select Model Compare to sample both verified grids at the selected point.</td></tr></tbody></table></div><div class="placeholder" id="comparisonStatus">Only exact shared valid times are compared. Each value is sampled from its own model grid at the selected coordinates; missing fields remain unavailable.</div></div></section>
 <footer class="foot">BTV Mesoscale Detective · Development build · Not for operational decision-making until data ingestion and verification are complete.</footer>
@@ -545,6 +545,7 @@ async function runRapCrossSection(points){
   if(!Array.isArray(points)||points.length!==2)throw new Error('A transect requires exactly two map points');
   status.textContent='Loading RAP F'+String(activeRapHour).padStart(2,'0')+' and sampling '+config.label+'…';
   const payload=await loadRapGrid(activeRapHour),samples=24,distances=[],profiles=[],skipped=[],seenCells=new Set();
+  updateGridSpacing(payload,'RAP');
   const [a,b]=points,rad=Math.PI/180,latMid=(a[0]+b[0])/2*rad;
   const totalKm=Math.hypot((b[0]-a[0])*111.32,(b[1]-a[1])*111.32*Math.cos(latMid));
   for(let i=0;i<=samples;i++){
@@ -598,7 +599,9 @@ async function runRapCrossSection(points){
   const offsets=profiles.filter(Boolean).map(p=>p.sampled_grid_point.distance_km).filter(Number.isFinite);
   const maxOffset=offsets.length?Math.max(...offsets):null;
   await Plotly.react('crossSectionPlot',[{type:'heatmap',x:distances,y:heights,z,colorscale:config.colorscale,reversescale:!!config.reverse,colorbar:{title:config.units},hovertemplate:'Distance %{x:.1f} km<br>Height %{y:.0f} m AGL<br>'+config.label+' %{z:.3f} '+config.units+'<extra></extra>'}],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:58,r:25,t:18,b:48},title:{text:config.label+' · RAP hybrid levels',font:{size:13,color:'#dceaf4'}},xaxis:{title:'Distance along transect (km)',color:'#9cb2c5',gridcolor:'#24435e'},yaxis:{title:'Height AGL (m)',color:'#9cb2c5',gridcolor:'#24435e'},font:{color:'#dceaf4'}},{displayModeBar:false,responsive:true});
-  status.textContent='RAP '+payload.valid_time_utc+' · '+config.label+' · '+usable+'/'+(samples+1)+' distinct native-grid columns from '+(samples+1)+' probes · '+skipped.length+' duplicate/invalid probes · max nearest-cell offset '+(maxOffset===null?'unavailable':maxOffset.toFixed(1)+' km')+' · vertical interpolation to 250 m spacing only; This is not a 3-km analysis; horizontal resolution remains native RAP (~13 km).';
+  const sampledGridId=profiles[0]?.sampled_grid_point?.grid_id;
+  const effectiveSpacing=formatEffectiveGridSpacing(payload,sampledGridId);
+  status.textContent='RAP '+payload.valid_time_utc+' · '+config.label+' · '+usable+'/'+(samples+1)+' distinct published-grid columns from '+(samples+1)+' probes · '+skipped.length+' duplicate/invalid probes · max nearest-cell offset '+(maxOffset===null?'unavailable':maxOffset.toFixed(1)+' km')+' · effective horizontal spacing '+effectiveSpacing+' · vertical interpolation to 250 m spacing only; no horizontal upscaling.';
 }
 document.getElementById('crossVariable').addEventListener('change',()=>{
   if(transect.length===2)runRapCrossSection(transect).catch(error=>{
@@ -619,7 +622,7 @@ document.getElementById('reset').onclick=()=>{
 document.getElementById('hour').oninput=e=>document.getElementById('hourOut').textContent='F'+String(e.target.value).padStart(2,'0');
 document.getElementById('model').onchange=e=>{
   const model=e.target.value;
-  document.getElementById('gridSpacing').textContent=model==='HRRR'?'3 km nominal':(model==='RAP'?'13 km nominal':'3 km nominal · not decoded');
+  document.getElementById('gridSpacing').textContent=model==='RRFS'?'RRFS · experimental spacing unavailable':'Loading '+model+' grid metadata…';
   document.querySelector('#investigation .detail-line:nth-child(1) b').textContent=model;
   if(typeof updateParameterOptions==='function')updateParameterOptions();
 };
@@ -831,7 +834,7 @@ function extractRegionalRapProfile(payload,lat,lon,label){
     if(!(profile[i].h>profile[i-1].h))throw new Error('RAP geopotential heights are not strictly increasing upward');
   }
   const z={pressure_hpa:profile.map(a=>a.p),temperature_k:profile.map(a=>a.t),dewpoint_k:profile.map(a=>a.td),height_agl_m:profile.map(a=>a.h),u_ms:profile.map(a=>a.u),v_ms:profile.map(a=>a.v),hybrid_level_indices:profile.map(a=>a.k)};
-  return {label,requested_location:{latitude:lat,longitude:lon},model:'RAP',model_cycle_utc:payload.model_cycle_utc,forecast_hour:payload.forecast_hour,valid_time_utc:payload.valid_time_utc,source_file:payload.source_file,profile:z,diagnostics:{diagnostics:{}},quality:{levels:profile.length,pressure_decreases_upward:true,height_increases_upward:true,profile_warnings:[]},sampled_grid_point:{latitude:pt.lat,longitude:pt.lon,distance_km:pt.d,grid_id:gridId,sampling_method:'nearest RAP grid point',y:pt.y,x:pt.x},regional_sample:true};
+  return {label,requested_location:{latitude:lat,longitude:lon},model:'RAP',model_cycle_utc:payload.model_cycle_utc,forecast_hour:payload.forecast_hour,valid_time_utc:payload.valid_time_utc,source_file:payload.source_file,profile:z,diagnostics:{diagnostics:{}},quality:{levels:profile.length,pressure_decreases_upward:true,height_increases_upward:true,profile_warnings:[]},sampled_grid_point:{latitude:pt.lat,longitude:pt.lon,distance_km:pt.d,grid_id:gridId,sampling_method:'nearest published RAP grid point',y:pt.y,x:pt.x},regional_sample:true};
 }
 
 function squeezeRap2D(data){
@@ -895,6 +898,27 @@ function updateMapLegend(label,min,max,units,rangeLabel='fixed display scale'){
   const ticks=Array.from({length:5},(_,i)=>min+(max-min)*i/4);
   const contourText=document.getElementById('contours')?.checked?'Contours on':'Contours off';
   el.innerHTML='<div class="legend-title">'+label+'</div><div class="legend-scale"></div><div class="legend-ticks">'+ticks.map(v=>'<span>'+fmt(v)+'</span>').join('')+'</div><div class="legend-units">'+(units||'units unavailable')+'</div><div class="legend-subtitle">'+contourText+' · hover a line for its value</div>';
+}
+
+function formatEffectiveGridSpacing(payload,gridId=null){
+  const grids=payload?.grids||{},grid=gridId?grids[gridId]:Object.values(grids).find(value=>value&&typeof value==='object');
+  if(!grid)return 'effective spacing unavailable';
+  const sampling=grid.sampling||{},projection=grid.projection||{};
+  const strideValue=Number(sampling.stride??grid.stride??1),stride=Number.isFinite(strideValue)&&strideValue>0?strideValue:1;
+  const number=value=>value===null||value===undefined?NaN:Number(value);
+  const sourceX=number(sampling.source_spacing_m?.x??projection.GRIB_DxInMetres);
+  const sourceY=number(sampling.source_spacing_m?.y??projection.GRIB_DyInMetres);
+  const recordedX=number(sampling.effective_spacing_m?.x),recordedY=number(sampling.effective_spacing_m?.y);
+  const dx=Number.isFinite(recordedX)&&recordedX>0?recordedX:(Number.isFinite(sourceX)&&sourceX>0?sourceX*stride:NaN);
+  const dy=Number.isFinite(recordedY)&&recordedY>0?recordedY:(Number.isFinite(sourceY)&&sourceY>0?sourceY*stride:NaN);
+  if(!Number.isFinite(dx)||!Number.isFinite(dy))return 'effective spacing unavailable (stride '+stride+')';
+  const sourceLabel=Number.isFinite(sourceX)&&Number.isFinite(sourceY)
+    ?' · source '+(sourceX/1000).toFixed(1)+' × '+(sourceY/1000).toFixed(1)+' km':'';
+  return (dx/1000).toFixed(1)+' × '+(dy/1000).toFixed(1)+' km effective · stride '+stride+sourceLabel;
+}
+function updateGridSpacing(payload,model,gridId=null){
+  const element=document.getElementById('gridSpacing');
+  if(element)element.textContent=model+' · '+formatEffectiveGridSpacing(payload,gridId);
 }
 
 let modelOverlayLayer=null;
@@ -1359,7 +1383,7 @@ async function updateRapParameter(){
     return;
   }
   if(model==='HRRR'){
-    try{const payload=await loadHrrrGrid(activeHrrrHour);syncDynamicFieldOptions(payload,'HRRR');buildContourFieldControls(payload,'HRRR');if(!await renderPublishedModelTiles(payload,'HRRR',param)&&!renderNativeFieldOverlay(payload,param,'HRRR'))renderHrrrGridOverlay(payload,param);}
+    try{const payload=await loadHrrrGrid(activeHrrrHour);updateGridSpacing(payload,'HRRR');syncDynamicFieldOptions(payload,'HRRR');buildContourFieldControls(payload,'HRRR');if(!await renderPublishedModelTiles(payload,'HRRR',param)&&!renderNativeFieldOverlay(payload,param,'HRRR'))renderHrrrGridOverlay(payload,param);}
     catch(e){document.getElementById('mapChip').textContent='HRRR grid unavailable: '+e.message;console.error(e);}
     return;
   }
@@ -1368,7 +1392,7 @@ async function updateRapParameter(){
     document.getElementById('mapChip').textContent='RRFS experimental subset is not published to the dashboard';
     return;
   }
-  try{const payload=await loadRapGrid(activeRapHour);syncDynamicFieldOptions(payload,'RAP');buildContourFieldControls(payload,'RAP');if(!await renderPublishedModelTiles(payload,'RAP',param)&&!renderNativeFieldOverlay(payload,param,'RAP'))renderRapGridOverlay(payload,param);}
+  try{const payload=await loadRapGrid(activeRapHour);updateGridSpacing(payload,'RAP');syncDynamicFieldOptions(payload,'RAP');buildContourFieldControls(payload,'RAP');if(!await renderPublishedModelTiles(payload,'RAP',param)&&!renderNativeFieldOverlay(payload,param,'RAP'))renderRapGridOverlay(payload,param);}
   catch(e){document.getElementById('mapChip').textContent='RAP grid unavailable: '+e.message;console.error(e);}
 }
 
