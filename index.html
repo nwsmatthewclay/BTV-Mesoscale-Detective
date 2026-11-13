@@ -342,7 +342,8 @@ const REGIONAL_DOMAIN={west:-90.0,east:-60.0,south:32.0,north:55.0};
 const REGIONAL_BOUNDS=[[REGIONAL_DOMAIN.south,REGIONAL_DOMAIN.west],[REGIONAL_DOMAIN.north,REGIONAL_DOMAIN.east]];
 const map=L.map('map',{zoomControl:true,minZoom:4}).fitBounds(REGIONAL_BOUNDS,{padding:[18,18]});
 window.__testMap=map;
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:13,attribution:'&copy; OpenStreetMap'}).addTo(map);
+const baseTiles=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:18,attribution:'&copy; OpenStreetMap &copy; CARTO'}).addTo(map);
+const baseLabels=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:18,opacity:.9,attribution:'&copy; CARTO'}).addTo(map);
 let selected={name:"KBTV",lat:44.4719,lon:-73.1533},markers=[],transect=[],line=null,drawing=false;
 function stationLayer(){markers.forEach(m=>map.removeLayer(m));markers=[];if(!document.getElementById('stations').checked)return;stations.forEach(s=>{const m=L.circleMarker([s[1],s[2]],{radius:s[0]==="KBTV"?7:5,color:"#9de7f1",weight:1.5,fillColor:"#123d59",fillOpacity:.95}).addTo(map).bindTooltip(s[0],{direction:"top"}).on('click',()=>selectPoint(s[1],s[2],s[0]));markers.push(m)});}
 function selectPoint(lat,lon,name){selected={name:name||"Custom point",lat,lon};document.getElementById('pointReadout').innerHTML='<span>Location</span><b>'+selected.name+'</b>';document.getElementById('coords').textContent=lat.toFixed(4)+'°N, '+Math.abs(lon).toFixed(4)+'°W';document.getElementById('selectionStatus').textContent='Selected: '+selected.name;document.querySelector('#investigation .detail-line:nth-child(3) b').textContent=selected.name;document.getElementById('mapChip').textContent='Selected '+selected.name+' · '+lat.toFixed(3)+', '+lon.toFixed(3);if(window.loadStationProfile)window.loadStationProfile(selected.name);if(window.activeTab==='evolution'&&window.updateRapTimeEvolution)window.updateRapTimeEvolution();if(window.activeTab==='compare'&&window.updateModelComparison)window.updateModelComparison();}
@@ -350,6 +351,10 @@ map.on('click',e=>{if(drawing){transect.push([e.latlng.lat,e.latlng.lng]);if(tra
 stationLayer();document.getElementById('stations').addEventListener('change',stationLayer);
 document.getElementById('contours').addEventListener('change',()=>{
   updateModelContours();
+  if(preRenderedContourLayer){
+    if(document.getElementById('contours').checked){if(!map.hasLayer(preRenderedContourLayer))preRenderedContourLayer.addTo(map);}
+    else if(map.hasLayer(preRenderedContourLayer))map.removeLayer(preRenderedContourLayer);
+  }
   const label=document.querySelector('#mapLegend .legend-title')?.textContent;
   if(label&&contourSource)updateMapLegend(label,contourSource.min,contourSource.max,contourSource.units);
 });
@@ -706,7 +711,7 @@ function fieldColor(value,min,max){
 function updateMapLegend(label,min,max,units,rangeLabel='fixed display scale'){
   const el=document.getElementById('mapLegend');if(!el)return;
   if(!Number.isFinite(min)||!Number.isFinite(max)||max<=min){
-    el.innerHTML='<div class="legend-title">Map base · OpenStreetMap</div><div class="legend-subtitle">Select a model field to display its color scale</div>';return;
+    el.innerHTML='<div class="legend-title">Map base · CARTO light</div><div class="legend-subtitle">Select a model field to display its color scale</div>';return;
   }
   // Always use ordinary decimal labels. Never expose JavaScript exponential notation.
   const interval=(max-min)/4,precision=interval>=1?0:interval>=0.1?1:2;
@@ -717,6 +722,8 @@ function updateMapLegend(label,min,max,units,rangeLabel='fixed display scale'){
 }
 
 let modelOverlayLayer=null;
+let preRenderedContourLayer=null;
+let modelTileCatalogPromise=null;
 function makeInterpolatedRaster(data,grid,min,max){
   if(!Array.isArray(data)||!Array.isArray(grid?.latitude)||!Array.isArray(grid?.longitude))return null;
   const rows=Math.min(data.length,grid.latitude.length,grid.longitude.length);
@@ -1076,6 +1083,46 @@ function renderHrrrGridOverlay(payload,param){
   document.getElementById('mapChip').textContent='HRRR '+cfg.label+' · F'+String(payload.forecast_hour).padStart(2,'0')+' · '+payload.valid_time_utc+' · smooth 4× interpolated display · '+cfg.units+' · native BTV subset';
 }
 
+async function loadModelTileCatalog(){
+  if(!modelTileCatalogPromise)modelTileCatalogPromise=fetch('./mesoscale/data/model_tiles/catalog.json?ts='+Date.now(),{cache:'no-store'}).then(response=>{if(!response.ok)throw new Error('tile catalog HTTP '+response.status);return response.json();});
+  return modelTileCatalogPromise;
+}
+function selectedTileShortName(model,param){
+  if(param.startsWith('native_'+model+'_'))return param.slice(('native_'+model+'_').length);
+  if(model==='RAP')return ({cape:'cape',pwat:'pwat'})[param]||null;
+  if(model==='HRRR')return ({hrrr_temp:'2t',hrrr_dewpoint:'2d',hrrr_gust:'gust',hrrr_refc:'refc',hrrr_vis:'vis',hrrr_cin:'cin',hrrr_blh:'blh'})[param]||null;
+  return null;
+}
+function clearPreRenderedModelLayers(){
+  if(modelOverlayLayer){map.removeLayer(modelOverlayLayer);modelOverlayLayer=null;}
+  if(preRenderedContourLayer){map.removeLayer(preRenderedContourLayer);preRenderedContourLayer=null;}
+}
+async function renderPublishedModelTiles(payload,model,param){
+  const shortName=selectedTileShortName(model,param);
+  if(!shortName)return false;
+  let catalog;
+  try{catalog=await loadModelTileCatalog();}
+  catch(error){return false;}
+  const product=(catalog.products||[]).find(item=>item.model===model&&item.cycle_utc===payload.model_cycle_utc&&Number(item.forecast_hour)===Number(payload.forecast_hour)&&item.short_name===shortName);
+  if(!product)return false;
+  clearPreRenderedModelLayers();
+  const root='./mesoscale/data/model_tiles/';
+  const tileUrl=root+product.tile_url;
+  modelOverlayLayer=L.tileLayer(tileUrl,{minZoom:product.zoom_min,maxZoom:product.zoom_max,maxNativeZoom:product.zoom_max,opacity:.94,tms:false,noWrap:true,keepBuffer:3,updateWhenIdle:true}).addTo(map);
+  try{
+    const response=await fetch(root+product.contour_url,{cache:'force-cache'});
+    if(!response.ok)throw new Error('contour GeoJSON HTTP '+response.status);
+    const geojson=await response.json();
+    preRenderedContourLayer=L.geoJSON(geojson,{
+      style:()=>({color:'#24364b',weight:1.15,opacity:.82}),
+      onEachFeature:(feature,layer)=>{const value=Number(feature.properties?.value);if(Number.isFinite(value))layer.bindTooltip(value.toLocaleString('en-US',{maximumFractionDigits:2}),{sticky:true});}
+    });
+    if(document.getElementById('contours').checked)preRenderedContourLayer.addTo(map);
+  }catch(error){console.warn('Pre-rendered contour overlay unavailable',error);}
+  updateMapLegend(product.long_name||shortName,product.display_range[0],product.display_range[1],product.units,'native-grid contour interval '+product.contour_interval);
+  document.getElementById('mapChip').textContent=model+' '+(product.long_name||shortName)+' · F'+String(payload.forecast_hour).padStart(2,'0')+' · '+payload.valid_time_utc+' · XYZ raster tiles · '+product.units;
+  return true;
+}
 async function updateRapParameter(){
   setContourPanelEnabled(false);
   const model=document.getElementById('model').value;
@@ -1088,7 +1135,7 @@ async function updateRapParameter(){
     return;
   }
   if(model==='HRRR'){
-    try{const payload=await loadHrrrGrid(activeHrrrHour);syncDynamicFieldOptions(payload,'HRRR');buildContourFieldControls(payload,'HRRR');if(!renderNativeFieldOverlay(payload,param,'HRRR'))renderHrrrGridOverlay(payload,param);}
+    try{const payload=await loadHrrrGrid(activeHrrrHour);syncDynamicFieldOptions(payload,'HRRR');buildContourFieldControls(payload,'HRRR');if(!await renderPublishedModelTiles(payload,'HRRR',param)&&!renderNativeFieldOverlay(payload,param,'HRRR'))renderHrrrGridOverlay(payload,param);}
     catch(e){document.getElementById('mapChip').textContent='HRRR grid unavailable: '+e.message;console.error(e);}
     return;
   }
@@ -1097,7 +1144,7 @@ async function updateRapParameter(){
     document.getElementById('mapChip').textContent='RRFS experimental subset is not published to the dashboard';
     return;
   }
-  try{const payload=await loadRapGrid(activeRapHour);syncDynamicFieldOptions(payload,'RAP');buildContourFieldControls(payload,'RAP');if(!renderNativeFieldOverlay(payload,param,'RAP'))renderRapGridOverlay(payload,param);}
+  try{const payload=await loadRapGrid(activeRapHour);syncDynamicFieldOptions(payload,'RAP');buildContourFieldControls(payload,'RAP');if(!await renderPublishedModelTiles(payload,'RAP',param)&&!renderNativeFieldOverlay(payload,param,'RAP'))renderRapGridOverlay(payload,param);}
   catch(e){document.getElementById('mapChip').textContent='RAP grid unavailable: '+e.message;console.error(e);}
 }
 
