@@ -1,0 +1,33 @@
+name: SHARPpy Adapter Validation
+
+on:
+  pull_request:
+    paths:
+      - "mesoscale/sharppy_adapter.py"
+      - "mesoscale/requirements-sharppy.txt"
+      - "mesoscale/tests/test_sharppy_adapter.py"
+      - ".github/workflows/sharppy_validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sharppy-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install isolated SHARPpy test environment
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "numpy<2" "sharppy==1.4.0a5" pytest
+      - name: Validate SHARPpy adapter
+        run: pytest -q mesoscale/tests/test_sharppy_adapter.py
