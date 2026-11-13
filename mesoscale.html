@@ -65,6 +65,19 @@ select,input[type=range]{width:100%}select{background:#071827;color:var(--text);
 <section class="panel"><h2>Time Evolution · Selected station</h2><div class="field" style="margin:8px 0"><label for="trendParameter">Diagnostic</label><select id="trendParameter"><option value="sbcape_jkg">Surface-based CAPE</option><option value="mlcape_jkg">Mixed-layer CAPE</option><option value="mucape_jkg">Most-unstable CAPE</option><option value="mlcin_jkg">Mixed-layer CIN</option><option value="pwat_mm">Precipitable water</option><option value="bs06_kt">0–6 km bulk shear</option><option value="srh01_m2s2">0–1 km SRH</option><option value="lr03_k_km">0–3 km lapse rate</option></select></div><div id="trend" style="height:260px"></div><div class="placeholder" id="trendStatus">Select one of the eight verified stations to view RAP forecast-hour diagnostics. Custom points are not filled from nearby stations.</div></section>
 <section class="panel"><h2>Data Provenance &amp; Quality</h2><div class="pad"><div class="detail-line"><span>Model source</span><b id="provModel">RAP · not connected</b></div><div class="detail-line"><span>Model initialization</span><b>—</b></div><div class="detail-line"><span>Valid time</span><b>—</b></div><div class="detail-line"><span>Grid spacing</span><b id="gridSpacing">13 km nominal</b></div><div class="detail-line"><span>Processing status</span><b style="color:var(--amber)">Awaiting ingestion pipeline</b></div><div class="detail-line"><span>Observation overlay</span><b>Not loaded</b></div><p style="font-size:11px;color:var(--muted);margin:12px 0 0">Every diagnostic will carry its source, initialization time, valid time, units and processing status. Model analysis and observed data will remain visually distinct.</p></div></section>
 </div>
+<section class="panel" id="modelComparisonPanel" style="margin:0 10px 10px;max-width:1800px;margin-left:auto;margin-right:auto">
+  <h2>Model Comparison · RAP vs HRRR</h2>
+  <div class="pad">
+    <div id="comparisonMeta" class="detail-line"><span>Comparison</span><b>Open Model Compare to load matching valid times</b></div>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead><tr style="color:var(--muted);text-align:left"><th style="padding:9px;border-bottom:1px solid var(--line)">Parameter</th><th style="padding:9px;border-bottom:1px solid var(--line)">RAP</th><th style="padding:9px;border-bottom:1px solid var(--line)">HRRR</th><th style="padding:9px;border-bottom:1px solid var(--line)">HRRR − RAP</th></tr></thead>
+        <tbody id="comparisonRows"><tr><td colspan="4" style="padding:12px;color:var(--muted)">Select Model Compare to sample both verified grids at the selected point.</td></tr></tbody>
+      </table>
+    </div>
+    <div class="placeholder" id="comparisonStatus">Only exact shared valid times are compared. Each value is sampled from its own model grid at the selected coordinates; missing fields remain unavailable.</div>
+  </div>
+</section>
 <footer class="foot">BTV Mesoscale Detective · Development build · Not for operational decision-making until data ingestion and verification are complete.</footer>
 <script>
 const stations=[["KBTV",44.4719,-73.1533],["KPBG",44.6509,-73.4681],["KMSS",44.9358,-74.8456],["KSLK",44.3853,-74.2062],["KMPV",44.2035,-72.5623],["KRUT",43.5294,-72.9496],["1V4",44.4193,-72.0194],["KEFK",44.8888,-72.2292]];
@@ -72,7 +85,7 @@ const map=L.map('map',{zoomControl:true}).setView([44.15,-73.05],7);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:13,attribution:'&copy; OpenStreetMap'}).addTo(map);
 let selected={name:"KBTV",lat:44.4719,lon:-73.1533},markers=[],transect=[],line=null,drawing=false;
 function stationLayer(){markers.forEach(m=>map.removeLayer(m));markers=[];if(!document.getElementById('stations').checked)return;stations.forEach(s=>{const m=L.circleMarker([s[1],s[2]],{radius:s[0]==="KBTV"?7:5,color:"#9de7f1",weight:1.5,fillColor:"#123d59",fillOpacity:.95}).addTo(map).bindTooltip(s[0],{direction:"top"}).on('click',()=>selectPoint(s[1],s[2],s[0]));markers.push(m)});}
-function selectPoint(lat,lon,name){selected={name:name||"Custom point",lat,lon};document.getElementById('pointReadout').innerHTML='<span>Location</span><b>'+selected.name+'</b>';document.getElementById('coords').textContent=lat.toFixed(4)+'°N, '+Math.abs(lon).toFixed(4)+'°W';document.getElementById('selectionStatus').textContent='Selected: '+selected.name;document.querySelector('#investigation .detail-line:nth-child(3) b').textContent=selected.name;document.getElementById('mapChip').textContent='Selected '+selected.name+' · '+lat.toFixed(3)+', '+lon.toFixed(3);if(window.loadStationProfile)window.loadStationProfile(selected.name);if(window.activeTab==='evolution'&&window.updateRapTimeEvolution)window.updateRapTimeEvolution();}
+function selectPoint(lat,lon,name){selected={name:name||"Custom point",lat,lon};document.getElementById('pointReadout').innerHTML='<span>Location</span><b>'+selected.name+'</b>';document.getElementById('coords').textContent=lat.toFixed(4)+'°N, '+Math.abs(lon).toFixed(4)+'°W';document.getElementById('selectionStatus').textContent='Selected: '+selected.name;document.querySelector('#investigation .detail-line:nth-child(3) b').textContent=selected.name;document.getElementById('mapChip').textContent='Selected '+selected.name+' · '+lat.toFixed(3)+', '+lon.toFixed(3);if(window.loadStationProfile)window.loadStationProfile(selected.name);if(window.activeTab==='evolution'&&window.updateRapTimeEvolution)window.updateRapTimeEvolution();if(window.activeTab==='compare'&&window.updateModelComparison)window.updateModelComparison();}
 map.on('click',e=>{if(drawing){transect.push([e.latlng.lat,e.latlng.lng]);if(transect.length===2){if(line)map.removeLayer(line);line=L.polyline(transect,{color:'#ffd166',weight:3,dashArray:'7 5'}).addTo(map);drawing=false;runRapCrossSection(transect).catch(e=>{console.error('RAP cross-section failed',e);document.getElementById('crossSectionStatus').textContent='Cross-section unavailable: '+e.message;});document.getElementById('drawTransect').textContent='Draw cross-section line';document.getElementById('mapChip').textContent='Transect selected · Cross-Sections tab';}return;}selectPoint(e.latlng.lat,e.latlng.lng,'Custom point');});
 stationLayer();document.getElementById('stations').addEventListener('change',stationLayer);
 
@@ -116,7 +129,7 @@ document.getElementById('parameter').onchange=e=>{
   const label=e.target.options[e.target.selectedIndex].text;
   document.getElementById('mapTitle').textContent='Environment · '+label;
 };
-document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('active',x===b));window.activeTab=b.dataset.tab;const titles={environment:'Environment',soundings:'Soundings',kinematics:'Kinematics & Forcing',cross:'Cross-Sections',compare:'Model Comparison',evolution:'Time Evolution'};document.getElementById('mapTitle').textContent=titles[window.activeTab]+' · Shared map selection';if(window.activeTab==='cross'&&!line)document.getElementById('mapChip').textContent='Draw a transect using the button below';if(window.activeTab==='evolution'&&window.updateRapTimeEvolution)window.updateRapTimeEvolution();});
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('active',x===b));window.activeTab=b.dataset.tab;const titles={environment:'Environment',soundings:'Soundings',kinematics:'Kinematics & Forcing',cross:'Cross-Sections',compare:'Model Comparison',evolution:'Time Evolution'};document.getElementById('mapTitle').textContent=titles[window.activeTab]+' · Shared map selection';if(window.activeTab==='cross'&&!line)document.getElementById('mapChip').textContent='Draw a transect using the button below';if(window.activeTab==='evolution'&&window.updateRapTimeEvolution)window.updateRapTimeEvolution();if(window.activeTab==='compare'&&window.updateModelComparison)window.updateModelComparison();});
 function renderProfilePlaceholder(){/* profile plot is intentionally blank until real vertical data are ingested */}
 Plotly.newPlot('profile',[],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:48,r:12,t:24,b:38},xaxis:{title:'Temperature (°C)',color:'#9cb2c5',gridcolor:'#24435e'},yaxis:{title:'Pressure (hPa)',type:'log',autorange:'reversed',color:'#9cb2c5',gridcolor:'#24435e'},showlegend:true,legend:{font:{color:'#dceaf4'},orientation:'h',y:1.18}},{displayModeBar:false,responsive:true});
 
@@ -336,6 +349,89 @@ function renderRapGridOverlay(payload,param){
   layer.addTo(map);modelOverlayLayer=layer;
   document.getElementById('mapChip').textContent='RAP '+cfg.label+' · F'+String(payload.forecast_hour).padStart(2,'0')+' · '+payload.valid_time_utc+' · native grid samples · '+field.units;
 }
+function sampleComparableSurface(payload,model,names,lat,lon){
+  const field=model==='RAP'?findRapSurfaceField(payload,names):findHrrrField(payload,names);
+  if(!field)return null;
+  const grid=payload.grids?.[field.grid_id],data=squeezeRap2D(field.data);
+  if(!grid||!data)return null;
+  const point=nearestRapGridPoint(grid,lat,lon),raw=data?.[point.y]?.[point.x];
+  if(!Number.isFinite(raw))return null;
+  return {value:raw,units:String(field.units||''),short_name:field.short_name,distance_km:point.d};
+}
+function comparableTemperature(sample){
+  if(!sample)return null;
+  const unit=sample.units.toLowerCase();
+  if(unit.includes('k'))return sample.value-273.15;
+  if(unit.includes('c'))return sample.value;
+  return null;
+}
+function comparableWind(payload,model,lat,lon){
+  const u=sampleComparableSurface(payload,model,['10u'],lat,lon);
+  const v=sampleComparableSurface(payload,model,['10v'],lat,lon);
+  if(!u||!v)return null;
+  const unit=(u.units+' '+v.units).toLowerCase();
+  let speed=Math.hypot(u.value,v.value);
+  if(unit.includes('m s')||unit.includes('m/s'))speed*=1.943844;
+  else if(unit.includes('knot')||unit.includes('kt')){}
+  else return null;
+  return {value:speed,units:'kt',distance_km:Math.max(u.distance_km,v.distance_km)};
+}
+let modelComparisonRequest=0;
+async function updateModelComparison(){
+  const requestId=++modelComparisonRequest;
+  const status=document.getElementById('comparisonStatus');
+  const rows=document.getElementById('comparisonRows');
+  const selectedModel=document.getElementById('model').value;
+  const currentManifest=selectedModel==='HRRR'?hrrrForecastManifest:rapForecastManifest;
+  const currentHour=selectedModel==='HRRR'?activeHrrrHour:activeRapHour;
+  const currentEntry=currentManifest?.hours?.find(item=>Number(item.forecast_hour)===Number(currentHour));
+  if(!currentEntry?.valid_time_utc||!rapForecastManifest||!hrrrForecastManifest){
+    status.textContent='A verified RAP and HRRR archive are both required for comparison.';
+    rows.innerHTML='<tr><td colspan="4">Comparison unavailable · one or both verified archives are missing.</td></tr>';
+    return;
+  }
+  const validTime=currentEntry.valid_time_utc;
+  const rapEntry=rapForecastManifest.hours.find(item=>item.valid_time_utc===validTime);
+  const hrrrEntry=hrrrForecastManifest.hours.find(item=>item.valid_time_utc===validTime);
+  document.getElementById('comparisonMeta').innerHTML='<span>Shared valid time</span><b>'+validTime+' · '+selected.name+'</b>';
+  if(!rapEntry||!hrrrEntry){
+    status.textContent='No exact shared valid time exists for '+validTime+'. Nearest-hour substitution is intentionally disabled.';
+    rows.innerHTML='<tr><td colspan="4">No exact RAP/HRRR valid-time match.</td></tr>';
+    return;
+  }
+  status.textContent='Loading RAP '+rapForecastManifest.model_cycle_utc+' and HRRR '+hrrrForecastManifest.model_cycle_utc+' at '+validTime+'…';
+  try{
+    const [rap,hrrr]=await Promise.all([loadRapGrid(Number(rapEntry.forecast_hour)),loadHrrrGrid(Number(hrrrEntry.forecast_hour))]);
+    if(requestId!==modelComparisonRequest)return;
+    if(rap.valid_time_utc!==validTime||hrrr.valid_time_utc!==validTime)throw new Error('Loaded grid valid times do not exactly match the selected time');
+    const lat=selected.lat,lon=selected.lon;
+    const tRap=comparableTemperature(sampleComparableSurface(rap,'RAP',['2t','t2m'],lat,lon));
+    const tHrrr=comparableTemperature(sampleComparableSurface(hrrr,'HRRR',['2t'],lat,lon));
+    const tdRap=comparableTemperature(sampleComparableSurface(rap,'RAP',['2d','d2m'],lat,lon));
+    const tdHrrr=comparableTemperature(sampleComparableSurface(hrrr,'HRRR',['2d'],lat,lon));
+    const windRap=comparableWind(rap,'RAP',lat,lon);
+    const windHrrr=comparableWind(hrrr,'HRRR',lat,lon);
+    const metrics=[
+      {label:'2-m temperature',a:tRap,b:tHrrr,unit:'°C'},
+      {label:'2-m dewpoint',a:tdRap,b:tdHrrr,unit:'°C'},
+      {label:'10-m wind speed',a:windRap?.value??null,b:windHrrr?.value??null,unit:'kt'}
+    ];
+    rows.innerHTML=metrics.map(item=>{
+      const fmt=value=>Number.isFinite(value)?value.toFixed(1)+' '+item.unit:'Unavailable';
+      const delta=Number.isFinite(item.a)&&Number.isFinite(item.b)?(item.b-item.a).toFixed(1)+' '+item.unit:'—';
+      return '<tr><td style="padding:9px;border-bottom:1px solid var(--line)">'+item.label+'</td><td style="padding:9px;border-bottom:1px solid var(--line)">'+fmt(item.a)+'</td><td style="padding:9px;border-bottom:1px solid var(--line)">'+fmt(item.b)+'</td><td style="padding:9px;border-bottom:1px solid var(--line)">'+delta+'</td></tr>';
+    }).join('');
+    const rp=rap.sampled_grid_point?.distance_km,hp=hrrr.sampled_grid_point?.distance_km;
+    status.textContent='Exact valid-time match · RAP '+rap.model_cycle_utc+' F'+String(rap.forecast_hour).padStart(2,'0')+' · HRRR '+hrrr.model_cycle_utc+' F'+String(hrrr.forecast_hour).padStart(2,'0')+' · sampled at '+lat.toFixed(3)+', '+lon.toFixed(3)+'. Each model retains its own native grid; missing source fields are not estimated.';
+    document.getElementById('comparisonMeta').innerHTML='<span>Shared valid time · grid distance from selected point</span><b>'+validTime+' · RAP '+(Number.isFinite(rp)?rp.toFixed(1)+' km':'—')+' / HRRR '+(Number.isFinite(hp)?hp.toFixed(1)+' km':'—')+'</b>';
+  }catch(error){
+    if(requestId!==modelComparisonRequest)return;
+    status.textContent='Model comparison unavailable: '+error.message;
+    rows.innerHTML='<tr><td colspan="4">Unable to load and verify both model grids.</td></tr>';
+    console.warn('Model comparison failed',error);
+  }
+}
+window.updateModelComparison=updateModelComparison;
 function findHrrrField(payload,names,gridId){
   return Object.values(payload.fields||{}).find(field=>names.includes(field.short_name)&&(!gridId||field.grid_id===gridId)&&squeezeRap2D(field.data));
 }
@@ -675,6 +771,7 @@ document.getElementById('model').addEventListener('change',async()=>{
   await loadModelManifest();
   await Promise.all([updateRapParameter(),loadStationProfile(window.rapKbtvProfile?.label||'KBTV')]);
   if(window.activeTab==='evolution')updateRapTimeEvolution();
+  if(window.activeTab==='compare')updateModelComparison();
 });
 document.getElementById('parameter').addEventListener('change',updateRapParameter);
 document.getElementById('hour').addEventListener('input',()=>{
@@ -696,12 +793,14 @@ document.getElementById('hour').addEventListener('change',async()=>{
   const activeEntry=activeManifest?.hours?.find(x=>Number(x.forecast_hour)===activeHour);
   document.getElementById('mapChip').textContent='Loading '+model+' F'+String(activeHour).padStart(2,'0')+' · valid '+(activeEntry?.valid_time_utc||'time unavailable')+' · '+(activeManifest?.model_cycle_utc||'latest cycle');
   await Promise.all([updateRapParameter(),loadStationProfile(window.rapKbtvProfile?.label||'KBTV')]);
+  if(window.activeTab==='compare')updateModelComparison();
 });
 Promise.all([loadRapForecastManifest(),loadHrrrForecastManifest()]).then(async()=>{
   updateParameterOptions();
   await loadModelManifest();
   await Promise.all([updateRapParameter(),loadStationProfile('KBTV')]);
   if(window.activeTab==='evolution')updateRapTimeEvolution();
+  if(window.activeTab==='compare')updateModelComparison();
 }).catch(error=>console.error('Model archive initialization failed',error));
 </script>
 </body></html>
