@@ -326,6 +326,32 @@ body{
 #cursorCoordinates{color:#b8ccdf}#cursorValue{margin-top:3px;color:#fff;font-weight:700}
 .boundary-attribution{color:#b6c8d8;font-size:9px}
 @media(max-width:620px){.cursor-readout{top:8px;right:8px;min-width:155px;max-width:52%;padding:7px 8px;font-size:9px}.map-chip{max-width:44%;}}
+
+/* Keep the on-demand desktop analysis dock measurable after the sidebar redesign. */
+@media (min-width: 901px) {
+  body[data-active-tab="cross"] > .bottom-grid,
+  body[data-active-tab="evolution"] > .bottom-grid {
+    display: grid !important;
+    width: calc(100% - 2 * clamp(12px, 2.2vw, 32px)) !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    align-self: stretch !important;
+    grid-template-columns: minmax(0, 1.3fr) minmax(260px, 1fr) !important;
+    margin: 0 clamp(12px, 2.2vw, 32px) 8px !important;
+  }
+  body[data-active-tab="cross"] > .bottom-grid > .panel:first-child {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  body[data-active-tab="cross"] #crossSectionPlot {
+    display: block !important;
+    visibility: visible !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 180px !important;
+  }
+}
 </style>
 </head>
 <body>
