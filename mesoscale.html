@@ -613,7 +613,7 @@ function buildContourFieldControls(payload,model){
     const key=model+':'+field.short_name+':'+field.grid_id;
     if(candidates.some(item=>item.key===key))continue;
     const grid=payload.grids?.[field.grid_id];if(!grid)continue;
-    const shortLabels={2t:'T2m',2d:'Td2m',t:'Temp',d:'Dewpt',10u:'U10',10v:'V10',gust:'Gust',2sh:'RH2m'};
+    const shortLabels={'2t':'T2m','2d':'Td2m',t:'Temp',d:'Dewpt','10u':'U10','10v':'V10',gust:'Gust','2sh':'RH2m'};
     candidates.push({key,shortName:field.short_name,shortLabel:shortLabels[field.short_name]||field.short_name.toUpperCase(),...normalized,grid});
   }
   candidates.sort((a,b)=>{
