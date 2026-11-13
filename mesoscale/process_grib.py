@@ -63,6 +63,21 @@ def merge_grid_projection_metadata(dataset_attrs, variable_attrs):
     return grid_projection_metadata({**dataset_attrs, **variable_attrs})
 
 
+def parse_cycle_time(value):
+    """Parse standard ISO and compact NOMADS UTC cycle timestamps."""
+    if not isinstance(value, str) or not value:
+        raise ValueError("model cycle must be a non-empty UTC timestamp")
+    normalized = value.replace("Z", "+00:00")
+    try:
+        parsed = datetime.fromisoformat(normalized)
+    except ValueError:
+        # NOMADS manifests commonly use YYYYMMDDTHH:MM:SSZ (or +00:00).
+        parsed = datetime.strptime(normalized, "%Y%m%dT%H:%M:%S%z")
+    if parsed.tzinfo is None:
+        raise ValueError("model cycle timestamp must include a UTC offset")
+    return parsed.astimezone(timezone.utc)
+
+
 def attr_value(value):
     if hasattr(value, "item"):
         try:
@@ -164,7 +179,7 @@ def process_file(path: Path, model: str, cycle: str, forecast_hour: int,
         "model": model,
         "model_cycle_utc": cycle,
         "forecast_hour": forecast_hour,
-        "valid_time_utc": (datetime.fromisoformat(cycle.replace("Z", "+00:00")) + timedelta(hours=forecast_hour)).isoformat().replace("+00:00", "Z"),
+        "valid_time_utc": (parse_cycle_time(cycle) + timedelta(hours=forecast_hour)).isoformat().replace("+00:00", "Z"),
         "source_file": path.name,
         "domain": DOMAIN,
         "grids": grids,
