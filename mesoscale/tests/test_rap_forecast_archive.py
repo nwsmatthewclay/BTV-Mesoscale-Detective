@@ -71,6 +71,7 @@ def published_rap_archive(cycle, hours=(0, 3, 6, 9, 12, 15), quality="passed"):
     cycle_time = datetime.fromisoformat(cycle.replace("Z", "+00:00"))
     return {
         "model": "RAP",
+        "domain": DOMAIN,
         "model_cycle_utc": cycle,
         "hours": [
             {
@@ -105,6 +106,17 @@ def test_rap_freshness_keeps_complete_archive_when_newer_cycle_is_still_filling(
 
     assert target == complete
     assert needs_update is False
+
+
+def test_rap_freshness_rebuilds_archive_with_stale_domain_metadata():
+    cycle = "2026-11-12T16:00:00Z"
+    manifest = {"models": {"RAP": {"latest_products": [
+        *[product(cycle, hour) for hour in (0, 3, 6, 9, 12, 15)],
+    ]}}}
+    archive = published_rap_archive(cycle)
+    archive["domain"] = {"west": -75.2, "east": -71.2, "south": 42.3, "north": 45.3}
+
+    assert archive_needs_update(manifest, archive, (0, 3, 6, 9, 12, 15))[0] is True
 
 
 def test_rap_freshness_requests_update_for_a_newer_complete_cycle():
@@ -148,8 +160,12 @@ def write_rap_archive_files(archive_root, archive):
             "forecast_hour": entry["forecast_hour"],
             "valid_time_utc": entry["valid_time_utc"],
             "domain": DOMAIN,
-            "fields": {"temperature": {"short_name": "t"}},
-            "grids": {"hybrid": {"shape": [1, 1]}},
+            "fields": {"temperature": {"short_name": "t", "grid_id": "hybrid"}},
+            "grids": {"hybrid": {
+                "latitude": [[32.0, 32.0], [52.0, 52.0]],
+                "longitude": [[-90.0, -61.5], [-90.0, -61.5]],
+                "shape": [2, 2],
+            }},
             "quality": {"field_count": 1, "grid_count": 1},
         }
         with gzip.open(grid_path, "wt", encoding="utf-8") as stream:
