@@ -140,3 +140,19 @@ Frontogenesis is not supplied as a direct field in the current RAP archive. `fro
 The browser interface has been redesigned as a map-first model workstation. Model, cycle, forecast hour, variable category, and map variable now live in a single horizontal control deck above the map. The regional map is the dominant workspace, with overlays, station selection, and transect tools in a compact toolbar beneath it. Point diagnostics and Skew-T/hodograph panels sit in a right-side analysis rail; cross-section, time-evolution, and provenance panels are arranged below. The visual system uses a restrained navy/blue/cyan palette, consistent panel surfaces, compact metadata labels, responsive spacing, and a mobile single-column reflow.
 
 The desktop and mobile layout are covered by Playwright regression assertions. The redesigned `index.html` and `mesoscale.html` are maintained byte-for-byte identically. This is a presentation/layout change only; it does not change model ingestion, data products, or the production SA dashboard.
+
+
+## Zoomable model map tiles
+
+The model viewer now has a pre-rendered map-tile path alongside the legacy in-browser renderer.
+
+- `render_model_tiles.py` reads the published, cropped GRIB-derived JSON grid and produces transparent 256-pixel XYZ raster tiles.
+- Raster interpolation is performed in Web Mercator from the source grid; invalid/out-of-domain cells remain transparent.
+- Contours are calculated separately from the native two-dimensional source grid and exported as GeoJSON, not inferred from the display raster.
+- Each product records model, cycle, forecast hour, valid time, source field, source/display units, display transform, color range, contour interval, and tile URL template.
+- `.github/workflows/model_tile_render.yml` validates the renderer, generates available supported 2-D products for verified RAP and HRRR archives, writes a catalog, and publishes the tile archive.
+- The Leaflet viewer reads the catalog, loads the matching XYZ raster layer, and independently toggles the GeoJSON contour overlay. CARTO's light/no-label basemap plus a separate label layer provides a cleaner synoptic-style geographic context than the previous street map.
+
+The renderer intentionally refuses ambiguous short-name matches and non-2-D fields. Three-dimensional pressure/hybrid-level products must first be selected or vertically interpolated to a defined pressure surface; they must not be silently treated as surface fields. The first automated product set is limited to verified 2-D surface fields. Temperature, visibility, and gust products are converted to display-friendly units while the original units and transform are retained in product metadata.
+
+This is an initial tile-rendering implementation. Validate the published products against native grid values and independent plotting before operational use. Tile zoom levels currently target regional viewing (z3-z7); higher zoom levels upscale the highest-resolution tiles until a finer native-grid tiling strategy is added.
