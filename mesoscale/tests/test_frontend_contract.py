@@ -182,11 +182,11 @@ def test_expanded_upstream_domain_and_dynamic_map_legends_are_wired():
     html = (ROOT / "index.html").read_text(encoding="utf-8")
     process = (ROOT / "mesoscale" / "process_grib.py").read_text(encoding="utf-8")
     subset = (ROOT / "mesoscale" / "download_subset.py").read_text(encoding="utf-8")
-    assert 'setView([44.25,-73.35],5.6)' in html
+    assert 'fitBounds(REGIONAL_BOUNDS' in html
     assert 'id="mapLegend"' in html
     assert "function updateMapLegend(label,min,max,units" in html
     assert "updateMapLegend(field.long_name||shortName,range.min,range.max,field.units" in html
     assert "updateMapLegend(cfg.label,cfg.min,cfg.max,field.units||cfg.units)" in html
     assert "updateMapLegend(cfg.label,cfg.min,cfg.max,cfg.units)" in html
-    assert '"west": -78.5, "east": -68.0, "south": 40.0, "north": 48.0' in process
-    assert '"leftlon": -78.5, "rightlon": -68.0, "toplat": 48.0, "bottomlat": 40.0' in subset
+    assert '"west": -90.0, "east": -60.0, "south": 32.0, "north": 55.0' in process
+    assert '"leftlon": -90.0, "rightlon": -60.0, "toplat": 55.0, "bottomlat": 32.0' in subset
