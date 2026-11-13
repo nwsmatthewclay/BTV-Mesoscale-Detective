@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "mesoscale/sharppy_adapter.py"
+      - "mesoscale/cross_section.py"
+      - "mesoscale/tests/test_cross_section_engine.py"
       - "mesoscale/environment-sharppy.yml"
       - "mesoscale/tests/test_sharppy_adapter.py"
       - ".github/workflows/sharppy_validation.yml"
@@ -31,4 +33,4 @@ jobs:
           auto-activate: true
       - name: Validate SHARPpy adapter
         shell: bash -el {0}
-        run: PYTHONPATH=. pytest -q mesoscale/tests/test_sharppy_adapter.py
+        run: PYTHONPATH=. pytest -q mesoscale/tests/test_sharppy_adapter.py mesoscale/tests/test_cross_section_engine.py
