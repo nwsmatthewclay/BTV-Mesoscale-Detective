@@ -9,8 +9,10 @@ Standalone interactive mesoscale analysis dashboard for the NWS Burlington forec
 - The published HRRR surface archive contains six valid times aligned to the RAP archive. Read `data/fields/hrrr/hrrr_forecast_manifest.json` for its cycle, selected forecast hours and field inventory.
 - Each forecast hour includes regional gridded fields and profiles for KBTV, KPBG, KMSS, KSLK, KMPV, KRUT, 1V4 and KEFK. The latest verified profiles contain 50 levels and pass pressure/height monotonicity checks.
 - The standalone latest RAP grid and KBTV profile are also published.
-- RAP is the full-column source. HRRR now has a separately validated/published surface archive and is enabled in the interactive model selector for supported 2-D surface map fields. RRFS has a live indexed-range acquisition smoke test but no regional field archive or enabled map layer.
+- RAP is the full-column source. The committed F00 archive inventory confirms 50-level hybrid fields for pressure, temperature, geopotential height, specific humidity, U/V wind, and vertical velocity (`w`, Pa s**-1). Cloud water, rain, snow, and graupel mixing ratios are also present on hybrid levels. HRRR has a separately validated/published surface archive and is enabled in the interactive model selector for supported 2-D surface map fields. RRFS has a live indexed-range acquisition smoke test but no regional field archive or enabled map layer.
 - `index.html` and `mesoscale.html` are kept byte-for-byte synchronized.
+- The standalone hybrid-level cross-section engine samples a great-circle transect on distinct native grid cells, interpolates to a common log-pressure coordinate, disables vertical extrapolation, and preserves model/cycle/valid-time provenance. Its CI test successfully builds a real archived RAP omega (`w`), temperature and height cross-section.
+- SHARPpy 1.4.0 has passed isolated Conda validation on both a synthetic sounding and the archived KBTV RAP F00 sounding. The latest dedicated run passed all 10 tests; two NumPy masked-value warnings from SHARPpy interpolation remain under review.
 - The Time Evolution panel plots station-profile diagnostics from each verified RAP archive hour and checks cycle/hour metadata before use; custom points are not assigned nearby-station values.
 
 This is a development/research workspace, not an operationally approved decision-support system. Do not use it as the sole basis for forecast, warning or aviation decisions.
@@ -117,6 +119,12 @@ conda activate btv-sharppy
 pytest -q mesoscale/tests/test_sharppy_adapter.py
 ```
 
-The adapter converts the repository's profile contract explicitly (K to °C, m/s to kt) before calling SHARPpy. It returns surface, most-unstable and mixed-layer parcel diagnostics, Bunkers storm motion, 0–1 km SRH and 0–6 km bulk shear. SHARPpy outputs are kept separate from the existing MetPy calculations so forecasters can compare methods and provenance.
+The adapter converts the repository's profile contract explicitly (K to °C, m/s to kt) before calling SHARPpy. It returns surface, most-unstable and mixed-layer parcel diagnostics, Bunkers storm motion, 0–1 km SRH and 0–6 km bulk shear. SHARPpy outputs are kept separate from the existing MetPy calculations so forecasters can compare methods and provenance. The dedicated Conda CI run now exercises both a synthetic sounding and the actual archived KBTV RAP profile; the latest run passed 10 tests.
 
-SHARPpy is an optional dependency at this stage. Its installation and numerical behavior are being validated in a dedicated Python 3.10 / NumPy 1.x workflow before enabling it in scheduled ingestion. The browser remains responsible for rendering the Skew-T and hodograph; the SHARPpy desktop GUI is not embedded in the web page.
+SHARPpy remains an optional dependency, but its installation and adapter calculations have passed the dedicated Python 3.10 / NumPy 1.x Conda workflow using SHARPpy 1.4.0. Two NumPy warnings remain when SHARPpy interpolation converts masked values to NaN; these are visible in CI and are not suppressed. The browser remains responsible for rendering the Skew-T and hodograph; the SHARPpy desktop GUI is not embedded in the web page.
+
+## Hybrid-level cross-section engine (prototype)
+
+`cross_section.py` accepts exact GRIB short names supplied by a verified inventory, samples a great-circle transect using nearest native-grid points, and interpolates each column to a common pressure coordinate in log-pressure space. Repeated hits on the same native grid cell are removed, out-of-column levels are returned as null, and the result includes model/cycle/valid-time metadata and native grid indices. A real-data regression test successfully samples RAP `w` (vertical velocity, Pa s**-1), `t` (temperature), and `gh` (geopotential height) from the committed F00 archive. Negative pressure vertical velocity indicates ascent under the model convention.
+
+Frontogenesis is not currently supplied as a verified field in this RAP archive. It will be calculated from potential temperature and horizontal wind gradients only after the source grid projection/spacing metadata are retained and validated; no proxy field is substituted.
