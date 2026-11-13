@@ -25,6 +25,8 @@ concurrency:
 
 jobs:
   render-and-publish:
+    outputs:
+      changed: ${{ steps.publish.outputs.changed }}
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -144,7 +146,9 @@ jobs:
           render_archive mesoscale/data/fields/hrrr/hrrr_forecast_manifest.json HRRR
           python - <<'PY'
           import json
+          from datetime import datetime, timezone
           from pathlib import Path
+          from mesoscale.render_model_tiles import build_tile_catalog
           root = Path("mesoscale/data/model_tiles")
           products = []
           for product_path in sorted(root.glob("**/product.json")):
@@ -152,13 +156,14 @@ jobs:
               product["product_path"] = product_path.relative_to(root).as_posix()
               products.append(product)
           root.mkdir(parents=True, exist_ok=True)
-          catalog = {
-              "schema_version": 1,
-              "generated_utc": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(),
-              "tile_scheme": "XYZ",
-              "products": products,
-          }
-          (root / "catalog.json").write_text(json.dumps(catalog, indent=2) + "\n", encoding="utf-8")
+          catalog_path = root / "catalog.json"
+          existing_catalog = json.loads(catalog_path.read_text(encoding="utf-8")) if catalog_path.is_file() else None
+          catalog = build_tile_catalog(
+              products,
+              existing_catalog,
+              datetime.now(timezone.utc).isoformat(),
+          )
+          catalog_path.write_text(json.dumps(catalog, indent=2) + "\n", encoding="utf-8")
           models = {product["model"] for product in products}
           for model in ("RAP", "HRRR"):
               model_products = [product for product in products if product["model"] == model]
@@ -173,7 +178,8 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A mesoscale/data/model_tiles/
           if git diff --cached --quiet; then
-            echo "Model tiles unchanged."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Model tiles unchanged; Pages deployment is not needed."
             exit 0
           fi
           git commit -m "Publish zoomable RAP and HRRR model tiles"
@@ -184,6 +190,7 @@ jobs:
             git fetch origin main
             git rebase origin/main
             if git push origin HEAD:main; then
+              echo "changed=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
             echo "Push attempt $attempt failed; retrying after refreshing main."
@@ -193,6 +200,7 @@ jobs:
 
   deploy-pages:
     needs: render-and-publish
+    if: needs.render-and-publish.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
     concurrency:
       group: github-pages
       cancel-in-progress: false
