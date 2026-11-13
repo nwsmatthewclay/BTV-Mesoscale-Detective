@@ -93,3 +93,14 @@ def test_hrrr_workflow_run_checks_out_latest_main_before_freshness_decision():
     assert smoke_job.index("          ref: main") < smoke_job.index(
         "name: Check whether a newer complete HRRR cycle needs publication"
     )
+
+def test_model_discovery_does_not_run_for_test_only_changes():
+    discovery = (ROOT / ".github/workflows/mesoscale_model_discovery.yml").read_text(encoding="utf-8")
+    paths = discovery.split("    paths:\\n", 1)[1].split("  workflow_dispatch:", 1)[0]
+
+    assert "mesoscale/tests/**" not in paths
+    assert "mesoscale/hrrr_tests/**" not in paths
+    assert "mesoscale/build_rap_forecast_archive.py" in paths
+    assert "mesoscale/validate_hrrr_archive.py" in paths
+    assert "pytest -q mesoscale/tests mesoscale/hrrr_tests" in discovery
+

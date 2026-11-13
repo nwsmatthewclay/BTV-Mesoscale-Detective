@@ -773,8 +773,8 @@ async function loadRapStationCollection(hour=activeRapHour){
       const response=await fetch(stationUrl+'?ts='+Date.now(),{cache:'no-store'});
       if(!response.ok)throw new Error('RAP station profiles HTTP '+response.status+' ('+stationUrl+')');
       const collection=await response.json();
-      if(collection.model!=='RAP'||collection.model_cycle_utc!==rapForecastManifest.model_cycle_utc||Number(collection.forecast_hour)!==Number(hour)){
-        throw new Error('RAP station-profile file does not match the selected model cycle and forecast hour');
+      if(collection.model!=='RAP'||collection.model_cycle_utc!==rapForecastManifest.model_cycle_utc||Number(collection.forecast_hour)!==Number(hour)||(archiveEntry.valid_time_utc&&collection.valid_time_utc!==archiveEntry.valid_time_utc)){
+        throw new Error('RAP station-profile file does not match the selected model cycle, forecast hour, and valid time');
       }
       return collection;
     })().catch(error=>{delete rapStationCollectionPromises[cacheKey];throw error;});
@@ -1513,7 +1513,8 @@ async function updateRapTimeEvolution(){
     showRapTimeEvolutionMessage('Select KBTV, KPBG, KMSS, KSLK, KMPV, KRUT, 1V4 or KEFK');
     return;
   }
-  const metric=RAP_TREND_METRICS[document.getElementById('trendParameter').value];
+  const metricKey=document.getElementById('trendParameter').value;
+  const metric=RAP_TREND_METRICS[metricKey];
   if(!metric){
     status.textContent='Select a supported RAP station diagnostic.';
     showRapTimeEvolutionMessage('No diagnostic selected');
@@ -1521,27 +1522,55 @@ async function updateRapTimeEvolution(){
   }
   status.textContent='Loading verified RAP '+station[0]+' forecast-hour profiles…';
   try{
-    const collections=await Promise.all(availableRapHours.map(hour=>loadRapStationCollection(hour)));
+    // Preserve every manifest forecast hour. Missing, failed, or mismatched
+    // station profiles become explicit gaps instead of being silently removed.
+    const points=await Promise.all(availableRapHours.map(async hour=>{
+      const entry=rapForecastManifest.hours.find(item=>Number(item.forecast_hour)===Number(hour));
+      const validTime=entry&&entry.valid_time_utc||null;
+      if(!validTime)return {hour,validTime:null,value:null,reason:'manifest valid time unavailable'};
+      try{
+        const collection=await loadRapStationCollection(hour);
+        const profile=collection&&collection.stations&&collection.stations[station[0]];
+        if(!profile)return {hour,validTime,value:null,reason:'station profile unavailable'};
+        const profileValidTime=profile.valid_time_utc||collection.valid_time_utc;
+        const provenanceMatches=collection.model==='RAP'
+          &&collection.model_cycle_utc===rapForecastManifest.model_cycle_utc
+          &&Number(collection.forecast_hour)===Number(hour)
+          &&collection.valid_time_utc===validTime
+          &&profileValidTime===validTime;
+        if(!provenanceMatches)return {hour,validTime,value:null,reason:'profile valid-time provenance mismatch'};
+        const diagnostics=(profile.diagnostics&&profile.diagnostics.diagnostics)||{};
+        const value=diagnostics[metricKey];
+        if(!Number.isFinite(value))return {hour,validTime,value:null,reason:'diagnostic unavailable'};
+        return {hour,validTime,value,reason:null};
+      }catch(error){
+        return {hour,validTime,value:null,reason:'profile unavailable'};
+      }
+    }));
     if(requestId!==rapTimeEvolutionRequest)return;
-    const points=collections.map((collection,index)=>{
-      const profile=collection.stations&&collection.stations[station[0]];
-      const diagnostics=(profile&&profile.diagnostics&&profile.diagnostics.diagnostics)||{};
-      return {
-        hour:availableRapHours[index],
-        validTime:profile&&profile.valid_time_utc||collection.valid_time_utc,
-        value:diagnostics[document.getElementById('trendParameter').value]
-      };
-    }).filter(point=>point.validTime&&Number.isFinite(point.value));
-    if(!points.length){
-      status.textContent='No verified '+metric.label+' values are available for '+station[0]+' in this archive.';
+    const verifiedCount=points.filter(point=>Number.isFinite(point.value)).length;
+    const labels=points.map(point=>{
+      const validLabel=point.validTime?new Date(point.validTime).toISOString().slice(11,16)+'Z':'valid time unavailable';
+      return 'F'+String(point.hour).padStart(2,'0')+' · '+validLabel;
+    });
+    const unavailable=points.filter(point=>!Number.isFinite(point.value));
+    const unavailableLabel=unavailable.length
+      ?' · Unavailable at '+unavailable.map(point=>'F'+String(point.hour).padStart(2,'0')+' ('+point.reason+')').join(', ')
+      :'';
+    if(!verifiedCount){
+      status.textContent='No verified '+metric.label+' values are available for '+station[0]+' · 0/'+points.length+' forecast hours verified'+unavailableLabel;
       showRapTimeEvolutionMessage('No verified values for '+metric.label);
       return;
     }
-    const labels=points.map(point=>'F'+String(point.hour).padStart(2,'0')+' · '+new Date(point.validTime).toISOString().slice(11,16)+'Z');
     await Plotly.react('trend',[{
-      x:labels,y:points.map(point=>point.value),mode:'lines+markers',name:metric.label,
-      line:{color:'#8bc7ff',width:2.5},marker:{size:8,color:'#8bc7ff'},
-      customdata:points.map(point=>point.validTime),
+      x:labels,
+      y:points.map(point=>Number.isFinite(point.value)?point.value:null),
+      mode:'lines+markers',
+      connectgaps:false,
+      name:metric.label,
+      line:{color:'#8bc7ff',width:2.5},
+      marker:{size:8,color:'#8bc7ff'},
+      customdata:points.map(point=>point.validTime||'Valid time unavailable'),
       hovertemplate:'%{x}<br>'+metric.label+': %{y:.1f} '+metric.units+'<br>Valid: %{customdata}<extra></extra>'
     }],{
       paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',
@@ -1550,7 +1579,7 @@ async function updateRapTimeEvolution(){
       yaxis:{title:metric.label+' ('+metric.units+')',color:'#9cb2c5',gridcolor:'#24435e'},
       font:{color:'#dceaf4'},hovermode:'x'
     },{displayModeBar:false,responsive:true});
-    status.textContent='RAP '+rapForecastManifest.model_cycle_utc+' · '+station[0]+' · '+points.length+'/'+availableRapHours.length+' verified values · '+metric.label;
+    status.textContent='RAP '+rapForecastManifest.model_cycle_utc+' · '+station[0]+' · '+verifiedCount+'/'+points.length+' verified values · '+metric.label+unavailableLabel;
   }catch(error){
     if(requestId!==rapTimeEvolutionRequest)return;
     status.textContent='Time evolution unavailable: '+error.message;

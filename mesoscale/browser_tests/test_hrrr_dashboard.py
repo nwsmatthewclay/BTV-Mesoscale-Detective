@@ -506,6 +506,47 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
             )
             assert page.locator("#trend").evaluate("(element) => element.data?.[0]?.x?.length") == 6
         page.evaluate("selectPoint(44.4719, -73.1533, 'KBTV')")
+        # A missing diagnostic must retain its forecast-hour slot as a visible chart gap.
+        missing_evolution = page.evaluate(
+            """async ({hour, metricKey}) => {
+                const originalLoader = window.loadRapStationCollection;
+                if (typeof originalLoader !== 'function') return {error: 'station collection loader unavailable'};
+                window.loadRapStationCollection = async requestedHour => {
+                    const collection = await originalLoader(requestedHour);
+                    if (Number(requestedHour) !== Number(hour)) return collection;
+                    const altered = structuredClone(collection);
+                    const diagnostics = altered.stations?.KBTV?.diagnostics?.diagnostics;
+                    if (!diagnostics || !(metricKey in diagnostics)) return {error: 'test diagnostic missing from source profile'};
+                    delete diagnostics[metricKey];
+                    return altered;
+                };
+                try {
+                    await window.updateRapTimeEvolution();
+                    const trace = document.querySelector('#trend')?.data?.[0];
+                    const label = 'F' + String(hour).padStart(2, '0');
+                    const index = trace?.x?.findIndex(item => item.startsWith(label));
+                    return {
+                        pointCount: trace?.x?.length,
+                        missingValue: index >= 0 ? trace.y[index] : 'forecast hour omitted',
+                        status: document.querySelector('#trendStatus')?.textContent || ''
+                    };
+                } finally {
+                    window.loadRapStationCollection = originalLoader;
+                    await window.updateRapTimeEvolution();
+                }
+            }""",
+            {"hour": rap["hours"][1]["forecast_hour"], "metricKey": page.locator("#trendParameter").input_value()},
+        )
+        missing_hour_label = "F" + str(rap["hours"][1]["forecast_hour"]).zfill(2)
+        assert missing_evolution.get("error") is None, missing_evolution
+        assert missing_evolution["pointCount"] == len(rap["hours"]), missing_evolution
+        assert missing_evolution["missingValue"] is None, missing_evolution
+        assert "Unavailable at " + missing_hour_label in missing_evolution["status"], missing_evolution
+        page.wait_for_function(
+            "() => document.querySelector('#trendStatus').textContent.includes('6/6 verified values')",
+            timeout=20000,
+        )
+
 
         # Model comparison must load both grids at the same exact valid time.
         page.locator('button[data-tab="compare"]').click()
@@ -523,6 +564,41 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         assert "Unavailable" not in comparison_rows[2], comparison_rows[2]
         assert "RAP " in page.locator("#comparisonMeta").inner_text()
         assert "HRRR " in page.locator("#comparisonMeta").inner_text()
+
+        # Remove HRRR 2-m temperature in memory and verify the rendered row stays unavailable.
+        missing_comparison = page.evaluate(
+            """async () => {
+                const payload = window.hrrrGridPayload;
+                if (!payload?.fields) return {error: 'loaded HRRR grid payload unavailable'};
+                const originalFields = payload.fields;
+                payload.fields = Object.fromEntries(
+                    Object.entries(originalFields).filter(([, field]) => field.short_name !== '2t')
+                );
+                try {
+                    await window.updateModelComparison();
+                    const row = Array.from(document.querySelectorAll('#comparisonRows tr'))
+                        .find(item => item.querySelector('td')?.textContent.trim() === '2-m temperature');
+                    return {
+                        cells: row ? Array.from(row.querySelectorAll('td')).map(cell => cell.textContent.trim()) : [],
+                        status: document.querySelector('#comparisonStatus')?.textContent || ''
+                    };
+                } finally {
+                    payload.fields = originalFields;
+                    await window.updateModelComparison();
+                }
+            }"""
+        )
+        assert missing_comparison.get("error") is None, missing_comparison
+        assert missing_comparison["cells"][0] == "2-m temperature", missing_comparison
+        assert missing_comparison["cells"][1] != "Unavailable", missing_comparison
+        assert missing_comparison["cells"][2] == "Unavailable", missing_comparison
+        assert missing_comparison["cells"][3] == "—", missing_comparison
+        assert "unavailable source values: 2-m temperature" in missing_comparison["status"], missing_comparison
+        page.wait_for_function(
+            "() => document.querySelector('#comparisonStatus').textContent.includes('Exact valid-time match')",
+            timeout=20000,
+        )
+
 
         # Exercise the real Leaflet map-click handler using known in-domain coordinates.
         page.locator('button[data-tab="cross"]').click()

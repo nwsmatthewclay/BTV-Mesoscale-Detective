@@ -1,5 +1,6 @@
 name: Mesoscale Model Discovery and Validation
 # Recheck the full expanded-domain pipeline before publishing regional grids.
+# Test-only edits run in PR validation but do not trigger live model discovery or ingestion.
 
 on:
   push:
@@ -14,9 +15,7 @@ on:
       - "mesoscale/download_subset.py"
       - "mesoscale/validate_hrrr_ingestion.py"
       - "mesoscale/validate_hrrr_archive.py"
-      - "mesoscale/hrrr_tests/**"
       - "mesoscale/data/model_manifest.json"
-      - "mesoscale/tests/**"
       - ".github/workflows/mesoscale_model_discovery.yml"
       - ".github/workflows/rap_ingestion_smoke.yml"
       - ".github/workflows/hrrr_ingestion_smoke.yml"
