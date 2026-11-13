@@ -113,7 +113,7 @@ jobs:
               "tile_scheme": "XYZ",
               "products": products,
           }
-          (root / "catalog.json").write_text(json.dumps(catalog, indent=2) + "\\n", encoding="utf-8")
+          (root / "catalog.json").write_text(json.dumps(catalog, indent=2) + "\n", encoding="utf-8")
           models = {product["model"] for product in products}
           if not {"RAP", "HRRR"}.issubset(models):
               raise SystemExit(f"Expected initial RAP and HRRR tile products; found models: {sorted(models)}")
