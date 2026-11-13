@@ -10,13 +10,13 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 from urllib.parse import urlencode
 
 import requests
 
 BASE = "https://nomads.ncep.noaa.gov/cgi-bin"
-REGION = {"leftlon": -90.0, "rightlon": -60.0, "toplat": 55.0, "bottomlat": 32.0}
+REGION = {"leftlon": -90.0, "rightlon": -61.5, "toplat": 52.0, "bottomlat": 32.0}
 MAX_DOWNLOAD_BYTES = 250_000_000
 
 RAP_PRODUCT = "pressure_levels_conus_13km"
@@ -86,13 +86,21 @@ def filter_url(model: str, product: dict) -> str:
     return f"{BASE}/{script}?{urlencode(params)}"
 
 
+def cycle_hour_utc(value: str) -> str:
+    """Return the UTC hour for compact or ISO-8601 cycle timestamps."""
+    if not isinstance(value, str) or not value:
+        raise ValueError("Model cycle timestamp is missing")
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        raise ValueError(f"Model cycle timestamp must include a timezone: {value!r}")
+    return parsed.astimezone(timezone.utc).strftime("%H")
+
+
 def download(session, model, product, output_dir):
     url = filter_url(model, product)
     output_dir.mkdir(parents=True, exist_ok=True)
     try:
-        cycle_hour = datetime.fromisoformat(
-            product["cycle_utc"].replace("Z", "+00:00")
-        ).strftime("%H")
+        cycle_hour = cycle_hour_utc(product["cycle_utc"])
     except (KeyError, TypeError, ValueError) as exc:
         raise ValueError(f"Invalid model cycle timestamp: {product.get('cycle_utc')!r}") from exc
     filename = (
