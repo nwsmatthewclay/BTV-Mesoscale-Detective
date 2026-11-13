@@ -137,13 +137,14 @@ def test_run_smoke_downloads_and_decodes_only_bounded_messages():
         "url": f"https://example.test/{filename}",
         "index": {
             "url": f"https://example.test/{filename}.idx",
-            "message_count": 5,
+            "message_count": 6,
             "messages": [
                 {"message": "1", "byte_offset": 0, "short_name": "REFC"},
                 {"message": "2", "byte_offset": 100, "short_name": "TMP"},
                 {"message": "3", "byte_offset": 200, "short_name": "DPT"},
                 {"message": "4", "byte_offset": 300, "short_name": "UGRD"},
                 {"message": "5", "byte_offset": 400, "short_name": "VGRD"},
+                {"message": "6", "byte_offset": 500, "short_name": "END"},
             ],
         },
     }
@@ -186,6 +187,7 @@ def test_plan_index_ranges_selects_standard_fields_by_index_name():
         {"byte_offset": 250, "short_name": "DPT"},
         {"byte_offset": 500, "short_name": "UGRD"},
         {"byte_offset": 700, "short_name": "VGRD"},
+        {"byte_offset": 900, "short_name": "END"},
     ]
 
     planned = plan_index_ranges(
