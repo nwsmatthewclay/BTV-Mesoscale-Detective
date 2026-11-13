@@ -19,6 +19,8 @@ on:
       - ".github/workflows/mesoscale_model_discovery.yml"
       - ".github/workflows/rap_ingestion_smoke.yml"
       - ".github/workflows/hrrr_ingestion_smoke.yml"
+      - ".github/workflows/rrfs_range_smoke.yml"
+      - "mesoscale/rrfs_range_smoke.py"
   workflow_dispatch:
 
 permissions:
