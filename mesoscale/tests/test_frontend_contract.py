@@ -188,5 +188,14 @@ def test_expanded_upstream_domain_and_dynamic_map_legends_are_wired():
     assert "updateMapLegend(field.long_name||shortName,range.min,range.max,field.units" in html
     assert "updateMapLegend(cfg.label,cfg.min,cfg.max,field.units||cfg.units)" in html
     assert "updateMapLegend(cfg.label,cfg.min,cfg.max,cfg.units)" in html
-    assert '"west": -90.0, "east": -60.0, "south": 32.0, "north": 55.0' in process
-    assert '"leftlon": -90.0, "rightlon": -60.0, "toplat": 55.0, "bottomlat": 32.0' in subset
+    assert '"west": -90.0, "east": -61.5, "south": 32.0, "north": 52.0' in process
+    assert '"leftlon": -90.0, "rightlon": -61.5, "toplat": 52.0, "bottomlat": 32.0' in subset
+
+def test_native_field_catalog_and_renderers_require_matching_grid_geometry():
+    html = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "Array.isArray(payload.grids?.[field.grid_id]?.latitude)" in html
+    assert "Array.isArray(payload.grids?.[field.grid_id]?.longitude)" in html
+    assert "Array.isArray(payload.grids?.[f.grid_id]?.latitude)" in html
+    assert "nearest native grid" in html
+    assert "shown.toLocaleString('en-US',{maximumFractionDigits:1})" in html
+    assert "toExponential" not in html
