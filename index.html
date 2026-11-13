@@ -165,7 +165,7 @@ async function runRapCrossSection(points){
     }catch(error){skipped.push({index:i,reason:error.message});}
   }
   const usable=profiles.length;
-  status.textContent='transect columns passed profile QC: '+usable+' of '+(samples+1)+' sampled locations';
+  status.textContent='transect columns passed profile QC: '+usable+' of '+(samples+1)+' sampled locations · usable nearest-grid samples: '+usable;
   status.textContent='transect columns passed profile QC: '+usable+' of '+(samples+1)+' sampled locations';
   if(usable<2){
     const reason=skipped[0]?.reason||'insufficient valid columns';
