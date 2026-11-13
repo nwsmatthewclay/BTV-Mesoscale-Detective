@@ -1,0 +1,62 @@
+{
+  "model": "RAP",
+  "cycle_utc": "20261113T17:00:00Z",
+  "forecast_hour": 0,
+  "valid_time_utc": "2026-11-13T17:00:00Z",
+  "field_key": "slt_2d_9",
+  "short_name": "slt",
+  "long_name": "Soil type",
+  "units": "(Code table 4.213)",
+  "source_units": "(Code table 4.213)",
+  "display_transform": {
+    "scale": 1.0,
+    "offset": 0.0
+  },
+  "source_grid_shape": [
+    226,
+    177
+  ],
+  "render_grid_shape": [
+    226,
+    177
+  ],
+  "source_grid_id": "grid_9",
+  "source_grid_stride": 1,
+  "render_stride": 1,
+  "source_effective_spacing_m": {
+    "x": 13545.0,
+    "y": 13545.0
+  },
+  "render_effective_spacing_m": {
+    "x": 13545.0,
+    "y": 13545.0
+  },
+  "display_range": [
+    2.0,
+    14.0
+  ],
+  "contour_interval": 1,
+  "contour_levels": [
+    2.0,
+    3.0,
+    4.0,
+    5.0,
+    6.0,
+    7.0,
+    8.0,
+    9.0,
+    10.0,
+    11.0,
+    12.0,
+    13.0,
+    14.0
+  ],
+  "tile_size": 256,
+  "zoom_min": 3,
+  "zoom_max": 6,
+  "tile_count": 51,
+  "contour_feature_count": 1677,
+  "tile_url": "rap/20261113T170000Z/f00/slt_2d_9/tiles/{z}/{x}/{y}.png",
+  "contour_url": "rap/20261113T170000Z/f00/slt_2d_9/contours.geojson",
+  "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling"
+}

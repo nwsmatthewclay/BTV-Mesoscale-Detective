@@ -1,0 +1,59 @@
+{
+  "model": "RAP",
+  "cycle_utc": "20261113T17:00:00Z",
+  "forecast_hour": 0,
+  "valid_time_utc": "2026-11-13T17:00:00Z",
+  "field_key": "pt_2d_11",
+  "short_name": "pt",
+  "long_name": "Potential temperature",
+  "units": "K",
+  "source_units": "K",
+  "display_transform": {
+    "scale": 1.0,
+    "offset": 0.0
+  },
+  "source_grid_shape": [
+    226,
+    177
+  ],
+  "render_grid_shape": [
+    226,
+    177
+  ],
+  "source_grid_id": "grid_11",
+  "source_grid_stride": 1,
+  "render_stride": 1,
+  "source_effective_spacing_m": {
+    "x": 13545.0,
+    "y": 13545.0
+  },
+  "render_effective_spacing_m": {
+    "x": 13545.0,
+    "y": 13545.0
+  },
+  "display_range": [
+    308.0,
+    396.0
+  ],
+  "contour_interval": 10,
+  "contour_levels": [
+    310.0,
+    320.0,
+    330.0,
+    340.0,
+    350.0,
+    360.0,
+    370.0,
+    380.0,
+    390.0,
+    400.0
+  ],
+  "tile_size": 256,
+  "zoom_min": 3,
+  "zoom_max": 6,
+  "tile_count": 51,
+  "contour_feature_count": 143,
+  "tile_url": "rap/20261113T170000Z/f00/pt_2d_11/tiles/{z}/{x}/{y}.png",
+  "contour_url": "rap/20261113T170000Z/f00/pt_2d_11/contours.geojson",
+  "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling"
+}
