@@ -15,7 +15,7 @@ from pathlib import Path
 
 import numpy as np
 
-DOMAIN = {"west": -90.0, "east": -60.0, "south": 32.0, "north": 55.0}
+DOMAIN = {"west": -90.0, "east": -61.5, "south": 32.0, "north": 52.0}
 
 
 def json_values(array, decimals=2):
@@ -87,6 +87,63 @@ def attr_value(value):
     if isinstance(value, (str, int, float, bool)) or value is None:
         return value
     return str(value)
+
+
+def validate_grid_coverage(grids: dict, domain: dict | None = None, tolerance_degrees: float = 0.35) -> dict:
+    """Require every decoded native grid to cover the shared RAP/HRRR analysis domain."""
+    required_domain = DOMAIN if domain is None else domain
+    required_keys = {"west", "east", "south", "north"}
+    if not isinstance(required_domain, dict) or not required_keys.issubset(required_domain):
+        raise ValueError("A complete west/east/south/north coverage domain is required")
+    if not isinstance(grids, dict) or not grids:
+        raise RuntimeError("Decoded model payload contains no grids to validate")
+
+    reports = []
+    for grid_id, grid in grids.items():
+        if not isinstance(grid, dict):
+            raise RuntimeError(f"Grid {grid_id} is not a coordinate object")
+        try:
+            lat = np.asarray(grid.get("latitude"), dtype=float)
+            lon = np.asarray(grid.get("longitude"), dtype=float)
+        except (TypeError, ValueError) as exc:
+            raise RuntimeError(f"Grid {grid_id} has unreadable latitude/longitude coordinates") from exc
+        if lat.ndim != 2 or lon.shape != lat.shape:
+            raise RuntimeError(
+                f"Grid {grid_id} coordinate shapes do not match: "
+                f"latitude={lat.shape}, longitude={lon.shape}"
+            )
+        finite = np.isfinite(lat) & np.isfinite(lon)
+        if int(finite.sum()) < 4:
+            raise RuntimeError(f"Grid {grid_id} has fewer than four finite geographic coordinates")
+        bounds = {
+            "west": float(np.nanmin(lon[finite])),
+            "east": float(np.nanmax(lon[finite])),
+            "south": float(np.nanmin(lat[finite])),
+            "north": float(np.nanmax(lat[finite])),
+        }
+        misses = []
+        if bounds["west"] > float(required_domain["west"]) + tolerance_degrees:
+            misses.append("west")
+        if bounds["east"] < float(required_domain["east"]) - tolerance_degrees:
+            misses.append("east")
+        if bounds["south"] > float(required_domain["south"]) + tolerance_degrees:
+            misses.append("south")
+        if bounds["north"] < float(required_domain["north"]) - tolerance_degrees:
+            misses.append("north")
+        if misses:
+            raise RuntimeError(
+                f"Grid {grid_id} does not cover required domain edges {', '.join(misses)} "
+                f"within {tolerance_degrees:.2f} degrees; actual bounds={bounds}, "
+                f"required={required_domain}"
+            )
+        reports.append({"grid_id": str(grid_id), "bounds": bounds, "shape": list(lat.shape)})
+
+    return {
+        "status": "passed",
+        "domain": dict(required_domain),
+        "tolerance_degrees": float(tolerance_degrees),
+        "grid_bounds": reports,
+    }
 
 
 def process_file(path: Path, model: str, cycle: str, forecast_hour: int,
@@ -173,6 +230,7 @@ def process_file(path: Path, model: str, cycle: str, forecast_hour: int,
 
     if not fields:
         raise RuntimeError("No gridded variables found inside the expanded regional analysis domain")
+    grid_coverage = validate_grid_coverage(grids, DOMAIN)
     payload = {
         "schema_version": 1,
         "created_utc": datetime.now(timezone.utc).isoformat(),
@@ -185,7 +243,7 @@ def process_file(path: Path, model: str, cycle: str, forecast_hour: int,
         "grids": grids,
         "fields": fields,
         "quality": {"field_count": len(fields), "grid_count": len(grids),
-                    "warnings": warnings},
+                    "grid_coverage": grid_coverage, "warnings": warnings},
     }
     output.parent.mkdir(parents=True, exist_ok=True)
     with gzip.open(output, "wt", encoding="utf-8", compresslevel=6) as stream:
