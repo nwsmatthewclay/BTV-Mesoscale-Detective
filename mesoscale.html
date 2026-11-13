@@ -1124,6 +1124,8 @@ async function renderPublishedModelTiles(payload,model,param){
   return true;
 }
 async function updateRapParameter(){
+  clearPreRenderedModelLayers();
+
   setContourPanelEnabled(false);
   const model=document.getElementById('model').value;
   const param=document.getElementById('parameter').value;
