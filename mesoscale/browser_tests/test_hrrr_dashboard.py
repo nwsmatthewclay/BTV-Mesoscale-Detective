@@ -88,6 +88,41 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         page.route("**/tile.openstreetmap.org/**", lambda route: route.abort())
 
         page.goto("http://127.0.0.1:8765/", wait_until="domcontentloaded")
+
+        # The redesigned viewer should be map-first on desktop and reflow cleanly on mobile.
+        desktop_layout = page.evaluate(
+            """() => ({
+                columns: getComputedStyle(document.querySelector(".layout")).gridTemplateColumns.split(" ").length,
+                mapWidth: document.querySelector("#map").getBoundingClientRect().width,
+                mapHeight: document.querySelector("#map").getBoundingClientRect().height,
+                controls: getComputedStyle(document.querySelector(".control-grid")).gridTemplateColumns.split(" ").length,
+                modelControl: Boolean(document.querySelector(".control-deck #model")),
+                categoryControl: Boolean(document.querySelector(".control-deck #category")),
+                variableControl: Boolean(document.querySelector(".control-deck #parameter"))
+            })"""
+        )
+        assert desktop_layout["columns"] == 2, desktop_layout
+        assert desktop_layout["mapWidth"] > 700, desktop_layout
+        assert desktop_layout["mapHeight"] >= 500, desktop_layout
+        assert desktop_layout["controls"] == 5, desktop_layout
+        assert desktop_layout["modelControl"] and desktop_layout["categoryControl"] and desktop_layout["variableControl"]
+
+        page.set_viewport_size({"width": 390, "height": 844})
+        mobile_layout = page.evaluate(
+            """() => ({
+                columns: getComputedStyle(document.querySelector(".layout")).gridTemplateColumns.split(" ").length,
+                viewportWidth: document.documentElement.clientWidth,
+                documentWidth: document.documentElement.scrollWidth,
+                mapWidth: document.querySelector("#map").getBoundingClientRect().width,
+                controlColumns: getComputedStyle(document.querySelector(".control-grid")).gridTemplateColumns.split(" ").length
+            })"""
+        )
+        assert mobile_layout["columns"] == 1, mobile_layout
+        assert mobile_layout["controlColumns"] == 2, mobile_layout
+        assert mobile_layout["documentWidth"] <= mobile_layout["viewportWidth"] + 2, mobile_layout
+        assert mobile_layout["mapWidth"] <= mobile_layout["viewportWidth"], mobile_layout
+        page.set_viewport_size({"width": 1440, "height": 1000})
+
         archives = page.evaluate(
             """async () => {
                 const load = async path => {
