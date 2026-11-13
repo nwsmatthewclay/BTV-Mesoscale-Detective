@@ -1015,7 +1015,9 @@ function renderNativeFieldOverlay(payload,param,model){
   clearModelContours();contourSource=null;additionalContourSources=[];
   updateMapLegend(null,null,null,null);
   const prefix='native_'+model+'_';if(!param.startsWith(prefix))return false;
-  const shortName=param.slice(prefix.length),field=model==='RAP'?findRapSurfaceField(payload,[shortName]):findHrrrField(payload,[shortName]);
+  const fieldKey=selectedTileFieldKey(model,param,payload);
+  const field=fieldKey&&payload.fields?payload.fields[fieldKey]:null;
+  const shortName=field&&field.short_name?field.short_name:param.slice(prefix.length);
   if(!field){document.getElementById('mapChip').textContent=model+' '+shortName+' is not present in this forecast hour; no substitute shown';return true;}
   const data=squeezeRap2D(field.data),grid=payload.grids?.[field.grid_id];
   if(!data||!grid){document.getElementById('mapChip').textContent=field.long_name+' is not a two-dimensional field in this model file';return true;}
@@ -1219,12 +1221,12 @@ function clearPreRenderedModelLayers(){
   if(preRenderedContourLayer){map.removeLayer(preRenderedContourLayer);preRenderedContourLayer=null;}
 }
 async function renderPublishedModelTiles(payload,model,param){
-  const shortName=selectedTileShortName(model,param);
-  if(!shortName)return false;
+  const fieldKey=selectedTileFieldKey(model,param,payload);
+  if(!fieldKey)return false;
   let catalog;
   try{catalog=await loadModelTileCatalog();}
   catch(error){return false;}
-  const product=(catalog.products||[]).find(item=>item.model===model&&item.cycle_utc===payload.model_cycle_utc&&Number(item.forecast_hour)===Number(payload.forecast_hour)&&item.short_name===shortName);
+  const product=(catalog.products||[]).find(item=>item.model===model&&item.cycle_utc===payload.model_cycle_utc&&Number(item.forecast_hour)===Number(payload.forecast_hour)&&item.field_key===fieldKey);
   if(!product)return false;
   currentTileProduct=product;
   clearPreRenderedModelLayers();
