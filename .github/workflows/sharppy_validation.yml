@@ -5,7 +5,8 @@ on:
     paths:
       - "mesoscale/sharppy_adapter.py"
       - "mesoscale/cross_section.py"
-      - "mesoscale/tests/test_cross_section_engine.py"
+      - "mesoscale/tests/test_cross_section_engine.py mesoscale/tests/test_rap_archive_inventory.py"
+      - "mesoscale/tests/test_rap_archive_inventory.py"
       - "mesoscale/environment-sharppy.yml"
       - "mesoscale/tests/test_sharppy_adapter.py"
       - ".github/workflows/sharppy_validation.yml"
