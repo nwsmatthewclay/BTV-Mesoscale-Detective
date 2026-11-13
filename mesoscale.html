@@ -861,6 +861,7 @@ function updateParameterOptions(){
   const categorySelect=document.getElementById('category');
   const select=document.getElementById('parameter');
   const isModelAvailable=option=>{
+    if(option.dataset.model)return option.dataset.model===model;
     const hrrrOption=option.value.startsWith('hrrr_');
     return model==='HRRR'?hrrrOption:!hrrrOption;
   };
