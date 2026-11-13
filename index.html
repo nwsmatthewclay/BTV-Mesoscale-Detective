@@ -147,7 +147,7 @@ async function runRapCrossSection(points){
   const config=CROSS_SECTION_VARIABLES[variableId];
   if(!config)throw new Error('Select a supported vertical variable');
   if(document.getElementById('model').value!=='RAP'){
-    status.textContent='Vertical cross-sections require RAP hybrid-level data; HRRR currently contains only a verified surface archive.';
+    status.textContent='Cross-sections require RAP hybrid-level profiles. Vertical cross-sections require RAP hybrid-level data; HRRR currently contains only a verified surface archive.';
     return;
   }
   if(!Array.isArray(points)||points.length!==2)throw new Error('A transect requires exactly two map points');
