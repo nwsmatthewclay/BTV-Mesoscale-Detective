@@ -165,7 +165,7 @@ def fetch_indexed_message(
 
 def validate_decoded_cycle(decoded: dict, cycle_utc: str) -> None:
     """Reject decoded GRIB messages whose reference date/time differs from the selected cycle."""
-    match = re.match(r"^(\\d{4})-?(\\d{2})-?(\\d{2})T(\\d{2})", cycle_utc)
+    match = re.match(r"^(\d{4})-?(\d{2})-?(\d{2})T(\d{2})", cycle_utc)
     if not match:
         raise ValueError(f"Invalid model cycle timestamp: {cycle_utc!r}")
     expected_date = int("".join(match.group(index) for index in (1, 2, 3)))

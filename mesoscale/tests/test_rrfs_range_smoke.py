@@ -136,7 +136,7 @@ def test_run_smoke_downloads_and_decodes_only_bounded_messages():
         "url": f"https://example.test/{filename}",
         "index": {
             "url": f"https://example.test/{filename}.idx",
-            "message_count": 3,
+            "message_count": 5,
             "messages": [
                 {"message": "1", "byte_offset": 0, "short_name": "REFC"},
                 {"message": "2", "byte_offset": 100, "short_name": "TMP"},
@@ -211,7 +211,7 @@ def test_validate_decoded_cycle_checks_reference_date_and_time():
     )
     validate_decoded_cycle(
         {"data_date": 20261112, "data_time": 2300},
-        "20261112T23:00:00Z",
+        "2026-11-12T23:00:00Z",
     )
     with pytest.raises(RuntimeError, match="reference time mismatch"):
         validate_decoded_cycle(
