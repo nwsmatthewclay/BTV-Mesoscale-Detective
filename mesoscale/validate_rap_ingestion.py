@@ -161,7 +161,7 @@ def main() -> None:
         field_path = OUT / f"rap_f{int(product['forecast_hour']):02d}_btv.json.gz"
         payload = process_file(
             target, "RAP", product["cycle_utc"], int(product["forecast_hour"]),
-            field_path, max_grid_dim=160
+            field_path, max_grid_dim=320
         )
         required_fields = {"t", "gh", "u", "v"}
         extracted_short_names = {item["short_name"] for item in payload["fields"].values()}
