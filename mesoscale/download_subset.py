@@ -17,7 +17,7 @@ import requests
 
 BASE = "https://nomads.ncep.noaa.gov/cgi-bin"
 REGION = {"leftlon": -78.5, "rightlon": -68.0, "toplat": 48.0, "bottomlat": 40.0}
-MAX_DOWNLOAD_BYTES = 100_000_000
+MAX_DOWNLOAD_BYTES = 250_000_000
 
 RAP_PRODUCT = "pressure_levels_conus_13km"
 HRRR_PRODUCT = "surface"
