@@ -481,10 +481,11 @@ function updateMapLegend(label,min,max,units,rangeLabel='fixed display scale'){
     el.innerHTML='<div class="legend-title">Map base · OpenStreetMap</div><div class="legend-subtitle">Select a model field to display its color scale</div>';return;
   }
   // Always use ordinary decimal labels. Never expose JavaScript exponential notation.
-  const fmt=v=>Number(v.toFixed(2)).toLocaleString('en-US',{maximumFractionDigits:2});
+  const interval=(max-min)/4,precision=interval>=1?0:interval>=0.1?1:2;
+  const fmt=v=>Number(v.toFixed(precision)).toLocaleString('en-US',{maximumFractionDigits:precision});
   const ticks=Array.from({length:5},(_,i)=>min+(max-min)*i/4);
   const contourText=document.getElementById('contours')?.checked?'Contours on':'Contours off';
-  el.innerHTML='<div class="legend-title">'+label+'</div><div class="legend-scale"></div><div class="legend-ticks">'+ticks.map(v=>'<span>'+fmt(v)+'</span>').join('')+'</div><div class="legend-units">'+(units||'units unavailable')+' · '+rangeLabel+'</div><div class="legend-subtitle">'+contourText+' · hover a line for its value</div>';
+  el.innerHTML='<div class="legend-title">'+label+'</div><div class="legend-scale"></div><div class="legend-ticks">'+ticks.map(v=>'<span>'+fmt(v)+'</span>').join('')+'</div><div class="legend-units">'+(units||'units unavailable')+'</div><div class="legend-subtitle">'+contourText+' · hover a line for its value</div>';
 }
 
 let modelOverlayLayer=null;
