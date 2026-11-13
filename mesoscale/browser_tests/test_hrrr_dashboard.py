@@ -350,7 +350,8 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
             )
             raise AssertionError(f"RAP transect did not finish: {state}; page errors: {page_errors}; console errors: {console_errors}") from exc
         cross_status = page.locator("#crossSectionStatus").inner_text()
-        assert "nearest-grid samples" in cross_status, f"RAP transect failed: {cross_status}"
+        assert "distinct native-grid columns" in cross_status, f"RAP transect failed: {cross_status}"
+        assert "native RAP (~13 km)" in cross_status, f"Cross-section must report native horizontal resolution: {cross_status}"
 
         browser.close()
 
