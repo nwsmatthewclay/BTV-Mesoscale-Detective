@@ -5,4 +5,5 @@ dependencies:
   - python=3.10
   - numpy<2
   - sharppy
+  - metpy
   - pytest
