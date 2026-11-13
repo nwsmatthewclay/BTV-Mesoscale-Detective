@@ -3,6 +3,7 @@ import json
 from datetime import datetime, timedelta
 
 from mesoscale.build_rap_forecast_archive import archive_needs_update, choose_cycle_products
+from mesoscale.process_grib import DOMAIN
 
 
 def product(cycle, hour, family="hybrid_levels_conus_13km"):
@@ -146,6 +147,7 @@ def write_rap_archive_files(archive_root, archive):
             "model_cycle_utc": archive["model_cycle_utc"],
             "forecast_hour": entry["forecast_hour"],
             "valid_time_utc": entry["valid_time_utc"],
+            "domain": DOMAIN,
             "fields": {"temperature": {"short_name": "t"}},
             "grids": {"hybrid": {"shape": [1, 1]}},
             "quality": {"field_count": 1, "grid_count": 1},
