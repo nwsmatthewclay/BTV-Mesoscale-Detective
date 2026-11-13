@@ -1,19 +1,49 @@
 import pytest
 
-from mesoscale.discover_models import RAP_FILENAME_RE, index_summary, rap_product_role
-from mesoscale.discover_models import RRFS_CYCLE_DIR_RE, RRFS_FILENAME_RE, prioritize_latest_products
+from mesoscale.discover_models import (
+    RAP_FILENAME_RE,
+    RRFS_CYCLE_DIR_RE,
+    RRFS_FILENAME_RE,
+    index_summary,
+    prioritize_latest_products,
+    rap_product_role,
+    rrfs_product_role,
+)
 
 
 def test_rrfs_pressure_level_filename():
     match = RRFS_FILENAME_RE.fullmatch("rrfs.t12z.prslev.3km.f018.conus.grib2")
-    assert match.groups() == ("12", "prslev", "018")
+    assert match is not None
+    assert match.groupdict() == {
+        "cycle": "12",
+        "family": "prslev",
+        "subhourly": None,
+        "forecast": "018",
+    }
+    assert rrfs_product_role(match.group("family")) == "pressure_levels_3km"
 
 
-def test_rrfs_surface_and_subhourly_filenames():
+def test_rrfs_surface_and_official_subhourly_filenames():
     surface = RRFS_FILENAME_RE.fullmatch("rrfs.t03z.2dfld.3km.f006.conus.grib2")
-    subhourly = RRFS_FILENAME_RE.fullmatch("rrfs.t21z.2dfld.subh.3km.f003.conus.grib2")
-    assert surface.groups() == ("03", "2dfld", "006")
-    assert subhourly.groups() == ("21", "2dfld.subh", "003")
+    subhourly = RRFS_FILENAME_RE.fullmatch("rrfs.t21z.2dfld.3km.subh.f003.conus.grib2")
+    assert surface is not None
+    assert subhourly is not None
+    assert surface.groupdict() == {
+        "cycle": "03",
+        "family": "2dfld",
+        "subhourly": None,
+        "forecast": "006",
+    }
+    assert subhourly.groupdict() == {
+        "cycle": "21",
+        "family": "2dfld",
+        "subhourly": ".subh",
+        "forecast": "003",
+    }
+    assert rrfs_product_role("2dfld") == "surface_2d_3km"
+    assert rrfs_product_role("2dfld", subhourly=True) == "surface_subhourly_3km"
+    # Reject the previously assumed token order; NOMADS uses 2dfld.3km.subh.
+    assert RRFS_FILENAME_RE.fullmatch("rrfs.t21z.2dfld.subh.3km.f003.conus.grib2") is None
 
 
 def test_rrfs_cycle_directory_is_two_digits():

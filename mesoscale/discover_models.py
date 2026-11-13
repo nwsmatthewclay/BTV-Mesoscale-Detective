@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Discover recent RAP/HRRR GRIB2 products and inspect their indexes.
+"""Discover recent RAP/HRRR/RRFS GRIB2 products and inspect their indexes.
 
 This is a discovery/metadata step, not a bulk downloader. It probes the
 official NCEP production directory listings, selects recent files using
@@ -28,7 +28,7 @@ HEADERS = {"User-Agent": "BTV-Mesoscale-Detective/0.1 (NWS forecast office resea
 TIMEOUT = 25
 RAP_FILENAME_RE = re.compile(r"rap\.t(\d{2})z\.(awp130[bp]grb|awip32)f(\d{2,3})\.grib2$")
 RRFS_FILENAME_RE = re.compile(
-    r"rrfs\.t(\d{2})z\.(prslev|2dfld|2dfld\.subh)\.3km\.f(\d{3})\.conus\.grib2$"
+    r"rrfs\.t(?P<cycle>\d{2})z\.(?P<family>prslev|2dfld)\.3km(?P<subhourly>\.subh)?\.f(?P<forecast>\d{3})\.conus\.grib2$"
 )
 RRFS_CYCLE_DIR_RE = re.compile(r"\d{2}")
 
@@ -93,6 +93,17 @@ def rap_product_role(family: str) -> str:
         "awp130pgrb": "pressure_levels_conus_13km",
         "awip32": "north_american_32km",
     }[family]
+
+
+def rrfs_product_role(family: str, subhourly: bool = False) -> str:
+    """Normalize RRFS 3-km filename variants to explicit product roles."""
+    if family == "prslev" and not subhourly:
+        return "pressure_levels_3km"
+    if family == "2dfld" and subhourly:
+        return "surface_subhourly_3km"
+    if family == "2dfld":
+        return "surface_2d_3km"
+    raise ValueError(f"Unsupported RRFS product family: {family}")
 
 
 def discover_model(session, model, days_back):
@@ -170,14 +181,15 @@ def discover_rrfs(session, days_back):
                 match = pattern.match(filename)
                 if not match:
                     continue
-                cycle, family, forecast = match.groups()
+                cycle = match.group("cycle")
+                family = match.group("family")
+                forecast = match.group("forecast")
+                subhourly = bool(match.group("subhourly"))
                 found.append({
                     "model": "RRFS", "date": date_str,
                     "cycle_utc": f"{date_str}T{cycle}:00:00Z",
                     "forecast_hour": int(forecast),
-                    "product": {"prslev": "pressure_levels_3km",
-                                "2dfld": "surface_2d_3km",
-                                "2dfld.subh": "surface_subhourly_3km"}[family],
+                    "product": rrfs_product_role(family, subhourly=subhourly),
                     "resolution_km": 3, "domain": "conus",
                     "filename": filename, "url": url,
                 })
