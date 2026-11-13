@@ -76,6 +76,8 @@ def test_model_tile_frontend_uses_catalog_and_keeps_pages_sources_synchronized()
     assert "function selectedTileFieldKey(model,param,payload)" in html
     assert "item.field_key===fieldKey" in html
     assert "option.dataset.fieldKey=fieldKey" in html
+    assert "for(const [fieldKey,field] of Object.entries(payload.fields||{}))" in html
+    assert "staticNames.has(shortName)" not in html
     assert "map.on('mousemove'" in html
     assert "stateBoundaryPane" in html
     assert "countyBoundaryPane" in html
