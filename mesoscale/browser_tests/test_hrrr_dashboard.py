@@ -335,7 +335,7 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
             page.wait_for_function(
                 """() => {
                     const status = document.querySelector('#crossSectionStatus')?.textContent || '';
-                    return status.includes('nearest-grid samples') || status.startsWith('Cross-section unavailable:');
+                    return status.includes('distinct native-grid columns') || status.startsWith('Cross-section unavailable:');
                 }""",
                 timeout=60000,
             )
