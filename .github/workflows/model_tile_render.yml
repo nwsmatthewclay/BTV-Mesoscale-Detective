@@ -1,0 +1,96 @@
+name: Render RAP and HRRR Model Tiles
+
+on:
+  workflow_run:
+    workflows:
+      - RAP BTV Ingestion and Forecast Archive
+      - HRRR BTV Surface Ingestion and Archive
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mesoscale-model-tile-render
+  cancel-in-progress: false
+
+jobs:
+  render-and-publish:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Check out latest model archives
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install rendering dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install numpy scipy matplotlib pillow pyproj pytest
+      - name: Run renderer tests
+        run: pytest -q mesoscale/tests/test_model_tiles.py
+      - name: Render verified RAP and HRRR surface fields
+        run: |
+          set -euo pipefail
+          render_archive() {
+            local manifest="$1"
+            local model="$2"
+            [[ -f "$manifest" ]] || return 0
+            python - "$manifest" "$model" <<'PY'
+          import gzip, json, subprocess, sys
+          from pathlib import Path
+          manifest_path, model = Path(sys.argv[1]), sys.argv[2]
+          manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+          if manifest.get("model") != model:
+              raise SystemExit(f"Expected {model} archive in {manifest_path}")
+          if (manifest.get("quality") or {}).get("status") != "passed":
+              raise SystemExit(f"Refusing to render unverified {model} archive")
+          root = manifest_path.parent
+          allow = {
+              "RAP": ["2t", "2d", "cape", "pwat"],
+              "HRRR": ["2t", "2d", "gust", "refc", "vis", "cin", "blh"]
+          }[model]
+          for hour in manifest.get("hours", []):
+              grid_path = root / hour["grid_file"]
+              if not grid_path.is_file():
+                  raise SystemExit(f"Missing {model} grid {grid_path}")
+              with gzip.open(grid_path, "rt", encoding="utf-8") as stream:
+                  payload = json.load(stream)
+              if payload.get("model") != model or payload.get("model_cycle_utc") != manifest.get("model_cycle_utc"):
+                  raise SystemExit(f"{model} grid provenance mismatch: {grid_path}")
+              available = {}
+              for key, field in payload.get("fields", {}).items():
+                  if field.get("short_name") in allow:
+                      import numpy as np
+                      data = np.squeeze(np.asarray(field.get("data"), dtype=float))
+                      if data.ndim == 2:
+                          available.setdefault(field["short_name"], key)
+              for short_name, key in available.items():
+                  subprocess.run([
+                      sys.executable, "mesoscale/render_model_tiles.py",
+                      "--input", str(grid_path), "--field", key,
+                      "--zoom-min", "3", "--zoom-max", "7"
+                  ], check=True)
+          PY
+          }
+          render_archive mesoscale/data/fields/forecast/forecast_manifest.json RAP
+          render_archive mesoscale/data/fields/hrrr/hrrr_forecast_manifest.json HRRR
+      - name: Publish tile archive
+        run: |
+          git pull --rebase origin main
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A mesoscale/data/model_tiles/
+          if git diff --cached --quiet; then
+            echo "Model tiles unchanged."
+            exit 0
+          fi
+          git commit -m "Publish zoomable RAP and HRRR model tiles"
+          git push
