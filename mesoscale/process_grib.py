@@ -90,7 +90,7 @@ def attr_value(value):
 
 
 def process_file(path: Path, model: str, cycle: str, forecast_hour: int,
-                 output: Path, max_grid_dim: int = 160):
+                 output: Path, max_grid_dim: int = 320):
     import cfgrib
     datasets = cfgrib.open_datasets(str(path), backend_kwargs={"indexpath": ""})
     fields = {}
