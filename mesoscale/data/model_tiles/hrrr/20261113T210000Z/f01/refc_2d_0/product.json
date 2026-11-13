@@ -1,0 +1,55 @@
+{
+  "model": "HRRR",
+  "cycle_utc": "20261113T21:00:00Z",
+  "forecast_hour": 1,
+  "valid_time_utc": "2026-11-13T22:00:00Z",
+  "field_key": "refc_2d_0",
+  "short_name": "refc",
+  "long_name": "Maximum/Composite radar reflectivity",
+  "units": "dB",
+  "source_units": "dB",
+  "display_transform": {
+    "scale": 1.0,
+    "offset": 0.0
+  },
+  "source_grid_shape": [
+    153,
+    145
+  ],
+  "render_grid_shape": [
+    153,
+    145
+  ],
+  "source_grid_id": "grid_0",
+  "source_grid_stride": 5,
+  "render_stride": 1,
+  "source_effective_spacing_m": {
+    "x": 15000.0,
+    "y": 15000.0
+  },
+  "render_effective_spacing_m": {
+    "x": 15000.0,
+    "y": 15000.0
+  },
+  "display_range": [
+    -10.0,
+    16.14239999999998
+  ],
+  "contour_interval": 5,
+  "contour_levels": [
+    -10.0,
+    -5.0,
+    0.0,
+    5.0,
+    10.0,
+    15.0
+  ],
+  "tile_size": 256,
+  "zoom_min": 3,
+  "zoom_max": 6,
+  "tile_count": 51,
+  "contour_feature_count": 968,
+  "tile_url": "hrrr/20261113T210000Z/f01/refc_2d_0/tiles/{z}/{x}/{y}.png",
+  "contour_url": "hrrr/20261113T210000Z/f01/refc_2d_0/contours.geojson",
+  "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling"
+}
