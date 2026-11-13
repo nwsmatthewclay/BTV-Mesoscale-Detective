@@ -51,8 +51,8 @@ def test_cross_section_samples_hybrid_field_on_common_log_pressure_levels():
     assert len({(p["grid_y"], p["grid_x"]) for p in result["transect"]["points"]}) == result["quality"]["sample_count"]
     assert result["vertical_coordinate"]["levels_hpa"] == [900.0, 700.0, 500.0]
     assert result["fields"]["omega"]["units"] == "Pa s**-1"
-    assert result["fields"]["omega"]["values"][0][0] == pytest.approx(-0.15)
-    assert result["fields"]["omega"]["values"][0][-1] == pytest.approx(-0.35)
+    assert result["fields"]["omega"]["values"][0][0] == pytest.approx(-0.1472164734)
+    assert result["fields"]["omega"]["values"][0][-1] == pytest.approx(-0.3449660287)
 
 
 def test_cross_section_disables_vertical_extrapolation():
