@@ -122,8 +122,31 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
 
         # Analysis workspaces appear on demand without forcing the default map view to scroll.
         page.locator('#tabs button[data-tab="cross"]').click()
-        assert page.locator("#crossSectionPlot").is_visible()
-        assert not page.locator("#trend").is_visible()
+        page.wait_for_timeout(50)
+        cross_state = page.evaluate(
+            """() => {
+                const workspace = document.querySelector(".bottom-grid");
+                const crossPanel = workspace?.children[0];
+                const plot = document.querySelector("#crossSectionPlot");
+                const rect = plot?.getBoundingClientRect();
+                return {
+                    activeTab: document.body.dataset.activeTab,
+                    windowActiveTab: window.activeTab,
+                    workspaceInlineDisplay: workspace?.style.display,
+                    workspaceComputedDisplay: workspace ? getComputedStyle(workspace).display : null,
+                    workspaceChildren: workspace?.children.length,
+                    crossPanelInlineDisplay: crossPanel?.style.display,
+                    crossPanelComputedDisplay: crossPanel ? getComputedStyle(crossPanel).display : null,
+                    plotWidth: rect?.width,
+                    plotHeight: rect?.height
+                };
+            }"""
+        )
+        assert cross_state["activeTab"] == "cross" and cross_state["workspaceComputedDisplay"] == "grid" and cross_state["plotHeight"] > 0, {
+            "state": cross_state, "pageErrors": page_errors, "consoleErrors": console_errors
+        }
+        assert page.locator("#crossSectionPlot").is_visible(), cross_state
+        assert not page.locator("#trend").is_visible(), cross_state
         page.locator('#tabs button[data-tab="environment"]').click()
         assert not page.locator(".bottom-grid").is_visible()
 
