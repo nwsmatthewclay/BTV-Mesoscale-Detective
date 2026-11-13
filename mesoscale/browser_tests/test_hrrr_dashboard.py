@@ -368,15 +368,54 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
             timeout=10000,
         )
 
-        # HRRR adds its own decoded fields, including CAPE, to the same catalog.
+        # HRRR native fields use archive-derived keys, not a fixed short-name option value.
+        # Resolve CAPE from the decoded field metadata and verify its grid before selecting it.
         page.wait_for_function(
-            "() => Array.from(document.querySelector('#parameter').options).some(option => option.value === 'native_HRRR_cape')",
+            """() => Array.from(document.querySelector('#parameter').options).some(option =>
+                option.dataset.nativeField === 'true'
+                && option.dataset.model === 'HRRR'
+                && option.dataset.shortName === 'cape'
+                && Boolean(option.dataset.fieldKey))""",
             timeout=15000,
         )
         page.locator("#category").select_option("thermodynamics")
-        page.locator("#parameter").select_option("native_HRRR_cape")
+        native_cape = page.locator(
+            '#parameter option[data-native-field="true"][data-model="HRRR"][data-short-name="cape"]'
+        ).first
+        native_cape_value = native_cape.get_attribute("value")
+        native_cape_key = native_cape.get_attribute("data-field-key")
+        native_cape_label = native_cape.text_content().split(" · ")[0]
+        assert native_cape_value and native_cape_value.startswith("native_HRRR_key_")
+        assert native_cape_key
+        cape_geometry = page.evaluate(
+            """fieldKey => {
+                const payload = window.hrrrGridPayload;
+                const field = payload?.fields?.[fieldKey];
+                return {
+                    shortName: field?.short_name,
+                    matchingGeometry: Boolean(field && hasMatchingGridGeometry(payload, field)),
+                    selectedKey: selectedTileFieldKey(
+                        "HRRR",
+                        "native_HRRR_key_" + encodeURIComponent(fieldKey),
+                        payload
+                    )
+                };
+            }""",
+            native_cape_key,
+        )
+        assert cape_geometry == {
+            "shortName": "cape",
+            "matchingGeometry": True,
+            "selectedKey": native_cape_key,
+        }, cape_geometry
+        page.locator("#parameter").select_option(native_cape_value)
         page.wait_for_function(
-            "() => document.querySelector('#mapChip').textContent.includes('Convective available potential energy')",
+            """label => {
+                const text = document.querySelector('#mapChip').textContent;
+                return text.includes(label)
+                    && !/could not be rendered|not renderable|not present/.test(text);
+            }""",
+            arg=native_cape_label,
             timeout=15000,
         )
         page.locator("#category").select_option("all")
