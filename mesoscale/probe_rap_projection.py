@@ -8,14 +8,17 @@ frontogenesis diagnostic. It never publishes or commits data.
 from __future__ import annotations
 
 import json
+import sys
 import tempfile
 from pathlib import Path
 
 import requests
 
-from build_rap_forecast_archive import choose_cycle_products, download
-from frontogenesis import build_frontogenesis_cross_section
-from process_grib import process_file
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from mesoscale.build_rap_forecast_archive import choose_cycle_products, download
+from mesoscale.frontogenesis import build_frontogenesis_cross_section
+from mesoscale.process_grib import process_file
 
 
 def main() -> None:
