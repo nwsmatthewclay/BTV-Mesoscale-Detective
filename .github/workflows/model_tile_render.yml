@@ -1,4 +1,5 @@
 name: Render RAP and HRRR Model Tiles
+# Initial five-product publication: RAP 2t/CAPE and HRRR 2t/gust/reflectivity.
 
 on:
   push:
