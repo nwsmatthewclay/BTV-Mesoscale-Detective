@@ -1106,6 +1106,7 @@ async function renderPublishedModelTiles(payload,model,param){
   const product=(catalog.products||[]).find(item=>item.model===model&&item.cycle_utc===payload.model_cycle_utc&&Number(item.forecast_hour)===Number(payload.forecast_hour)&&item.short_name===shortName);
   if(!product)return false;
   clearPreRenderedModelLayers();
+  clearModelContours();contourSource=null;additionalContourSources=[];
   const root='./mesoscale/data/model_tiles/';
   const tileUrl=root+product.tile_url;
   modelOverlayLayer=L.tileLayer(tileUrl,{minZoom:product.zoom_min,maxZoom:product.zoom_max,maxNativeZoom:product.zoom_max,opacity:.94,tms:false,noWrap:true,keepBuffer:3,updateWhenIdle:true}).addTo(map);
