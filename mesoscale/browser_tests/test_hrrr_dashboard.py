@@ -95,16 +95,16 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
                 columns: getComputedStyle(document.querySelector(".layout")).gridTemplateColumns.split(" ").length,
                 mapWidth: document.querySelector("#map").getBoundingClientRect().width,
                 mapHeight: document.querySelector("#map").getBoundingClientRect().height,
-                controls: getComputedStyle(document.querySelector(".control-grid")).gridTemplateColumns.split(" ").length,
-                modelControl: Boolean(document.querySelector(".control-deck #model")),
-                categoryControl: Boolean(document.querySelector(".control-deck #category")),
-                variableControl: Boolean(document.querySelector(".control-deck #parameter"))
+                controlCount: document.querySelectorAll(".model-sidebar #model,.model-sidebar #cycle,.model-sidebar #hour,.model-sidebar #category,.model-sidebar #parameter").length,
+                modelControl: Boolean(document.querySelector(".model-sidebar #model")),
+                categoryControl: Boolean(document.querySelector(".model-sidebar #category")),
+                variableControl: Boolean(document.querySelector(".model-sidebar #parameter"))
             })"""
         )
         assert desktop_layout["columns"] == 2, desktop_layout
         assert desktop_layout["mapWidth"] > 700, desktop_layout
         assert 400 <= desktop_layout["mapHeight"] <= 650, desktop_layout
-        assert desktop_layout["controls"] == 5, desktop_layout
+        assert desktop_layout["controlCount"] == 5, desktop_layout
         assert desktop_layout["modelControl"] and desktop_layout["categoryControl"] and desktop_layout["variableControl"]
         desktop_fit = page.evaluate(
             """() => ({
@@ -135,11 +135,11 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
                 viewportWidth: document.documentElement.clientWidth,
                 documentWidth: document.documentElement.scrollWidth,
                 mapWidth: document.querySelector("#map").getBoundingClientRect().width,
-                controlColumns: getComputedStyle(document.querySelector(".control-grid")).gridTemplateColumns.split(" ").length
+                controlCount: document.querySelectorAll(".model-sidebar #model,.model-sidebar #cycle,.model-sidebar #hour,.model-sidebar #category,.model-sidebar #parameter").length
             })"""
         )
         assert mobile_layout["columns"] == 1, mobile_layout
-        assert mobile_layout["controlColumns"] == 2, mobile_layout
+        assert mobile_layout["controlCount"] == 5, mobile_layout
         assert mobile_layout["documentWidth"] <= mobile_layout["viewportWidth"] + 2, mobile_layout
         assert mobile_layout["mapWidth"] <= mobile_layout["viewportWidth"], mobile_layout
         page.set_viewport_size({"width": 1440, "height": 1000})
@@ -201,11 +201,13 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
 
         # The catalog is built from actual decoded fields, not a fixed menu.
         page.wait_for_function(
-            "() => Array.from(document.querySelector('#parameter').options).some(option => option.value === 'native_RAP_sde')",
+            "() => Array.from(document.querySelector('#parameter').options).some(option => option.dataset.model === 'RAP' && option.dataset.shortName === 'sde' && option.dataset.fieldKey)",
             timeout=15000,
         )
         page.locator("#category").select_option("winter")
-        page.locator("#parameter").select_option("native_RAP_sde")
+        rap_sde_value = page.locator('#parameter option[data-model="RAP"][data-short-name="sde"]').first.get_attribute("value")
+        assert rap_sde_value, "RAP SDE option must reference an exact field key"
+        page.locator("#parameter").select_option(rap_sde_value)
         page.wait_for_function(
             "() => document.querySelector('#mapChip').textContent.includes('Snow depth')",
             timeout=15000,
@@ -280,17 +282,33 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
 
         # HRRR adds its own decoded fields, including CAPE, to the same catalog.
         page.wait_for_function(
-            "() => Array.from(document.querySelector('#parameter').options).some(option => option.value === 'native_HRRR_cape')",
+            "() => Array.from(document.querySelector('#parameter').options).some(option => option.dataset.model === 'HRRR' && option.dataset.shortName === 'cape' && option.dataset.fieldKey)",
             timeout=15000,
         )
         page.locator("#category").select_option("thermodynamics")
-        page.locator("#parameter").select_option("native_HRRR_cape")
+        hrrr_cape_value = page.locator('#parameter option[data-model="HRRR"][data-short-name="cape"]').first.get_attribute("value")
+        assert hrrr_cape_value, "HRRR CAPE option must reference an exact field key"
+        page.locator("#parameter").select_option(hrrr_cape_value)
         page.wait_for_function(
             "() => document.querySelector('#mapChip').textContent.includes('Convective available potential energy')",
             timeout=15000,
         )
         page.locator("#category").select_option("all")
         page.locator("#parameter").select_option("hrrr_temp")
+        page.wait_for_function(
+            "() => window.hrrrGridPayload?.model === 'HRRR' && document.querySelector('#mapChip').textContent.includes('HRRR 2-m temperature')",
+            timeout=15000,
+        )
+        page.evaluate(
+            "window.__testMap.fire('mousemove', { latlng: L.latLng(44.4719, -73.1533) })"
+        )
+        page.wait_for_function(
+            "() => document.querySelector('#cursorValue')?.textContent.includes('nearest native grid')",
+            timeout=15000,
+        )
+        cursor_readout = page.locator("#cursorReadout").inner_text()
+        assert "km" in cursor_readout, cursor_readout
+        assert "e+" not in cursor_readout.lower() and "e-" not in cursor_readout.lower(), cursor_readout
 
         for entry in hrrr["hours"]:
             _select_and_wait_for_hour(page, "HRRR", entry, hrrr["model_cycle_utc"])
@@ -370,7 +388,21 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         assert "HRRR " + hrrr["model_cycle_utc"] in comparison_status
         assert rap["hours"][-1]["valid_time_utc"] in page.locator("#comparisonMeta").inner_text()
         comparison_rows = page.locator("#comparisonRows tr").all_text_contents()
+        assert "Only exact shared valid times are compared" in comparison_status
+        assert "missing fields remain unavailable" in comparison_status
         assert len(comparison_rows) == 3, comparison_rows
+        missing_dewpoint = page.evaluate(
+            """() => {
+                const source = window.rapGridPayload;
+                const fields = Object.fromEntries(
+                    Object.entries(source.fields || {}).filter(([, field]) => !['2d', 'd2m'].includes(field.short_name))
+                );
+                return window.sampleComparableSurface(
+                    {...source, fields}, 'RAP', ['2d', 'd2m'], 44.4719, -73.1533
+                );
+            }"""
+        )
+        assert missing_dewpoint is None, "Missing dewpoint must remain unavailable; no proxy field is allowed"
         assert "Unavailable" not in comparison_rows[0], comparison_rows[0]
         assert "Unavailable" not in comparison_rows[2], comparison_rows[2]
         assert "RAP " in page.locator("#comparisonMeta").inner_text()
