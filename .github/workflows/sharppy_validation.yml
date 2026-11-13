@@ -11,6 +11,12 @@ on:
       - "mesoscale/tests/test_rap_archive_inventory.py"
       - "mesoscale/tests/test_profile_validation.py"
       - "mesoscale/process_grib.py"
+      - "mesoscale/download_subset.py"
+      - "mesoscale/validate_hrrr_archive.py"
+      - "mesoscale/hrrr_tests/**"
+      - "mesoscale/tests/**"
+      - ".github/workflows/rap_ingestion_smoke.yml"
+      - ".github/workflows/hrrr_ingestion_smoke.yml"
       - "mesoscale/inspect_grib.py"
       - "mesoscale/probe_rap_projection.py"
       - "mesoscale/environment-sharppy.yml"
@@ -81,3 +87,22 @@ jobs:
           exit 1
       - name: Test categorized model selector and verified archives
         run: pytest -q mesoscale/browser_tests
+
+
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install full mesoscale test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests numpy xarray cfgrib eccodes metpy pytest
+      - name: Run complete mesoscale and HRRR regression suites
+        env:
+          PYTHONPATH: \${{ github.workspace }}
+        run: pytest -q mesoscale/tests mesoscale/hrrr_tests
