@@ -318,6 +318,14 @@ body{
   body > main.layout > main.layout > .map-panel{min-height:68vh!important;}
   body > main.layout > main.layout #map{min-height:52vh!important;}
 }
+
+/* Geographic context and live cursor sampling overlays. */
+.cursor-readout{position:absolute;z-index:700;top:14px;right:14px;min-width:205px;max-width:min(42%,330px);padding:9px 11px;border:1px solid rgba(123,190,226,.42);border-radius:9px;background:rgba(5,15,29,.92);box-shadow:0 8px 22px rgba(0,0,0,.32);backdrop-filter:blur(9px);pointer-events:none;color:#e9f6ff;font-size:10px;line-height:1.45;font-variant-numeric:tabular-nums}
+.cursor-readout b{display:block;margin-bottom:4px;color:#79e5ec;font-size:8px;letter-spacing:.14em}
+.cursor-readout span{display:block;overflow-wrap:anywhere}
+#cursorCoordinates{color:#b8ccdf}#cursorValue{margin-top:3px;color:#fff;font-weight:700}
+.boundary-attribution{color:#b6c8d8;font-size:9px}
+@media(max-width:620px){.cursor-readout{top:8px;right:8px;min-width:155px;max-width:52%;padding:7px 8px;font-size:9px}.map-chip{max-width:44%;}}
 </style>
 </head>
 <body>
@@ -340,8 +348,8 @@ body{
   </div>
   <div class="sidebar-footer"><span class="sidebar-pulse"></span><span>Verified fields only · source metadata retained</span></div>
 </aside><main class="layout">
-<section class="panel map-panel"><div class="panel-heading"><div><span class="eyebrow">Regional analysis</span><h2 id="mapTitle">Environment · Surface observations</h2></div><span class="eyebrow">BTV forecast area</span></div><div class="map-wrap"><div class="map-corner-label">LIVE MODEL FIELD <span>•</span> NORTHEAST DOMAIN</div><div id="map"></div><div class="map-chip" id="mapChip">BTV CWA · Click map to interrogate a point</div><div class="map-legend" id="mapLegend"><div class="legend-title">Map base · OpenStreetMap</div><div class="legend-subtitle">Select a model field to display its color scale</div></div></div>
-<div class="map-actions"><div class="overlay-tools"><span class="tool-label">Overlays</span><div class="checks"><label><input type="checkbox" checked id="stations"> Stations</label><label><input type="checkbox" id="radar"> MRMS radar</label><label><input type="checkbox" checked id="county"> CWA context</label><label><input type="checkbox" checked id="contours"> Base contours</label><label><input type="checkbox" id="terrain"> Terrain</label></div></div><button class="btn" id="drawTransect">Draw cross-section line</button><button class="btn" id="clearTransect">Clear line</button><button class="btn" id="locateBtv">Select KBTV</button><button class="btn primary" id="reset">Reset view</button><div class="point-badge"><span>Selected point</span><span id="pointReadout"><b>KBTV</b></span><span id="coords">44.4719°N, 73.1533°W</span></div><span id="selectionStatus">Selected: KBTV</span></div></section>
+<section class="panel map-panel"><div class="panel-heading"><div><span class="eyebrow">Regional analysis</span><h2 id="mapTitle">Environment · Surface observations</h2></div><span class="eyebrow">BTV forecast area</span></div><div class="map-wrap"><div class="map-corner-label">LIVE MODEL FIELD <span>•</span> NORTHEAST DOMAIN</div><div id="map"></div><div class="map-chip" id="mapChip">BTV CWA · Move cursor for gridpoint readout</div><div class="cursor-readout" id="cursorReadout" aria-live="polite"><b>CURSOR READOUT</b><span id="cursorCoordinates">Move over the map</span><span id="cursorValue">Select a model field to sample values</span></div><div class="map-legend" id="mapLegend"><div class="legend-title">Map base · OpenStreetMap</div><div class="legend-subtitle">Select a model field to display its color scale</div></div></div>
+<div class="map-actions"><div class="overlay-tools"><span class="tool-label">Overlays</span><div class="checks"><label><input type="checkbox" checked id="stations"> Stations</label><label><input type="checkbox" checked id="stateBoundaries"> State boundaries</label><label><input type="checkbox" checked id="countyBoundaries"> County boundaries</label><label><input type="checkbox" checked id="contours"> Model contours</label></div></div><button class="btn" id="drawTransect">Draw cross-section line</button><button class="btn" id="clearTransect">Clear line</button><button class="btn" id="locateBtv">Select KBTV</button><button class="btn primary" id="reset">Reset view</button><div class="point-badge"><span>Selected point</span><span id="pointReadout"><b>KBTV</b></span><span id="coords">44.4719°N, 73.1533°W</span></div><span id="selectionStatus">Selected: KBTV</span></div></section>
 <aside class="rightcol">
 <section class="panel"><h2>Point diagnostics</h2><div class="metrics" id="metrics"><div class="metric"><span>MUCAPE</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>MLCAPE</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>MLCIN</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>PWAT</span><strong>—</strong><small>mm</small></div><div class="metric"><span>0–6 km shear</span><strong>—</strong><small>kt</small></div><div class="metric"><span>0–1 km SRH</span><strong>—</strong><small>m²/s²</small></div></div><div class="placeholder">RAP profiles are available at the eight listed stations only. Custom map points will not inherit station diagnostics.</div></section>
 
@@ -360,12 +368,86 @@ const REGIONAL_DOMAIN={west:-90.0,east:-60.0,south:32.0,north:55.0};
 const REGIONAL_BOUNDS=[[REGIONAL_DOMAIN.south,REGIONAL_DOMAIN.west],[REGIONAL_DOMAIN.north,REGIONAL_DOMAIN.east]];
 const map=L.map('map',{zoomControl:true,minZoom:4}).fitBounds(REGIONAL_BOUNDS,{padding:[18,18]});
 window.__testMap=map;
+map.createPane('boundaryPane');map.getPane('boundaryPane').style.zIndex=455;map.getPane('boundaryPane').style.pointerEvents='none';
 const baseTiles=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{subdomains:'abc',maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',crossOrigin:true}).addTo(map);
 baseTiles.on('tileerror',()=>{document.getElementById('mapChip').textContent='Basemap tile unavailable · check network access';});
 map.whenReady(()=>setTimeout(()=>map.invalidateSize(true),180));
 window.addEventListener('resize',()=>map.invalidateSize({pan:false}));
 let selected={name:"KBTV",lat:44.4719,lon:-73.1533},markers=[],transect=[],line=null,drawing=false;
 function stationLayer(){markers.forEach(m=>map.removeLayer(m));markers=[];if(!document.getElementById('stations').checked)return;stations.forEach(s=>{const m=L.circleMarker([s[1],s[2]],{radius:s[0]==="KBTV"?7:5,color:"#9de7f1",weight:1.5,fillColor:"#123d59",fillOpacity:.95}).addTo(map).bindTooltip(s[0],{direction:"top"}).on('click',()=>selectPoint(s[1],s[2],s[0]));markers.push(m)});}
+
+const TIGERWEB_BASE='https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer';
+let stateBoundaryLayer=null,countyBoundaryLayer=null,boundaryLoadPromise=null;
+async function loadBoundaryLayers(){
+  if(boundaryLoadPromise)return boundaryLoadPromise;
+  boundaryLoadPromise=(async()=>{
+    const bbox=[REGIONAL_DOMAIN.west,REGIONAL_DOMAIN.south,REGIONAL_DOMAIN.east,REGIONAL_DOMAIN.north].join(',');
+    const queryLayer=async(id)=>{
+      const params=new URLSearchParams({where:'1=1',outFields:'NAME,GEOID',returnGeometry:'true',outSR:'4326',geometry:bbox,geometryType:'esriGeometryEnvelope',spatialRel:'esriSpatialRelIntersects',f:'geojson'});
+      const response=await fetch(TIGERWEB_BASE+'/'+id+'/query?'+params.toString(),{cache:'force-cache'});
+      if(!response.ok)throw new Error('Census TIGERweb layer '+id+' HTTP '+response.status);
+      const data=await response.json();
+      if(data.error)throw new Error(data.error.message||'Census boundary query failed');
+      if(!data.features)throw new Error('Census boundary response contained no features');
+      return data;
+    };
+    const [states,counties]=await Promise.all([queryLayer(0),queryLayer(1)]);
+    stateBoundaryLayer=L.geoJSON(states,{pane:'boundaryPane',interactive:false,style:()=>({color:'#f5e8a8',weight:2.5,opacity:.98,fill:false,lineJoin:'round'})});
+    countyBoundaryLayer=L.geoJSON(counties,{pane:'boundaryPane',interactive:false,style:()=>({color:'#e9f3ff',weight:.85,opacity:.62,fill:false,lineJoin:'round'})});
+    refreshBoundaryVisibility();
+    return {states:states.features.length,counties:counties.features.length};
+  })().catch(error=>{boundaryLoadPromise=null;console.error('State/county boundaries failed to load',error);document.getElementById('mapChip').textContent='Boundary overlay unavailable · '+error.message;throw error;});
+  return boundaryLoadPromise;
+}
+function refreshBoundaryVisibility(){
+  const showStates=document.getElementById('stateBoundaries')?.checked!==false;
+  const showCounties=document.getElementById('countyBoundaries')?.checked!==false;
+  if(stateBoundaryLayer){if(showStates&&!map.hasLayer(stateBoundaryLayer))stateBoundaryLayer.addTo(map);else if(!showStates&&map.hasLayer(stateBoundaryLayer))map.removeLayer(stateBoundaryLayer);}
+  // County lines are intentionally scale-dependent to keep the regional view legible.
+  const countyZoomVisible=map.getZoom()>=5;
+  if(countyBoundaryLayer){if(showCounties&&countyZoomVisible&&!map.hasLayer(countyBoundaryLayer))countyBoundaryLayer.addTo(map);else if((!showCounties||!countyZoomVisible)&&map.hasLayer(countyBoundaryLayer))map.removeLayer(countyBoundaryLayer);}
+}
+document.getElementById('stateBoundaries').addEventListener('change',refreshBoundaryVisibility);
+document.getElementById('countyBoundaries').addEventListener('change',refreshBoundaryVisibility);
+map.on('zoomend',refreshBoundaryVisibility);
+loadBoundaryLayers().catch(()=>{});
+let cursorFramePending=false,lastCursorLatLng=null,currentTileProduct=null;
+function cursorReadout(latlng){
+  const coords=document.getElementById('cursorCoordinates'),value=document.getElementById('cursorValue');
+  if(!latlng){coords.textContent='Move over the map';value.textContent='Select a model field to sample values';return;}
+  const lat=latlng.lat,lon=latlng.lng;
+  coords.textContent=lat.toFixed(3)+'°N, '+Math.abs(lon).toFixed(3)+(lon<0?'°W':'°E');
+  const model=document.getElementById('model')?.value||'RAP',param=document.getElementById('parameter')?.value||'';
+  const payload=model==='HRRR'?window.hrrrGridPayload:window.rapGridPayload;
+  const shortName=selectedTileShortName(model,param);
+  if(!payload||!shortName){value.textContent='No active gridded field';return;}
+  const matches=Object.entries(payload.fields||{}).filter(([key,field])=>(field.short_name===shortName||key===param)&&Array.isArray(field.data)&&Array.isArray(field.data[0])&&!Array.isArray(field.data[0][0]));
+  const field=matches.find(([,f])=>payload.grids?.[f.grid_id]?.latitude&&payload.grids?.[f.grid_id]?.longitude);
+  if(!field){value.textContent='No 2-D grid sample for this variable';return;}
+  const [fieldKey,meta]=field,grid=payload.grids[meta.grid_id];
+  let bestDistance=Infinity,bestValue=null,bestLat=null,bestLon=null;
+  const rad=Math.PI/180,cosLat=Math.cos(lat*rad);
+  for(let y=0;y<grid.latitude.length;y++){
+    const latRow=grid.latitude[y],lonRow=grid.longitude[y],dataRow=meta.data[y];
+    if(!Array.isArray(latRow)||!Array.isArray(lonRow)||!Array.isArray(dataRow))continue;
+    for(let x=0;x<Math.min(latRow.length,lonRow.length,dataRow.length);x++){
+      const glat=latRow[x],glon=lonRow[x],v=dataRow[x];
+      if(!Number.isFinite(glat)||!Number.isFinite(glon)||!Number.isFinite(v))continue;
+      const dy=(glat-lat)*rad,dx=(glon-lon)*rad;
+      const d=dy*dy+Math.pow(dx*cosLat,2);
+      if(d<bestDistance){bestDistance=d;bestValue=v;bestLat=glat;bestLon=glon;}
+    }
+  }
+  if(!Number.isFinite(bestValue)){value.textContent='No valid grid value at this location';return;}
+  const transform=currentTileProduct?.model===model&&currentTileProduct?.short_name===shortName?currentTileProduct.display_transform:{scale:1,offset:0};
+  const shown=bestValue*(Number(transform?.scale)||1)+(Number(transform?.offset)||0);
+  const units=currentTileProduct?.model===model&&currentTileProduct?.short_name===shortName?currentTileProduct.units:(meta.units||'native units');
+  const label=currentTileProduct?.model===model&&currentTileProduct?.short_name===shortName?currentTileProduct.long_name:(meta.long_name||fieldKey);
+  const distanceKm=6371*Math.sqrt(bestDistance);
+  value.textContent=label+': '+shown.toLocaleString('en-US',{maximumFractionDigits:1})+' '+units+' · nearest grid '+distanceKm.toFixed(1)+' km';
+}
+map.on('mousemove',event=>{lastCursorLatLng=event.latlng;if(cursorFramePending)return;cursorFramePending=true;requestAnimationFrame(()=>{cursorFramePending=false;cursorReadout(lastCursorLatLng);});});
+map.on('mouseout',()=>cursorReadout(null));
 function selectPoint(lat,lon,name){selected={name:name||"Custom point",lat,lon};document.getElementById('pointReadout').innerHTML='<span>Location</span><b>'+selected.name+'</b>';document.getElementById('coords').textContent=lat.toFixed(4)+'°N, '+Math.abs(lon).toFixed(4)+'°W';document.getElementById('selectionStatus').textContent='Selected: '+selected.name;document.querySelector('#investigation .detail-line:nth-child(3) b').textContent=selected.name;document.getElementById('mapChip').textContent='Selected '+selected.name+' · '+lat.toFixed(3)+', '+lon.toFixed(3);if(window.loadStationProfile)window.loadStationProfile(selected.name);if(window.activeTab==='evolution'&&window.updateRapTimeEvolution)window.updateRapTimeEvolution();if(window.activeTab==='compare'&&window.updateModelComparison)window.updateModelComparison();}
 map.on('click',e=>{if(drawing){transect.push([e.latlng.lat,e.latlng.lng]);if(transect.length===2){if(line)map.removeLayer(line);line=L.polyline(transect,{color:'#ffd166',weight:3,dashArray:'7 5'}).addTo(map);drawing=false;runRapCrossSection(transect).catch(e=>{console.error('RAP cross-section failed',e);document.getElementById('crossSectionStatus').textContent='Cross-section unavailable: '+e.message;});document.getElementById('drawTransect').textContent='Draw cross-section line';document.getElementById('mapChip').textContent='Transect selected · Cross-Sections tab';}return;}selectPoint(e.latlng.lat,e.latlng.lng,'Custom point');});
 stationLayer();document.getElementById('stations').addEventListener('change',stationLayer);
@@ -1125,6 +1207,7 @@ async function renderPublishedModelTiles(payload,model,param){
   catch(error){return false;}
   const product=(catalog.products||[]).find(item=>item.model===model&&item.cycle_utc===payload.model_cycle_utc&&Number(item.forecast_hour)===Number(payload.forecast_hour)&&item.short_name===shortName);
   if(!product)return false;
+  currentTileProduct=product;
   clearPreRenderedModelLayers();
   clearModelContours();contourSource=null;additionalContourSources=[];
   const root='./mesoscale/data/model_tiles/';
@@ -1150,6 +1233,7 @@ async function updateRapParameter(){
   setContourPanelEnabled(false);
   const model=document.getElementById('model').value;
   const param=document.getElementById('parameter').value;
+  currentTileProduct=null;
   if(param==='surface'){
     updateMapLegend(null,null,null,null);
     clearModelContours();contourSource=null;additionalContourSources=[];setContourPanelEnabled(false);document.getElementById('contourFieldControls').innerHTML='<span class="contour-empty">Waiting for a plotted model variable</span>';
