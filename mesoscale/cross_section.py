@@ -191,8 +191,20 @@ def build_cross_section(payload: Mapping, start: tuple[float, float],
             raise ValueError(f"Field {short_name!r} shape {values.shape} does not match {expected_shape}")
         selected[output_name] = field, values
 
-    points, distances = great_circle_points(start, end, sample_count)
-    indices = _nearest_grid_indices(grid, points)
+    requested_points, requested_distances = great_circle_points(start, end, sample_count)
+    requested_indices = _nearest_grid_indices(grid, requested_points)
+    # A dense display transect can hit the same native grid cell many times.
+    # Keep only the first occurrence of each consecutive native cell so the
+    # section does not imply sub-grid horizontal resolution.
+    samples = []
+    for point, distance, index in zip(requested_points, requested_distances, requested_indices):
+        if not samples or index != samples[-1][2]:
+            samples.append((point, float(distance), index))
+    if len(samples) < 2:
+        raise ValueError("Transect does not cross at least two distinct native grid points")
+    points = [sample[0] for sample in samples]
+    distances = np.asarray([sample[1] for sample in samples], dtype=float)
+    indices = [sample[2] for sample in samples]
     sampled = {name: [] for name in selected}
     for iy, ix in indices:
         column_pressure = pressure_data[:, iy, ix]
@@ -235,6 +247,8 @@ def build_cross_section(payload: Mapping, start: tuple[float, float],
         "quality": {
             "status": "passed",
             "sample_count": len(points),
+            "requested_sample_count": int(sample_count),
+            "duplicate_native_grid_samples_removed": int(sample_count - len(points)),
             "native_grid_sampling": True,
             "vertical_interpolation": "linear in log-pressure",
             "extrapolation": "disabled; out-of-column values are null",
