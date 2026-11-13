@@ -1190,11 +1190,29 @@ async function loadModelTileCatalog(){
   if(!modelTileCatalogPromise)modelTileCatalogPromise=fetch('./mesoscale/data/model_tiles/catalog.json?ts='+Date.now(),{cache:'no-store'}).then(response=>{if(!response.ok)throw new Error('tile catalog HTTP '+response.status);return response.json();});
   return modelTileCatalogPromise;
 }
-function selectedTileShortName(model,param){
+function selectedTileShortName(model,param,payload){
+  if(param.startsWith('native_'+model+'_key_')){
+    const key=decodeURIComponent(param.slice(('native_'+model+'_key_').length));
+    return payload&&payload.fields&&payload.fields[key]?payload.fields[key].short_name:null;
+  }
   if(param.startsWith('native_'+model+'_'))return param.slice(('native_'+model+'_').length);
   if(model==='RAP')return ({cape:'cape',pwat:'pwat'})[param]||null;
   if(model==='HRRR')return ({hrrr_temp:'2t',hrrr_dewpoint:'2d',hrrr_gust:'gust',hrrr_refc:'refc',hrrr_vis:'vis',hrrr_cin:'cin',hrrr_blh:'blh'})[param]||null;
   return null;
+}
+function selectedTileFieldKey(model,param,payload){
+  if(param.startsWith('native_'+model+'_key_')){
+    try{return decodeURIComponent(param.slice(('native_'+model+'_key_').length));}catch(_){return null;}
+  }
+  const shortName=selectedTileShortName(model,param,payload);
+  if(!shortName||!payload||!payload.fields)return null;
+  const preferred=model==='RAP'?findRapSurfaceField(payload,[shortName]):findHrrrField(payload,[shortName]);
+  if(preferred){
+    const pair=Object.entries(payload.fields).find(entry=>entry[1]===preferred);
+    if(pair)return pair[0];
+  }
+  const pair=Object.entries(payload.fields).find(entry=>entry[1].short_name===shortName&&squeezeRap2D(entry[1].data));
+  return pair?pair[0]:null;
 }
 function clearPreRenderedModelLayers(){
   if(modelOverlayLayer){map.removeLayer(modelOverlayLayer);modelOverlayLayer=null;}
