@@ -147,7 +147,7 @@ jobs:
               model_products = [product for product in products if product["model"] == model]
               if not model_products:
                   raise SystemExit(f"No eligible 2-D {model} model tile products were generated")
-                    print(f"Published {len(products)} initial model tile products")
+          print(f"Published {len(products)} model tile products")
           PY
       - name: Publish tile archive
         run: |
