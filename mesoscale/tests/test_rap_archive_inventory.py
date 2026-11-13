@@ -4,6 +4,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from mesoscale.cross_section import build_cross_section
+from mesoscale.sharppy_adapter import calculate_sharppy_diagnostics
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -62,3 +63,17 @@ def test_print_verified_rap_field_inventory():
     assert section["quality"]["sample_count"] >= 2
     assert len(section["fields"]["omega"]["values"]) == section["quality"]["sample_count"]
     assert len(section["fields"]["omega"]["values"][0]) == 10
+
+
+
+def test_sharppy_calculates_from_real_archived_kbtv_rap_profile():
+    station_archive = ARCHIVE.with_name("rap_f00_stations.json")
+    assert station_archive.is_file()
+    payload = json.loads(station_archive.read_text(encoding="utf-8"))
+    profile = payload["stations"]["KBTV"]["profile"]
+    result = calculate_sharppy_diagnostics(profile)
+
+    assert result["library"] == "SHARPpy"
+    assert result["quality"]["input_levels"] == 50
+    assert set(result["parcels"]) == {"surface", "most_unstable", "mixed_layer"}
+    assert result["units"]["cape"] == "J/kg"
