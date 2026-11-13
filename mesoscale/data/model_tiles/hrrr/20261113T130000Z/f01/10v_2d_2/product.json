@@ -1,0 +1,45 @@
+{
+  "model": "HRRR",
+  "cycle_utc": "20261113T13:00:00Z",
+  "forecast_hour": 1,
+  "valid_time_utc": "2026-11-13T14:00:00Z",
+  "field_key": "10v_2d_2",
+  "short_name": "10v",
+  "long_name": "10 metre V wind component",
+  "units": "m s**-1",
+  "source_units": "m s**-1",
+  "display_transform": {
+    "scale": 1.0,
+    "offset": 0.0
+  },
+  "source_grid_shape": [
+    153,
+    145
+  ],
+  "source_grid_id": "grid_2",
+  "display_range": [
+    -11.68,
+    8.89
+  ],
+  "contour_interval": 2,
+  "contour_levels": [
+    -10.0,
+    -8.0,
+    -6.0,
+    -4.0,
+    -2.0,
+    0.0,
+    2.0,
+    4.0,
+    6.0,
+    8.0
+  ],
+  "tile_size": 256,
+  "zoom_min": 3,
+  "zoom_max": 6,
+  "tile_count": 51,
+  "contour_feature_count": 865,
+  "tile_url": "hrrr/20261113T130000Z/f01/10v_2d_2/tiles/{z}/{x}/{y}.png",
+  "contour_url": "hrrr/20261113T130000Z/f01/10v_2d_2/contours.geojson",
+  "rendering": "linear interpolation from native model grid; contours calculated independently on native geographic grid"
+}

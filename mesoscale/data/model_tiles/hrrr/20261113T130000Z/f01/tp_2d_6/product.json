@@ -1,0 +1,43 @@
+{
+  "model": "HRRR",
+  "cycle_utc": "20261113T13:00:00Z",
+  "forecast_hour": 1,
+  "valid_time_utc": "2026-11-13T14:00:00Z",
+  "field_key": "tp_2d_6",
+  "short_name": "tp",
+  "long_name": "Total Precipitation",
+  "units": "kg m**-2",
+  "source_units": "kg m**-2",
+  "display_transform": {
+    "scale": 1.0,
+    "offset": 0.0
+  },
+  "source_grid_shape": [
+    153,
+    145
+  ],
+  "source_grid_id": "grid_6",
+  "display_range": [
+    0.0,
+    0.67
+  ],
+  "contour_interval": 0.1,
+  "contour_levels": [
+    0.0,
+    0.1,
+    0.2,
+    0.30000000000000004,
+    0.4,
+    0.5,
+    0.6000000000000001,
+    0.7000000000000001
+  ],
+  "tile_size": 256,
+  "zoom_min": 3,
+  "zoom_max": 6,
+  "tile_count": 51,
+  "contour_feature_count": 586,
+  "tile_url": "hrrr/20261113T130000Z/f01/tp_2d_6/tiles/{z}/{x}/{y}.png",
+  "contour_url": "hrrr/20261113T130000Z/f01/tp_2d_6/contours.geojson",
+  "rendering": "linear interpolation from native model grid; contours calculated independently on native geographic grid"
+}
