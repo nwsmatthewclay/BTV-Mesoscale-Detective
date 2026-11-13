@@ -104,3 +104,18 @@ The model discovery service now includes the operational RRFS deterministic CONU
 The RRFS option remains disabled in mesoscale.html. Discovery is wired into the manifest workflow, and regression tests cover all three RRFS filename families and the two-digit cycle-directory convention. A prior scheduled discovery run succeeded, but the RAP-owned minute-47 UTC schedule has not yet produced a post-change scheduled run in the inspected history; hourly unattended refresh remains unverified. Push and workflow-run triggers are verified. A previous over-escaped regular expression was corrected. RRFS regional archive publication remains disabled. The read-only range smoke test has confirmed NOMADS HTTP 206 responses, exact Content-Range offsets, complete GRIB message boundaries, matching GRIB reference time, and ecCodes decoding. In successful run [43351175252](https://github.com/nwsmatthewclay/BTV-Mesoscale-Detective/actions/runs/43351175252), the 00Z F001 product supplied TMP, DPT, UGRD and VGRD messages; each decoded to 1,905,141 finite values. The Lambert grid is 1,799 × 1,059, and 12,006 grid points fall inside the padded BTV rectangle. The test is still read-only: it does not write a cropped grid or publish meteorological fields. The 3-km RRFS pressure-level file remains the intended future source for column diagnostics; 2-D products supply near-term fields such as composite reflectivity, CAPE/CIN, gusts, visibility and precipitation diagnostics. Sub-hourly `2dfld.3km.subh` files use 15-minute forecast steps: F001 represents 15 minutes and F003 represents 45 minutes. Discovery records these as `forecast_step`, `forecast_lead_minutes` and `forecast_interval_minutes`, not integer `forecast_hour` values.
 
 NOMADS currently lists RRFS under HTTPS distribution without a GRIB-filter entry. Indexed HTTP range acquisition and BTV geographic coverage are now verified for a small set of messages; extracting the actual regional grid window, multi-hour consistency and a complete field inventory remain to be tested before automated RRFS publication. The RRFS/REFS transition and current product naming are documented in the NWS implementation notice and NCEP RRFS product inventory.
+
+## SHARPpy sounding diagnostics (optional integration)
+
+The RAP profile extractor now includes a separate `sharppy` result block for each extracted profile. It reports `passed`, `not_installed`, or `failed` independently of the existing MetPy diagnostics; a SHARPpy failure does not invalidate or replace the verified source profile.
+
+Install the optional dependency in an isolated environment with:
+
+```bash
+python -m pip install -r mesoscale/requirements-sharppy.txt
+pytest -q mesoscale/tests/test_sharppy_adapter.py
+```
+
+The adapter converts the repository's profile contract explicitly (K to °C, m/s to kt) before calling SHARPpy. It returns surface, most-unstable and mixed-layer parcel diagnostics, Bunkers storm motion, 0–1 km SRH and 0–6 km bulk shear. SHARPpy outputs are kept separate from the existing MetPy calculations so forecasters can compare methods and provenance.
+
+SHARPpy is an optional dependency at this stage. Its installation and numerical behavior are being validated in a dedicated Python 3.10 / NumPy 1.x workflow before enabling it in scheduled ingestion. The browser remains responsible for rendering the Skew-T and hodograph; the SHARPpy desktop GUI is not embedded in the web page.
