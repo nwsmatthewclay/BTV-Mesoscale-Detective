@@ -1,0 +1,56 @@
+{
+  "model": "RAP",
+  "cycle_utc": "20261114T01:00:00Z",
+  "forecast_hour": 0,
+  "valid_time_utc": "2026-11-14T01:00:00Z",
+  "field_key": "pwat_2d_0",
+  "short_name": "pwat",
+  "long_name": "Precipitable water",
+  "units": "kg m**-2",
+  "source_units": "kg m**-2",
+  "display_transform": {
+    "scale": 1.0,
+    "offset": 0.0
+  },
+  "source_grid_shape": [
+    226,
+    177
+  ],
+  "render_grid_shape": [
+    226,
+    177
+  ],
+  "source_grid_id": "grid_0",
+  "source_grid_stride": 1,
+  "render_stride": 1,
+  "source_effective_spacing_m": {
+    "x": 13545.0,
+    "y": 13545.0
+  },
+  "render_effective_spacing_m": {
+    "x": 13545.0,
+    "y": 13545.0
+  },
+  "display_range": [
+    5.52,
+    41.89
+  ],
+  "contour_interval": 5,
+  "contour_levels": [
+    10.0,
+    15.0,
+    20.0,
+    25.0,
+    30.0,
+    35.0,
+    40.0
+  ],
+  "tile_size": 256,
+  "zoom_min": 3,
+  "zoom_max": 6,
+  "tile_count": 51,
+  "contour_feature_count": 51,
+  "tile_url": "rap/20261114T010000Z/f00/pwat_2d_0/tiles/{z}/{x}/{y}.png",
+  "contour_url": "rap/20261114T010000Z/f00/pwat_2d_0/contours.geojson",
+  "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling"
+}

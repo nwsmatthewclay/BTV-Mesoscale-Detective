@@ -1,0 +1,57 @@
+{
+  "model": "HRRR",
+  "cycle_utc": "20261114T00:00:00Z",
+  "forecast_hour": 1,
+  "valid_time_utc": "2026-11-14T01:00:00Z",
+  "field_key": "cape_2d_6",
+  "short_name": "cape",
+  "long_name": "Convective available potential energy",
+  "units": "J kg**-1",
+  "source_units": "J kg**-1",
+  "display_transform": {
+    "scale": 1.0,
+    "offset": 0.0
+  },
+  "source_grid_shape": [
+    153,
+    145
+  ],
+  "render_grid_shape": [
+    153,
+    145
+  ],
+  "source_grid_id": "grid_6",
+  "source_grid_stride": 5,
+  "render_stride": 1,
+  "source_effective_spacing_m": {
+    "x": 15000.0,
+    "y": 15000.0
+  },
+  "render_effective_spacing_m": {
+    "x": 15000.0,
+    "y": 15000.0
+  },
+  "display_range": [
+    0.0,
+    330.0
+  ],
+  "contour_interval": 50,
+  "contour_levels": [
+    0.0,
+    50.0,
+    100.0,
+    150.0,
+    200.0,
+    250.0,
+    300.0,
+    350.0
+  ],
+  "tile_size": 256,
+  "zoom_min": 3,
+  "zoom_max": 6,
+  "tile_count": 51,
+  "contour_feature_count": 395,
+  "tile_url": "hrrr/20261114T000000Z/f01/cape_2d_6/tiles/{z}/{x}/{y}.png",
+  "contour_url": "hrrr/20261114T000000Z/f01/cape_2d_6/contours.geojson",
+  "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling"
+}
