@@ -4,15 +4,23 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_hourly_model_refresh_is_owned_by_rap_ingestion():
+def test_hourly_model_refresh_is_owned_by_discovery_and_triggers_one_rap_check():
     rap = (ROOT / ".github/workflows/rap_ingestion_smoke.yml").read_text(encoding="utf-8")
     discovery = (ROOT / ".github/workflows/mesoscale_model_discovery.yml").read_text(encoding="utf-8")
 
-    assert '    - cron: "47 * * * *"' in rap
-    assert "github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'" in rap
+    schedule = discovery.split("  schedule:\\n", 1)[1].split("  workflow_dispatch:", 1)[0]
+    paths = discovery.split("    paths:\\n", 1)[1].split("  schedule:\\n", 1)[0]
+
+    assert '    - cron: "17 * * * *"' in schedule
+    assert "mesoscale/data/model_manifest.json" not in paths
+    assert "  schedule:" not in rap
+    assert '    workflows: ["Mesoscale Model Discovery and Validation"]' in rap
+    assert "    types: [completed]" in rap
+    assert "    branches: [main]" in rap
+    assert "if: github.event_name == 'workflow_dispatch'" in rap
+    assert "github.event_name == 'schedule'" not in rap
     assert "manifest_changed: ${{ steps.refresh.outputs.changed }}" in rap
     assert "needs.rap-ingestion.outputs.manifest_changed == 'true'" in rap
-    assert "  schedule:" not in discovery
 
 
 def test_pages_deployments_are_serialized_and_use_attempt_scoped_artifacts():
