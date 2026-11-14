@@ -37,6 +37,26 @@ HYBRID_FILENAME_RE = re.compile(r"rap\.t\d{2}z\.awp130bgrbf\d{2,3}\.grib2$")
 MAX_BYTES = 180_000_000
 
 
+def summarize_rap_field_inventory(payload: dict) -> tuple[int, set[str]]:
+    """Return decoded field records separately from unique GRIB short names."""
+    fields = payload.get("fields")
+    quality = payload.get("quality")
+    if not isinstance(fields, dict) or not isinstance(quality, dict):
+        raise ValueError("RAP payload must contain field and quality mappings")
+    field_record_count = int(quality.get("field_count", -1))
+    if field_record_count != len(fields):
+        raise ValueError(
+            "RAP quality field_count does not match decoded field records: "
+            f"{field_record_count} != {len(fields)}"
+        )
+    unique_short_names = {
+        field["short_name"]
+        for field in fields.values()
+        if isinstance(field, dict) and field.get("short_name")
+    }
+    return field_record_count, unique_short_names
+
+
 def choose_cycle_products(manifest: dict, hours: tuple[int, ...]) -> tuple[str, list[dict]]:
     products = manifest["models"]["RAP"]["latest_products"]
     # Select by the actual NOMADS filename token, not a loosely named
@@ -256,7 +276,7 @@ def main() -> None:
         size = download(product["url"], grib_path, session)
         field_path = FIELDS_OUT / f"rap_f{hour:02d}.json.gz"
         payload = process_file(grib_path, "RAP", cycle, hour, field_path, max_grid_dim=RAP_MAX_GRID_DIM)
-        names = {item["short_name"] for item in payload["fields"].values()}
+        field_record_count, names = summarize_rap_field_inventory(payload)
         required = {"t", "gh", "u", "v", "q", "pres"}
         if not required.issubset(names):
             raise RuntimeError(f"F{hour:02d} missing required profile fields: {sorted(required-names)}")
@@ -283,7 +303,7 @@ def main() -> None:
             "grid_sampling": {grid_id: grid.get("sampling") for grid_id, grid in payload["grids"].items()},
             "station_count": len(station_profiles),
         })
-        print(f"Verified RAP F{hour:02d}: {size:,} GRIB bytes, {len(names)} fields, {len(station_profiles)} station profiles")
+        print(f"Verified RAP F{hour:02d}: {size:,} GRIB bytes, {field_record_count} field records across {len(names)} unique short names, {len(station_profiles)} station profiles")
     archive = {
         "schema_version": 1, "model": "RAP", "model_cycle_utc": cycle,
         "created_utc": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(),
