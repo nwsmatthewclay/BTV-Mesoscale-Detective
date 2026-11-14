@@ -6,6 +6,7 @@ from pathlib import Path
 
 from mesoscale.cross_section import build_cross_section
 from mesoscale.sharppy_adapter import calculate_sharppy_diagnostics
+from mesoscale.build_rap_forecast_archive import summarize_rap_field_inventory
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -81,3 +82,29 @@ def test_sharppy_calculates_from_real_archived_kbtv_rap_profile():
     assert result["parcels"]["surface"]["cape_jkg"] is not None
     assert result["kinematics"]["bulk_shear_0_6km_kt"] is not None
     assert result["units"]["cape"] == "J/kg"
+
+def test_rap_inventory_summary_distinguishes_records_from_unique_short_names():
+    payload = {
+        "fields": {
+            "t_surface": {"short_name": "t"},
+            "t_850": {"short_name": "t"},
+            "u_850": {"short_name": "u"},
+        },
+        "quality": {"field_count": 3},
+    }
+
+    field_records, unique_short_names = summarize_rap_field_inventory(payload)
+
+    assert field_records == 3
+    assert unique_short_names == {"t", "u"}
+
+
+def test_rap_inventory_summary_rejects_inconsistent_quality_count():
+    payload = {
+        "fields": {"t_surface": {"short_name": "t"}},
+        "quality": {"field_count": 2},
+    }
+
+    with pytest.raises(ValueError, match="does not match decoded field records"):
+        summarize_rap_field_inventory(payload)
+
