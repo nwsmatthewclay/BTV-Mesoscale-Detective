@@ -1,8 +1,9 @@
 import json
 
+import numpy as np
 import pytest
 
-from mesoscale.diagnostics import _finite_profile
+from mesoscale.diagnostics import _finite_profile, _number
 from mesoscale.extract_profile import write_profile_json
 from mesoscale.process_grib import (
     grib_metadata, grid_projection_metadata,
@@ -105,3 +106,30 @@ def test_parse_cycle_time_accepts_iso_and_compact_nomads_timestamps(cycle):
 def test_parse_cycle_time_rejects_naive_timestamps():
     with pytest.raises(ValueError, match="UTC offset"):
         parse_cycle_time("2026-11-13T04:00:00")
+
+
+
+class _FakeQuantity:
+    def __init__(self, magnitude):
+        self.magnitude = magnitude
+
+    def to(self, _target_unit):
+        return self
+
+
+@pytest.mark.parametrize("magnitude", [
+    np.ma.masked,
+    float("nan"),
+    float("inf"),
+    float("-inf"),
+])
+def test_diagnostic_number_returns_none_for_masked_or_nonfinite_values(magnitude):
+    assert _number(_FakeQuantity(magnitude), "dimensionless") is None
+
+
+def test_diagnostic_number_preserves_finite_scalar():
+    assert _number(_FakeQuantity(123.5), "dimensionless") == pytest.approx(123.5)
+
+
+def test_diagnostic_number_rejects_non_scalar_magnitudes():
+    assert _number(_FakeQuantity([1.0, 2.0]), "dimensionless") is None
