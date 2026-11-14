@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-14T11:39:38.677363+00:00",
+  "generated_utc": "2026-11-14T15:45:40.142931+00:00",
   "tile_scheme": "XYZ",
   "products": [
     {
@@ -10716,6 +10716,889 @@
       "contour_url": "hrrr/20261114T090000Z/f01/vis_2d_6/contours.geojson",
       "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
       "product_path": "hrrr/20261114T090000Z/f01/vis_2d_6/product.json"
+    },
+    {
+      "model": "HRRR",
+      "cycle_utc": "20261114T13:00:00Z",
+      "forecast_hour": 1,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "10u_2d_2",
+      "short_name": "10u",
+      "long_name": "10 metre U wind component",
+      "units": "m s**-1",
+      "source_units": "m s**-1",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        153,
+        145
+      ],
+      "render_grid_shape": [
+        153,
+        145
+      ],
+      "source_grid_id": "grid_2",
+      "source_grid_stride": 5,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "render_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "display_range": [
+        -1.48,
+        14.52
+      ],
+      "contour_interval": 2,
+      "contour_levels": [
+        0.0,
+        2.0,
+        4.0,
+        6.0,
+        8.0,
+        10.0,
+        12.0,
+        14.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 686,
+      "tile_url": "hrrr/20261114T130000Z/f01/10u_2d_2/tiles/{z}/{x}/{y}.png",
+      "contour_url": "hrrr/20261114T130000Z/f01/10u_2d_2/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "hrrr/20261114T130000Z/f01/10u_2d_2/product.json"
+    },
+    {
+      "model": "HRRR",
+      "cycle_utc": "20261114T13:00:00Z",
+      "forecast_hour": 1,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "10v_2d_2",
+      "short_name": "10v",
+      "long_name": "10 metre V wind component",
+      "units": "m s**-1",
+      "source_units": "m s**-1",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        153,
+        145
+      ],
+      "render_grid_shape": [
+        153,
+        145
+      ],
+      "source_grid_id": "grid_2",
+      "source_grid_stride": 5,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "render_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "display_range": [
+        -9.76,
+        2.93
+      ],
+      "contour_interval": 2,
+      "contour_levels": [
+        -8.0,
+        -6.0,
+        -4.0,
+        -2.0,
+        0.0,
+        2.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 821,
+      "tile_url": "hrrr/20261114T130000Z/f01/10v_2d_2/tiles/{z}/{x}/{y}.png",
+      "contour_url": "hrrr/20261114T130000Z/f01/10v_2d_2/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "hrrr/20261114T130000Z/f01/10v_2d_2/product.json"
+    },
+    {
+      "model": "HRRR",
+      "cycle_utc": "20261114T13:00:00Z",
+      "forecast_hour": 1,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "2d_2d_3",
+      "short_name": "2d",
+      "long_name": "2-m dewpoint",
+      "units": "\u00b0C",
+      "source_units": "K",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": -273.15
+      },
+      "source_grid_shape": [
+        153,
+        145
+      ],
+      "render_grid_shape": [
+        153,
+        145
+      ],
+      "source_grid_id": "grid_3",
+      "source_grid_stride": 5,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "render_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "display_range": [
+        -8.199999999999989,
+        13.670000000000016
+      ],
+      "contour_interval": 2,
+      "contour_levels": [
+        -8.0,
+        -6.0,
+        -4.0,
+        -2.0,
+        0.0,
+        2.0,
+        4.0,
+        6.0,
+        8.0,
+        10.0,
+        12.0,
+        14.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 537,
+      "tile_url": "hrrr/20261114T130000Z/f01/2d_2d_3/tiles/{z}/{x}/{y}.png",
+      "contour_url": "hrrr/20261114T130000Z/f01/2d_2d_3/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "hrrr/20261114T130000Z/f01/2d_2d_3/product.json"
+    },
+    {
+      "model": "HRRR",
+      "cycle_utc": "20261114T13:00:00Z",
+      "forecast_hour": 1,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "2t_2d_3",
+      "short_name": "2t",
+      "long_name": "2-m temperature",
+      "units": "\u00b0C",
+      "source_units": "K",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": -273.15
+      },
+      "source_grid_shape": [
+        153,
+        145
+      ],
+      "render_grid_shape": [
+        153,
+        145
+      ],
+      "source_grid_id": "grid_3",
+      "source_grid_stride": 5,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "render_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "display_range": [
+        -6.939999999999998,
+        22.620000000000005
+      ],
+      "contour_interval": 5,
+      "contour_levels": [
+        -5.0,
+        0.0,
+        5.0,
+        10.0,
+        15.0,
+        20.0,
+        25.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 251,
+      "tile_url": "hrrr/20261114T130000Z/f01/2t_2d_3/tiles/{z}/{x}/{y}.png",
+      "contour_url": "hrrr/20261114T130000Z/f01/2t_2d_3/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "hrrr/20261114T130000Z/f01/2t_2d_3/product.json"
+    },
+    {
+      "model": "HRRR",
+      "cycle_utc": "20261114T13:00:00Z",
+      "forecast_hour": 1,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "blh_2d_6",
+      "short_name": "blh",
+      "long_name": "Boundary layer height",
+      "units": "m",
+      "source_units": "m",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        153,
+        145
+      ],
+      "render_grid_shape": [
+        153,
+        145
+      ],
+      "source_grid_id": "grid_6",
+      "source_grid_stride": 5,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "render_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "display_range": [
+        49.7124,
+        1721.4007999999997
+      ],
+      "contour_interval": 200,
+      "contour_levels": [
+        200.0,
+        400.0,
+        600.0,
+        800.0,
+        1000.0,
+        1200.0,
+        1400.0,
+        1600.0,
+        1800.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 957,
+      "tile_url": "hrrr/20261114T130000Z/f01/blh_2d_6/tiles/{z}/{x}/{y}.png",
+      "contour_url": "hrrr/20261114T130000Z/f01/blh_2d_6/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "hrrr/20261114T130000Z/f01/blh_2d_6/product.json"
+    },
+    {
+      "model": "HRRR",
+      "cycle_utc": "20261114T13:00:00Z",
+      "forecast_hour": 1,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "cape_2d_4",
+      "short_name": "cape",
+      "long_name": "Convective available potential energy",
+      "units": "J kg**-1",
+      "source_units": "J kg**-1",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        153,
+        145
+      ],
+      "render_grid_shape": [
+        153,
+        145
+      ],
+      "source_grid_id": "grid_4",
+      "source_grid_stride": 5,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "render_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "display_range": [
+        0.0,
+        89.3
+      ],
+      "contour_interval": 10,
+      "contour_levels": [
+        0.0,
+        10.0,
+        20.0,
+        30.0,
+        40.0,
+        50.0,
+        60.0,
+        70.0,
+        80.0,
+        90.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 1120,
+      "tile_url": "hrrr/20261114T130000Z/f01/cape_2d_4/tiles/{z}/{x}/{y}.png",
+      "contour_url": "hrrr/20261114T130000Z/f01/cape_2d_4/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "hrrr/20261114T130000Z/f01/cape_2d_4/product.json"
+    },
+    {
+      "model": "HRRR",
+      "cycle_utc": "20261114T13:00:00Z",
+      "forecast_hour": 1,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "cape_2d_6",
+      "short_name": "cape",
+      "long_name": "Convective available potential energy",
+      "units": "J kg**-1",
+      "source_units": "J kg**-1",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        153,
+        145
+      ],
+      "render_grid_shape": [
+        153,
+        145
+      ],
+      "source_grid_id": "grid_6",
+      "source_grid_stride": 5,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "render_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "display_range": [
+        0.0,
+        470.0
+      ],
+      "contour_interval": 50,
+      "contour_levels": [
+        0.0,
+        50.0,
+        100.0,
+        150.0,
+        200.0,
+        250.0,
+        300.0,
+        350.0,
+        400.0,
+        450.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 377,
+      "tile_url": "hrrr/20261114T130000Z/f01/cape_2d_6/tiles/{z}/{x}/{y}.png",
+      "contour_url": "hrrr/20261114T130000Z/f01/cape_2d_6/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "hrrr/20261114T130000Z/f01/cape_2d_6/product.json"
+    },
+    {
+      "model": "HRRR",
+      "cycle_utc": "20261114T13:00:00Z",
+      "forecast_hour": 1,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "cin_2d_6",
+      "short_name": "cin",
+      "long_name": "Convective inhibition",
+      "units": "J kg**-1",
+      "source_units": "J kg**-1",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        153,
+        145
+      ],
+      "render_grid_shape": [
+        153,
+        145
+      ],
+      "source_grid_id": "grid_6",
+      "source_grid_stride": 5,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "render_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "display_range": [
+        -6.0,
+        0.0
+      ],
+      "contour_interval": 0.5,
+      "contour_levels": [
+        -6.0,
+        -5.5,
+        -5.0,
+        -4.5,
+        -4.0,
+        -3.5,
+        -3.0,
+        -2.5,
+        -2.0,
+        -1.5,
+        -1.0,
+        -0.5,
+        0.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 3368,
+      "tile_url": "hrrr/20261114T130000Z/f01/cin_2d_6/tiles/{z}/{x}/{y}.png",
+      "contour_url": "hrrr/20261114T130000Z/f01/cin_2d_6/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "hrrr/20261114T130000Z/f01/cin_2d_6/product.json"
+    },
+    {
+      "model": "HRRR",
+      "cycle_utc": "20261114T13:00:00Z",
+      "forecast_hour": 1,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "gust_2d_6",
+      "short_name": "gust",
+      "long_name": "Wind gust",
+      "units": "kt",
+      "source_units": "m s**-1",
+      "display_transform": {
+        "scale": 1.943844,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        153,
+        145
+      ],
+      "render_grid_shape": [
+        153,
+        145
+      ],
+      "source_grid_id": "grid_6",
+      "source_grid_stride": 5,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "render_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "display_range": [
+        4.31533368,
+        34.444915679999994
+      ],
+      "contour_interval": 5,
+      "contour_levels": [
+        5.0,
+        10.0,
+        15.0,
+        20.0,
+        25.0,
+        30.0,
+        35.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 634,
+      "tile_url": "hrrr/20261114T130000Z/f01/gust_2d_6/tiles/{z}/{x}/{y}.png",
+      "contour_url": "hrrr/20261114T130000Z/f01/gust_2d_6/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "hrrr/20261114T130000Z/f01/gust_2d_6/product.json"
+    },
+    {
+      "model": "HRRR",
+      "cycle_utc": "20261114T13:00:00Z",
+      "forecast_hour": 1,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "refc_2d_0",
+      "short_name": "refc",
+      "long_name": "Maximum/Composite radar reflectivity",
+      "units": "dB",
+      "source_units": "dB",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        153,
+        145
+      ],
+      "render_grid_shape": [
+        153,
+        145
+      ],
+      "source_grid_id": "grid_0",
+      "source_grid_stride": 5,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "render_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "display_range": [
+        -10.0,
+        25.75
+      ],
+      "contour_interval": 5,
+      "contour_levels": [
+        -10.0,
+        -5.0,
+        0.0,
+        5.0,
+        10.0,
+        15.0,
+        20.0,
+        25.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 1228,
+      "tile_url": "hrrr/20261114T130000Z/f01/refc_2d_0/tiles/{z}/{x}/{y}.png",
+      "contour_url": "hrrr/20261114T130000Z/f01/refc_2d_0/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "hrrr/20261114T130000Z/f01/refc_2d_0/product.json"
+    },
+    {
+      "model": "HRRR",
+      "cycle_utc": "20261114T13:00:00Z",
+      "forecast_hour": 1,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "t_2d_6",
+      "short_name": "t",
+      "long_name": "Temperature",
+      "units": "K",
+      "source_units": "K",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        153,
+        145
+      ],
+      "render_grid_shape": [
+        153,
+        145
+      ],
+      "source_grid_id": "grid_6",
+      "source_grid_stride": 5,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "render_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "display_range": [
+        266.44,
+        299.25
+      ],
+      "contour_interval": 5,
+      "contour_levels": [
+        270.0,
+        275.0,
+        280.0,
+        285.0,
+        290.0,
+        295.0,
+        300.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 493,
+      "tile_url": "hrrr/20261114T130000Z/f01/t_2d_6/tiles/{z}/{x}/{y}.png",
+      "contour_url": "hrrr/20261114T130000Z/f01/t_2d_6/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "hrrr/20261114T130000Z/f01/t_2d_6/product.json"
+    },
+    {
+      "model": "HRRR",
+      "cycle_utc": "20261114T13:00:00Z",
+      "forecast_hour": 1,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "tp_2d_6",
+      "short_name": "tp",
+      "long_name": "Total Precipitation",
+      "units": "kg m**-2",
+      "source_units": "kg m**-2",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        153,
+        145
+      ],
+      "render_grid_shape": [
+        153,
+        145
+      ],
+      "source_grid_id": "grid_6",
+      "source_grid_stride": 5,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "render_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "display_range": [
+        0.0,
+        0.52
+      ],
+      "contour_interval": 0.05,
+      "contour_levels": [
+        0.0,
+        0.05,
+        0.1,
+        0.15000000000000002,
+        0.2,
+        0.25,
+        0.30000000000000004,
+        0.35000000000000003,
+        0.4,
+        0.45,
+        0.5
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 827,
+      "tile_url": "hrrr/20261114T130000Z/f01/tp_2d_6/tiles/{z}/{x}/{y}.png",
+      "contour_url": "hrrr/20261114T130000Z/f01/tp_2d_6/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "hrrr/20261114T130000Z/f01/tp_2d_6/product.json"
+    },
+    {
+      "model": "HRRR",
+      "cycle_utc": "20261114T13:00:00Z",
+      "forecast_hour": 1,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "u_2d_1",
+      "short_name": "u",
+      "long_name": "U component of wind",
+      "units": "m s**-1",
+      "source_units": "m s**-1",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        153,
+        145
+      ],
+      "render_grid_shape": [
+        153,
+        145
+      ],
+      "source_grid_id": "grid_1",
+      "source_grid_stride": 5,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "render_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "display_range": [
+        -2.52,
+        15.92
+      ],
+      "contour_interval": 2,
+      "contour_levels": [
+        -2.0,
+        0.0,
+        2.0,
+        4.0,
+        6.0,
+        8.0,
+        10.0,
+        12.0,
+        14.0,
+        16.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 761,
+      "tile_url": "hrrr/20261114T130000Z/f01/u_2d_1/tiles/{z}/{x}/{y}.png",
+      "contour_url": "hrrr/20261114T130000Z/f01/u_2d_1/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "hrrr/20261114T130000Z/f01/u_2d_1/product.json"
+    },
+    {
+      "model": "HRRR",
+      "cycle_utc": "20261114T13:00:00Z",
+      "forecast_hour": 1,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "v_2d_1",
+      "short_name": "v",
+      "long_name": "V component of wind",
+      "units": "m s**-1",
+      "source_units": "m s**-1",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        153,
+        145
+      ],
+      "render_grid_shape": [
+        153,
+        145
+      ],
+      "source_grid_id": "grid_1",
+      "source_grid_stride": 5,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "render_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "display_range": [
+        -10.0992,
+        3.04
+      ],
+      "contour_interval": 2,
+      "contour_levels": [
+        -10.0,
+        -8.0,
+        -6.0,
+        -4.0,
+        -2.0,
+        0.0,
+        2.0,
+        4.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 901,
+      "tile_url": "hrrr/20261114T130000Z/f01/v_2d_1/tiles/{z}/{x}/{y}.png",
+      "contour_url": "hrrr/20261114T130000Z/f01/v_2d_1/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "hrrr/20261114T130000Z/f01/v_2d_1/product.json"
+    },
+    {
+      "model": "HRRR",
+      "cycle_utc": "20261114T13:00:00Z",
+      "forecast_hour": 1,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "vis_2d_6",
+      "short_name": "vis",
+      "long_name": "Visibility",
+      "units": "km",
+      "source_units": "m",
+      "display_transform": {
+        "scale": 0.001,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        153,
+        145
+      ],
+      "render_grid_shape": [
+        153,
+        145
+      ],
+      "source_grid_id": "grid_6",
+      "source_grid_stride": 5,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "render_effective_spacing_m": {
+        "x": 15000.0,
+        "y": 15000.0
+      },
+      "display_range": [
+        2.6,
+        37.0
+      ],
+      "contour_interval": 5,
+      "contour_levels": [
+        5.0,
+        10.0,
+        15.0,
+        20.0,
+        25.0,
+        30.0,
+        35.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 1136,
+      "tile_url": "hrrr/20261114T130000Z/f01/vis_2d_6/tiles/{z}/{x}/{y}.png",
+      "contour_url": "hrrr/20261114T130000Z/f01/vis_2d_6/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "hrrr/20261114T130000Z/f01/vis_2d_6/product.json"
     },
     {
       "model": "RAP",
@@ -28196,6 +29079,1833 @@
       "contour_url": "rap/20261114T100000Z/f00/vgtyp_2d_9/contours.geojson",
       "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
       "product_path": "rap/20261114T100000Z/f00/vgtyp_2d_9/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "10u_2d_3",
+      "short_name": "10u",
+      "long_name": "10 metre U wind component",
+      "units": "m s**-1",
+      "source_units": "m s**-1",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_3",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        -2.0,
+        15.07
+      ],
+      "contour_interval": 2,
+      "contour_levels": [
+        -2.0,
+        0.0,
+        2.0,
+        4.0,
+        6.0,
+        8.0,
+        10.0,
+        12.0,
+        14.0,
+        16.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 243,
+      "tile_url": "rap/20261114T140000Z/f00/10u_2d_3/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/10u_2d_3/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/10u_2d_3/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "10v_2d_3",
+      "short_name": "10v",
+      "long_name": "10 metre V wind component",
+      "units": "m s**-1",
+      "source_units": "m s**-1",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_3",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        -9.73,
+        5.46
+      ],
+      "contour_interval": 2,
+      "contour_levels": [
+        -8.0,
+        -6.0,
+        -4.0,
+        -2.0,
+        0.0,
+        2.0,
+        4.0,
+        6.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 265,
+      "tile_url": "rap/20261114T140000Z/f00/10v_2d_3/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/10v_2d_3/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/10v_2d_3/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "2sh_2d_4",
+      "short_name": "2sh",
+      "long_name": "2 metre specific humidity",
+      "units": "kg kg**-1",
+      "source_units": "kg kg**-1",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_4",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        0.0019335,
+        0.0116135
+      ],
+      "contour_interval": 0.001,
+      "contour_levels": [
+        0.002,
+        0.003,
+        0.004,
+        0.005,
+        0.006,
+        0.007,
+        0.008,
+        0.009000000000000001,
+        0.01,
+        0.011000000000000001,
+        0.012
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 136,
+      "tile_url": "rap/20261114T140000Z/f00/2sh_2d_4/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/2sh_2d_4/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/2sh_2d_4/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "2t_2d_4",
+      "short_name": "2t",
+      "long_name": "2-m temperature",
+      "units": "\u00b0C",
+      "source_units": "K",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": -273.15
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_4",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        -7.939999999999998,
+        23.5
+      ],
+      "contour_interval": 5,
+      "contour_levels": [
+        -5.0,
+        0.0,
+        5.0,
+        10.0,
+        15.0,
+        20.0,
+        25.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 112,
+      "tile_url": "rap/20261114T140000Z/f00/2t_2d_4/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/2t_2d_4/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/2t_2d_4/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "cape_2d_8",
+      "short_name": "cape",
+      "long_name": "Convective available potential energy",
+      "units": "J kg**-1",
+      "source_units": "J kg**-1",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_8",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        0.0,
+        610.0
+      ],
+      "contour_interval": 100,
+      "contour_levels": [
+        0.0,
+        100.0,
+        200.0,
+        300.0,
+        400.0,
+        500.0,
+        600.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 64,
+      "tile_url": "rap/20261114T140000Z/f00/cape_2d_8/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/cape_2d_8/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/cape_2d_8/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "cin_2d_8",
+      "short_name": "cin",
+      "long_name": "Convective inhibition",
+      "units": "J kg**-1",
+      "source_units": "J kg**-1",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_8",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        -4.85,
+        0.15
+      ],
+      "contour_interval": 0.5,
+      "contour_levels": [
+        -4.5,
+        -4.0,
+        -3.5,
+        -3.0,
+        -2.5,
+        -2.0,
+        -1.5,
+        -1.0,
+        -0.5,
+        0.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 955,
+      "tile_url": "rap/20261114T140000Z/f00/cin_2d_8/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/cin_2d_8/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/cin_2d_8/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "cnwat_2d_9",
+      "short_name": "cnwat",
+      "long_name": "Plant canopy surface water",
+      "units": "kg m**-2",
+      "source_units": "kg m**-2",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_9",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        0.0,
+        0.5
+      ],
+      "contour_interval": 0.05,
+      "contour_levels": [
+        0.0,
+        0.05,
+        0.1,
+        0.15000000000000002,
+        0.2,
+        0.25,
+        0.30000000000000004,
+        0.35000000000000003,
+        0.4,
+        0.45,
+        0.5
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 896,
+      "tile_url": "rap/20261114T140000Z/f00/cnwat_2d_9/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/cnwat_2d_9/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/cnwat_2d_9/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "fricv_2d_9",
+      "short_name": "fricv",
+      "long_name": "Frictional velocity",
+      "units": "m s**-1",
+      "source_units": "m s**-1",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_9",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        0.13,
+        0.77
+      ],
+      "contour_interval": 0.1,
+      "contour_levels": [
+        0.2,
+        0.30000000000000004,
+        0.4000000000000001,
+        0.5000000000000001,
+        0.6000000000000001,
+        0.7000000000000002,
+        0.8000000000000003
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 1021,
+      "tile_url": "rap/20261114T140000Z/f00/fricv_2d_9/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/fricv_2d_9/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/fricv_2d_9/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "frzr_2d_9",
+      "short_name": "frzr",
+      "long_name": "Freezing Rain",
+      "units": "kg m**-2",
+      "source_units": "kg m**-2",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_9",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        0.0,
+        0.43
+      ],
+      "contour_interval": 0.05,
+      "contour_levels": [
+        0.0,
+        0.05,
+        0.1,
+        0.15000000000000002,
+        0.2,
+        0.25,
+        0.30000000000000004,
+        0.35000000000000003,
+        0.4,
+        0.45
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 391,
+      "tile_url": "rap/20261114T140000Z/f00/frzr_2d_9/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/frzr_2d_9/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/frzr_2d_9/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "gust_2d_9",
+      "short_name": "gust",
+      "long_name": "Wind gust",
+      "units": "kt",
+      "source_units": "m s**-1",
+      "display_transform": {
+        "scale": 1.943844,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_9",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        4.7235409200000005,
+        37.416275618399446
+      ],
+      "contour_interval": 5,
+      "contour_levels": [
+        5.0,
+        10.0,
+        15.0,
+        20.0,
+        25.0,
+        30.0,
+        35.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 181,
+      "tile_url": "rap/20261114T140000Z/f00/gust_2d_9/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/gust_2d_9/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/gust_2d_9/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "ishf_2d_9",
+      "short_name": "ishf",
+      "long_name": "Instantaneous surface sensible heat net flux",
+      "units": "W m**-2",
+      "source_units": "W m**-2",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_9",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        -6.9,
+        211.1
+      ],
+      "contour_interval": 20,
+      "contour_levels": [
+        0.0,
+        20.0,
+        40.0,
+        60.0,
+        80.0,
+        100.0,
+        120.0,
+        140.0,
+        160.0,
+        180.0,
+        200.0,
+        220.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 740,
+      "tile_url": "rap/20261114T140000Z/f00/ishf_2d_9/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/ishf_2d_9/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/ishf_2d_9/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "lsm_2d_9",
+      "short_name": "lsm",
+      "long_name": "Land-sea mask",
+      "units": "(0 - 1)",
+      "source_units": "(0 - 1)",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_9",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        0.0,
+        1.0
+      ],
+      "contour_interval": 0.1,
+      "contour_levels": [
+        0.0,
+        0.1,
+        0.2,
+        0.30000000000000004,
+        0.4,
+        0.5,
+        0.6000000000000001,
+        0.7000000000000001,
+        0.8,
+        0.9,
+        1.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 1040,
+      "tile_url": "rap/20261114T140000Z/f00/lsm_2d_9/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/lsm_2d_9/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/lsm_2d_9/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "ltng_2d_9",
+      "short_name": "ltng",
+      "long_name": "Lightning",
+      "units": "dimensionless",
+      "source_units": "dimensionless",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_9",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        0.0,
+        1.0
+      ],
+      "contour_interval": 0.1,
+      "contour_levels": [
+        0.0,
+        0.1,
+        0.2,
+        0.30000000000000004,
+        0.4,
+        0.5,
+        0.6000000000000001,
+        0.7000000000000001,
+        0.8,
+        0.9,
+        1.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 135,
+      "tile_url": "rap/20261114T140000Z/f00/ltng_2d_9/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/ltng_2d_9/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/ltng_2d_9/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "mslma_2d_6",
+      "short_name": "mslma",
+      "long_name": "MSLP (MAPS System Reduction)",
+      "units": "Pa",
+      "source_units": "Pa",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_6",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        100008.52,
+        102481.52
+      ],
+      "contour_interval": 500,
+      "contour_levels": [
+        100500.0,
+        101000.0,
+        101500.0,
+        102000.0,
+        102500.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 8,
+      "tile_url": "rap/20261114T140000Z/f00/mslma_2d_6/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/mslma_2d_6/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/mslma_2d_6/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "orog_2d_9",
+      "short_name": "orog",
+      "long_name": "Orography",
+      "units": "m",
+      "source_units": "m",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_9",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        -0.03,
+        645.47
+      ],
+      "contour_interval": 100,
+      "contour_levels": [
+        0.0,
+        100.0,
+        200.0,
+        300.0,
+        400.0,
+        500.0,
+        600.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 304,
+      "tile_url": "rap/20261114T140000Z/f00/orog_2d_9/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/orog_2d_9/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/orog_2d_9/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "pt_2d_11",
+      "short_name": "pt",
+      "long_name": "Potential temperature",
+      "units": "K",
+      "source_units": "K",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_11",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        305.0,
+        395.0
+      ],
+      "contour_interval": 10,
+      "contour_levels": [
+        310.0,
+        320.0,
+        330.0,
+        340.0,
+        350.0,
+        360.0,
+        370.0,
+        380.0,
+        390.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 296,
+      "tile_url": "rap/20261114T140000Z/f00/pt_2d_11/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/pt_2d_11/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/pt_2d_11/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "pwat_2d_0",
+      "short_name": "pwat",
+      "long_name": "Precipitable water",
+      "units": "kg m**-2",
+      "source_units": "kg m**-2",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_0",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        5.01,
+        24.39
+      ],
+      "contour_interval": 2,
+      "contour_levels": [
+        6.0,
+        8.0,
+        10.0,
+        12.0,
+        14.0,
+        16.0,
+        18.0,
+        20.0,
+        22.0,
+        24.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 173,
+      "tile_url": "rap/20261114T140000Z/f00/pwat_2d_0/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/pwat_2d_0/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/pwat_2d_0/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "sde_2d_9",
+      "short_name": "sde",
+      "long_name": "Snow depth",
+      "units": "m",
+      "source_units": "m",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_9",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        0.0,
+        0.17
+      ],
+      "contour_interval": 0.02,
+      "contour_levels": [
+        0.0,
+        0.02,
+        0.04,
+        0.06,
+        0.08,
+        0.1,
+        0.12,
+        0.14,
+        0.16
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 372,
+      "tile_url": "rap/20261114T140000Z/f00/sde_2d_9/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/sde_2d_9/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/sde_2d_9/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "sdlwrf_2d_9",
+      "short_name": "sdlwrf",
+      "long_name": "Surface downward long-wave radiation flux",
+      "units": "W m**-2",
+      "source_units": "W m**-2",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_9",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        223.66,
+        379.91
+      ],
+      "contour_interval": 20,
+      "contour_levels": [
+        240.0,
+        260.0,
+        280.0,
+        300.0,
+        320.0,
+        340.0,
+        360.0,
+        380.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 636,
+      "tile_url": "rap/20261114T140000Z/f00/sdlwrf_2d_9/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/sdlwrf_2d_9/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/sdlwrf_2d_9/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "sdswrf_2d_9",
+      "short_name": "sdswrf",
+      "long_name": "Surface downward short-wave radiation flux",
+      "units": "W m**-2",
+      "source_units": "W m**-2",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_9",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        14.0,
+        437.38
+      ],
+      "contour_interval": 50,
+      "contour_levels": [
+        50.0,
+        100.0,
+        150.0,
+        200.0,
+        250.0,
+        300.0,
+        350.0,
+        400.0,
+        450.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 913,
+      "tile_url": "rap/20261114T140000Z/f00/sdswrf_2d_9/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/sdswrf_2d_9/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/sdswrf_2d_9/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "sdwe_2d_9",
+      "short_name": "sdwe",
+      "long_name": "Water equivalent of accumulated snow depth (deprecated)",
+      "units": "kg m**-2",
+      "source_units": "kg m**-2",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_9",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        0.0,
+        22.1
+      ],
+      "contour_interval": 2,
+      "contour_levels": [
+        0.0,
+        2.0,
+        4.0,
+        6.0,
+        8.0,
+        10.0,
+        12.0,
+        14.0,
+        16.0,
+        18.0,
+        20.0,
+        22.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 459,
+      "tile_url": "rap/20261114T140000Z/f00/sdwe_2d_9/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/sdwe_2d_9/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/sdwe_2d_9/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "slhtf_2d_9",
+      "short_name": "slhtf",
+      "long_name": "Surface latent heat net flux",
+      "units": "W m**-2",
+      "source_units": "W m**-2",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_9",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        0.62,
+        720.62
+      ],
+      "contour_interval": 100,
+      "contour_levels": [
+        100.0,
+        200.0,
+        300.0,
+        400.0,
+        500.0,
+        600.0,
+        700.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 66,
+      "tile_url": "rap/20261114T140000Z/f00/slhtf_2d_9/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/slhtf_2d_9/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/slhtf_2d_9/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "slt_2d_9",
+      "short_name": "slt",
+      "long_name": "Soil type",
+      "units": "(Code table 4.213)",
+      "source_units": "(Code table 4.213)",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_9",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        2.0,
+        14.0
+      ],
+      "contour_interval": 1,
+      "contour_levels": [
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0,
+        7.0,
+        8.0,
+        9.0,
+        10.0,
+        11.0,
+        12.0,
+        13.0,
+        14.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 1677,
+      "tile_url": "rap/20261114T140000Z/f00/slt_2d_9/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/slt_2d_9/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/slt_2d_9/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "sp_2d_9",
+      "short_name": "sp",
+      "long_name": "Surface pressure",
+      "units": "Pa",
+      "source_units": "Pa",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_9",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        93249.94,
+        102149.94
+      ],
+      "contour_interval": 1000,
+      "contour_levels": [
+        94000.0,
+        95000.0,
+        96000.0,
+        97000.0,
+        98000.0,
+        99000.0,
+        100000.0,
+        101000.0,
+        102000.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 327,
+      "tile_url": "rap/20261114T140000Z/f00/sp_2d_9/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/sp_2d_9/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/sp_2d_9/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "t_2d_9",
+      "short_name": "t",
+      "long_name": "Temperature",
+      "units": "K",
+      "source_units": "K",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_9",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        265.49,
+        298.68
+      ],
+      "contour_interval": 5,
+      "contour_levels": [
+        270.0,
+        275.0,
+        280.0,
+        285.0,
+        290.0,
+        295.0,
+        300.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 214,
+      "tile_url": "rap/20261114T140000Z/f00/t_2d_9/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/t_2d_9/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/t_2d_9/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "trpp_2d_11",
+      "short_name": "trpp",
+      "long_name": "Tropopause pressure",
+      "units": "Pa",
+      "source_units": "Pa",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_11",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        9900.0,
+        45800.0
+      ],
+      "contour_interval": 5000,
+      "contour_levels": [
+        10000.0,
+        15000.0,
+        20000.0,
+        25000.0,
+        30000.0,
+        35000.0,
+        40000.0,
+        45000.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 232,
+      "tile_url": "rap/20261114T140000Z/f00/trpp_2d_11/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/trpp_2d_11/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/trpp_2d_11/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "u_2d_11",
+      "short_name": "u",
+      "long_name": "U component of wind",
+      "units": "m s**-1",
+      "source_units": "m s**-1",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_11",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        -17.41,
+        53.958799999999755
+      ],
+      "contour_interval": 10,
+      "contour_levels": [
+        -10.0,
+        0.0,
+        10.0,
+        20.0,
+        30.0,
+        40.0,
+        50.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 103,
+      "tile_url": "rap/20261114T140000Z/f00/u_2d_11/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/u_2d_11/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/u_2d_11/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "unknown_2d_10",
+      "short_name": "unknown",
+      "long_name": "unknown",
+      "units": "unknown",
+      "source_units": "unknown",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_10",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        83.94,
+        1888.8711999999982
+      ],
+      "contour_interval": 200,
+      "contour_levels": [
+        200.0,
+        400.0,
+        600.0,
+        800.0,
+        1000.0,
+        1200.0,
+        1400.0,
+        1600.0,
+        1800.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 596,
+      "tile_url": "rap/20261114T140000Z/f00/unknown_2d_10/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/unknown_2d_10/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/unknown_2d_10/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "unknown_2d_7",
+      "short_name": "unknown",
+      "long_name": "unknown",
+      "units": "unknown",
+      "source_units": "unknown",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_7",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        172.48,
+        284.73
+      ],
+      "contour_interval": 10,
+      "contour_levels": [
+        180.0,
+        190.0,
+        200.0,
+        210.0,
+        220.0,
+        230.0,
+        240.0,
+        250.0,
+        260.0,
+        270.0,
+        280.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 625,
+      "tile_url": "rap/20261114T140000Z/f00/unknown_2d_7/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/unknown_2d_7/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/unknown_2d_7/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "v_2d_11",
+      "short_name": "v",
+      "long_name": "V component of wind",
+      "units": "m s**-1",
+      "source_units": "m s**-1",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_11",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        -32.83,
+        31.608599999999715
+      ],
+      "contour_interval": 10,
+      "contour_levels": [
+        -30.0,
+        -20.0,
+        -10.0,
+        0.0,
+        10.0,
+        20.0,
+        30.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 61,
+      "tile_url": "rap/20261114T140000Z/f00/v_2d_11/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/v_2d_11/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/v_2d_11/product.json"
+    },
+    {
+      "model": "RAP",
+      "cycle_utc": "20261114T14:00:00Z",
+      "forecast_hour": 0,
+      "valid_time_utc": "2026-11-14T14:00:00Z",
+      "field_key": "vgtyp_2d_9",
+      "short_name": "vgtyp",
+      "long_name": "Vegetation Type",
+      "units": "Integer(0-13)",
+      "source_units": "Integer(0-13)",
+      "display_transform": {
+        "scale": 1.0,
+        "offset": 0.0
+      },
+      "source_grid_shape": [
+        226,
+        177
+      ],
+      "render_grid_shape": [
+        226,
+        177
+      ],
+      "source_grid_id": "grid_9",
+      "source_grid_stride": 1,
+      "render_stride": 1,
+      "source_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "render_effective_spacing_m": {
+        "x": 13545.0,
+        "y": 13545.0
+      },
+      "display_range": [
+        1.0,
+        17.0
+      ],
+      "contour_interval": 2,
+      "contour_levels": [
+        2.0,
+        4.0,
+        6.0,
+        8.0,
+        10.0,
+        12.0,
+        14.0,
+        16.0
+      ],
+      "tile_size": 256,
+      "zoom_min": 3,
+      "zoom_max": 6,
+      "tile_count": 51,
+      "contour_feature_count": 1772,
+      "tile_url": "rap/20261114T140000Z/f00/vgtyp_2d_9/tiles/{z}/{x}/{y}.png",
+      "contour_url": "rap/20261114T140000Z/f00/vgtyp_2d_9/contours.geojson",
+      "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling",
+      "product_path": "rap/20261114T140000Z/f00/vgtyp_2d_9/product.json"
     }
   ]
 }

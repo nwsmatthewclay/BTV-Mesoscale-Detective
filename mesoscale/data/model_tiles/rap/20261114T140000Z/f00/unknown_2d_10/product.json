@@ -1,0 +1,58 @@
+{
+  "model": "RAP",
+  "cycle_utc": "20261114T14:00:00Z",
+  "forecast_hour": 0,
+  "valid_time_utc": "2026-11-14T14:00:00Z",
+  "field_key": "unknown_2d_10",
+  "short_name": "unknown",
+  "long_name": "unknown",
+  "units": "unknown",
+  "source_units": "unknown",
+  "display_transform": {
+    "scale": 1.0,
+    "offset": 0.0
+  },
+  "source_grid_shape": [
+    226,
+    177
+  ],
+  "render_grid_shape": [
+    226,
+    177
+  ],
+  "source_grid_id": "grid_10",
+  "source_grid_stride": 1,
+  "render_stride": 1,
+  "source_effective_spacing_m": {
+    "x": 13545.0,
+    "y": 13545.0
+  },
+  "render_effective_spacing_m": {
+    "x": 13545.0,
+    "y": 13545.0
+  },
+  "display_range": [
+    83.94,
+    1888.8711999999982
+  ],
+  "contour_interval": 200,
+  "contour_levels": [
+    200.0,
+    400.0,
+    600.0,
+    800.0,
+    1000.0,
+    1200.0,
+    1400.0,
+    1600.0,
+    1800.0
+  ],
+  "tile_size": 256,
+  "zoom_min": 3,
+  "zoom_max": 6,
+  "tile_count": 51,
+  "contour_feature_count": 596,
+  "tile_url": "rap/20261114T140000Z/f00/unknown_2d_10/tiles/{z}/{x}/{y}.png",
+  "contour_url": "rap/20261114T140000Z/f00/unknown_2d_10/contours.geojson",
+  "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling"
+}

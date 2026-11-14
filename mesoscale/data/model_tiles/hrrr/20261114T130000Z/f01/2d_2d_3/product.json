@@ -1,0 +1,61 @@
+{
+  "model": "HRRR",
+  "cycle_utc": "20261114T13:00:00Z",
+  "forecast_hour": 1,
+  "valid_time_utc": "2026-11-14T14:00:00Z",
+  "field_key": "2d_2d_3",
+  "short_name": "2d",
+  "long_name": "2-m dewpoint",
+  "units": "\u00b0C",
+  "source_units": "K",
+  "display_transform": {
+    "scale": 1.0,
+    "offset": -273.15
+  },
+  "source_grid_shape": [
+    153,
+    145
+  ],
+  "render_grid_shape": [
+    153,
+    145
+  ],
+  "source_grid_id": "grid_3",
+  "source_grid_stride": 5,
+  "render_stride": 1,
+  "source_effective_spacing_m": {
+    "x": 15000.0,
+    "y": 15000.0
+  },
+  "render_effective_spacing_m": {
+    "x": 15000.0,
+    "y": 15000.0
+  },
+  "display_range": [
+    -8.199999999999989,
+    13.670000000000016
+  ],
+  "contour_interval": 2,
+  "contour_levels": [
+    -8.0,
+    -6.0,
+    -4.0,
+    -2.0,
+    0.0,
+    2.0,
+    4.0,
+    6.0,
+    8.0,
+    10.0,
+    12.0,
+    14.0
+  ],
+  "tile_size": 256,
+  "zoom_min": 3,
+  "zoom_max": 6,
+  "tile_count": 51,
+  "contour_feature_count": 537,
+  "tile_url": "hrrr/20261114T130000Z/f01/2d_2d_3/tiles/{z}/{x}/{y}.png",
+  "contour_url": "hrrr/20261114T130000Z/f01/2d_2d_3/contours.geojson",
+  "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling"
+}

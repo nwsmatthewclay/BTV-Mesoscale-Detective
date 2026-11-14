@@ -1,0 +1,55 @@
+{
+  "model": "HRRR",
+  "cycle_utc": "20261114T13:00:00Z",
+  "forecast_hour": 1,
+  "valid_time_utc": "2026-11-14T14:00:00Z",
+  "field_key": "10v_2d_2",
+  "short_name": "10v",
+  "long_name": "10 metre V wind component",
+  "units": "m s**-1",
+  "source_units": "m s**-1",
+  "display_transform": {
+    "scale": 1.0,
+    "offset": 0.0
+  },
+  "source_grid_shape": [
+    153,
+    145
+  ],
+  "render_grid_shape": [
+    153,
+    145
+  ],
+  "source_grid_id": "grid_2",
+  "source_grid_stride": 5,
+  "render_stride": 1,
+  "source_effective_spacing_m": {
+    "x": 15000.0,
+    "y": 15000.0
+  },
+  "render_effective_spacing_m": {
+    "x": 15000.0,
+    "y": 15000.0
+  },
+  "display_range": [
+    -9.76,
+    2.93
+  ],
+  "contour_interval": 2,
+  "contour_levels": [
+    -8.0,
+    -6.0,
+    -4.0,
+    -2.0,
+    0.0,
+    2.0
+  ],
+  "tile_size": 256,
+  "zoom_min": 3,
+  "zoom_max": 6,
+  "tile_count": 51,
+  "contour_feature_count": 821,
+  "tile_url": "hrrr/20261114T130000Z/f01/10v_2d_2/tiles/{z}/{x}/{y}.png",
+  "contour_url": "hrrr/20261114T130000Z/f01/10v_2d_2/contours.geojson",
+  "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling"
+}
