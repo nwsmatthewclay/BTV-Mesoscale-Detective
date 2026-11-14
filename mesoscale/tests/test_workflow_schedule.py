@@ -96,7 +96,7 @@ def test_hrrr_workflow_run_checks_out_latest_main_before_freshness_decision():
 
 def test_model_discovery_does_not_run_for_test_only_changes():
     discovery = (ROOT / ".github/workflows/mesoscale_model_discovery.yml").read_text(encoding="utf-8")
-    paths = discovery.split("    paths:\\n", 1)[1].split("  workflow_dispatch:", 1)[0]
+    paths = discovery.split("    paths:\n", 1)[1].split("  workflow_dispatch:", 1)[0]
 
     assert "mesoscale/tests/**" not in paths
     assert "mesoscale/hrrr_tests/**" not in paths
