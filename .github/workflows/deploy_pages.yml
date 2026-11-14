@@ -6,11 +6,11 @@ on:
     paths:
       - "index.html"
       - "mesoscale.html"
-      - "mesoscale/**"
+      # Only browser entry points and published model data affect this site.
+      # Backend diagnostics/ingestion code is not a Pages asset.
+      - "mesoscale/data/**"
       # Tile generation and deployment are owned by model_tile_render.yml.
       - "!mesoscale/data/model_tiles/**"
-      - "!mesoscale/render_model_tiles.py"
-      - "!mesoscale/tests/**"
   workflow_dispatch:
 
 permissions:
