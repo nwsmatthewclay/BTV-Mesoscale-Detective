@@ -37,7 +37,7 @@ def test_hourly_model_refresh_is_owned_by_discovery_and_triggers_one_rap_check()
 
 def test_pages_deployments_are_serialized_and_use_attempt_scoped_artifacts():
     def assert_attempt_scoped_deployment(workflow, job_name):
-        marker = f"  {job_name}:\\n"
+        marker = f"  {job_name}:\n"
         assert marker in workflow, f"missing Pages deployment job {job_name}"
         deploy = workflow.split(marker, 1)[1]
         assert "group: github-pages" in deploy
@@ -46,7 +46,7 @@ def test_pages_deployments_are_serialized_and_use_attempt_scoped_artifacts():
         assert "run: sleep 10" in deploy
 
         upload = deploy.split("uses: actions/upload-pages-artifact@v5", 1)[1].split(
-            "\\n      - name:", 1
+            "\n      - name:", 1
         )[0]
         deploy_step = deploy.split("uses: actions/deploy-pages@v5", 1)[1]
         artifact_name = "github-pages-${{ github.run_id }}-${{ github.run_attempt }}"
