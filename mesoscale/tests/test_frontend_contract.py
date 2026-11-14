@@ -74,7 +74,7 @@ def test_model_discovery_orchestrates_rap_and_hrrr_ingestion_and_pages():
     assert "needs.discover.outputs.manifest_changed == 'true'" in discovery
     assert 'echo "changed=false"' in discovery
     assert 'echo "changed=true"' in discovery
-    assert "actions/deploy-pages@v4" in discovery
+    assert "actions/deploy-pages@v5" in discovery
 
     # RAP and HRRR retain complete-cycle gates and downstream sequencing.
     assert "archive_needs_update" in rap
