@@ -117,6 +117,36 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
             }"""
         )
         assert all(field_geometry.values()), field_geometry
+        cross_section_geometry = page.evaluate(
+            """() => {
+                const path = greatCircleTransect([44.0, -75.0], [45.0, -70.0], 5);
+                const grid = {sampling: {effective_spacing_m: {x: 13545, y: 13545}}};
+                const limit = nativeGridSampleOffsetLimitKm(grid);
+                let localSampleAccepted = false;
+                let distantSampleRejected = false;
+                let missingSpacingRejected = false;
+                try { localSampleAccepted = validateTransectSampleDistance(grid, {distance_km: limit * 0.5}); }
+                catch (_) {}
+                try { validateTransectSampleDistance(grid, {distance_km: limit * 2}); }
+                catch (error) { distantSampleRejected = error.message.includes("nearest native RAP grid cell"); }
+                try { validateTransectSampleDistance({}, {distance_km: 1}); }
+                catch (error) { missingSpacingRejected = error.message.includes("effective grid spacing metadata unavailable"); }
+                return {
+                    sampleCount: path.points.length === 5,
+                    startMatches: Math.abs(path.points[0].latitude - 44.0) < 1e-6
+                        && Math.abs(path.points[0].longitude + 75.0) < 1e-6,
+                    endMatches: Math.abs(path.points[4].latitude - 45.0) < 1e-6
+                        && Math.abs(path.points[4].longitude + 70.0) < 1e-6,
+                    distancesIncrease: path.points.every((point, index) => index === 0 || point.distance_km > path.points[index - 1].distance_km),
+                    totalDistancePositive: path.totalDistanceKm > 0,
+                    localSampleAccepted,
+                    distantSampleRejected,
+                    missingSpacingRejected
+                };
+            }"""
+        )
+        assert all(cross_section_geometry.values()), cross_section_geometry
+
         missing_source = page.evaluate(
             """() => {
                 const payload = {
@@ -632,7 +662,23 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         cross_status = page.locator("#crossSectionStatus").inner_text()
         assert "distinct published-grid columns" in cross_status, f"RAP transect failed: {cross_status}"
         assert "effective horizontal spacing" in cross_status, f"Cross-section must report effective horizontal resolution: {cross_status}"
+        assert "great-circle distance" in cross_status, f"Cross-section must report geodesic transect distance: {cross_status}"
+        assert "max nearest-cell offset" in cross_status, f"Cross-section must report native-grid sample offsets: {cross_status}"
         assert "native RAP (~13 km)" not in cross_status
+
+        # A transect far outside the published RAP grid must fail rather than sample edge cells.
+        out_of_domain = page.evaluate(
+            """async () => {
+                try {
+                    await runRapCrossSection([[10, -130], [10, -125]]);
+                    return {rejected: false, status: document.querySelector("#crossSectionStatus")?.textContent || ""};
+                } catch (error) {
+                    return {rejected: true, message: error.message, status: document.querySelector("#crossSectionStatus")?.textContent || ""};
+                }
+            }"""
+        )
+        assert out_of_domain["rejected"], out_of_domain
+        assert "nearest native RAP grid cell" in out_of_domain["message"], out_of_domain
 
         browser.close()
 

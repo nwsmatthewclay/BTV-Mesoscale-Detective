@@ -92,7 +92,14 @@ def test_rap_cross_section_uses_selected_archive_hour_and_reports_effective_spac
     html = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "async function runRapCrossSection(points)" in html
     assert "const payload=await loadRapGrid(activeRapHour)" in html
-    assert "extractRegionalRapProfile(payload,lat,lon,'Transect '+i)" in html
+    assert "function greatCircleTransect(start,end,count)" in html
+    assert "const path=greatCircleTransect(points[0],points[1],samples+1)" in html
+    assert "extractRegionalRapProfile(payload,probe.latitude,probe.longitude,'Transect '+i)" in html
+    assert "function nativeGridSampleOffsetLimitKm(grid)" in html
+    assert "function validateTransectSampleDistance(grid,point)" in html
+    assert "validateTransectSampleDistance(payload.grids?.[point.grid_id],point)" in html
+    assert "great-circle distance '+path.totalDistanceKm.toFixed(1)+' km" in html
+    assert "transect columns passed profile QC" in html
     assert "transect columns passed profile QC" in html
     assert "sampled_grid_point:{latitude:pt.lat,longitude:pt.lon,distance_km:pt.d,grid_id:gridId" in html
     assert "await Plotly.react('crossSectionPlot'" in html

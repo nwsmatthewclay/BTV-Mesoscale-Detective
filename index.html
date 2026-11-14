@@ -533,6 +533,70 @@ const CROSS_SECTION_VARIABLES={
   graupel:{label:'Graupel mixing ratio',units:'g/kg',shortName:'grle',transform:v=>v*1000,colorscale:'Viridis'},
   tke:{label:'Turbulent kinetic energy',units:'J/kg',shortName:'tke',transform:v=>v,colorscale:'Viridis'}
 };
+function greatCircleTransect(start,end,count){
+  if(!Array.isArray(start)||!Array.isArray(end)||start.length!==2||end.length!==2||!Number.isInteger(count)||count<2){
+    throw new Error('A great-circle transect requires two coordinate pairs and at least two samples');
+  }
+  const lat1=Number(start[0]),lon1=Number(start[1]),lat2=Number(end[0]),lon2=Number(end[1]);
+  if(![lat1,lon1,lat2,lon2].every(Number.isFinite)||Math.abs(lat1)>90||Math.abs(lat2)>90){
+    throw new Error('Transect endpoints must contain finite coordinates with valid latitudes');
+  }
+  const toVector=(lat,lon)=>{
+    const p=lat*Math.PI/180,l=lon*Math.PI/180,c=Math.cos(p);
+    return [c*Math.cos(l),c*Math.sin(l),Math.sin(p)];
+  };
+  const a=toVector(lat1,lon1),b=toVector(lat2,lon2);
+  const dot=Math.max(-1,Math.min(1,a.reduce((sum,value,index)=>sum+value*b[index],0)));
+  const angle=Math.acos(dot);
+  if(Math.abs(Math.PI-angle)<1e-8)throw new Error('Antipodal transect endpoints do not define a unique great circle');
+  const totalDistanceKm=angle*6371.0088,points=[];
+  for(let i=0;i<count;i++){
+    const fraction=i/(count-1);
+    let vector;
+    if(angle<1e-10)vector=a.slice();
+    else{
+      const denominator=Math.sin(angle);
+      const wa=Math.sin((1-fraction)*angle)/denominator;
+      const wb=Math.sin(fraction*angle)/denominator;
+      vector=a.map((value,index)=>wa*value+wb*b[index]);
+    }
+    const norm=Math.hypot(...vector);
+    if(!(norm>0))throw new Error('Could not normalize a great-circle transect point');
+    vector=vector.map(value=>value/norm);
+    points.push({
+      latitude:Math.asin(Math.max(-1,Math.min(1,vector[2])))*180/Math.PI,
+      longitude:Math.atan2(vector[1],vector[0])*180/Math.PI,
+      distance_km:totalDistanceKm*fraction
+    });
+  }
+  return {points,totalDistanceKm};
+}
+
+function nativeGridSampleOffsetLimitKm(grid){
+  const effective=grid?.sampling?.effective_spacing_m||{};
+  let dx=Number(effective.x),dy=Number(effective.y);
+  if(!(Number.isFinite(dx)&&dx>0&&Number.isFinite(dy)&&dy>0)){
+    const projection=grid?.projection||{};
+    const stride=Number(grid?.stride||grid?.sampling?.stride||1);
+    dx=Number(projection.GRIB_DxInMetres)*stride;
+    dy=Number(projection.GRIB_DyInMetres)*stride;
+  }
+  if(!(Number.isFinite(dx)&&dx>0&&Number.isFinite(dy)&&dy>0))return null;
+  // Allow 1.5 times the half-diagonal of one effective native grid cell.
+  return Math.hypot(dx,dy)*0.75/1000;
+}
+
+function validateTransectSampleDistance(grid,point){
+  const limit=nativeGridSampleOffsetLimitKm(grid);
+  if(!Number.isFinite(limit))throw new Error('RAP effective grid spacing metadata unavailable; cannot validate transect sample distance');
+  const distance=Number(point?.distance_km);
+  if(!Number.isFinite(distance)||distance>limit){
+    throw new Error('Transect probe is '+(Number.isFinite(distance)?distance.toFixed(1):'unavailable')+
+      ' km from the nearest native RAP grid cell; limit '+limit.toFixed(1)+' km');
+  }
+  return true;
+}
+
 async function runRapCrossSection(points){
   const status=document.getElementById('crossSectionStatus');
   const variableId=document.getElementById('crossVariable').value;
@@ -546,15 +610,16 @@ async function runRapCrossSection(points){
   status.textContent='Loading RAP F'+String(activeRapHour).padStart(2,'0')+' and sampling '+config.label+'…';
   const payload=await loadRapGrid(activeRapHour),samples=24,distances=[],profiles=[],skipped=[],seenCells=new Set();
   updateGridSpacing(payload,'RAP');
-  const [a,b]=points,rad=Math.PI/180,latMid=(a[0]+b[0])/2*rad;
-  const totalKm=Math.hypot((b[0]-a[0])*111.32,(b[1]-a[1])*111.32*Math.cos(latMid));
-  for(let i=0;i<=samples;i++){
-    const f=i/samples,lat=a[0]+(b[0]-a[0])*f,lon=a[1]+(b[1]-a[1])*f;
+  const path=greatCircleTransect(points[0],points[1],samples+1);
+  for(let i=0;i<path.points.length;i++){
+    const probe=path.points[i];
     try{
-      const profile=extractRegionalRapProfile(payload,lat,lon,'Transect '+i);
-      const point=profile.sampled_grid_point,cellKey=point.grid_id+':'+point.y+':'+point.x;
+      const profile=extractRegionalRapProfile(payload,probe.latitude,probe.longitude,'Transect '+i);
+      const point=profile.sampled_grid_point;
+      validateTransectSampleDistance(payload.grids?.[point.grid_id],point);
+      const cellKey=point.grid_id+':'+point.y+':'+point.x;
       if(seenCells.has(cellKey)){skipped.push({index:i,reason:'duplicate native grid cell'});continue;}
-      seenCells.add(cellKey);profiles.push(profile);distances.push(totalKm*f);
+      seenCells.add(cellKey);profiles.push(profile);distances.push(probe.distance_km);
     }catch(error){skipped.push({index:i,reason:error.message});}
   }
   const usable=profiles.length;
@@ -601,7 +666,7 @@ async function runRapCrossSection(points){
   await Plotly.react('crossSectionPlot',[{type:'heatmap',x:distances,y:heights,z,colorscale:config.colorscale,reversescale:!!config.reverse,colorbar:{title:config.units},hovertemplate:'Distance %{x:.1f} km<br>Height %{y:.0f} m AGL<br>'+config.label+' %{z:.3f} '+config.units+'<extra></extra>'}],{paper_bgcolor:'#0d2033',plot_bgcolor:'#0d2033',margin:{l:58,r:25,t:18,b:48},title:{text:config.label+' · RAP hybrid levels',font:{size:13,color:'#dceaf4'}},xaxis:{title:'Distance along transect (km)',color:'#9cb2c5',gridcolor:'#24435e'},yaxis:{title:'Height AGL (m)',color:'#9cb2c5',gridcolor:'#24435e'},font:{color:'#dceaf4'}},{displayModeBar:false,responsive:true});
   const sampledGridId=profiles[0]?.sampled_grid_point?.grid_id;
   const effectiveSpacing=formatEffectiveGridSpacing(payload,sampledGridId);
-  status.textContent='RAP '+payload.valid_time_utc+' · '+config.label+' · '+usable+'/'+(samples+1)+' distinct published-grid columns from '+(samples+1)+' probes · '+skipped.length+' duplicate/invalid probes · max nearest-cell offset '+(maxOffset===null?'unavailable':maxOffset.toFixed(1)+' km')+' · effective horizontal spacing '+effectiveSpacing+' · vertical interpolation to 250 m spacing only; no horizontal upscaling.';
+  status.textContent='RAP '+payload.valid_time_utc+' · '+config.label+' · '+usable+'/'+(samples+1)+' distinct published-grid columns from '+(samples+1)+' probes · '+skipped.length+' duplicate/invalid probes · great-circle distance '+path.totalDistanceKm.toFixed(1)+' km · max nearest-cell offset '+(maxOffset===null?'unavailable':maxOffset.toFixed(1)+' km')+' · effective horizontal spacing '+effectiveSpacing+' · vertical interpolation to 250 m spacing only; no horizontal upscaling.';
 }
 document.getElementById('crossVariable').addEventListener('change',()=>{
   if(transect.length===2)runRapCrossSection(transect).catch(error=>{
