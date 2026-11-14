@@ -40,8 +40,10 @@ def test_pages_deployments_are_serialized_and_use_attempt_scoped_artifacts():
         marker = f"  {job_name}:\n"
         assert marker in workflow, f"missing Pages deployment job {job_name}"
         deploy = workflow.split(marker, 1)[1]
-        assert "group: github-pages" in deploy
-        assert "cancel-in-progress: false" in deploy
+        # Discovery/tile scope concurrency at the job; the standalone
+        # site workflow declares it at workflow scope.
+        assert "group: github-pages" in workflow
+        assert "cancel-in-progress: false" in workflow
         assert "name: Wait for GitHub Pages artifact metadata" in deploy
         assert "run: sleep 10" in deploy
 
