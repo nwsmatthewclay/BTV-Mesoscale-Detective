@@ -108,3 +108,59 @@ def test_rap_inventory_summary_rejects_inconsistent_quality_count():
     with pytest.raises(ValueError, match="does not match decoded field records"):
         summarize_rap_field_inventory(payload)
 
+
+def test_all_published_rap_station_profiles_have_consistent_arrays_and_provenance():
+    import numpy as np
+
+    manifest_path = ARCHIVE.parent.parent / "forecast_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    expected_stations = {"KBTV", "KPBG", "KMSS", "KSLK", "KMPV", "KRUT", "1V4", "KEFK"}
+
+    assert manifest["model"] == "RAP"
+    assert manifest["quality"]["status"] == "passed"
+    assert len(manifest["hours"]) == 6
+
+    for hour in manifest["hours"]:
+        station_path = manifest_path.parent / hour["station_file"]
+        collection = json.loads(station_path.read_text(encoding="utf-8"))
+
+        assert collection["model"] == "RAP"
+        assert collection["model_cycle_utc"] == manifest["model_cycle_utc"]
+        assert collection["forecast_hour"] == hour["forecast_hour"]
+        assert collection["valid_time_utc"] == hour["valid_time_utc"]
+        assert set(collection["stations"]) == expected_stations
+        assert len(collection["stations"]) == hour["station_count"] == 8
+
+        for station, entry in collection["stations"].items():
+            assert entry["model"] == "RAP"
+            assert entry["model_cycle_utc"] == manifest["model_cycle_utc"]
+            assert entry["forecast_hour"] == hour["forecast_hour"]
+            assert entry["valid_time_utc"] == hour["valid_time_utc"]
+
+            profile = entry["profile"]
+            arrays = {
+                name: profile[name]
+                for name in (
+                    "pressure_hpa",
+                    "temperature_k",
+                    "dewpoint_k",
+                    "height_agl_m",
+                    "u_ms",
+                    "v_ms",
+                )
+            }
+            lengths = {name: len(values) for name, values in arrays.items()}
+            assert len(set(lengths.values())) == 1, f"{station} F{hour['forecast_hour']:02d}: {lengths}"
+            level_count = next(iter(lengths.values()))
+            assert level_count > 0
+            assert entry["quality"]["levels"] == level_count
+
+            pressure = np.asarray(arrays["pressure_hpa"], dtype=float)
+            height = np.asarray(arrays["height_agl_m"], dtype=float)
+            assert np.all(np.isfinite(pressure))
+            assert np.all(np.isfinite(height))
+            assert np.all(np.diff(pressure) < 0), f"{station} F{hour['forecast_hour']:02d}: pressure order"
+            assert np.all(np.diff(height) > 0), f"{station} F{hour['forecast_hour']:02d}: height order"
+            assert entry["quality"]["pressure_decreases_upward"] is True
+            assert entry["quality"]["height_increases_upward"] is True
+            assert entry["quality"]["profile_warnings"] == []

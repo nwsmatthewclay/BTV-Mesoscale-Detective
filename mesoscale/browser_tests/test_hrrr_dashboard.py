@@ -86,6 +86,17 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         page.on("pageerror", lambda error: page_errors.append(str(error)))
         page.on("console", lambda message: console_errors.append(message.text) if message.type == "error" else None)
         page.route("**/tile.openstreetmap.org/**", lambda route: route.abort())
+        # Census TIGERweb is an external service; keep this archive/browser smoke
+        # deterministic and focused on model behavior with a valid empty GeoJSON
+        # FeatureCollection. Boundary geometry is covered by its own live overlay.
+        page.route(
+            "https://tigerweb.geo.census.gov/**",
+            lambda route: route.fulfill(
+                status=200,
+                content_type="application/geo+json",
+                body='{"type":"FeatureCollection","features":[]}',
+            ),
+        )
 
         page.goto("http://127.0.0.1:8765/", wait_until="domcontentloaded")
 
