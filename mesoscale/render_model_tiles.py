@@ -10,6 +10,8 @@ import argparse
 import gzip
 import json
 import math
+import shutil
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +24,7 @@ from scipy.spatial import Delaunay, QhullError
 WEB_MERCATOR_LIMIT = 20037508.342789244
 TILE_SIZE = 256
 TILE_MAX_GRID_DIM = 320
+TILE_HISTORY_RETENTION_HOURS = 18
 WEB = "EPSG:3857"
 GEO = "EPSG:4326"
 
@@ -50,6 +53,96 @@ def summarize_forecast_hour_coverage(
         "rendered_hours": rendered,
         "not_rendered_hours": [hour for hour in declared if hour not in rendered_set],
     }
+
+
+def parse_tile_cycle_utc(value: Any) -> datetime:
+    """Parse catalog cycle timestamps into timezone-aware UTC datetimes."""
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("tile product cycle_utc must be a non-empty timestamp")
+    raw = value.strip()
+    for pattern in ("%Y%m%dT%H:%M:%SZ", "%Y%m%dT%H%M%SZ"):
+        try:
+            return datetime.strptime(raw, pattern).replace(tzinfo=timezone.utc)
+        except ValueError:
+            pass
+    try:
+        parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ValueError(f"invalid tile product cycle_utc: {value!r}") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError(f"tile product cycle_utc must include a timezone: {value!r}")
+    return parsed.astimezone(timezone.utc)
+
+
+def retain_recent_tile_products(
+    products: list[dict[str, Any]],
+    retention_hours: int = TILE_HISTORY_RETENTION_HOURS,
+) -> list[dict[str, Any]]:
+    """Keep a rolling history window relative to each model's newest tile cycle."""
+    if isinstance(retention_hours, bool) or not isinstance(retention_hours, int) or retention_hours <= 0:
+        raise ValueError("tile history retention_hours must be a positive integer")
+
+    parsed: list[tuple[dict[str, Any], str, datetime]] = []
+    latest_by_model: dict[str, datetime] = {}
+    for product in products:
+        if not isinstance(product, dict):
+            raise ValueError("tile catalog products must be objects")
+        model = product.get("model")
+        if not isinstance(model, str) or not model.strip():
+            raise ValueError("tile product model must be a non-empty string")
+        model_key = model.strip().upper()
+        cycle = parse_tile_cycle_utc(product.get("cycle_utc"))
+        parsed.append((product, model_key, cycle))
+        latest_by_model[model_key] = max(cycle, latest_by_model.get(model_key, cycle))
+
+    windows = {
+        model: latest - timedelta(hours=retention_hours)
+        for model, latest in latest_by_model.items()
+    }
+    return [
+        product
+        for product, model, cycle in parsed
+        if cycle >= windows[model]
+    ]
+
+
+def prune_unreferenced_tile_products(
+    root: Path,
+    products: list[dict[str, Any]],
+) -> list[str]:
+    """Remove stale product directories not represented in the retained catalog."""
+    root = Path(root)
+    root_resolved = root.resolve()
+    keep_paths: set[str] = set()
+    for product in products:
+        relative = product.get("product_path")
+        if not isinstance(relative, str) or not relative:
+            raise ValueError("retained tile product is missing product_path")
+        relative_path = Path(relative)
+        if relative_path.is_absolute() or ".." in relative_path.parts:
+            raise ValueError(f"unsafe tile product_path: {relative!r}")
+        if relative_path.name != "product.json":
+            raise ValueError(f"tile product_path must reference product.json: {relative!r}")
+        resolved = (root / relative_path).resolve()
+        try:
+            resolved.relative_to(root_resolved)
+        except ValueError as exc:
+            raise ValueError(f"tile product_path escapes tile root: {relative!r}") from exc
+        if not resolved.is_file():
+            raise ValueError(f"retained tile product file is missing: {relative!r}")
+        keep_paths.add(relative_path.as_posix())
+
+    removed: list[str] = []
+    if not root.is_dir():
+        if keep_paths:
+            raise ValueError("tile root is missing while retained products were supplied")
+        return removed
+    for product_path in sorted(root.glob("**/product.json")):
+        relative = product_path.relative_to(root).as_posix()
+        if relative not in keep_paths:
+            shutil.rmtree(product_path.parent)
+            removed.append(relative)
+    return removed
 
 
 def build_tile_catalog(

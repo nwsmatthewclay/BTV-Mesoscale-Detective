@@ -9,8 +9,11 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from mesoscale.render_model_tiles import (
+    TILE_HISTORY_RETENTION_HOURS,
     TILE_MAX_GRID_DIM,
+    prune_unreferenced_tile_products,
     render_tiles,
+    retain_recent_tile_products,
     summarize_forecast_hour_coverage,
 )
 
@@ -63,6 +66,85 @@ def test_tile_catalog_advances_timestamp_when_product_inventory_changes():
 
     assert catalog["generated_utc"] == "2026-11-13T23:10:00Z"
     assert catalog["products"] == products
+
+
+def test_tile_history_retention_uses_an_inclusive_window_per_model():
+    products = [
+        {"model": "RAP", "cycle_utc": "20261113T23:00:00Z", "id": "rap-old"},
+        {"model": "RAP", "cycle_utc": "20261114T06:00:00Z", "id": "rap-cutoff"},
+        {"model": "RAP", "cycle_utc": "20261114T18:00:00Z", "id": "rap-new"},
+        {"model": "HRRR", "cycle_utc": "20261113T23:00:00Z", "id": "hrrr-old"},
+        {"model": "HRRR", "cycle_utc": "20261114T00:00:00Z", "id": "hrrr-cutoff"},
+        {"model": "HRRR", "cycle_utc": "2026-11-14T12:00:00+00:00", "id": "hrrr-new"},
+    ]
+
+    retained = retain_recent_tile_products(products, retention_hours=12)
+
+    assert TILE_HISTORY_RETENTION_HOURS == 18
+    assert [item["id"] for item in retained] == [
+        "rap-cutoff", "rap-new", "hrrr-cutoff", "hrrr-new"
+    ]
+
+
+def test_tile_history_retention_rejects_invalid_timestamps_and_windows():
+    import pytest
+
+    with pytest.raises(ValueError, match="cycle_utc"):
+        retain_recent_tile_products([{"model": "RAP", "cycle_utc": "not-a-time"}])
+    with pytest.raises(ValueError, match="positive integer"):
+        retain_recent_tile_products([], retention_hours=0)
+    with pytest.raises(ValueError, match="positive integer"):
+        retain_recent_tile_products([], retention_hours=True)
+
+
+def test_prune_unreferenced_tile_products_removes_only_stale_product_directories(tmp_path: Path):
+    root = tmp_path / "model_tiles"
+    stale = root / "rap" / "old" / "f00" / "t_2d"
+    retained = root / "rap" / "new" / "f00" / "t_2d"
+    stale.mkdir(parents=True)
+    retained.mkdir(parents=True)
+    (stale / "product.json").write_text("{}", encoding="utf-8")
+    (stale / "contours.geojson").write_text("{}", encoding="utf-8")
+    (retained / "product.json").write_text("{}", encoding="utf-8")
+    (retained / "tile.png").write_bytes(b"png")
+    unrelated = root / "README.txt"
+    unrelated.write_text("keep", encoding="utf-8")
+
+    removed = prune_unreferenced_tile_products(
+        root,
+        [{"product_path": "rap/new/f00/t_2d/product.json"}],
+    )
+
+    assert removed == ["rap/old/f00/t_2d/product.json"]
+    assert not stale.exists()
+    assert (retained / "product.json").is_file()
+    assert (retained / "tile.png").is_file()
+    assert unrelated.is_file()
+
+
+def test_prune_unreferenced_tile_products_rejects_unsafe_or_missing_paths(tmp_path: Path):
+    import pytest
+
+    root = tmp_path / "model_tiles"
+    root.mkdir()
+    with pytest.raises(ValueError, match="unsafe"):
+        prune_unreferenced_tile_products(root, [{"product_path": "../outside/product.json"}])
+    with pytest.raises(ValueError, match="missing"):
+        prune_unreferenced_tile_products(root, [{"product_path": "rap/missing/product.json"}])
+
+
+def test_tile_render_workflow_prunes_history_before_catalog_publication():
+    root = Path(__file__).resolve().parents[2]
+    workflow = (root / ".github/workflows/model_tile_render.yml").read_text(encoding="utf-8")
+
+    retain = workflow.index("products = retain_recent_tile_products")
+    prune = workflow.index("removed = prune_unreferenced_tile_products")
+    catalog = workflow.index("catalog = build_tile_catalog")
+
+    assert "TILE_HISTORY_RETENTION_HOURS" in workflow
+    assert retain < prune < catalog
+    assert "Report Pages source footprint" in workflow
+    assert "du -sb --exclude=.git ." in workflow
 
 
 def test_render_native_grid_to_xyz_raster_and_independent_contours(tmp_path: Path):
