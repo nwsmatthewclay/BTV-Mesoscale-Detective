@@ -8,8 +8,12 @@ def test_hourly_model_refresh_is_owned_by_discovery_and_triggers_one_rap_check()
     rap = (ROOT / ".github/workflows/rap_ingestion_smoke.yml").read_text(encoding="utf-8")
     discovery = (ROOT / ".github/workflows/mesoscale_model_discovery.yml").read_text(encoding="utf-8")
 
-    schedule = discovery.split("  schedule:\\n", 1)[1].split("  workflow_dispatch:", 1)[0]
-    paths = discovery.split("    paths:\\n", 1)[1].split("  schedule:\\n", 1)[0]
+    schedule_start = discovery.index("  schedule:")
+    schedule_end = discovery.index("  workflow_dispatch:", schedule_start)
+    paths_start = discovery.index("    paths:")
+    paths_end = discovery.index("  schedule:", paths_start)
+    schedule = discovery[schedule_start:schedule_end]
+    paths = discovery[paths_start:paths_end]
 
     assert '    - cron: "17 * * * *"' in schedule
     assert "mesoscale/data/model_manifest.json" not in paths

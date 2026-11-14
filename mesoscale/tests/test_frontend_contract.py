@@ -53,40 +53,38 @@ def test_model_discovery_orchestrates_rap_and_hrrr_ingestion_and_pages():
     rap = (ROOT / ".github" / "workflows" / "rap_ingestion_smoke.yml").read_text(encoding="utf-8")
     hrrr = (ROOT / ".github" / "workflows" / "hrrr_ingestion_smoke.yml").read_text(encoding="utf-8")
 
-    # The scheduled ingestion orchestrator refreshes discovery before RAP selection.
-    assert 'cron: "47 * * * *"' in rap
-    assert "schedule:" not in discovery
-    # Discovery must not share a concurrency group with the downstream RAP
-    # workflow_run job; otherwise the queued child can cancel its parent.
-    assert "group: mesoscale-model-discovery" in discovery
-    assert "group: mesoscale-data-updates" in rap
-    assert "if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'" in rap
-    assert "if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'" in hrrr
-    assert '"mesoscale/build_rap_forecast_archive.py"' in discovery
-    assert '"mesoscale/download_subset.py"' in discovery
-    assert '"mesoscale/data/model_manifest.json"' in discovery
+    # Hourly discovery is the sole scheduled entry point; generated manifest
+    # commits must not retrigger discovery or cause a self-trigger loop.
+    assert 'cron: "17 * * * *"' in discovery
+    paths = discovery.partition("    paths:")[2].partition("  schedule:")[0]
+    assert "mesoscale/data/model_manifest.json" not in paths
+    assert "  schedule:" not in rap
+    assert "  schedule:" not in hrrr
+
+    # A successful discovery completion triggers one downstream RAP freshness check.
     assert 'workflows: ["Mesoscale Model Discovery and Validation"]' in rap
-    assert "if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'" in rap
-    assert 'workflows: ["RAP BTV Ingestion and Forecast Archive"]' in hrrr
-    assert "schedule:" not in hrrr
+    assert "types: [completed]" in rap
+    assert "branches: [main]" in rap
+    assert "if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'" in rap
+    assert "if: github.event_name == 'workflow_dispatch'" in rap
+    assert "github.event_name == 'schedule'" not in rap
 
-    discover = rap.index("python mesoscale/discover_models.py --days-back 2 --index-latest")
-    manual_refresh = rap.index("if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'")
-    validate = rap.index("python mesoscale/validate_rap_ingestion.py")
-    archive = rap.index("python mesoscale/build_rap_forecast_archive.py")
-    assert manual_refresh < discover < validate < archive
-
-    assert "manifest_changed:" in discovery
+    # Discovery publishes its manifest only when substantive content changes.
+    assert "manifest_changed: ${{ steps.commit_manifest.outputs.changed }}" in discovery
     assert "needs.discover.outputs.manifest_changed == 'true'" in discovery
+    assert 'echo "changed=false"' in discovery
     assert 'echo "changed=true"' in discovery
     assert "actions/deploy-pages@v4" in discovery
+
+    # RAP and HRRR retain complete-cycle gates and downstream sequencing.
     assert "archive_needs_update" in rap
     assert "steps.freshness.outputs.needs_update == 'true'" in rap
     assert "needs.rap-ingestion.outputs.published == 'true'" in rap
     assert "needs.rap-ingestion.outputs.manifest_changed == 'true'" in rap
+    assert 'workflows: ["RAP BTV Ingestion and Forecast Archive"]' in hrrr
+    assert "if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'" in hrrr
     assert "archive_needs_update" in hrrr
     assert "needs.hrrr-smoke.outputs.needs_update == 'true'" in hrrr
-
 
 def test_rap_cross_section_uses_selected_archive_hour_and_reports_effective_spacing():
     html = (ROOT / "index.html").read_text(encoding="utf-8")

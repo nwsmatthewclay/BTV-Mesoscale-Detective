@@ -327,6 +327,26 @@ def include_index_targets_in_manifest(
     return selected
 
 
+def preserve_created_timestamp(report: dict, previous_report: dict | None) -> dict:
+    """Keep created_utc stable when substantive discovery content is unchanged."""
+    if not isinstance(report, dict):
+        raise TypeError("discovery report must be a dictionary")
+    if not isinstance(previous_report, dict):
+        return report
+
+    previous_created = previous_report.get("created_utc")
+    if not isinstance(previous_created, str) or not previous_created:
+        return report
+
+    current_content = {key: value for key, value in report.items() if key != "created_utc"}
+    previous_content = {key: value for key, value in previous_report.items() if key != "created_utc"}
+    if current_content == previous_content:
+        stable_report = dict(report)
+        stable_report["created_utc"] = previous_created
+        return stable_report
+    return report
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--days-back", type=int, default=2,
@@ -371,6 +391,16 @@ def main():
 
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
+    if output.exists():
+        try:
+            previous_report = json.loads(output.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            print(
+                f"Could not compare previous discovery manifest; using a fresh timestamp: {exc}",
+                file=sys.stderr,
+            )
+        else:
+            report = preserve_created_timestamp(report, previous_report)
     output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     for model, data in report["models"].items():
         print(f"{model}: {data['products_found']} product(s) discovered")
