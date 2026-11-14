@@ -178,7 +178,7 @@ def test_workflows_use_node24_compatible_action_majors():
 def test_standalone_pages_deploy_triggers_only_for_browser_assets_and_published_model_data():
     workflow = (ROOT / ".github/workflows/deploy_pages.yml").read_text(encoding="utf-8")
     html = (ROOT / "index.html").read_text(encoding="utf-8")
-    paths = workflow.split("    paths:\\n", 1)[1].split("  workflow_dispatch:", 1)[0]
+    paths = workflow.split("    paths:\n", 1)[1].split("  workflow_dispatch:", 1)[0]
 
     assert '"index.html"' in paths
     assert '"mesoscale.html"' in paths
