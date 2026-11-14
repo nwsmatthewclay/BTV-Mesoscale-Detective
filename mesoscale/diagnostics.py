@@ -42,9 +42,21 @@ def _finite_profile(pressure_hpa, temperature_k, dewpoint_k, height_m,
 
 
 def _number(quantity, target_unit):
+    """Return a finite scalar in target units, or None for unavailable data.
+
+    Pint can carry NumPy masked values. Converting a masked scalar directly
+    with np.asarray may expose its fill value as an ordinary number, so check
+    the mask before conversion and reject non-finite or non-scalar results.
+    """
     try:
         value = quantity.to(target_unit).magnitude
-        return float(np.asarray(value))
+        if np.ma.is_masked(value):
+            return None
+        array = np.asarray(value, dtype=float)
+        if array.size != 1:
+            return None
+        number = float(array.reshape(-1)[0])
+        return number if math.isfinite(number) else None
     except Exception:
         return None
 
