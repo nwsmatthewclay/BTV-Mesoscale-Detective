@@ -26,7 +26,7 @@ def test_time_evolution_uses_cycle_and_hour_validated_station_archive():
     assert "const value=diagnostics[metricKey]" in html
     assert "collection.valid_time_utc===validTime" in html
     assert "connectgaps:false" in html
-    assert "Unavailable at "+unavailable.map(point=>" in html
+    assert "Unavailable at '+unavailable.map(point=>" in html
     assert "Custom map points are not filled with a nearby station." in html
 
 
