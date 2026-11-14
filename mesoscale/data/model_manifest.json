@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "created_utc": "2026-11-14T02:51:29.169625+00:00",
+  "created_utc": "2026-11-14T03:31:09.700662+00:00",
   "source": "NCEP NOMADS operational production directories",
   "domain": {
     "west": -75.2,
@@ -10,7 +10,7 @@
   },
   "models": {
     "RAP": {
-      "products_found": 2119,
+      "products_found": 2142,
       "latest_products": [
         {
           "model": "RAP",
@@ -16055,6 +16055,24 @@
           "date": "20261114",
           "cycle_utc": "20261114T02:00:00Z",
           "forecast_hour": 12,
+          "product": "pressure_levels_conus_13km",
+          "filename": "rap.t02z.awp130pgrbf12.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awp130pgrbf12.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 12,
+          "product": "north_american_32km",
+          "filename": "rap.t02z.awip32f12.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awip32f12.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 12,
           "product": "hybrid_levels_conus_13km",
           "filename": "rap.t02z.awp130bgrbf12.grib2",
           "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awp130bgrbf12.grib2"
@@ -16067,6 +16085,15 @@
           "product": "pressure_levels_conus_13km",
           "filename": "rap.t02z.awp130pgrbf13.grib2",
           "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awp130pgrbf13.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 13,
+          "product": "north_american_32km",
+          "filename": "rap.t02z.awip32f13.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awip32f13.grib2"
         },
         {
           "model": "RAP",
@@ -16091,9 +16118,36 @@
           "date": "20261114",
           "cycle_utc": "20261114T02:00:00Z",
           "forecast_hour": 14,
+          "product": "north_american_32km",
+          "filename": "rap.t02z.awip32f14.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awip32f14.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 14,
           "product": "hybrid_levels_conus_13km",
           "filename": "rap.t02z.awp130bgrbf14.grib2",
           "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awp130bgrbf14.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 15,
+          "product": "pressure_levels_conus_13km",
+          "filename": "rap.t02z.awp130pgrbf15.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awp130pgrbf15.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 15,
+          "product": "north_american_32km",
+          "filename": "rap.t02z.awip32f15.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awip32f15.grib2"
         },
         {
           "model": "RAP",
@@ -16109,9 +16163,162 @@
           "date": "20261114",
           "cycle_utc": "20261114T02:00:00Z",
           "forecast_hour": 16,
+          "product": "pressure_levels_conus_13km",
+          "filename": "rap.t02z.awp130pgrbf16.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awp130pgrbf16.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 16,
+          "product": "north_american_32km",
+          "filename": "rap.t02z.awip32f16.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awip32f16.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 16,
           "product": "hybrid_levels_conus_13km",
           "filename": "rap.t02z.awp130bgrbf16.grib2",
           "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awp130bgrbf16.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 17,
+          "product": "pressure_levels_conus_13km",
+          "filename": "rap.t02z.awp130pgrbf17.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awp130pgrbf17.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 17,
+          "product": "north_american_32km",
+          "filename": "rap.t02z.awip32f17.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awip32f17.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 17,
+          "product": "hybrid_levels_conus_13km",
+          "filename": "rap.t02z.awp130bgrbf17.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awp130bgrbf17.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 18,
+          "product": "pressure_levels_conus_13km",
+          "filename": "rap.t02z.awp130pgrbf18.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awp130pgrbf18.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 18,
+          "product": "north_american_32km",
+          "filename": "rap.t02z.awip32f18.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awip32f18.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 18,
+          "product": "hybrid_levels_conus_13km",
+          "filename": "rap.t02z.awp130bgrbf18.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awp130bgrbf18.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 19,
+          "product": "pressure_levels_conus_13km",
+          "filename": "rap.t02z.awp130pgrbf19.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awp130pgrbf19.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 19,
+          "product": "north_american_32km",
+          "filename": "rap.t02z.awip32f19.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awip32f19.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 19,
+          "product": "hybrid_levels_conus_13km",
+          "filename": "rap.t02z.awp130bgrbf19.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awp130bgrbf19.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 20,
+          "product": "pressure_levels_conus_13km",
+          "filename": "rap.t02z.awp130pgrbf20.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awp130pgrbf20.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 20,
+          "product": "north_american_32km",
+          "filename": "rap.t02z.awip32f20.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awip32f20.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 20,
+          "product": "hybrid_levels_conus_13km",
+          "filename": "rap.t02z.awp130bgrbf20.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awp130bgrbf20.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 21,
+          "product": "pressure_levels_conus_13km",
+          "filename": "rap.t02z.awp130pgrbf21.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awp130pgrbf21.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 21,
+          "product": "north_american_32km",
+          "filename": "rap.t02z.awip32f21.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awip32f21.grib2"
+        },
+        {
+          "model": "RAP",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 21,
+          "product": "hybrid_levels_conus_13km",
+          "filename": "rap.t02z.awp130bgrbf21.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t02z.awp130bgrbf21.grib2"
         },
         {
           "model": "RAP",
@@ -16598,213 +16805,6 @@
           "product": "hybrid_levels_conus_13km",
           "filename": "rap.t01z.awp130bgrbf17.grib2",
           "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t01z.awp130bgrbf17.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T01:00:00Z",
-          "forecast_hour": 18,
-          "product": "pressure_levels_conus_13km",
-          "filename": "rap.t01z.awp130pgrbf18.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t01z.awp130pgrbf18.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T01:00:00Z",
-          "forecast_hour": 18,
-          "product": "north_american_32km",
-          "filename": "rap.t01z.awip32f18.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t01z.awip32f18.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T01:00:00Z",
-          "forecast_hour": 18,
-          "product": "hybrid_levels_conus_13km",
-          "filename": "rap.t01z.awp130bgrbf18.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t01z.awp130bgrbf18.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T01:00:00Z",
-          "forecast_hour": 19,
-          "product": "pressure_levels_conus_13km",
-          "filename": "rap.t01z.awp130pgrbf19.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t01z.awp130pgrbf19.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T01:00:00Z",
-          "forecast_hour": 19,
-          "product": "north_american_32km",
-          "filename": "rap.t01z.awip32f19.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t01z.awip32f19.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T01:00:00Z",
-          "forecast_hour": 19,
-          "product": "hybrid_levels_conus_13km",
-          "filename": "rap.t01z.awp130bgrbf19.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t01z.awp130bgrbf19.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T01:00:00Z",
-          "forecast_hour": 20,
-          "product": "pressure_levels_conus_13km",
-          "filename": "rap.t01z.awp130pgrbf20.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t01z.awp130pgrbf20.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T01:00:00Z",
-          "forecast_hour": 20,
-          "product": "north_american_32km",
-          "filename": "rap.t01z.awip32f20.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t01z.awip32f20.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T01:00:00Z",
-          "forecast_hour": 20,
-          "product": "hybrid_levels_conus_13km",
-          "filename": "rap.t01z.awp130bgrbf20.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t01z.awp130bgrbf20.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T01:00:00Z",
-          "forecast_hour": 21,
-          "product": "pressure_levels_conus_13km",
-          "filename": "rap.t01z.awp130pgrbf21.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t01z.awp130pgrbf21.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T01:00:00Z",
-          "forecast_hour": 21,
-          "product": "north_american_32km",
-          "filename": "rap.t01z.awip32f21.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t01z.awip32f21.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T01:00:00Z",
-          "forecast_hour": 21,
-          "product": "hybrid_levels_conus_13km",
-          "filename": "rap.t01z.awp130bgrbf21.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t01z.awp130bgrbf21.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 0,
-          "product": "pressure_levels_conus_13km",
-          "filename": "rap.t00z.awp130pgrbf00.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t00z.awp130pgrbf00.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 0,
-          "product": "north_american_32km",
-          "filename": "rap.t00z.awip32f00.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t00z.awip32f00.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 0,
-          "product": "hybrid_levels_conus_13km",
-          "filename": "rap.t00z.awp130bgrbf00.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t00z.awp130bgrbf00.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 1,
-          "product": "pressure_levels_conus_13km",
-          "filename": "rap.t00z.awp130pgrbf01.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t00z.awp130pgrbf01.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 1,
-          "product": "north_american_32km",
-          "filename": "rap.t00z.awip32f01.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t00z.awip32f01.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 1,
-          "product": "hybrid_levels_conus_13km",
-          "filename": "rap.t00z.awp130bgrbf01.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t00z.awp130bgrbf01.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 2,
-          "product": "pressure_levels_conus_13km",
-          "filename": "rap.t00z.awp130pgrbf02.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t00z.awp130pgrbf02.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 2,
-          "product": "north_american_32km",
-          "filename": "rap.t00z.awip32f02.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t00z.awip32f02.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 2,
-          "product": "hybrid_levels_conus_13km",
-          "filename": "rap.t00z.awp130bgrbf02.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t00z.awp130bgrbf02.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 3,
-          "product": "pressure_levels_conus_13km",
-          "filename": "rap.t00z.awp130pgrbf03.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t00z.awp130pgrbf03.grib2"
-        },
-        {
-          "model": "RAP",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 3,
-          "product": "north_american_32km",
-          "filename": "rap.t00z.awip32f03.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rap/prod/rap.20261114/rap.t00z.awip32f03.grib2"
         }
       ],
       "directory_errors": [
@@ -16816,7 +16816,7 @@
       ]
     },
     "HRRR": {
-      "products_found": 1290,
+      "products_found": 1326,
       "latest_products": [
         {
           "model": "HRRR",
@@ -23875,6 +23875,330 @@
         {
           "model": "HRRR",
           "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 1,
+          "product": "surface",
+          "filename": "hrrr.t02z.wrfsfcf01.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfsfcf01.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 1,
+          "product": "pressure_levels",
+          "filename": "hrrr.t02z.wrfprsf01.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfprsf01.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 2,
+          "product": "surface",
+          "filename": "hrrr.t02z.wrfsfcf02.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfsfcf02.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 2,
+          "product": "pressure_levels",
+          "filename": "hrrr.t02z.wrfprsf02.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfprsf02.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 3,
+          "product": "surface",
+          "filename": "hrrr.t02z.wrfsfcf03.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfsfcf03.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 3,
+          "product": "pressure_levels",
+          "filename": "hrrr.t02z.wrfprsf03.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfprsf03.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 4,
+          "product": "surface",
+          "filename": "hrrr.t02z.wrfsfcf04.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfsfcf04.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 4,
+          "product": "pressure_levels",
+          "filename": "hrrr.t02z.wrfprsf04.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfprsf04.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 5,
+          "product": "surface",
+          "filename": "hrrr.t02z.wrfsfcf05.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfsfcf05.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 5,
+          "product": "pressure_levels",
+          "filename": "hrrr.t02z.wrfprsf05.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfprsf05.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 6,
+          "product": "surface",
+          "filename": "hrrr.t02z.wrfsfcf06.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfsfcf06.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 6,
+          "product": "pressure_levels",
+          "filename": "hrrr.t02z.wrfprsf06.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfprsf06.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 7,
+          "product": "surface",
+          "filename": "hrrr.t02z.wrfsfcf07.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfsfcf07.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 7,
+          "product": "pressure_levels",
+          "filename": "hrrr.t02z.wrfprsf07.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfprsf07.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 8,
+          "product": "surface",
+          "filename": "hrrr.t02z.wrfsfcf08.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfsfcf08.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 8,
+          "product": "pressure_levels",
+          "filename": "hrrr.t02z.wrfprsf08.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfprsf08.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 9,
+          "product": "surface",
+          "filename": "hrrr.t02z.wrfsfcf09.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfsfcf09.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 9,
+          "product": "pressure_levels",
+          "filename": "hrrr.t02z.wrfprsf09.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfprsf09.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 10,
+          "product": "surface",
+          "filename": "hrrr.t02z.wrfsfcf10.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfsfcf10.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 10,
+          "product": "pressure_levels",
+          "filename": "hrrr.t02z.wrfprsf10.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfprsf10.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 11,
+          "product": "surface",
+          "filename": "hrrr.t02z.wrfsfcf11.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfsfcf11.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 11,
+          "product": "pressure_levels",
+          "filename": "hrrr.t02z.wrfprsf11.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfprsf11.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 12,
+          "product": "surface",
+          "filename": "hrrr.t02z.wrfsfcf12.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfsfcf12.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 12,
+          "product": "pressure_levels",
+          "filename": "hrrr.t02z.wrfprsf12.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfprsf12.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 13,
+          "product": "surface",
+          "filename": "hrrr.t02z.wrfsfcf13.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfsfcf13.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 13,
+          "product": "pressure_levels",
+          "filename": "hrrr.t02z.wrfprsf13.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfprsf13.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 14,
+          "product": "surface",
+          "filename": "hrrr.t02z.wrfsfcf14.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfsfcf14.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 14,
+          "product": "pressure_levels",
+          "filename": "hrrr.t02z.wrfprsf14.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfprsf14.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 15,
+          "product": "surface",
+          "filename": "hrrr.t02z.wrfsfcf15.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfsfcf15.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 15,
+          "product": "pressure_levels",
+          "filename": "hrrr.t02z.wrfprsf15.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfprsf15.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 16,
+          "product": "surface",
+          "filename": "hrrr.t02z.wrfsfcf16.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfsfcf16.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 16,
+          "product": "pressure_levels",
+          "filename": "hrrr.t02z.wrfprsf16.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfprsf16.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 17,
+          "product": "surface",
+          "filename": "hrrr.t02z.wrfsfcf17.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfsfcf17.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 17,
+          "product": "pressure_levels",
+          "filename": "hrrr.t02z.wrfprsf17.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfprsf17.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 18,
+          "product": "surface",
+          "filename": "hrrr.t02z.wrfsfcf18.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfsfcf18.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "forecast_hour": 18,
+          "product": "pressure_levels",
+          "filename": "hrrr.t02z.wrfprsf18.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t02z.wrfprsf18.grib2"
+        },
+        {
+          "model": "HRRR",
+          "date": "20261114",
           "cycle_utc": "20261114T01:00:00Z",
           "forecast_hour": 0,
           "product": "surface",
@@ -24609,330 +24933,6 @@
           "product": "pressure_levels",
           "filename": "hrrr.t00z.wrfprsf21.grib2",
           "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfprsf21.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 22,
-          "product": "surface",
-          "filename": "hrrr.t00z.wrfsfcf22.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfsfcf22.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 22,
-          "product": "pressure_levels",
-          "filename": "hrrr.t00z.wrfprsf22.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfprsf22.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 23,
-          "product": "surface",
-          "filename": "hrrr.t00z.wrfsfcf23.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfsfcf23.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 23,
-          "product": "pressure_levels",
-          "filename": "hrrr.t00z.wrfprsf23.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfprsf23.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 24,
-          "product": "surface",
-          "filename": "hrrr.t00z.wrfsfcf24.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfsfcf24.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 24,
-          "product": "pressure_levels",
-          "filename": "hrrr.t00z.wrfprsf24.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfprsf24.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 25,
-          "product": "surface",
-          "filename": "hrrr.t00z.wrfsfcf25.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfsfcf25.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 25,
-          "product": "pressure_levels",
-          "filename": "hrrr.t00z.wrfprsf25.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfprsf25.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 26,
-          "product": "surface",
-          "filename": "hrrr.t00z.wrfsfcf26.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfsfcf26.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 26,
-          "product": "pressure_levels",
-          "filename": "hrrr.t00z.wrfprsf26.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfprsf26.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 27,
-          "product": "surface",
-          "filename": "hrrr.t00z.wrfsfcf27.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfsfcf27.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 27,
-          "product": "pressure_levels",
-          "filename": "hrrr.t00z.wrfprsf27.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfprsf27.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 28,
-          "product": "surface",
-          "filename": "hrrr.t00z.wrfsfcf28.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfsfcf28.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 28,
-          "product": "pressure_levels",
-          "filename": "hrrr.t00z.wrfprsf28.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfprsf28.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 29,
-          "product": "surface",
-          "filename": "hrrr.t00z.wrfsfcf29.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfsfcf29.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 29,
-          "product": "pressure_levels",
-          "filename": "hrrr.t00z.wrfprsf29.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfprsf29.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 30,
-          "product": "surface",
-          "filename": "hrrr.t00z.wrfsfcf30.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfsfcf30.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 30,
-          "product": "pressure_levels",
-          "filename": "hrrr.t00z.wrfprsf30.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfprsf30.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 31,
-          "product": "surface",
-          "filename": "hrrr.t00z.wrfsfcf31.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfsfcf31.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 31,
-          "product": "pressure_levels",
-          "filename": "hrrr.t00z.wrfprsf31.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfprsf31.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 32,
-          "product": "surface",
-          "filename": "hrrr.t00z.wrfsfcf32.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfsfcf32.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 32,
-          "product": "pressure_levels",
-          "filename": "hrrr.t00z.wrfprsf32.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfprsf32.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 33,
-          "product": "surface",
-          "filename": "hrrr.t00z.wrfsfcf33.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfsfcf33.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 33,
-          "product": "pressure_levels",
-          "filename": "hrrr.t00z.wrfprsf33.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfprsf33.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 34,
-          "product": "surface",
-          "filename": "hrrr.t00z.wrfsfcf34.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfsfcf34.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 34,
-          "product": "pressure_levels",
-          "filename": "hrrr.t00z.wrfprsf34.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfprsf34.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 35,
-          "product": "surface",
-          "filename": "hrrr.t00z.wrfsfcf35.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfsfcf35.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 35,
-          "product": "pressure_levels",
-          "filename": "hrrr.t00z.wrfprsf35.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfprsf35.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 36,
-          "product": "surface",
-          "filename": "hrrr.t00z.wrfsfcf36.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfsfcf36.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 36,
-          "product": "pressure_levels",
-          "filename": "hrrr.t00z.wrfprsf36.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfprsf36.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 37,
-          "product": "surface",
-          "filename": "hrrr.t00z.wrfsfcf37.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfsfcf37.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 37,
-          "product": "pressure_levels",
-          "filename": "hrrr.t00z.wrfprsf37.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfprsf37.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 38,
-          "product": "surface",
-          "filename": "hrrr.t00z.wrfsfcf38.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfsfcf38.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 38,
-          "product": "pressure_levels",
-          "filename": "hrrr.t00z.wrfprsf38.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfprsf38.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 39,
-          "product": "surface",
-          "filename": "hrrr.t00z.wrfsfcf39.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfsfcf39.grib2"
-        },
-        {
-          "model": "HRRR",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "forecast_hour": 39,
-          "product": "pressure_levels",
-          "filename": "hrrr.t00z.wrfprsf39.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hrrr/prod/hrrr.20261114/conus/hrrr.t00z.wrfprsf39.grib2"
         }
       ],
       "directory_errors": [
@@ -24944,8 +24944,1232 @@
       ]
     },
     "RRFS": {
-      "products_found": 1400,
+      "products_found": 1472,
       "latest_products": [
+        {
+          "model": "RRFS",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "product": "surface_subhourly_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t02z.2dfld.3km.subh.f001.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/02/rrfs.t02z.2dfld.3km.subh.f001.conus.grib2",
+          "forecast_step": 1,
+          "forecast_lead_minutes": 15,
+          "forecast_interval_minutes": 15,
+          "index": {
+            "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/02/rrfs.t02z.2dfld.3km.subh.f001.conus.grib2.idx",
+            "message_count": 149,
+            "messages": [
+              {
+                "message": "1",
+                "byte_offset": 0,
+                "reference": "d=2026111402",
+                "short_name": "REFC",
+                "level": "entire atmosphere (considered as a single layer)",
+                "description": "entire atmosphere (considered as a single layer):15 min fcst:"
+              },
+              {
+                "message": "2",
+                "byte_offset": 886146,
+                "reference": "d=2026111402",
+                "short_name": "VIL",
+                "level": "entire atmosphere (considered as a single layer)",
+                "description": "entire atmosphere (considered as a single layer):15 min fcst:"
+              },
+              {
+                "message": "3",
+                "byte_offset": 1216280,
+                "reference": "d=2026111402",
+                "short_name": "VIS",
+                "level": "surface",
+                "description": "surface:15 min fcst:"
+              },
+              {
+                "message": "4",
+                "byte_offset": 4111450,
+                "reference": "d=2026111402",
+                "short_name": "GUST",
+                "level": "surface",
+                "description": "surface:15 min fcst:"
+              },
+              {
+                "message": "5",
+                "byte_offset": 5367609,
+                "reference": "d=2026111402",
+                "short_name": "RETOP",
+                "level": "entire atmosphere (considered as a single layer)",
+                "description": "entire atmosphere (considered as a single layer):15 min fcst:"
+              },
+              {
+                "message": "6",
+                "byte_offset": 5644859,
+                "reference": "d=2026111402",
+                "short_name": "MSLET",
+                "level": "mean sea level",
+                "description": "mean sea level:15 min fcst:"
+              },
+              {
+                "message": "7",
+                "byte_offset": 7491163,
+                "reference": "d=2026111402",
+                "short_name": "REFD",
+                "level": "4000 m above ground",
+                "description": "4000 m above ground:15 min fcst:"
+              },
+              {
+                "message": "8",
+                "byte_offset": 7855642,
+                "reference": "d=2026111402",
+                "short_name": "REFD",
+                "level": "1000 m above ground",
+                "description": "1000 m above ground:15 min fcst:"
+              },
+              {
+                "message": "9",
+                "byte_offset": 8592688,
+                "reference": "d=2026111402",
+                "short_name": "PRES",
+                "level": "surface",
+                "description": "surface:15 min fcst:"
+              },
+              {
+                "message": "10",
+                "byte_offset": 10717455,
+                "reference": "d=2026111402",
+                "short_name": "HGT",
+                "level": "surface",
+                "description": "surface:15 min fcst:"
+              },
+              {
+                "message": "11",
+                "byte_offset": 12423918,
+                "reference": "d=2026111402",
+                "short_name": "ASNOW",
+                "level": "surface",
+                "description": "surface:0-15 min acc fcst:"
+              },
+              {
+                "message": "12",
+                "byte_offset": 12490736,
+                "reference": "d=2026111402",
+                "short_name": "TMP",
+                "level": "2 m above ground",
+                "description": "2 m above ground:15 min fcst:"
+              },
+              {
+                "message": "13",
+                "byte_offset": 14176172,
+                "reference": "d=2026111402",
+                "short_name": "SPFH",
+                "level": "2 m above ground",
+                "description": "2 m above ground:15 min fcst:"
+              },
+              {
+                "message": "14",
+                "byte_offset": 15627297,
+                "reference": "d=2026111402",
+                "short_name": "DPT",
+                "level": "2 m above ground",
+                "description": "2 m above ground:15 min fcst:"
+              },
+              {
+                "message": "15",
+                "byte_offset": 17400838,
+                "reference": "d=2026111402",
+                "short_name": "UGRD",
+                "level": "10 m above ground",
+                "description": "10 m above ground:15 min fcst:"
+              },
+              {
+                "message": "16",
+                "byte_offset": 19255723,
+                "reference": "d=2026111402",
+                "short_name": "VGRD",
+                "level": "10 m above ground",
+                "description": "10 m above ground:15 min fcst:"
+              },
+              {
+                "message": "17",
+                "byte_offset": 21111312,
+                "reference": "d=2026111402",
+                "short_name": "CPOFP",
+                "level": "surface",
+                "description": "surface:15 min fcst:"
+              },
+              {
+                "message": "18",
+                "byte_offset": 21395806,
+                "reference": "d=2026111402",
+                "short_name": "PRATE",
+                "level": "surface",
+                "description": "surface:15 min fcst:"
+              },
+              {
+                "message": "19",
+                "byte_offset": 21825875,
+                "reference": "d=2026111402",
+                "short_name": "APCP",
+                "level": "surface",
+                "description": "surface:0-15 min acc fcst:"
+              },
+              {
+                "message": "20",
+                "byte_offset": 21943296,
+                "reference": "d=2026111402",
+                "short_name": "TSNOWP",
+                "level": "surface",
+                "description": "surface:0-15 min acc fcst:"
+              },
+              {
+                "message": "21",
+                "byte_offset": 22035025,
+                "reference": "d=2026111402",
+                "short_name": "CSNOW",
+                "level": "surface",
+                "description": "surface:15 min fcst:"
+              },
+              {
+                "message": "22",
+                "byte_offset": 22051304,
+                "reference": "d=2026111402",
+                "short_name": "CICEP",
+                "level": "surface",
+                "description": "surface:15 min fcst:"
+              },
+              {
+                "message": "23",
+                "byte_offset": 22051523,
+                "reference": "d=2026111402",
+                "short_name": "CFRZR",
+                "level": "surface",
+                "description": "surface:15 min fcst:"
+              },
+              {
+                "message": "24",
+                "byte_offset": 22051780,
+                "reference": "d=2026111402",
+                "short_name": "CRAIN",
+                "level": "surface",
+                "description": "surface:15 min fcst:"
+              },
+              {
+                "message": "25",
+                "byte_offset": 22124065,
+                "reference": "d=2026111402",
+                "short_name": "HGT",
+                "level": "cloud base",
+                "description": "cloud base:15 min fcst:"
+              },
+              {
+                "message": "26",
+                "byte_offset": 24143518,
+                "reference": "d=2026111402",
+                "short_name": "HGT",
+                "level": "cloud ceiling",
+                "description": "cloud ceiling:15 min fcst:"
+              },
+              {
+                "message": "27",
+                "byte_offset": 25246230,
+                "reference": "d=2026111402",
+                "short_name": "HGT",
+                "level": "cloud top",
+                "description": "cloud top:15 min fcst:"
+              },
+              {
+                "message": "28",
+                "byte_offset": 27559973,
+                "reference": "d=2026111402",
+                "short_name": "ULWRF",
+                "level": "top of atmosphere",
+                "description": "top of atmosphere:15 min fcst:"
+              },
+              {
+                "message": "29",
+                "byte_offset": 29207148,
+                "reference": "d=2026111402",
+                "short_name": "DSWRF",
+                "level": "surface",
+                "description": "surface:15 min fcst:"
+              },
+              {
+                "message": "30",
+                "byte_offset": 29207367,
+                "reference": "d=2026111402",
+                "short_name": "DLWRF",
+                "level": "surface",
+                "description": "surface:15 min fcst:"
+              },
+              {
+                "message": "31",
+                "byte_offset": 31071824,
+                "reference": "d=2026111402",
+                "short_name": "USWRF",
+                "level": "surface",
+                "description": "surface:15 min fcst:"
+              },
+              {
+                "message": "32",
+                "byte_offset": 31072043,
+                "reference": "d=2026111402",
+                "short_name": "ULWRF",
+                "level": "surface",
+                "description": "surface:15 min fcst:"
+              },
+              {
+                "message": "33",
+                "byte_offset": 32603681,
+                "reference": "d=2026111402",
+                "short_name": "VBDSF",
+                "level": "surface",
+                "description": "surface:15 min fcst:"
+              },
+              {
+                "message": "34",
+                "byte_offset": 32603900,
+                "reference": "d=2026111402",
+                "short_name": "VDDSF",
+                "level": "surface",
+                "description": "surface:15 min fcst:"
+              },
+              {
+                "message": "35",
+                "byte_offset": 32604119,
+                "reference": "d=2026111402",
+                "short_name": "UPHL",
+                "level": "5000-2000 m above ground",
+                "description": "5000-2000 m above ground:15 min fcst:"
+              },
+              {
+                "message": "36",
+                "byte_offset": 32703278,
+                "reference": "d=2026111402",
+                "short_name": "UGRD",
+                "level": "80 m above ground",
+                "description": "80 m above ground:15 min fcst:"
+              },
+              {
+                "message": "37",
+                "byte_offset": 34569948,
+                "reference": "d=2026111402",
+                "short_name": "VGRD",
+                "level": "80 m above ground",
+                "description": "80 m above ground:15 min fcst:"
+              },
+              {
+                "message": "38",
+                "byte_offset": 36444132,
+                "reference": "d=2026111402",
+                "short_name": "REFC",
+                "level": "entire atmosphere (considered as a single layer)",
+                "description": "entire atmosphere (considered as a single layer):30 min fcst:"
+              },
+              {
+                "message": "39",
+                "byte_offset": 37278886,
+                "reference": "d=2026111402",
+                "short_name": "VIL",
+                "level": "entire atmosphere (considered as a single layer)",
+                "description": "entire atmosphere (considered as a single layer):30 min fcst:"
+              },
+              {
+                "message": "40",
+                "byte_offset": 37586018,
+                "reference": "d=2026111402",
+                "short_name": "VIS",
+                "level": "surface",
+                "description": "surface:30 min fcst:"
+              },
+              {
+                "message": "41",
+                "byte_offset": 40475300,
+                "reference": "d=2026111402",
+                "short_name": "GUST",
+                "level": "surface",
+                "description": "surface:30 min fcst:"
+              },
+              {
+                "message": "42",
+                "byte_offset": 41724451,
+                "reference": "d=2026111402",
+                "short_name": "RETOP",
+                "level": "entire atmosphere (considered as a single layer)",
+                "description": "entire atmosphere (considered as a single layer):30 min fcst:"
+              },
+              {
+                "message": "43",
+                "byte_offset": 41973877,
+                "reference": "d=2026111402",
+                "short_name": "MSLET",
+                "level": "mean sea level",
+                "description": "mean sea level:30 min fcst:"
+              },
+              {
+                "message": "44",
+                "byte_offset": 43821895,
+                "reference": "d=2026111402",
+                "short_name": "REFD",
+                "level": "4000 m above ground",
+                "description": "4000 m above ground:30 min fcst:"
+              },
+              {
+                "message": "45",
+                "byte_offset": 44176319,
+                "reference": "d=2026111402",
+                "short_name": "REFD",
+                "level": "1000 m above ground",
+                "description": "1000 m above ground:30 min fcst:"
+              },
+              {
+                "message": "46",
+                "byte_offset": 44867139,
+                "reference": "d=2026111402",
+                "short_name": "PRES",
+                "level": "surface",
+                "description": "surface:30 min fcst:"
+              },
+              {
+                "message": "47",
+                "byte_offset": 46993456,
+                "reference": "d=2026111402",
+                "short_name": "HGT",
+                "level": "surface",
+                "description": "surface:30 min fcst:"
+              },
+              {
+                "message": "48",
+                "byte_offset": 48699919,
+                "reference": "d=2026111402",
+                "short_name": "ASNOW",
+                "level": "surface",
+                "description": "surface:0-30 min acc fcst:"
+              },
+              {
+                "message": "49",
+                "byte_offset": 48771758,
+                "reference": "d=2026111402",
+                "short_name": "TMP",
+                "level": "2 m above ground",
+                "description": "2 m above ground:30 min fcst:"
+              },
+              {
+                "message": "50",
+                "byte_offset": 50459836,
+                "reference": "d=2026111402",
+                "short_name": "SPFH",
+                "level": "2 m above ground",
+                "description": "2 m above ground:30 min fcst:"
+              },
+              {
+                "message": "51",
+                "byte_offset": 51909039,
+                "reference": "d=2026111402",
+                "short_name": "DPT",
+                "level": "2 m above ground",
+                "description": "2 m above ground:30 min fcst:"
+              },
+              {
+                "message": "52",
+                "byte_offset": 53681135,
+                "reference": "d=2026111402",
+                "short_name": "UGRD",
+                "level": "10 m above ground",
+                "description": "10 m above ground:30 min fcst:"
+              },
+              {
+                "message": "53",
+                "byte_offset": 55538220,
+                "reference": "d=2026111402",
+                "short_name": "VGRD",
+                "level": "10 m above ground",
+                "description": "10 m above ground:30 min fcst:"
+              },
+              {
+                "message": "54",
+                "byte_offset": 57388972,
+                "reference": "d=2026111402",
+                "short_name": "CPOFP",
+                "level": "surface",
+                "description": "surface:30 min fcst:"
+              },
+              {
+                "message": "55",
+                "byte_offset": 57635673,
+                "reference": "d=2026111402",
+                "short_name": "PRATE",
+                "level": "surface",
+                "description": "surface:30 min fcst:"
+              },
+              {
+                "message": "56",
+                "byte_offset": 58010653,
+                "reference": "d=2026111402",
+                "short_name": "APCP",
+                "level": "surface",
+                "description": "surface:0-30 min acc fcst:"
+              },
+              {
+                "message": "57",
+                "byte_offset": 58158696,
+                "reference": "d=2026111402",
+                "short_name": "TSNOWP",
+                "level": "surface",
+                "description": "surface:0-30 min acc fcst:"
+              },
+              {
+                "message": "58",
+                "byte_offset": 58258471,
+                "reference": "d=2026111402",
+                "short_name": "CSNOW",
+                "level": "surface",
+                "description": "surface:30 min fcst:"
+              },
+              {
+                "message": "59",
+                "byte_offset": 58269524,
+                "reference": "d=2026111402",
+                "short_name": "CICEP",
+                "level": "surface",
+                "description": "surface:30 min fcst:"
+              },
+              {
+                "message": "60",
+                "byte_offset": 58269743,
+                "reference": "d=2026111402",
+                "short_name": "CFRZR",
+                "level": "surface",
+                "description": "surface:30 min fcst:"
+              },
+              {
+                "message": "61",
+                "byte_offset": 58270002,
+                "reference": "d=2026111402",
+                "short_name": "CRAIN",
+                "level": "surface",
+                "description": "surface:30 min fcst:"
+              },
+              {
+                "message": "62",
+                "byte_offset": 58336131,
+                "reference": "d=2026111402",
+                "short_name": "HGT",
+                "level": "cloud base",
+                "description": "cloud base:30 min fcst:"
+              },
+              {
+                "message": "63",
+                "byte_offset": 60277304,
+                "reference": "d=2026111402",
+                "short_name": "HGT",
+                "level": "cloud ceiling",
+                "description": "cloud ceiling:30 min fcst:"
+              },
+              {
+                "message": "64",
+                "byte_offset": 61410555,
+                "reference": "d=2026111402",
+                "short_name": "HGT",
+                "level": "cloud top",
+                "description": "cloud top:30 min fcst:"
+              },
+              {
+                "message": "65",
+                "byte_offset": 63791863,
+                "reference": "d=2026111402",
+                "short_name": "ULWRF",
+                "level": "top of atmosphere",
+                "description": "top of atmosphere:30 min fcst:"
+              },
+              {
+                "message": "66",
+                "byte_offset": 65608171,
+                "reference": "d=2026111402",
+                "short_name": "DSWRF",
+                "level": "surface",
+                "description": "surface:30 min fcst:"
+              },
+              {
+                "message": "67",
+                "byte_offset": 65608390,
+                "reference": "d=2026111402",
+                "short_name": "DLWRF",
+                "level": "surface",
+                "description": "surface:30 min fcst:"
+              },
+              {
+                "message": "68",
+                "byte_offset": 67462806,
+                "reference": "d=2026111402",
+                "short_name": "USWRF",
+                "level": "surface",
+                "description": "surface:30 min fcst:"
+              },
+              {
+                "message": "69",
+                "byte_offset": 67463025,
+                "reference": "d=2026111402",
+                "short_name": "ULWRF",
+                "level": "surface",
+                "description": "surface:30 min fcst:"
+              },
+              {
+                "message": "70",
+                "byte_offset": 68993807,
+                "reference": "d=2026111402",
+                "short_name": "VBDSF",
+                "level": "surface",
+                "description": "surface:30 min fcst:"
+              },
+              {
+                "message": "71",
+                "byte_offset": 68994026,
+                "reference": "d=2026111402",
+                "short_name": "VDDSF",
+                "level": "surface",
+                "description": "surface:30 min fcst:"
+              },
+              {
+                "message": "72",
+                "byte_offset": 68994245,
+                "reference": "d=2026111402",
+                "short_name": "UPHL",
+                "level": "5000-2000 m above ground",
+                "description": "5000-2000 m above ground:30 min fcst:"
+              },
+              {
+                "message": "73",
+                "byte_offset": 69203991,
+                "reference": "d=2026111402",
+                "short_name": "UGRD",
+                "level": "80 m above ground",
+                "description": "80 m above ground:30 min fcst:"
+              },
+              {
+                "message": "74",
+                "byte_offset": 71071017,
+                "reference": "d=2026111402",
+                "short_name": "VGRD",
+                "level": "80 m above ground",
+                "description": "80 m above ground:30 min fcst:"
+              },
+              {
+                "message": "75",
+                "byte_offset": 72937389,
+                "reference": "d=2026111402",
+                "short_name": "REFC",
+                "level": "entire atmosphere (considered as a single layer)",
+                "description": "entire atmosphere (considered as a single layer):45 min fcst:"
+              },
+              {
+                "message": "76",
+                "byte_offset": 73783309,
+                "reference": "d=2026111402",
+                "short_name": "VIL",
+                "level": "entire atmosphere (considered as a single layer)",
+                "description": "entire atmosphere (considered as a single layer):45 min fcst:"
+              },
+              {
+                "message": "77",
+                "byte_offset": 74087124,
+                "reference": "d=2026111402",
+                "short_name": "VIS",
+                "level": "surface",
+                "description": "surface:45 min fcst:"
+              },
+              {
+                "message": "78",
+                "byte_offset": 76976339,
+                "reference": "d=2026111402",
+                "short_name": "GUST",
+                "level": "surface",
+                "description": "surface:45 min fcst:"
+              },
+              {
+                "message": "79",
+                "byte_offset": 78227945,
+                "reference": "d=2026111402",
+                "short_name": "RETOP",
+                "level": "entire atmosphere (considered as a single layer)",
+                "description": "entire atmosphere (considered as a single layer):45 min fcst:"
+              },
+              {
+                "message": "80",
+                "byte_offset": 78480516,
+                "reference": "d=2026111402",
+                "short_name": "MSLET",
+                "level": "mean sea level",
+                "description": "mean sea level:45 min fcst:"
+              },
+              {
+                "message": "81",
+                "byte_offset": 80328482,
+                "reference": "d=2026111402",
+                "short_name": "REFD",
+                "level": "4000 m above ground",
+                "description": "4000 m above ground:45 min fcst:"
+              },
+              {
+                "message": "82",
+                "byte_offset": 80680041,
+                "reference": "d=2026111402",
+                "short_name": "REFD",
+                "level": "1000 m above ground",
+                "description": "1000 m above ground:45 min fcst:"
+              },
+              {
+                "message": "83",
+                "byte_offset": 81370713,
+                "reference": "d=2026111402",
+                "short_name": "PRES",
+                "level": "surface",
+                "description": "surface:45 min fcst:"
+              },
+              {
+                "message": "84",
+                "byte_offset": 83496564,
+                "reference": "d=2026111402",
+                "short_name": "HGT",
+                "level": "surface",
+                "description": "surface:45 min fcst:"
+              },
+              {
+                "message": "85",
+                "byte_offset": 85203027,
+                "reference": "d=2026111402",
+                "short_name": "ASNOW",
+                "level": "surface",
+                "description": "surface:0-45 min acc fcst:"
+              },
+              {
+                "message": "86",
+                "byte_offset": 85281198,
+                "reference": "d=2026111402",
+                "short_name": "TMP",
+                "level": "2 m above ground",
+                "description": "2 m above ground:45 min fcst:"
+              },
+              {
+                "message": "87",
+                "byte_offset": 86970061,
+                "reference": "d=2026111402",
+                "short_name": "SPFH",
+                "level": "2 m above ground",
+                "description": "2 m above ground:45 min fcst:"
+              },
+              {
+                "message": "88",
+                "byte_offset": 88417421,
+                "reference": "d=2026111402",
+                "short_name": "DPT",
+                "level": "2 m above ground",
+                "description": "2 m above ground:45 min fcst:"
+              },
+              {
+                "message": "89",
+                "byte_offset": 90188460,
+                "reference": "d=2026111402",
+                "short_name": "UGRD",
+                "level": "10 m above ground",
+                "description": "10 m above ground:45 min fcst:"
+              },
+              {
+                "message": "90",
+                "byte_offset": 92054266,
+                "reference": "d=2026111402",
+                "short_name": "VGRD",
+                "level": "10 m above ground",
+                "description": "10 m above ground:45 min fcst:"
+              },
+              {
+                "message": "91",
+                "byte_offset": 93906398,
+                "reference": "d=2026111402",
+                "short_name": "CPOFP",
+                "level": "surface",
+                "description": "surface:45 min fcst:"
+              },
+              {
+                "message": "92",
+                "byte_offset": 94147794,
+                "reference": "d=2026111402",
+                "short_name": "PRATE",
+                "level": "surface",
+                "description": "surface:45 min fcst:"
+              },
+              {
+                "message": "93",
+                "byte_offset": 94517988,
+                "reference": "d=2026111402",
+                "short_name": "APCP",
+                "level": "surface",
+                "description": "surface:0-45 min acc fcst:"
+              },
+              {
+                "message": "94",
+                "byte_offset": 94684762,
+                "reference": "d=2026111402",
+                "short_name": "TSNOWP",
+                "level": "surface",
+                "description": "surface:0-45 min acc fcst:"
+              },
+              {
+                "message": "95",
+                "byte_offset": 94793472,
+                "reference": "d=2026111402",
+                "short_name": "CSNOW",
+                "level": "surface",
+                "description": "surface:45 min fcst:"
+              },
+              {
+                "message": "96",
+                "byte_offset": 94804300,
+                "reference": "d=2026111402",
+                "short_name": "CICEP",
+                "level": "surface",
+                "description": "surface:45 min fcst:"
+              },
+              {
+                "message": "97",
+                "byte_offset": 94804519,
+                "reference": "d=2026111402",
+                "short_name": "CFRZR",
+                "level": "surface",
+                "description": "surface:45 min fcst:"
+              },
+              {
+                "message": "98",
+                "byte_offset": 94804805,
+                "reference": "d=2026111402",
+                "short_name": "CRAIN",
+                "level": "surface",
+                "description": "surface:45 min fcst:"
+              },
+              {
+                "message": "99",
+                "byte_offset": 94870107,
+                "reference": "d=2026111402",
+                "short_name": "HGT",
+                "level": "cloud base",
+                "description": "cloud base:45 min fcst:"
+              },
+              {
+                "message": "100",
+                "byte_offset": 96847712,
+                "reference": "d=2026111402",
+                "short_name": "HGT",
+                "level": "cloud ceiling",
+                "description": "cloud ceiling:45 min fcst:"
+              },
+              {
+                "message": "101",
+                "byte_offset": 98028157,
+                "reference": "d=2026111402",
+                "short_name": "HGT",
+                "level": "cloud top",
+                "description": "cloud top:45 min fcst:"
+              },
+              {
+                "message": "102",
+                "byte_offset": 100409540,
+                "reference": "d=2026111402",
+                "short_name": "ULWRF",
+                "level": "top of atmosphere",
+                "description": "top of atmosphere:45 min fcst:"
+              },
+              {
+                "message": "103",
+                "byte_offset": 102334117,
+                "reference": "d=2026111402",
+                "short_name": "DSWRF",
+                "level": "surface",
+                "description": "surface:45 min fcst:"
+              },
+              {
+                "message": "104",
+                "byte_offset": 102334336,
+                "reference": "d=2026111402",
+                "short_name": "DLWRF",
+                "level": "surface",
+                "description": "surface:45 min fcst:"
+              },
+              {
+                "message": "105",
+                "byte_offset": 104186743,
+                "reference": "d=2026111402",
+                "short_name": "USWRF",
+                "level": "surface",
+                "description": "surface:45 min fcst:"
+              },
+              {
+                "message": "106",
+                "byte_offset": 104186962,
+                "reference": "d=2026111402",
+                "short_name": "ULWRF",
+                "level": "surface",
+                "description": "surface:45 min fcst:"
+              },
+              {
+                "message": "107",
+                "byte_offset": 105718652,
+                "reference": "d=2026111402",
+                "short_name": "VBDSF",
+                "level": "surface",
+                "description": "surface:45 min fcst:"
+              },
+              {
+                "message": "108",
+                "byte_offset": 105718871,
+                "reference": "d=2026111402",
+                "short_name": "VDDSF",
+                "level": "surface",
+                "description": "surface:45 min fcst:"
+              },
+              {
+                "message": "109",
+                "byte_offset": 105719090,
+                "reference": "d=2026111402",
+                "short_name": "UPHL",
+                "level": "5000-2000 m above ground",
+                "description": "5000-2000 m above ground:45 min fcst:"
+              },
+              {
+                "message": "110",
+                "byte_offset": 105858643,
+                "reference": "d=2026111402",
+                "short_name": "UGRD",
+                "level": "80 m above ground",
+                "description": "80 m above ground:45 min fcst:"
+              },
+              {
+                "message": "111",
+                "byte_offset": 107725423,
+                "reference": "d=2026111402",
+                "short_name": "VGRD",
+                "level": "80 m above ground",
+                "description": "80 m above ground:45 min fcst:"
+              },
+              {
+                "message": "112",
+                "byte_offset": 109589836,
+                "reference": "d=2026111402",
+                "short_name": "REFC",
+                "level": "entire atmosphere (considered as a single layer)",
+                "description": "entire atmosphere (considered as a single layer):1 hour fcst:"
+              },
+              {
+                "message": "113",
+                "byte_offset": 110453242,
+                "reference": "d=2026111402",
+                "short_name": "VIL",
+                "level": "entire atmosphere (considered as a single layer)",
+                "description": "entire atmosphere (considered as a single layer):1 hour fcst:"
+              },
+              {
+                "message": "114",
+                "byte_offset": 110759141,
+                "reference": "d=2026111402",
+                "short_name": "VIS",
+                "level": "surface",
+                "description": "surface:1 hour fcst:"
+              },
+              {
+                "message": "115",
+                "byte_offset": 113647349,
+                "reference": "d=2026111402",
+                "short_name": "GUST",
+                "level": "surface",
+                "description": "surface:1 hour fcst:"
+              },
+              {
+                "message": "116",
+                "byte_offset": 114898014,
+                "reference": "d=2026111402",
+                "short_name": "RETOP",
+                "level": "entire atmosphere (considered as a single layer)",
+                "description": "entire atmosphere (considered as a single layer):1 hour fcst:"
+              },
+              {
+                "message": "117",
+                "byte_offset": 115154957,
+                "reference": "d=2026111402",
+                "short_name": "MSLET",
+                "level": "mean sea level",
+                "description": "mean sea level:1 hour fcst:"
+              },
+              {
+                "message": "118",
+                "byte_offset": 117004565,
+                "reference": "d=2026111402",
+                "short_name": "REFD",
+                "level": "1000 m above ground",
+                "description": "1000 m above ground:1 hour fcst:"
+              },
+              {
+                "message": "119",
+                "byte_offset": 117355135,
+                "reference": "d=2026111402",
+                "short_name": "REFD",
+                "level": "4000 m above ground",
+                "description": "4000 m above ground:1 hour fcst:"
+              },
+              {
+                "message": "120",
+                "byte_offset": 118049234,
+                "reference": "d=2026111402",
+                "short_name": "PRES",
+                "level": "surface",
+                "description": "surface:1 hour fcst:"
+              },
+              {
+                "message": "121",
+                "byte_offset": 120174700,
+                "reference": "d=2026111402",
+                "short_name": "HGT",
+                "level": "surface",
+                "description": "surface:1 hour fcst:"
+              },
+              {
+                "message": "122",
+                "byte_offset": 121881163,
+                "reference": "d=2026111402",
+                "short_name": "ASNOW",
+                "level": "surface",
+                "description": "surface:0-1 hour acc fcst:"
+              },
+              {
+                "message": "123",
+                "byte_offset": 121958318,
+                "reference": "d=2026111402",
+                "short_name": "TMP",
+                "level": "2 m above ground",
+                "description": "2 m above ground:1 hour fcst:"
+              },
+              {
+                "message": "124",
+                "byte_offset": 123640262,
+                "reference": "d=2026111402",
+                "short_name": "SPFH",
+                "level": "2 m above ground",
+                "description": "2 m above ground:1 hour fcst:"
+              },
+              {
+                "message": "125",
+                "byte_offset": 125084655,
+                "reference": "d=2026111402",
+                "short_name": "DPT",
+                "level": "2 m above ground",
+                "description": "2 m above ground:1 hour fcst:"
+              },
+              {
+                "message": "126",
+                "byte_offset": 126853720,
+                "reference": "d=2026111402",
+                "short_name": "UGRD",
+                "level": "10 m above ground",
+                "description": "10 m above ground:1 hour fcst:"
+              },
+              {
+                "message": "127",
+                "byte_offset": 128714296,
+                "reference": "d=2026111402",
+                "short_name": "VGRD",
+                "level": "10 m above ground",
+                "description": "10 m above ground:1 hour fcst:"
+              },
+              {
+                "message": "128",
+                "byte_offset": 130568958,
+                "reference": "d=2026111402",
+                "short_name": "CPOFP",
+                "level": "surface",
+                "description": "surface:1 hour fcst:"
+              },
+              {
+                "message": "129",
+                "byte_offset": 130806721,
+                "reference": "d=2026111402",
+                "short_name": "PRATE",
+                "level": "surface",
+                "description": "surface:1 hour fcst:"
+              },
+              {
+                "message": "130",
+                "byte_offset": 131173301,
+                "reference": "d=2026111402",
+                "short_name": "APCP",
+                "level": "surface",
+                "description": "surface:0-1 hour acc fcst:"
+              },
+              {
+                "message": "131",
+                "byte_offset": 131355159,
+                "reference": "d=2026111402",
+                "short_name": "TSNOWP",
+                "level": "surface",
+                "description": "surface:0-1 hour acc fcst:"
+              },
+              {
+                "message": "132",
+                "byte_offset": 131407104,
+                "reference": "d=2026111402",
+                "short_name": "TSNOWP",
+                "level": "surface",
+                "description": "surface:0-1 hour acc fcst:"
+              },
+              {
+                "message": "133",
+                "byte_offset": 131511171,
+                "reference": "d=2026111402",
+                "short_name": "CSNOW",
+                "level": "surface",
+                "description": "surface:1 hour fcst:"
+              },
+              {
+                "message": "134",
+                "byte_offset": 131521409,
+                "reference": "d=2026111402",
+                "short_name": "CICEP",
+                "level": "surface",
+                "description": "surface:1 hour fcst:"
+              },
+              {
+                "message": "135",
+                "byte_offset": 131521628,
+                "reference": "d=2026111402",
+                "short_name": "CFRZR",
+                "level": "surface",
+                "description": "surface:1 hour fcst:"
+              },
+              {
+                "message": "136",
+                "byte_offset": 131521899,
+                "reference": "d=2026111402",
+                "short_name": "CRAIN",
+                "level": "surface",
+                "description": "surface:1 hour fcst:"
+              },
+              {
+                "message": "137",
+                "byte_offset": 131586628,
+                "reference": "d=2026111402",
+                "short_name": "HGT",
+                "level": "cloud base",
+                "description": "cloud base:1 hour fcst:"
+              },
+              {
+                "message": "138",
+                "byte_offset": 133601778,
+                "reference": "d=2026111402",
+                "short_name": "HGT",
+                "level": "cloud ceiling",
+                "description": "cloud ceiling:1 hour fcst:"
+              },
+              {
+                "message": "139",
+                "byte_offset": 134825011,
+                "reference": "d=2026111402",
+                "short_name": "HGT",
+                "level": "cloud top",
+                "description": "cloud top:1 hour fcst:"
+              },
+              {
+                "message": "140",
+                "byte_offset": 137198855,
+                "reference": "d=2026111402",
+                "short_name": "ULWRF",
+                "level": "top of atmosphere",
+                "description": "top of atmosphere:1 hour fcst:"
+              },
+              {
+                "message": "141",
+                "byte_offset": 139197833,
+                "reference": "d=2026111402",
+                "short_name": "DSWRF",
+                "level": "surface",
+                "description": "surface:1 hour fcst:"
+              },
+              {
+                "message": "142",
+                "byte_offset": 139198052,
+                "reference": "d=2026111402",
+                "short_name": "DLWRF",
+                "level": "surface",
+                "description": "surface:1 hour fcst:"
+              },
+              {
+                "message": "143",
+                "byte_offset": 141049579,
+                "reference": "d=2026111402",
+                "short_name": "USWRF",
+                "level": "surface",
+                "description": "surface:1 hour fcst:"
+              },
+              {
+                "message": "144",
+                "byte_offset": 141049798,
+                "reference": "d=2026111402",
+                "short_name": "ULWRF",
+                "level": "surface",
+                "description": "surface:1 hour fcst:"
+              },
+              {
+                "message": "145",
+                "byte_offset": 142582152,
+                "reference": "d=2026111402",
+                "short_name": "VBDSF",
+                "level": "surface",
+                "description": "surface:1 hour fcst:"
+              },
+              {
+                "message": "146",
+                "byte_offset": 142582371,
+                "reference": "d=2026111402",
+                "short_name": "VDDSF",
+                "level": "surface",
+                "description": "surface:1 hour fcst:"
+              },
+              {
+                "message": "147",
+                "byte_offset": 142582590,
+                "reference": "d=2026111402",
+                "short_name": "UPHL",
+                "level": "5000-2000 m above ground",
+                "description": "5000-2000 m above ground:1 hour fcst:"
+              },
+              {
+                "message": "148",
+                "byte_offset": 142682336,
+                "reference": "d=2026111402",
+                "short_name": "UGRD",
+                "level": "80 m above ground",
+                "description": "80 m above ground:1 hour fcst:"
+              },
+              {
+                "message": "149",
+                "byte_offset": 144549629,
+                "reference": "d=2026111402",
+                "short_name": "VGRD",
+                "level": "80 m above ground",
+                "description": "80 m above ground:1 hour fcst:"
+              }
+            ]
+          }
+        },
+        {
+          "model": "RRFS",
+          "date": "20261114",
+          "cycle_utc": "20261114T02:00:00Z",
+          "product": "surface_subhourly_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t02z.2dfld.3km.subh.f002.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/02/rrfs.t02z.2dfld.3km.subh.f002.conus.grib2",
+          "forecast_step": 2,
+          "forecast_lead_minutes": 30,
+          "forecast_interval_minutes": 15
+        },
         {
           "model": "RRFS",
           "date": "20261114",
@@ -26207,6 +27431,175 @@
           "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/01/rrfs.t01z.2dfld.3km.subh.f005.conus.grib2",
           "forecast_step": 5,
           "forecast_lead_minutes": 75,
+          "forecast_interval_minutes": 15
+        },
+        {
+          "model": "RRFS",
+          "date": "20261114",
+          "cycle_utc": "20261114T01:00:00Z",
+          "product": "surface_subhourly_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t01z.2dfld.3km.subh.f006.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/01/rrfs.t01z.2dfld.3km.subh.f006.conus.grib2",
+          "forecast_step": 6,
+          "forecast_lead_minutes": 90,
+          "forecast_interval_minutes": 15
+        },
+        {
+          "model": "RRFS",
+          "date": "20261114",
+          "cycle_utc": "20261114T01:00:00Z",
+          "product": "surface_subhourly_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t01z.2dfld.3km.subh.f007.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/01/rrfs.t01z.2dfld.3km.subh.f007.conus.grib2",
+          "forecast_step": 7,
+          "forecast_lead_minutes": 105,
+          "forecast_interval_minutes": 15
+        },
+        {
+          "model": "RRFS",
+          "date": "20261114",
+          "cycle_utc": "20261114T01:00:00Z",
+          "product": "surface_subhourly_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t01z.2dfld.3km.subh.f008.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/01/rrfs.t01z.2dfld.3km.subh.f008.conus.grib2",
+          "forecast_step": 8,
+          "forecast_lead_minutes": 120,
+          "forecast_interval_minutes": 15
+        },
+        {
+          "model": "RRFS",
+          "date": "20261114",
+          "cycle_utc": "20261114T01:00:00Z",
+          "product": "surface_subhourly_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t01z.2dfld.3km.subh.f009.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/01/rrfs.t01z.2dfld.3km.subh.f009.conus.grib2",
+          "forecast_step": 9,
+          "forecast_lead_minutes": 135,
+          "forecast_interval_minutes": 15
+        },
+        {
+          "model": "RRFS",
+          "date": "20261114",
+          "cycle_utc": "20261114T01:00:00Z",
+          "product": "surface_subhourly_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t01z.2dfld.3km.subh.f010.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/01/rrfs.t01z.2dfld.3km.subh.f010.conus.grib2",
+          "forecast_step": 10,
+          "forecast_lead_minutes": 150,
+          "forecast_interval_minutes": 15
+        },
+        {
+          "model": "RRFS",
+          "date": "20261114",
+          "cycle_utc": "20261114T01:00:00Z",
+          "product": "surface_subhourly_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t01z.2dfld.3km.subh.f011.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/01/rrfs.t01z.2dfld.3km.subh.f011.conus.grib2",
+          "forecast_step": 11,
+          "forecast_lead_minutes": 165,
+          "forecast_interval_minutes": 15
+        },
+        {
+          "model": "RRFS",
+          "date": "20261114",
+          "cycle_utc": "20261114T01:00:00Z",
+          "product": "surface_subhourly_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t01z.2dfld.3km.subh.f012.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/01/rrfs.t01z.2dfld.3km.subh.f012.conus.grib2",
+          "forecast_step": 12,
+          "forecast_lead_minutes": 180,
+          "forecast_interval_minutes": 15
+        },
+        {
+          "model": "RRFS",
+          "date": "20261114",
+          "cycle_utc": "20261114T01:00:00Z",
+          "product": "surface_subhourly_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t01z.2dfld.3km.subh.f013.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/01/rrfs.t01z.2dfld.3km.subh.f013.conus.grib2",
+          "forecast_step": 13,
+          "forecast_lead_minutes": 195,
+          "forecast_interval_minutes": 15
+        },
+        {
+          "model": "RRFS",
+          "date": "20261114",
+          "cycle_utc": "20261114T01:00:00Z",
+          "product": "surface_subhourly_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t01z.2dfld.3km.subh.f014.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/01/rrfs.t01z.2dfld.3km.subh.f014.conus.grib2",
+          "forecast_step": 14,
+          "forecast_lead_minutes": 210,
+          "forecast_interval_minutes": 15
+        },
+        {
+          "model": "RRFS",
+          "date": "20261114",
+          "cycle_utc": "20261114T01:00:00Z",
+          "product": "surface_subhourly_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t01z.2dfld.3km.subh.f015.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/01/rrfs.t01z.2dfld.3km.subh.f015.conus.grib2",
+          "forecast_step": 15,
+          "forecast_lead_minutes": 225,
+          "forecast_interval_minutes": 15
+        },
+        {
+          "model": "RRFS",
+          "date": "20261114",
+          "cycle_utc": "20261114T01:00:00Z",
+          "product": "surface_subhourly_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t01z.2dfld.3km.subh.f016.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/01/rrfs.t01z.2dfld.3km.subh.f016.conus.grib2",
+          "forecast_step": 16,
+          "forecast_lead_minutes": 240,
+          "forecast_interval_minutes": 15
+        },
+        {
+          "model": "RRFS",
+          "date": "20261114",
+          "cycle_utc": "20261114T01:00:00Z",
+          "product": "surface_subhourly_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t01z.2dfld.3km.subh.f017.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/01/rrfs.t01z.2dfld.3km.subh.f017.conus.grib2",
+          "forecast_step": 17,
+          "forecast_lead_minutes": 255,
+          "forecast_interval_minutes": 15
+        },
+        {
+          "model": "RRFS",
+          "date": "20261114",
+          "cycle_utc": "20261114T01:00:00Z",
+          "product": "surface_subhourly_3km",
+          "resolution_km": 3,
+          "domain": "conus",
+          "filename": "rrfs.t01z.2dfld.3km.subh.f018.conus.grib2",
+          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/01/rrfs.t01z.2dfld.3km.subh.f018.conus.grib2",
+          "forecast_step": 18,
+          "forecast_lead_minutes": 270,
           "forecast_interval_minutes": 15
         },
         {
@@ -33750,1205 +35143,7 @@
           "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/00/rrfs.t00z.2dfld.3km.subh.f001.conus.grib2",
           "forecast_step": 1,
           "forecast_lead_minutes": 15,
-          "forecast_interval_minutes": 15,
-          "index": {
-            "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/00/rrfs.t00z.2dfld.3km.subh.f001.conus.grib2.idx",
-            "message_count": 149,
-            "messages": [
-              {
-                "message": "1",
-                "byte_offset": 0,
-                "reference": "d=2026111400",
-                "short_name": "REFC",
-                "level": "entire atmosphere (considered as a single layer)",
-                "description": "entire atmosphere (considered as a single layer):15 min fcst:"
-              },
-              {
-                "message": "2",
-                "byte_offset": 879081,
-                "reference": "d=2026111400",
-                "short_name": "VIL",
-                "level": "entire atmosphere (considered as a single layer)",
-                "description": "entire atmosphere (considered as a single layer):15 min fcst:"
-              },
-              {
-                "message": "3",
-                "byte_offset": 1204701,
-                "reference": "d=2026111400",
-                "short_name": "VIS",
-                "level": "surface",
-                "description": "surface:15 min fcst:"
-              },
-              {
-                "message": "4",
-                "byte_offset": 4111094,
-                "reference": "d=2026111400",
-                "short_name": "GUST",
-                "level": "surface",
-                "description": "surface:15 min fcst:"
-              },
-              {
-                "message": "5",
-                "byte_offset": 5338386,
-                "reference": "d=2026111400",
-                "short_name": "RETOP",
-                "level": "entire atmosphere (considered as a single layer)",
-                "description": "entire atmosphere (considered as a single layer):15 min fcst:"
-              },
-              {
-                "message": "6",
-                "byte_offset": 5629375,
-                "reference": "d=2026111400",
-                "short_name": "MSLET",
-                "level": "mean sea level",
-                "description": "mean sea level:15 min fcst:"
-              },
-              {
-                "message": "7",
-                "byte_offset": 7468764,
-                "reference": "d=2026111400",
-                "short_name": "REFD",
-                "level": "4000 m above ground",
-                "description": "4000 m above ground:15 min fcst:"
-              },
-              {
-                "message": "8",
-                "byte_offset": 7852732,
-                "reference": "d=2026111400",
-                "short_name": "REFD",
-                "level": "1000 m above ground",
-                "description": "1000 m above ground:15 min fcst:"
-              },
-              {
-                "message": "9",
-                "byte_offset": 8581198,
-                "reference": "d=2026111400",
-                "short_name": "PRES",
-                "level": "surface",
-                "description": "surface:15 min fcst:"
-              },
-              {
-                "message": "10",
-                "byte_offset": 10705375,
-                "reference": "d=2026111400",
-                "short_name": "HGT",
-                "level": "surface",
-                "description": "surface:15 min fcst:"
-              },
-              {
-                "message": "11",
-                "byte_offset": 12411838,
-                "reference": "d=2026111400",
-                "short_name": "ASNOW",
-                "level": "surface",
-                "description": "surface:0-15 min acc fcst:"
-              },
-              {
-                "message": "12",
-                "byte_offset": 12473119,
-                "reference": "d=2026111400",
-                "short_name": "TMP",
-                "level": "2 m above ground",
-                "description": "2 m above ground:15 min fcst:"
-              },
-              {
-                "message": "13",
-                "byte_offset": 14142402,
-                "reference": "d=2026111400",
-                "short_name": "SPFH",
-                "level": "2 m above ground",
-                "description": "2 m above ground:15 min fcst:"
-              },
-              {
-                "message": "14",
-                "byte_offset": 15606324,
-                "reference": "d=2026111400",
-                "short_name": "DPT",
-                "level": "2 m above ground",
-                "description": "2 m above ground:15 min fcst:"
-              },
-              {
-                "message": "15",
-                "byte_offset": 17388984,
-                "reference": "d=2026111400",
-                "short_name": "UGRD",
-                "level": "10 m above ground",
-                "description": "10 m above ground:15 min fcst:"
-              },
-              {
-                "message": "16",
-                "byte_offset": 19210150,
-                "reference": "d=2026111400",
-                "short_name": "VGRD",
-                "level": "10 m above ground",
-                "description": "10 m above ground:15 min fcst:"
-              },
-              {
-                "message": "17",
-                "byte_offset": 21027640,
-                "reference": "d=2026111400",
-                "short_name": "CPOFP",
-                "level": "surface",
-                "description": "surface:15 min fcst:"
-              },
-              {
-                "message": "18",
-                "byte_offset": 21315461,
-                "reference": "d=2026111400",
-                "short_name": "PRATE",
-                "level": "surface",
-                "description": "surface:15 min fcst:"
-              },
-              {
-                "message": "19",
-                "byte_offset": 21737253,
-                "reference": "d=2026111400",
-                "short_name": "APCP",
-                "level": "surface",
-                "description": "surface:0-15 min acc fcst:"
-              },
-              {
-                "message": "20",
-                "byte_offset": 21850827,
-                "reference": "d=2026111400",
-                "short_name": "TSNOWP",
-                "level": "surface",
-                "description": "surface:0-15 min acc fcst:"
-              },
-              {
-                "message": "21",
-                "byte_offset": 21942426,
-                "reference": "d=2026111400",
-                "short_name": "CSNOW",
-                "level": "surface",
-                "description": "surface:15 min fcst:"
-              },
-              {
-                "message": "22",
-                "byte_offset": 21959714,
-                "reference": "d=2026111400",
-                "short_name": "CICEP",
-                "level": "surface",
-                "description": "surface:15 min fcst:"
-              },
-              {
-                "message": "23",
-                "byte_offset": 21959933,
-                "reference": "d=2026111400",
-                "short_name": "CFRZR",
-                "level": "surface",
-                "description": "surface:15 min fcst:"
-              },
-              {
-                "message": "24",
-                "byte_offset": 21960296,
-                "reference": "d=2026111400",
-                "short_name": "CRAIN",
-                "level": "surface",
-                "description": "surface:15 min fcst:"
-              },
-              {
-                "message": "25",
-                "byte_offset": 22032099,
-                "reference": "d=2026111400",
-                "short_name": "HGT",
-                "level": "cloud base",
-                "description": "cloud base:15 min fcst:"
-              },
-              {
-                "message": "26",
-                "byte_offset": 24017469,
-                "reference": "d=2026111400",
-                "short_name": "HGT",
-                "level": "cloud ceiling",
-                "description": "cloud ceiling:15 min fcst:"
-              },
-              {
-                "message": "27",
-                "byte_offset": 25103408,
-                "reference": "d=2026111400",
-                "short_name": "HGT",
-                "level": "cloud top",
-                "description": "cloud top:15 min fcst:"
-              },
-              {
-                "message": "28",
-                "byte_offset": 27378372,
-                "reference": "d=2026111400",
-                "short_name": "ULWRF",
-                "level": "top of atmosphere",
-                "description": "top of atmosphere:15 min fcst:"
-              },
-              {
-                "message": "29",
-                "byte_offset": 29026859,
-                "reference": "d=2026111400",
-                "short_name": "DSWRF",
-                "level": "surface",
-                "description": "surface:15 min fcst:"
-              },
-              {
-                "message": "30",
-                "byte_offset": 29496134,
-                "reference": "d=2026111400",
-                "short_name": "DLWRF",
-                "level": "surface",
-                "description": "surface:15 min fcst:"
-              },
-              {
-                "message": "31",
-                "byte_offset": 31357265,
-                "reference": "d=2026111400",
-                "short_name": "USWRF",
-                "level": "surface",
-                "description": "surface:15 min fcst:"
-              },
-              {
-                "message": "32",
-                "byte_offset": 31729087,
-                "reference": "d=2026111400",
-                "short_name": "ULWRF",
-                "level": "surface",
-                "description": "surface:15 min fcst:"
-              },
-              {
-                "message": "33",
-                "byte_offset": 33250030,
-                "reference": "d=2026111400",
-                "short_name": "VBDSF",
-                "level": "surface",
-                "description": "surface:15 min fcst:"
-              },
-              {
-                "message": "34",
-                "byte_offset": 33624714,
-                "reference": "d=2026111400",
-                "short_name": "VDDSF",
-                "level": "surface",
-                "description": "surface:15 min fcst:"
-              },
-              {
-                "message": "35",
-                "byte_offset": 34137850,
-                "reference": "d=2026111400",
-                "short_name": "UPHL",
-                "level": "5000-2000 m above ground",
-                "description": "5000-2000 m above ground:15 min fcst:"
-              },
-              {
-                "message": "36",
-                "byte_offset": 34241510,
-                "reference": "d=2026111400",
-                "short_name": "UGRD",
-                "level": "80 m above ground",
-                "description": "80 m above ground:15 min fcst:"
-              },
-              {
-                "message": "37",
-                "byte_offset": 36107826,
-                "reference": "d=2026111400",
-                "short_name": "VGRD",
-                "level": "80 m above ground",
-                "description": "80 m above ground:15 min fcst:"
-              },
-              {
-                "message": "38",
-                "byte_offset": 37978099,
-                "reference": "d=2026111400",
-                "short_name": "REFC",
-                "level": "entire atmosphere (considered as a single layer)",
-                "description": "entire atmosphere (considered as a single layer):30 min fcst:"
-              },
-              {
-                "message": "39",
-                "byte_offset": 38808636,
-                "reference": "d=2026111400",
-                "short_name": "VIL",
-                "level": "entire atmosphere (considered as a single layer)",
-                "description": "entire atmosphere (considered as a single layer):30 min fcst:"
-              },
-              {
-                "message": "40",
-                "byte_offset": 39121185,
-                "reference": "d=2026111400",
-                "short_name": "VIS",
-                "level": "surface",
-                "description": "surface:30 min fcst:"
-              },
-              {
-                "message": "41",
-                "byte_offset": 42021921,
-                "reference": "d=2026111400",
-                "short_name": "GUST",
-                "level": "surface",
-                "description": "surface:30 min fcst:"
-              },
-              {
-                "message": "42",
-                "byte_offset": 43251224,
-                "reference": "d=2026111400",
-                "short_name": "RETOP",
-                "level": "entire atmosphere (considered as a single layer)",
-                "description": "entire atmosphere (considered as a single layer):30 min fcst:"
-              },
-              {
-                "message": "43",
-                "byte_offset": 43520400,
-                "reference": "d=2026111400",
-                "short_name": "MSLET",
-                "level": "mean sea level",
-                "description": "mean sea level:30 min fcst:"
-              },
-              {
-                "message": "44",
-                "byte_offset": 45360048,
-                "reference": "d=2026111400",
-                "short_name": "REFD",
-                "level": "4000 m above ground",
-                "description": "4000 m above ground:30 min fcst:"
-              },
-              {
-                "message": "45",
-                "byte_offset": 45735413,
-                "reference": "d=2026111400",
-                "short_name": "REFD",
-                "level": "1000 m above ground",
-                "description": "1000 m above ground:30 min fcst:"
-              },
-              {
-                "message": "46",
-                "byte_offset": 46428878,
-                "reference": "d=2026111400",
-                "short_name": "PRES",
-                "level": "surface",
-                "description": "surface:30 min fcst:"
-              },
-              {
-                "message": "47",
-                "byte_offset": 48553780,
-                "reference": "d=2026111400",
-                "short_name": "HGT",
-                "level": "surface",
-                "description": "surface:30 min fcst:"
-              },
-              {
-                "message": "48",
-                "byte_offset": 50260243,
-                "reference": "d=2026111400",
-                "short_name": "ASNOW",
-                "level": "surface",
-                "description": "surface:0-30 min acc fcst:"
-              },
-              {
-                "message": "49",
-                "byte_offset": 50326474,
-                "reference": "d=2026111400",
-                "short_name": "TMP",
-                "level": "2 m above ground",
-                "description": "2 m above ground:30 min fcst:"
-              },
-              {
-                "message": "50",
-                "byte_offset": 51988806,
-                "reference": "d=2026111400",
-                "short_name": "SPFH",
-                "level": "2 m above ground",
-                "description": "2 m above ground:30 min fcst:"
-              },
-              {
-                "message": "51",
-                "byte_offset": 53450581,
-                "reference": "d=2026111400",
-                "short_name": "DPT",
-                "level": "2 m above ground",
-                "description": "2 m above ground:30 min fcst:"
-              },
-              {
-                "message": "52",
-                "byte_offset": 55223840,
-                "reference": "d=2026111400",
-                "short_name": "UGRD",
-                "level": "10 m above ground",
-                "description": "10 m above ground:30 min fcst:"
-              },
-              {
-                "message": "53",
-                "byte_offset": 57047653,
-                "reference": "d=2026111400",
-                "short_name": "VGRD",
-                "level": "10 m above ground",
-                "description": "10 m above ground:30 min fcst:"
-              },
-              {
-                "message": "54",
-                "byte_offset": 58868407,
-                "reference": "d=2026111400",
-                "short_name": "CPOFP",
-                "level": "surface",
-                "description": "surface:30 min fcst:"
-              },
-              {
-                "message": "55",
-                "byte_offset": 59124443,
-                "reference": "d=2026111400",
-                "short_name": "PRATE",
-                "level": "surface",
-                "description": "surface:30 min fcst:"
-              },
-              {
-                "message": "56",
-                "byte_offset": 59487084,
-                "reference": "d=2026111400",
-                "short_name": "APCP",
-                "level": "surface",
-                "description": "surface:0-30 min acc fcst:"
-              },
-              {
-                "message": "57",
-                "byte_offset": 59633625,
-                "reference": "d=2026111400",
-                "short_name": "TSNOWP",
-                "level": "surface",
-                "description": "surface:0-30 min acc fcst:"
-              },
-              {
-                "message": "58",
-                "byte_offset": 59731331,
-                "reference": "d=2026111400",
-                "short_name": "CSNOW",
-                "level": "surface",
-                "description": "surface:30 min fcst:"
-              },
-              {
-                "message": "59",
-                "byte_offset": 59744349,
-                "reference": "d=2026111400",
-                "short_name": "CICEP",
-                "level": "surface",
-                "description": "surface:30 min fcst:"
-              },
-              {
-                "message": "60",
-                "byte_offset": 59744568,
-                "reference": "d=2026111400",
-                "short_name": "CFRZR",
-                "level": "surface",
-                "description": "surface:30 min fcst:"
-              },
-              {
-                "message": "61",
-                "byte_offset": 59744930,
-                "reference": "d=2026111400",
-                "short_name": "CRAIN",
-                "level": "surface",
-                "description": "surface:30 min fcst:"
-              },
-              {
-                "message": "62",
-                "byte_offset": 59812054,
-                "reference": "d=2026111400",
-                "short_name": "HGT",
-                "level": "cloud base",
-                "description": "cloud base:30 min fcst:"
-              },
-              {
-                "message": "63",
-                "byte_offset": 61734437,
-                "reference": "d=2026111400",
-                "short_name": "HGT",
-                "level": "cloud ceiling",
-                "description": "cloud ceiling:30 min fcst:"
-              },
-              {
-                "message": "64",
-                "byte_offset": 62863504,
-                "reference": "d=2026111400",
-                "short_name": "HGT",
-                "level": "cloud top",
-                "description": "cloud top:30 min fcst:"
-              },
-              {
-                "message": "65",
-                "byte_offset": 65217243,
-                "reference": "d=2026111400",
-                "short_name": "ULWRF",
-                "level": "top of atmosphere",
-                "description": "top of atmosphere:30 min fcst:"
-              },
-              {
-                "message": "66",
-                "byte_offset": 67035531,
-                "reference": "d=2026111400",
-                "short_name": "DSWRF",
-                "level": "surface",
-                "description": "surface:30 min fcst:"
-              },
-              {
-                "message": "67",
-                "byte_offset": 67377110,
-                "reference": "d=2026111400",
-                "short_name": "DLWRF",
-                "level": "surface",
-                "description": "surface:30 min fcst:"
-              },
-              {
-                "message": "68",
-                "byte_offset": 69227879,
-                "reference": "d=2026111400",
-                "short_name": "USWRF",
-                "level": "surface",
-                "description": "surface:30 min fcst:"
-              },
-              {
-                "message": "69",
-                "byte_offset": 69499126,
-                "reference": "d=2026111400",
-                "short_name": "ULWRF",
-                "level": "surface",
-                "description": "surface:30 min fcst:"
-              },
-              {
-                "message": "70",
-                "byte_offset": 71017938,
-                "reference": "d=2026111400",
-                "short_name": "VBDSF",
-                "level": "surface",
-                "description": "surface:30 min fcst:"
-              },
-              {
-                "message": "71",
-                "byte_offset": 71303437,
-                "reference": "d=2026111400",
-                "short_name": "VDDSF",
-                "level": "surface",
-                "description": "surface:30 min fcst:"
-              },
-              {
-                "message": "72",
-                "byte_offset": 71691912,
-                "reference": "d=2026111400",
-                "short_name": "UPHL",
-                "level": "5000-2000 m above ground",
-                "description": "5000-2000 m above ground:30 min fcst:"
-              },
-              {
-                "message": "73",
-                "byte_offset": 71834740,
-                "reference": "d=2026111400",
-                "short_name": "UGRD",
-                "level": "80 m above ground",
-                "description": "80 m above ground:30 min fcst:"
-              },
-              {
-                "message": "74",
-                "byte_offset": 73698198,
-                "reference": "d=2026111400",
-                "short_name": "VGRD",
-                "level": "80 m above ground",
-                "description": "80 m above ground:30 min fcst:"
-              },
-              {
-                "message": "75",
-                "byte_offset": 75570163,
-                "reference": "d=2026111400",
-                "short_name": "REFC",
-                "level": "entire atmosphere (considered as a single layer)",
-                "description": "entire atmosphere (considered as a single layer):45 min fcst:"
-              },
-              {
-                "message": "76",
-                "byte_offset": 76422883,
-                "reference": "d=2026111400",
-                "short_name": "VIL",
-                "level": "entire atmosphere (considered as a single layer)",
-                "description": "entire atmosphere (considered as a single layer):45 min fcst:"
-              },
-              {
-                "message": "77",
-                "byte_offset": 76739547,
-                "reference": "d=2026111400",
-                "short_name": "VIS",
-                "level": "surface",
-                "description": "surface:45 min fcst:"
-              },
-              {
-                "message": "78",
-                "byte_offset": 79638973,
-                "reference": "d=2026111400",
-                "short_name": "GUST",
-                "level": "surface",
-                "description": "surface:45 min fcst:"
-              },
-              {
-                "message": "79",
-                "byte_offset": 80872628,
-                "reference": "d=2026111400",
-                "short_name": "RETOP",
-                "level": "entire atmosphere (considered as a single layer)",
-                "description": "entire atmosphere (considered as a single layer):45 min fcst:"
-              },
-              {
-                "message": "80",
-                "byte_offset": 81145084,
-                "reference": "d=2026111400",
-                "short_name": "MSLET",
-                "level": "mean sea level",
-                "description": "mean sea level:45 min fcst:"
-              },
-              {
-                "message": "81",
-                "byte_offset": 82987803,
-                "reference": "d=2026111400",
-                "short_name": "REFD",
-                "level": "4000 m above ground",
-                "description": "4000 m above ground:45 min fcst:"
-              },
-              {
-                "message": "82",
-                "byte_offset": 83358093,
-                "reference": "d=2026111400",
-                "short_name": "REFD",
-                "level": "1000 m above ground",
-                "description": "1000 m above ground:45 min fcst:"
-              },
-              {
-                "message": "83",
-                "byte_offset": 84065507,
-                "reference": "d=2026111400",
-                "short_name": "PRES",
-                "level": "surface",
-                "description": "surface:45 min fcst:"
-              },
-              {
-                "message": "84",
-                "byte_offset": 86191387,
-                "reference": "d=2026111400",
-                "short_name": "HGT",
-                "level": "surface",
-                "description": "surface:45 min fcst:"
-              },
-              {
-                "message": "85",
-                "byte_offset": 87897850,
-                "reference": "d=2026111400",
-                "short_name": "ASNOW",
-                "level": "surface",
-                "description": "surface:0-45 min acc fcst:"
-              },
-              {
-                "message": "86",
-                "byte_offset": 87971812,
-                "reference": "d=2026111400",
-                "short_name": "TMP",
-                "level": "2 m above ground",
-                "description": "2 m above ground:45 min fcst:"
-              },
-              {
-                "message": "87",
-                "byte_offset": 89635499,
-                "reference": "d=2026111400",
-                "short_name": "SPFH",
-                "level": "2 m above ground",
-                "description": "2 m above ground:45 min fcst:"
-              },
-              {
-                "message": "88",
-                "byte_offset": 91094802,
-                "reference": "d=2026111400",
-                "short_name": "DPT",
-                "level": "2 m above ground",
-                "description": "2 m above ground:45 min fcst:"
-              },
-              {
-                "message": "89",
-                "byte_offset": 92873898,
-                "reference": "d=2026111400",
-                "short_name": "UGRD",
-                "level": "10 m above ground",
-                "description": "10 m above ground:45 min fcst:"
-              },
-              {
-                "message": "90",
-                "byte_offset": 94701866,
-                "reference": "d=2026111400",
-                "short_name": "VGRD",
-                "level": "10 m above ground",
-                "description": "10 m above ground:45 min fcst:"
-              },
-              {
-                "message": "91",
-                "byte_offset": 96526299,
-                "reference": "d=2026111400",
-                "short_name": "CPOFP",
-                "level": "surface",
-                "description": "surface:45 min fcst:"
-              },
-              {
-                "message": "92",
-                "byte_offset": 96779361,
-                "reference": "d=2026111400",
-                "short_name": "PRATE",
-                "level": "surface",
-                "description": "surface:45 min fcst:"
-              },
-              {
-                "message": "93",
-                "byte_offset": 97157784,
-                "reference": "d=2026111400",
-                "short_name": "APCP",
-                "level": "surface",
-                "description": "surface:0-45 min acc fcst:"
-              },
-              {
-                "message": "94",
-                "byte_offset": 97326519,
-                "reference": "d=2026111400",
-                "short_name": "TSNOWP",
-                "level": "surface",
-                "description": "surface:0-45 min acc fcst:"
-              },
-              {
-                "message": "95",
-                "byte_offset": 97438076,
-                "reference": "d=2026111400",
-                "short_name": "CSNOW",
-                "level": "surface",
-                "description": "surface:45 min fcst:"
-              },
-              {
-                "message": "96",
-                "byte_offset": 97449801,
-                "reference": "d=2026111400",
-                "short_name": "CICEP",
-                "level": "surface",
-                "description": "surface:45 min fcst:"
-              },
-              {
-                "message": "97",
-                "byte_offset": 97450020,
-                "reference": "d=2026111400",
-                "short_name": "CFRZR",
-                "level": "surface",
-                "description": "surface:45 min fcst:"
-              },
-              {
-                "message": "98",
-                "byte_offset": 97450298,
-                "reference": "d=2026111400",
-                "short_name": "CRAIN",
-                "level": "surface",
-                "description": "surface:45 min fcst:"
-              },
-              {
-                "message": "99",
-                "byte_offset": 97517497,
-                "reference": "d=2026111400",
-                "short_name": "HGT",
-                "level": "cloud base",
-                "description": "cloud base:45 min fcst:"
-              },
-              {
-                "message": "100",
-                "byte_offset": 99476486,
-                "reference": "d=2026111400",
-                "short_name": "HGT",
-                "level": "cloud ceiling",
-                "description": "cloud ceiling:45 min fcst:"
-              },
-              {
-                "message": "101",
-                "byte_offset": 100656500,
-                "reference": "d=2026111400",
-                "short_name": "HGT",
-                "level": "cloud top",
-                "description": "cloud top:45 min fcst:"
-              },
-              {
-                "message": "102",
-                "byte_offset": 102996753,
-                "reference": "d=2026111400",
-                "short_name": "ULWRF",
-                "level": "top of atmosphere",
-                "description": "top of atmosphere:45 min fcst:"
-              },
-              {
-                "message": "103",
-                "byte_offset": 104922198,
-                "reference": "d=2026111400",
-                "short_name": "DSWRF",
-                "level": "surface",
-                "description": "surface:45 min fcst:"
-              },
-              {
-                "message": "104",
-                "byte_offset": 105146743,
-                "reference": "d=2026111400",
-                "short_name": "DLWRF",
-                "level": "surface",
-                "description": "surface:45 min fcst:"
-              },
-              {
-                "message": "105",
-                "byte_offset": 106996154,
-                "reference": "d=2026111400",
-                "short_name": "USWRF",
-                "level": "surface",
-                "description": "surface:45 min fcst:"
-              },
-              {
-                "message": "106",
-                "byte_offset": 107172489,
-                "reference": "d=2026111400",
-                "short_name": "ULWRF",
-                "level": "surface",
-                "description": "surface:45 min fcst:"
-              },
-              {
-                "message": "107",
-                "byte_offset": 108692407,
-                "reference": "d=2026111400",
-                "short_name": "VBDSF",
-                "level": "surface",
-                "description": "surface:45 min fcst:"
-              },
-              {
-                "message": "108",
-                "byte_offset": 108885017,
-                "reference": "d=2026111400",
-                "short_name": "VDDSF",
-                "level": "surface",
-                "description": "surface:45 min fcst:"
-              },
-              {
-                "message": "109",
-                "byte_offset": 109156245,
-                "reference": "d=2026111400",
-                "short_name": "UPHL",
-                "level": "5000-2000 m above ground",
-                "description": "5000-2000 m above ground:45 min fcst:"
-              },
-              {
-                "message": "110",
-                "byte_offset": 109258257,
-                "reference": "d=2026111400",
-                "short_name": "UGRD",
-                "level": "80 m above ground",
-                "description": "80 m above ground:45 min fcst:"
-              },
-              {
-                "message": "111",
-                "byte_offset": 111126736,
-                "reference": "d=2026111400",
-                "short_name": "VGRD",
-                "level": "80 m above ground",
-                "description": "80 m above ground:45 min fcst:"
-              },
-              {
-                "message": "112",
-                "byte_offset": 112998573,
-                "reference": "d=2026111400",
-                "short_name": "REFC",
-                "level": "entire atmosphere (considered as a single layer)",
-                "description": "entire atmosphere (considered as a single layer):1 hour fcst:"
-              },
-              {
-                "message": "113",
-                "byte_offset": 113873442,
-                "reference": "d=2026111400",
-                "short_name": "VIL",
-                "level": "entire atmosphere (considered as a single layer)",
-                "description": "entire atmosphere (considered as a single layer):1 hour fcst:"
-              },
-              {
-                "message": "114",
-                "byte_offset": 114194761,
-                "reference": "d=2026111400",
-                "short_name": "VIS",
-                "level": "surface",
-                "description": "surface:1 hour fcst:"
-              },
-              {
-                "message": "115",
-                "byte_offset": 117092138,
-                "reference": "d=2026111400",
-                "short_name": "GUST",
-                "level": "surface",
-                "description": "surface:1 hour fcst:"
-              },
-              {
-                "message": "116",
-                "byte_offset": 118328114,
-                "reference": "d=2026111400",
-                "short_name": "RETOP",
-                "level": "entire atmosphere (considered as a single layer)",
-                "description": "entire atmosphere (considered as a single layer):1 hour fcst:"
-              },
-              {
-                "message": "117",
-                "byte_offset": 118604594,
-                "reference": "d=2026111400",
-                "short_name": "MSLET",
-                "level": "mean sea level",
-                "description": "mean sea level:1 hour fcst:"
-              },
-              {
-                "message": "118",
-                "byte_offset": 120448349,
-                "reference": "d=2026111400",
-                "short_name": "REFD",
-                "level": "1000 m above ground",
-                "description": "1000 m above ground:1 hour fcst:"
-              },
-              {
-                "message": "119",
-                "byte_offset": 120813806,
-                "reference": "d=2026111400",
-                "short_name": "REFD",
-                "level": "4000 m above ground",
-                "description": "4000 m above ground:1 hour fcst:"
-              },
-              {
-                "message": "120",
-                "byte_offset": 121530058,
-                "reference": "d=2026111400",
-                "short_name": "PRES",
-                "level": "surface",
-                "description": "surface:1 hour fcst:"
-              },
-              {
-                "message": "121",
-                "byte_offset": 123655522,
-                "reference": "d=2026111400",
-                "short_name": "HGT",
-                "level": "surface",
-                "description": "surface:1 hour fcst:"
-              },
-              {
-                "message": "122",
-                "byte_offset": 125361985,
-                "reference": "d=2026111400",
-                "short_name": "ASNOW",
-                "level": "surface",
-                "description": "surface:0-1 hour acc fcst:"
-              },
-              {
-                "message": "123",
-                "byte_offset": 125440273,
-                "reference": "d=2026111400",
-                "short_name": "TMP",
-                "level": "2 m above ground",
-                "description": "2 m above ground:1 hour fcst:"
-              },
-              {
-                "message": "124",
-                "byte_offset": 127113236,
-                "reference": "d=2026111400",
-                "short_name": "SPFH",
-                "level": "2 m above ground",
-                "description": "2 m above ground:1 hour fcst:"
-              },
-              {
-                "message": "125",
-                "byte_offset": 128569105,
-                "reference": "d=2026111400",
-                "short_name": "DPT",
-                "level": "2 m above ground",
-                "description": "2 m above ground:1 hour fcst:"
-              },
-              {
-                "message": "126",
-                "byte_offset": 130338013,
-                "reference": "d=2026111400",
-                "short_name": "UGRD",
-                "level": "10 m above ground",
-                "description": "10 m above ground:1 hour fcst:"
-              },
-              {
-                "message": "127",
-                "byte_offset": 132170419,
-                "reference": "d=2026111400",
-                "short_name": "VGRD",
-                "level": "10 m above ground",
-                "description": "10 m above ground:1 hour fcst:"
-              },
-              {
-                "message": "128",
-                "byte_offset": 133998961,
-                "reference": "d=2026111400",
-                "short_name": "CPOFP",
-                "level": "surface",
-                "description": "surface:1 hour fcst:"
-              },
-              {
-                "message": "129",
-                "byte_offset": 134246613,
-                "reference": "d=2026111400",
-                "short_name": "PRATE",
-                "level": "surface",
-                "description": "surface:1 hour fcst:"
-              },
-              {
-                "message": "130",
-                "byte_offset": 134623198,
-                "reference": "d=2026111400",
-                "short_name": "APCP",
-                "level": "surface",
-                "description": "surface:0-1 hour acc fcst:"
-              },
-              {
-                "message": "131",
-                "byte_offset": 134808695,
-                "reference": "d=2026111400",
-                "short_name": "TSNOWP",
-                "level": "surface",
-                "description": "surface:0-1 hour acc fcst:"
-              },
-              {
-                "message": "132",
-                "byte_offset": 134860027,
-                "reference": "d=2026111400",
-                "short_name": "TSNOWP",
-                "level": "surface",
-                "description": "surface:0-1 hour acc fcst:"
-              },
-              {
-                "message": "133",
-                "byte_offset": 134978000,
-                "reference": "d=2026111400",
-                "short_name": "CSNOW",
-                "level": "surface",
-                "description": "surface:1 hour fcst:"
-              },
-              {
-                "message": "134",
-                "byte_offset": 134989365,
-                "reference": "d=2026111400",
-                "short_name": "CICEP",
-                "level": "surface",
-                "description": "surface:1 hour fcst:"
-              },
-              {
-                "message": "135",
-                "byte_offset": 134989584,
-                "reference": "d=2026111400",
-                "short_name": "CFRZR",
-                "level": "surface",
-                "description": "surface:1 hour fcst:"
-              },
-              {
-                "message": "136",
-                "byte_offset": 134989933,
-                "reference": "d=2026111400",
-                "short_name": "CRAIN",
-                "level": "surface",
-                "description": "surface:1 hour fcst:"
-              },
-              {
-                "message": "137",
-                "byte_offset": 135056397,
-                "reference": "d=2026111400",
-                "short_name": "HGT",
-                "level": "cloud base",
-                "description": "cloud base:1 hour fcst:"
-              },
-              {
-                "message": "138",
-                "byte_offset": 137047886,
-                "reference": "d=2026111400",
-                "short_name": "HGT",
-                "level": "cloud ceiling",
-                "description": "cloud ceiling:1 hour fcst:"
-              },
-              {
-                "message": "139",
-                "byte_offset": 138279003,
-                "reference": "d=2026111400",
-                "short_name": "HGT",
-                "level": "cloud top",
-                "description": "cloud top:1 hour fcst:"
-              },
-              {
-                "message": "140",
-                "byte_offset": 140602530,
-                "reference": "d=2026111400",
-                "short_name": "ULWRF",
-                "level": "top of atmosphere",
-                "description": "top of atmosphere:1 hour fcst:"
-              },
-              {
-                "message": "141",
-                "byte_offset": 142600639,
-                "reference": "d=2026111400",
-                "short_name": "DSWRF",
-                "level": "surface",
-                "description": "surface:1 hour fcst:"
-              },
-              {
-                "message": "142",
-                "byte_offset": 142721734,
-                "reference": "d=2026111400",
-                "short_name": "DLWRF",
-                "level": "surface",
-                "description": "surface:1 hour fcst:"
-              },
-              {
-                "message": "143",
-                "byte_offset": 144568812,
-                "reference": "d=2026111400",
-                "short_name": "USWRF",
-                "level": "surface",
-                "description": "surface:1 hour fcst:"
-              },
-              {
-                "message": "144",
-                "byte_offset": 144664217,
-                "reference": "d=2026111400",
-                "short_name": "ULWRF",
-                "level": "surface",
-                "description": "surface:1 hour fcst:"
-              },
-              {
-                "message": "145",
-                "byte_offset": 146185093,
-                "reference": "d=2026111400",
-                "short_name": "VBDSF",
-                "level": "surface",
-                "description": "surface:1 hour fcst:"
-              },
-              {
-                "message": "146",
-                "byte_offset": 146285850,
-                "reference": "d=2026111400",
-                "short_name": "VDDSF",
-                "level": "surface",
-                "description": "surface:1 hour fcst:"
-              },
-              {
-                "message": "147",
-                "byte_offset": 146450937,
-                "reference": "d=2026111400",
-                "short_name": "UPHL",
-                "level": "5000-2000 m above ground",
-                "description": "5000-2000 m above ground:1 hour fcst:"
-              },
-              {
-                "message": "148",
-                "byte_offset": 146550927,
-                "reference": "d=2026111400",
-                "short_name": "UGRD",
-                "level": "80 m above ground",
-                "description": "80 m above ground:1 hour fcst:"
-              },
-              {
-                "message": "149",
-                "byte_offset": 148417564,
-                "reference": "d=2026111400",
-                "short_name": "VGRD",
-                "level": "80 m above ground",
-                "description": "80 m above ground:1 hour fcst:"
-              }
-            ]
-          }
+          "forecast_interval_minutes": 15
         },
         {
           "model": "RRFS",
@@ -36050,171 +36245,6 @@
           "filename": "rrfs.t00z.prslev.3km.f040.conus.grib2",
           "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/00/rrfs.t00z.prslev.3km.f040.conus.grib2",
           "forecast_hour": 40
-        },
-        {
-          "model": "RRFS",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t00z.2dfld.3km.f041.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/00/rrfs.t00z.2dfld.3km.f041.conus.grib2",
-          "forecast_hour": 41
-        },
-        {
-          "model": "RRFS",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t00z.prslev.3km.f041.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/00/rrfs.t00z.prslev.3km.f041.conus.grib2",
-          "forecast_hour": 41
-        },
-        {
-          "model": "RRFS",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t00z.2dfld.3km.f042.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/00/rrfs.t00z.2dfld.3km.f042.conus.grib2",
-          "forecast_hour": 42
-        },
-        {
-          "model": "RRFS",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t00z.prslev.3km.f042.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/00/rrfs.t00z.prslev.3km.f042.conus.grib2",
-          "forecast_hour": 42
-        },
-        {
-          "model": "RRFS",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t00z.2dfld.3km.f043.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/00/rrfs.t00z.2dfld.3km.f043.conus.grib2",
-          "forecast_hour": 43
-        },
-        {
-          "model": "RRFS",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t00z.prslev.3km.f043.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/00/rrfs.t00z.prslev.3km.f043.conus.grib2",
-          "forecast_hour": 43
-        },
-        {
-          "model": "RRFS",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t00z.2dfld.3km.f044.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/00/rrfs.t00z.2dfld.3km.f044.conus.grib2",
-          "forecast_hour": 44
-        },
-        {
-          "model": "RRFS",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t00z.prslev.3km.f044.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/00/rrfs.t00z.prslev.3km.f044.conus.grib2",
-          "forecast_hour": 44
-        },
-        {
-          "model": "RRFS",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t00z.2dfld.3km.f045.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/00/rrfs.t00z.2dfld.3km.f045.conus.grib2",
-          "forecast_hour": 45
-        },
-        {
-          "model": "RRFS",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t00z.prslev.3km.f045.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/00/rrfs.t00z.prslev.3km.f045.conus.grib2",
-          "forecast_hour": 45
-        },
-        {
-          "model": "RRFS",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t00z.2dfld.3km.f046.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/00/rrfs.t00z.2dfld.3km.f046.conus.grib2",
-          "forecast_hour": 46
-        },
-        {
-          "model": "RRFS",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t00z.prslev.3km.f046.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/00/rrfs.t00z.prslev.3km.f046.conus.grib2",
-          "forecast_hour": 46
-        },
-        {
-          "model": "RRFS",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t00z.2dfld.3km.f047.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/00/rrfs.t00z.2dfld.3km.f047.conus.grib2",
-          "forecast_hour": 47
-        },
-        {
-          "model": "RRFS",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "product": "pressure_levels_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t00z.prslev.3km.f047.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/00/rrfs.t00z.prslev.3km.f047.conus.grib2",
-          "forecast_hour": 47
-        },
-        {
-          "model": "RRFS",
-          "date": "20261114",
-          "cycle_utc": "20261114T00:00:00Z",
-          "product": "surface_2d_3km",
-          "resolution_km": 3,
-          "domain": "conus",
-          "filename": "rrfs.t00z.2dfld.3km.f048.conus.grib2",
-          "url": "https://nomads.ncep.noaa.gov/pub/data/nccf/com/rrfs/prod/rrfs.20261114/00/rrfs.t00z.2dfld.3km.f048.conus.grib2",
-          "forecast_hour": 48
         }
       ],
       "directory_errors": [
