@@ -140,6 +140,7 @@ def test_workflows_use_node24_compatible_action_majors():
     expected_versions = {
         "checkout": "v5",
         "setup-python": "v6",
+        "setup-miniconda": "v4",
         "upload-artifact": "v7",
         "download-artifact": "v7",
         "configure-pages": "v6",
@@ -153,7 +154,8 @@ def test_workflows_use_node24_compatible_action_majors():
     for workflow_path in workflow_files:
         workflow = workflow_path.read_text(encoding="utf-8")
         for action, expected in expected_versions.items():
-            pattern = rf"uses:\s*actions/{action}@(v\d+)"
+            namespace = "conda-incubator" if action == "setup-miniconda" else "actions"
+            pattern = rf"uses:\s*{re.escape(namespace)}/{action}@(v\d+)"
             versions = re.findall(pattern, workflow)
             assert all(version == expected for version in versions), (
                 f"{workflow_path.relative_to(ROOT)} uses actions/{action} versions {versions}; "
