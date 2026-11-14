@@ -1,0 +1,59 @@
+{
+  "model": "RAP",
+  "cycle_utc": "20261114T04:00:00Z",
+  "forecast_hour": 0,
+  "valid_time_utc": "2026-11-14T04:00:00Z",
+  "field_key": "cin_2d_8",
+  "short_name": "cin",
+  "long_name": "Convective inhibition",
+  "units": "J kg**-1",
+  "source_units": "J kg**-1",
+  "display_transform": {
+    "scale": 1.0,
+    "offset": 0.0
+  },
+  "source_grid_shape": [
+    226,
+    177
+  ],
+  "render_grid_shape": [
+    226,
+    177
+  ],
+  "source_grid_id": "grid_8",
+  "source_grid_stride": 1,
+  "render_stride": 1,
+  "source_effective_spacing_m": {
+    "x": 13545.0,
+    "y": 13545.0
+  },
+  "render_effective_spacing_m": {
+    "x": 13545.0,
+    "y": 13545.0
+  },
+  "display_range": [
+    -9.06,
+    -0.06
+  ],
+  "contour_interval": 1.0,
+  "contour_levels": [
+    -9.0,
+    -8.0,
+    -7.0,
+    -6.0,
+    -5.0,
+    -4.0,
+    -3.0,
+    -2.0,
+    -1.0,
+    0.0
+  ],
+  "tile_size": 256,
+  "zoom_min": 3,
+  "zoom_max": 6,
+  "tile_count": 51,
+  "contour_feature_count": 1155,
+  "tile_url": "rap/20261114T040000Z/f00/cin_2d_8/tiles/{z}/{x}/{y}.png",
+  "contour_url": "rap/20261114T040000Z/f00/cin_2d_8/contours.geojson",
+  "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling"
+}
