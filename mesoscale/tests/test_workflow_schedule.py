@@ -153,7 +153,7 @@ def test_workflows_use_node24_compatible_action_majors():
     for workflow_path in workflow_files:
         workflow = workflow_path.read_text(encoding="utf-8")
         for action, expected in expected_versions.items():
-            pattern = rf"uses:\\s*actions/{action}@(v\\d+)"
+            pattern = rf"uses:\s*actions/{action}@(v\d+)"
             versions = re.findall(pattern, workflow)
             assert all(version == expected for version in versions), (
                 f"{workflow_path.relative_to(ROOT)} uses actions/{action} versions {versions}; "
