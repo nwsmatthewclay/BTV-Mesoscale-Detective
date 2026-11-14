@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -41,8 +42,8 @@ def test_pages_deployments_are_serialized_and_use_attempt_scoped_artifacts():
         assert "cancel-in-progress: false" in deploy
         assert "name: Wait for GitHub Pages artifact metadata" in deploy
         assert "run: sleep 10" in deploy
-        upload = deploy.split("uses: actions/upload-pages-artifact@v3", 1)[1].split("\n      - name:", 1)[0]
-        deploy_step = deploy.split("uses: actions/deploy-pages@v4", 1)[1]
+        upload = deploy.split("uses: actions/upload-pages-artifact@v5", 1)[1].split("\n      - name:", 1)[0]
+        deploy_step = deploy.split("uses: actions/deploy-pages@v5", 1)[1]
         artifact_name = "github-pages-${{ github.run_id }}-${{ github.run_attempt }}"
         assert f"name: {artifact_name}" in upload
         assert f"artifact_name: {artifact_name}" in deploy_step
@@ -51,8 +52,8 @@ def test_pages_deployments_are_serialized_and_use_attempt_scoped_artifacts():
     assert "group: github-pages" in standalone
     assert "name: Wait for GitHub Pages artifact metadata" in standalone
     assert "run: sleep 10" in standalone
-    upload = standalone.split("uses: actions/upload-pages-artifact@v3", 1)[1].split("\n      - name:", 1)[0]
-    deploy_step = standalone.split("uses: actions/deploy-pages@v4", 1)[1]
+    upload = standalone.split("uses: actions/upload-pages-artifact@v5", 1)[1].split("\n      - name:", 1)[0]
+    deploy_step = standalone.split("uses: actions/deploy-pages@v5", 1)[1]
     artifact_name = "github-pages-${{ github.run_id }}-${{ github.run_attempt }}"
     assert f"name: {artifact_name}" in upload
     assert f"artifact_name: {artifact_name}" in deploy_step
@@ -132,3 +133,31 @@ def test_rap_freshness_decision_is_archived_after_every_successful_check():
     assert "${{ runner.temp }}/rap-freshness-report.json" in upload
     assert "rap-ingestion-report-${{ github.run_id }}-${{ github.run_attempt }}" in upload
     assert "retention-days: 7" in upload
+
+
+
+def test_workflows_use_node24_compatible_action_majors():
+    expected_versions = {
+        "checkout": "v5",
+        "setup-python": "v6",
+        "setup-miniconda": "v4",
+        "upload-artifact": "v7",
+        "download-artifact": "v7",
+        "configure-pages": "v6",
+        "upload-pages-artifact": "v5",
+        "deploy-pages": "v5",
+    }
+    workflow_root = ROOT / ".github" / "workflows"
+    workflow_files = sorted(workflow_root.glob("*.yml")) + sorted(workflow_root.glob("*.yaml"))
+    assert workflow_files, "expected GitHub Actions workflow files"
+
+    for workflow_path in workflow_files:
+        workflow = workflow_path.read_text(encoding="utf-8")
+        for action, expected in expected_versions.items():
+            namespace = "conda-incubator" if action == "setup-miniconda" else "actions"
+            pattern = rf"uses:\s*{re.escape(namespace)}/{action}@(v\d+)"
+            versions = re.findall(pattern, workflow)
+            assert all(version == expected for version in versions), (
+                f"{workflow_path.relative_to(ROOT)} uses actions/{action} versions {versions}; "
+                f"expected {expected}"
+            )

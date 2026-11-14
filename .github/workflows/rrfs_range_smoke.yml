@@ -23,11 +23,11 @@ jobs:
       PYTHONPATH: ${{ github.workspace }}
     steps:
       - name: Check out latest discovered main branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: main
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
       - name: Install RRFS subset dependencies
@@ -43,7 +43,7 @@ jobs:
             --output-dir "$RUNNER_TEMP/rrfs_btv_subset"
       - name: Upload non-published RRFS BTV subset artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: rrfs-btv-subset-smoke-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/rrfs_btv_subset/
