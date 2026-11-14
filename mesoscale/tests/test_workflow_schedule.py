@@ -104,3 +104,19 @@ def test_model_discovery_does_not_run_for_test_only_changes():
     assert "mesoscale/validate_hrrr_archive.py" in paths
     assert "pytest -q mesoscale/tests mesoscale/hrrr_tests" in discovery
 
+
+def test_rap_freshness_decision_is_archived_after_every_successful_check():
+    rap = (ROOT / ".github/workflows/rap_ingestion_smoke.yml").read_text(encoding="utf-8")
+    freshness = rap.split(
+        "- name: Check whether a newer complete RAP cycle needs publication", 1
+    )[1].split("- name: Download and decode current RAP hybrid-level product", 1)[0]
+    upload = rap.split(
+        "- name: Upload RAP freshness and ingestion report", 1
+    )[1].split("\n\n  deploy-pages:", 1)[0]
+
+    assert "build_rap_freshness_report" in freshness
+    assert "rap-freshness-report.json" in freshness
+    assert "steps.freshness.outcome == 'success'" in upload
+    assert "${{ runner.temp }}/rap-freshness-report.json" in upload
+    assert "rap-ingestion-report-${{ github.run_id }}-${{ github.run_attempt }}" in upload
+    assert "retention-days: 7" in upload
