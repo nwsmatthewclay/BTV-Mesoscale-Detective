@@ -6,8 +6,6 @@ on:
     types: [completed]
     branches: [main]
   workflow_dispatch:
-  schedule:
-    - cron: "47 * * * *"
 
 permissions:
   contents: write
@@ -43,9 +41,9 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: pytest -q mesoscale/tests
-      - name: Refresh RAP, HRRR and RRFS model discovery manifest for scheduled and manual runs
+      - name: Refresh RAP, HRRR and RRFS model discovery manifest for manual dispatch
         id: refresh
-        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        if: github.event_name == 'workflow_dispatch'
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"

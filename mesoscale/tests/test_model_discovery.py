@@ -16,6 +16,7 @@ from mesoscale.discover_models import (
     rap_product_role,
     rrfs_product_role,
     select_index_targets,
+    preserve_created_timestamp,
 )
 
 
@@ -335,3 +336,50 @@ def test_indexed_target_already_in_manifest_is_not_duplicated():
     selected = include_index_targets_in_manifest([product], [product], limit=120)
 
     assert len(selected) == 1
+
+
+
+def test_unchanged_discovery_manifest_preserves_created_timestamp():
+    previous = {
+        "schema_version": 1,
+        "created_utc": "2026-11-14T08:00:00+00:00",
+        "source": "NCEP NOMADS operational production directories",
+        "models": {"RAP": {"products_found": 1, "latest_products": []}},
+        "errors": [],
+    }
+    current = {
+        **previous,
+        "created_utc": "2026-11-14T09:00:00+00:00",
+    }
+
+    result = preserve_created_timestamp(current, previous)
+
+    assert result["created_utc"] == previous["created_utc"]
+    assert current["created_utc"] == "2026-11-14T09:00:00+00:00"
+
+
+def test_changed_discovery_products_receive_a_new_timestamp():
+    previous = {
+        "created_utc": "2026-11-14T08:00:00+00:00",
+        "models": {"RAP": {"products_found": 1}},
+    }
+    current = {
+        "created_utc": "2026-11-14T09:00:00+00:00",
+        "models": {"RAP": {"products_found": 2}},
+    }
+
+    result = preserve_created_timestamp(current, previous)
+
+    assert result["created_utc"] == current["created_utc"]
+
+
+def test_discovery_manifest_without_prior_timestamp_keeps_new_timestamp():
+    current = {
+        "created_utc": "2026-11-14T09:00:00+00:00",
+        "models": {"RAP": {"products_found": 1}},
+    }
+    previous = {"models": {"RAP": {"products_found": 1}}}
+
+    result = preserve_created_timestamp(current, previous)
+
+    assert result["created_utc"] == current["created_utc"]

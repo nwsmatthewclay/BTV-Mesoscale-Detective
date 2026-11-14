@@ -1,5 +1,6 @@
 name: Mesoscale Model Discovery and Validation
-# Recheck the full expanded-domain pipeline before publishing regional grids.
+# Hourly discovery is the single scheduled entry point for RAP freshness checks.
+# Successful discovery completion triggers one downstream RAP check.
 # Test-only edits run in PR validation but do not trigger live model discovery or ingestion.
 
 on:
@@ -15,13 +16,14 @@ on:
       - "mesoscale/download_subset.py"
       - "mesoscale/validate_hrrr_ingestion.py"
       - "mesoscale/validate_hrrr_archive.py"
-      - "mesoscale/data/model_manifest.json"
       - ".github/workflows/mesoscale_model_discovery.yml"
       - ".github/workflows/rap_ingestion_smoke.yml"
       - ".github/workflows/hrrr_ingestion_smoke.yml"
       - ".github/workflows/rrfs_range_smoke.yml"
       - "mesoscale/rrfs_range_smoke.py"
       - "mesoscale/rrfs_btv_subset.py"
+  schedule:
+    - cron: "17 * * * *"
   workflow_dispatch:
 
 permissions:
