@@ -1,0 +1,55 @@
+{
+  "model": "HRRR",
+  "cycle_utc": "20261114T08:00:00Z",
+  "forecast_hour": 0,
+  "valid_time_utc": "2026-11-14T08:00:00Z",
+  "field_key": "gust_2d_6",
+  "short_name": "gust",
+  "long_name": "Wind gust",
+  "units": "kt",
+  "source_units": "m s**-1",
+  "display_transform": {
+    "scale": 1.943844,
+    "offset": 0.0
+  },
+  "source_grid_shape": [
+    153,
+    145
+  ],
+  "render_grid_shape": [
+    153,
+    145
+  ],
+  "source_grid_id": "grid_6",
+  "source_grid_stride": 5,
+  "render_stride": 1,
+  "source_effective_spacing_m": {
+    "x": 15000.0,
+    "y": 15000.0
+  },
+  "render_effective_spacing_m": {
+    "x": 15000.0,
+    "y": 15000.0
+  },
+  "display_range": [
+    3.2656579199999998,
+    30.848804279999996
+  ],
+  "contour_interval": 5,
+  "contour_levels": [
+    5.0,
+    10.0,
+    15.0,
+    20.0,
+    25.0,
+    30.0
+  ],
+  "tile_size": 256,
+  "zoom_min": 3,
+  "zoom_max": 6,
+  "tile_count": 51,
+  "contour_feature_count": 706,
+  "tile_url": "hrrr/20261114T080000Z/f00/gust_2d_6/tiles/{z}/{x}/{y}.png",
+  "contour_url": "hrrr/20261114T080000Z/f00/gust_2d_6/contours.geojson",
+  "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling"
+}

@@ -1,0 +1,60 @@
+{
+  "model": "RAP",
+  "cycle_utc": "20261114T08:00:00Z",
+  "forecast_hour": 0,
+  "valid_time_utc": "2026-11-14T08:00:00Z",
+  "field_key": "cnwat_2d_9",
+  "short_name": "cnwat",
+  "long_name": "Plant canopy surface water",
+  "units": "kg m**-2",
+  "source_units": "kg m**-2",
+  "display_transform": {
+    "scale": 1.0,
+    "offset": 0.0
+  },
+  "source_grid_shape": [
+    226,
+    177
+  ],
+  "render_grid_shape": [
+    226,
+    177
+  ],
+  "source_grid_id": "grid_9",
+  "source_grid_stride": 1,
+  "render_stride": 1,
+  "source_effective_spacing_m": {
+    "x": 13545.0,
+    "y": 13545.0
+  },
+  "render_effective_spacing_m": {
+    "x": 13545.0,
+    "y": 13545.0
+  },
+  "display_range": [
+    0.0,
+    0.5
+  ],
+  "contour_interval": 0.05,
+  "contour_levels": [
+    0.0,
+    0.05,
+    0.1,
+    0.15000000000000002,
+    0.2,
+    0.25,
+    0.30000000000000004,
+    0.35000000000000003,
+    0.4,
+    0.45,
+    0.5
+  ],
+  "tile_size": 256,
+  "zoom_min": 3,
+  "zoom_max": 6,
+  "tile_count": 51,
+  "contour_feature_count": 861,
+  "tile_url": "rap/20261114T080000Z/f00/cnwat_2d_9/tiles/{z}/{x}/{y}.png",
+  "contour_url": "rap/20261114T080000Z/f00/cnwat_2d_9/contours.geojson",
+  "rendering": "raster and contours use a bounded display resample; the full published grid remains available for cursor and point sampling"
+}
