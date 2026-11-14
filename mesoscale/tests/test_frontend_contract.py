@@ -22,7 +22,11 @@ def test_time_evolution_uses_cycle_and_hour_validated_station_archive():
     assert "collection.model_cycle_utc!==rapForecastManifest.model_cycle_utc" in html
     assert "Number(collection.forecast_hour)!==Number(hour)" in html
     assert "async function updateRapTimeEvolution" in html
-    assert "diagnostics[document.getElementById('trendParameter').value]" in html
+    assert "const metricKey=document.getElementById('trendParameter').value" in html
+    assert "const value=diagnostics[metricKey]" in html
+    assert "collection.valid_time_utc===validTime" in html
+    assert "connectgaps:false" in html
+    assert "Unavailable at '+unavailable.map(point=>" in html
     assert "Custom map points are not filled with a nearby station." in html
 
 
