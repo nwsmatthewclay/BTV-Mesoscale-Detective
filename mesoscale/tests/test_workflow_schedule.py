@@ -5,6 +5,7 @@ import re
 ROOT = Path(__file__).resolve().parents[2]
 
 
+
 def test_hourly_model_refresh_is_owned_by_discovery_and_triggers_one_rap_check():
     rap = (ROOT / ".github/workflows/rap_ingestion_smoke.yml").read_text(encoding="utf-8")
     discovery = (ROOT / ".github/workflows/mesoscale_model_discovery.yml").read_text(encoding="utf-8")
@@ -24,41 +25,51 @@ def test_hourly_model_refresh_is_owned_by_discovery_and_triggers_one_rap_check()
     assert "    branches: [main]" in rap
     assert "if: github.event_name == 'workflow_dispatch'" in rap
     assert "github.event_name == 'schedule'" not in rap
-    assert "manifest_changed: ${{ steps.refresh.outputs.changed }}" in rap
-    assert "needs.rap-ingestion.outputs.manifest_changed == 'true'" in rap
+
+    # RAP no longer owns a Pages deployment or job outputs; it only evaluates
+    # freshness and publishes a verified archive for the downstream HRRR run.
+    assert "manifest_changed" not in rap
+    assert "outputs:" not in rap
+    assert "deploy-pages:" not in rap
+    assert "pages: write" not in rap
+    assert "id-token: write" not in rap
 
 
 def test_pages_deployments_are_serialized_and_use_attempt_scoped_artifacts():
-    workflow_jobs = (
-        ("rap_ingestion_smoke.yml", "deploy-pages"),
-        ("hrrr_ingestion_smoke.yml", "deploy-pages"),
-        ("mesoscale_model_discovery.yml", "deploy-pages"),
-        ("model_tile_render.yml", "deploy-pages"),
-    )
-    for filename, job_name in workflow_jobs:
-        workflow = (ROOT / ".github/workflows" / filename).read_text(encoding="utf-8")
-        deploy = workflow.split(f"  {job_name}:\n", 1)[1]
-        assert "group: github-pages" in deploy
-        assert "cancel-in-progress: false" in deploy
+    def assert_attempt_scoped_deployment(workflow, job_name):
+        marker = f"  {job_name}:\n"
+        assert marker in workflow, f"missing Pages deployment job {job_name}"
+        deploy = workflow.split(marker, 1)[1]
+        # Discovery/tile scope concurrency at the job; the standalone
+        # site workflow declares it at workflow scope.
+        assert "group: github-pages" in workflow
+        assert "cancel-in-progress: false" in workflow
         assert "name: Wait for GitHub Pages artifact metadata" in deploy
         assert "run: sleep 10" in deploy
-        upload = deploy.split("uses: actions/upload-pages-artifact@v5", 1)[1].split("\n      - name:", 1)[0]
+
+        upload = deploy.split("uses: actions/upload-pages-artifact@v5", 1)[1].split(
+            "\n      - name:", 1
+        )[0]
         deploy_step = deploy.split("uses: actions/deploy-pages@v5", 1)[1]
         artifact_name = "github-pages-${{ github.run_id }}-${{ github.run_attempt }}"
         assert f"name: {artifact_name}" in upload
         assert f"artifact_name: {artifact_name}" in deploy_step
 
-    standalone = (ROOT / ".github/workflows/deploy_pages.yml").read_text(encoding="utf-8")
-    assert "group: github-pages" in standalone
-    assert "name: Wait for GitHub Pages artifact metadata" in standalone
-    assert "run: sleep 10" in standalone
-    upload = standalone.split("uses: actions/upload-pages-artifact@v5", 1)[1].split("\n      - name:", 1)[0]
-    deploy_step = standalone.split("uses: actions/deploy-pages@v5", 1)[1]
-    artifact_name = "github-pages-${{ github.run_id }}-${{ github.run_attempt }}"
-    assert f"name: {artifact_name}" in upload
-    assert f"artifact_name: {artifact_name}" in deploy_step
+    # Only discovery metadata and the final, browser-gated tile publication
+    # deploy Pages. RAP and HRRR publish data commits, not intermediate sites.
+    for filename in ("rap_ingestion_smoke.yml", "hrrr_ingestion_smoke.yml"):
+        workflow = (ROOT / ".github/workflows" / filename).read_text(encoding="utf-8")
+        assert "deploy-pages:" not in workflow
+        assert "upload-pages-artifact" not in workflow
+        assert "actions/deploy-pages@" not in workflow
 
-
+    for filename, job_name in (
+        ("mesoscale_model_discovery.yml", "deploy-pages"),
+        ("model_tile_render.yml", "deploy-pages"),
+        ("deploy_pages.yml", "deploy"),
+    ):
+        workflow = (ROOT / ".github/workflows" / filename).read_text(encoding="utf-8")
+        assert_attempt_scoped_deployment(workflow, job_name)
 
 def test_tile_workflow_owns_its_pages_deployment_without_duplicate_pushes():
     tile = (ROOT / ".github/workflows/model_tile_render.yml").read_text(encoding="utf-8")

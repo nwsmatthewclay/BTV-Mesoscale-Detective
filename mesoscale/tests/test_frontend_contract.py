@@ -79,8 +79,6 @@ def test_model_discovery_orchestrates_rap_and_hrrr_ingestion_and_pages():
     # RAP and HRRR retain complete-cycle gates and downstream sequencing.
     assert "archive_needs_update" in rap
     assert "steps.freshness.outputs.needs_update == 'true'" in rap
-    assert "needs.rap-ingestion.outputs.published == 'true'" in rap
-    assert "needs.rap-ingestion.outputs.manifest_changed == 'true'" in rap
     assert 'workflows: ["RAP BTV Ingestion and Forecast Archive"]' in hrrr
     assert "if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'" in hrrr
     assert "archive_needs_update" in hrrr
@@ -212,3 +210,36 @@ def test_workstation_uses_valid_non_nested_main_structure_and_geometry_aware_fie
     assert "body > .app-shell.layout > main.layout" in html
     assert "function hasMatchingGridGeometry(payload,field)" in html
     assert "const data=meta&&squeezeRap2D(meta.data)" in html
+
+def test_pages_publish_only_after_hrrr_browser_and_tile_validation():
+    discovery = (ROOT / ".github" / "workflows" / "mesoscale_model_discovery.yml").read_text(encoding="utf-8")
+    rap = (ROOT / ".github" / "workflows" / "rap_ingestion_smoke.yml").read_text(encoding="utf-8")
+    hrrr = (ROOT / ".github" / "workflows" / "hrrr_ingestion_smoke.yml").read_text(encoding="utf-8")
+    tiles = (ROOT / ".github" / "workflows" / "model_tile_render.yml").read_text(encoding="utf-8")
+    html = (ROOT / "index.html").read_text(encoding="utf-8")
+
+    # The browser consumes discovery metadata, so discovery keeps its
+    # Pages publication. Model archives publish only after the full
+    # RAP -> HRRR -> browser -> tile chain succeeds.
+    assert "fetch('./mesoscale/data/model_manifest.json" in html
+    assert "deploy-pages:" in discovery
+    assert "actions/deploy-pages@v5" in discovery
+
+    for workflow in (rap, hrrr):
+        assert "deploy-pages:" not in workflow
+        assert "upload-pages-artifact" not in workflow
+        assert "actions/deploy-pages@" not in workflow
+
+    assert "browser-smoke:" in hrrr
+    assert "needs: [hrrr-smoke, publish-hrrr]" in hrrr
+    assert "needs.hrrr-smoke.result == 'success'" in hrrr
+    assert "needs.publish-hrrr.result == 'success' || needs.publish-hrrr.result == 'skipped'" in hrrr
+
+    # The tile workflow runs only after a successful HRRR workflow. Its Pages
+    # deployment is downstream of tile generation and a changed catalog.
+    assert "HRRR BTV Surface Ingestion and Archive" in tiles
+    assert "github.event.workflow_run.conclusion == 'success'" in tiles
+    assert "needs: render-and-publish" in tiles
+    assert "needs.render-and-publish.outputs.changed == 'true'" in tiles
+    assert "actions/deploy-pages@v5" in tiles
+

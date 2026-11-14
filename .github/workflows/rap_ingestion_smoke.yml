@@ -9,8 +9,6 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 concurrency:
   group: mesoscale-data-updates
@@ -19,9 +17,6 @@ concurrency:
 jobs:
   rap-ingestion:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
-    outputs:
-      published: ${{ steps.publish.outputs.published }}
-      manifest_changed: ${{ steps.refresh.outputs.changed }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -42,7 +37,6 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
         run: pytest -q mesoscale/tests
       - name: Refresh RAP, HRRR and RRFS model discovery manifest for manual dispatch
-        id: refresh
         if: github.event_name == 'workflow_dispatch'
         run: |
           set -euo pipefail
@@ -54,13 +48,11 @@ jobs:
             python mesoscale/discover_models.py --days-back 2 --index-latest
             git add mesoscale/data/model_manifest.json
             if git diff --cached --quiet; then
-              echo "changed=false" >> "$GITHUB_OUTPUT"
               echo "Model discovery manifest unchanged after attempt $attempt."
               exit 0
             fi
             git commit -m "Refresh RAP, HRRR and RRFS model manifest"
             if git push origin HEAD:main; then
-              echo "changed=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
             echo "Manifest push raced with another main update; retrying attempt $attempt." >&2
@@ -110,7 +102,6 @@ jobs:
         if: steps.freshness.outputs.needs_update == 'true'
         run: python mesoscale/build_rap_forecast_archive.py --hours 0,3,6,9,12,15
       - name: Publish verified RAP fields and KBTV profile
-        id: publish
         if: steps.freshness.outputs.needs_update == 'true'
         run: |
           # Rebase before staging generated outputs. This avoids binary merge
@@ -129,13 +120,11 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A mesoscale/data/fields/
           if git diff --cached --quiet; then
-            echo "published=false" >> "$GITHUB_OUTPUT"
             echo "Published RAP data unchanged."
             exit 0
           fi
           git commit -m "Publish verified latest RAP BTV fields"
           git push
-          echo "published=true" >> "$GITHUB_OUTPUT"
       - name: Upload RAP freshness and ingestion report
         if: always() && steps.freshness.outcome == 'success'
         uses: actions/upload-artifact@v7
@@ -146,37 +135,3 @@ jobs:
             mesoscale/data/ingestion_smoke/
           if-no-files-found: ignore
           retention-days: 7
-
-  deploy-pages:
-    needs: rap-ingestion
-    if: needs.rap-ingestion.outputs.published == 'true' || needs.rap-ingestion.outputs.manifest_changed == 'true' || github.event_name == 'workflow_dispatch'
-    concurrency:
-      group: github-pages
-      cancel-in-progress: false
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Check out latest published main branch
-        uses: actions/checkout@v5
-        with:
-          ref: main
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v6
-      - name: Upload site artifact
-        uses: actions/upload-pages-artifact@v5
-        with:
-          name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .
-      - name: Wait for GitHub Pages artifact metadata
-        run: sleep 10
-      - name: Deploy updated model data to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
-        with:
-          artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
