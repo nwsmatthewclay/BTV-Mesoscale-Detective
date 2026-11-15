@@ -143,20 +143,65 @@ def _pressure_hpa(field: Mapping) -> np.ndarray:
 
 def _interpolate_log_pressure(pressure_hpa: np.ndarray, values: np.ndarray,
                               target_hpa: np.ndarray) -> list[float | None]:
-    valid = np.isfinite(pressure_hpa) & np.isfinite(values) & (pressure_hpa > 0)
-    if valid.sum() < 2:
-        return [None] * int(target_hpa.size)
-    p, v = pressure_hpa[valid], values[valid]
-    order = np.argsort(p)
-    p, v = p[order], v[order]
-    if np.any(np.diff(p) <= 0):
-        raise ValueError("Native hybrid pressure must be unique within each column")
-    result: list[float | None] = []
-    for target in target_hpa:
-        if target < p[0] or target > p[-1]:
-            result.append(None)
+    """Interpolate only across adjacent, finite native levels.
+
+    Missing pressure or field values break an interpolation segment. They are
+    not removed before interpolation, because doing so would silently bridge
+    an interior data gap and manufacture a plausible-looking vertical value.
+    """
+    pressure = np.asarray(pressure_hpa, dtype=float)
+    field_values = np.asarray(values, dtype=float)
+    targets = np.asarray(target_hpa, dtype=float)
+    if pressure.ndim != 1 or field_values.shape != pressure.shape:
+        raise ValueError("Native pressure and field values must be matching one-dimensional arrays")
+    if targets.ndim != 1 or not np.all(np.isfinite(targets)) or np.any(targets <= 0):
+        raise ValueError("Target pressure levels must be finite and positive")
+
+    valid_pressure = np.isfinite(pressure) & (pressure > 0)
+    finite_pressure = pressure[valid_pressure]
+    if finite_pressure.size > 1:
+        differences = np.diff(finite_pressure)
+        if np.all(differences > 0):
+            order = np.arange(pressure.size)
+        elif np.all(differences < 0):
+            order = np.arange(pressure.size - 1, -1, -1)
         else:
-            result.append(float(np.interp(math.log(target), np.log(p), v)))
+            raise ValueError("Native hybrid pressure must be strictly monotonic within each column")
+    else:
+        order = np.arange(pressure.size)
+
+    result: list[float | None] = []
+    for target in targets:
+        exact_index = next(
+            (
+                int(index) for index in order
+                if valid_pressure[index]
+                and math.isclose(float(pressure[index]), float(target), rel_tol=1e-10, abs_tol=1e-8)
+            ),
+            None,
+        )
+        if exact_index is not None:
+            exact_value = field_values[exact_index]
+            result.append(float(exact_value) if math.isfinite(float(exact_value)) else None)
+            continue
+
+        interpolated = None
+        for left, right in zip(order[:-1], order[1:]):
+            p0, p1 = pressure[left], pressure[right]
+            if not (math.isfinite(float(p0)) and p0 > 0 and math.isfinite(float(p1)) and p1 > 0):
+                continue
+            if not (min(p0, p1) < target < max(p0, p1)):
+                continue
+            v0, v1 = field_values[left], field_values[right]
+            if not (math.isfinite(float(v0)) and math.isfinite(float(v1))):
+                # This native interval contains a real data gap. Preserve it.
+                break
+            fraction = (math.log(float(target)) - math.log(float(p0))) / (
+                math.log(float(p1)) - math.log(float(p0))
+            )
+            interpolated = float(v0 + fraction * (v1 - v0))
+            break
+        result.append(interpolated)
     return result
 
 
@@ -307,8 +352,17 @@ def build_cross_section(payload: Mapping, start: tuple[float, float],
             "native_grid_sample_offset_limit_km": float(sample_offset_limit_km),
             "max_sample_offset_km": float(max_sample_offset_km),
             "native_grid_sampling": True,
-            "vertical_interpolation": "linear in log-pressure",
+            "vertical_interpolation": (
+                "linear in log-pressure between adjacent finite native levels"
+            ),
             "extrapolation": "disabled; out-of-column values are null",
+            "missing_level_policy": (
+                "null; interpolation does not bridge missing native pressure or field levels"
+            ),
+            "unavailable_values_by_field": {
+                name: sum(value is None for column in columns for value in column)
+                for name, columns in sampled.items()
+            },
             "note": "Interpolation does not increase native model resolution.",
         },
     }
