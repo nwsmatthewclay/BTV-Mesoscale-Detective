@@ -1,7 +1,11 @@
 import numpy as np
 import pytest
 
-from mesoscale.cross_section import build_cross_section, great_circle_points
+from mesoscale.cross_section import (
+    _interpolate_log_pressure,
+    build_cross_section,
+    great_circle_points,
+)
 
 
 def sample_payload():
@@ -130,3 +134,51 @@ def test_cross_section_refuses_ambiguous_short_name():
     payload["fields"]["omega_duplicate"] = dict(payload["fields"]["omega"])
     with pytest.raises(ValueError, match="exactly one hybrid"):
         build_cross_section(payload, (44.0, -73.2), (44.2, -73.0), {"omega": "w"}, sample_count=3)
+
+def test_vertical_interpolation_preserves_missing_native_field_levels():
+    result = _interpolate_log_pressure(
+        np.array([1000.0, 800.0, 600.0, 400.0]),
+        np.array([100.0, 80.0, np.nan, 40.0]),
+        np.array([800.0, 700.0, 500.0, 400.0]),
+    )
+    assert result[0] == pytest.approx(80.0)
+    assert result[1] is None
+    assert result[2] is None
+    assert result[3] == pytest.approx(40.0)
+
+
+def test_vertical_interpolation_preserves_missing_pressure_levels():
+    result = _interpolate_log_pressure(
+        np.array([1000.0, 800.0, np.nan, 400.0]),
+        np.array([100.0, 80.0, 60.0, 40.0]),
+        np.array([900.0, 700.0, 500.0]),
+    )
+    assert result[0] is not None
+    assert result[1] is None
+    assert result[2] is None
+
+
+def test_vertical_interpolation_rejects_non_monotonic_native_pressure():
+    with pytest.raises(ValueError, match="strictly monotonic"):
+        _interpolate_log_pressure(
+            np.array([1000.0, 700.0, 800.0, 400.0]),
+            np.array([100.0, 70.0, 80.0, 40.0]),
+            np.array([750.0]),
+        )
+
+
+def test_cross_section_reports_unavailable_values_without_bridging_gaps():
+    payload = sample_payload()
+    payload["fields"]["omega"]["data"][2] = [
+        [float("nan")] * 3 for _ in range(3)
+    ]
+    result = build_cross_section(
+        payload, (44.0, -73.2), (44.2, -73.0),
+        {"omega": "w"}, pressure_levels_hpa=[900, 700, 500], sample_count=5,
+    )
+    sample_count = result["quality"]["sample_count"]
+    assert result["fields"]["omega"]["values"][0][0] is not None
+    assert result["fields"]["omega"]["values"][0][1:] == [None, None]
+    assert result["quality"]["unavailable_values_by_field"]["omega"] == 2 * sample_count
+    assert "does not bridge missing" in result["quality"]["missing_level_policy"]
+
