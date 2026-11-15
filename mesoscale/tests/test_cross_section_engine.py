@@ -20,7 +20,10 @@ def sample_payload():
         "forecast_hour": 3,
         "valid_time_utc": "2026-11-13T03:00:00Z",
         "source_file": "synthetic.grib2",
-        "grids": {"grid_0": {"latitude": lat, "longitude": lon, "shape": [3, 3], "stride": 1}},
+        "grids": {"grid_0": {
+            "latitude": lat, "longitude": lon, "shape": [3, 3], "stride": 1,
+            "sampling": {"stride": 1, "effective_spacing_m": {"x": 13545.0, "y": 13545.0}},
+        }},
         "fields": {
             "pres": {"short_name": "pres", "units": "Pa", "dimensions": dims, "levels": levels,
                      "grid_id": "grid_0", "data": pressure},
@@ -64,6 +67,37 @@ def test_cross_section_disables_vertical_extrapolation():
     assert values[0] is None
     assert values[-1] is None
     assert values[1] is not None
+
+
+def test_cross_section_rejects_transects_outside_native_grid_coverage():
+    with pytest.raises(ValueError, match="within the native-grid distance limit"):
+        build_cross_section(
+            sample_payload(), (46.0, -73.2), (46.2, -73.0),
+            {"omega": "w"}, pressure_levels_hpa=[900, 700, 500], sample_count=5,
+        )
+
+
+def test_cross_section_skips_outside_samples_and_reports_distance_quality():
+    result = build_cross_section(
+        sample_payload(), (44.0, -73.2), (44.4, -73.0),
+        {"omega": "w"}, pressure_levels_hpa=[900, 700, 500], sample_count=9,
+    )
+    quality = result["quality"]
+    assert quality["rejected_outside_native_grid_samples"] > 0
+    assert quality["max_sample_offset_km"] <= quality["native_grid_sample_offset_limit_km"]
+    assert quality["sample_count"] + quality["duplicate_native_grid_samples_removed"] + quality[
+        "rejected_outside_native_grid_samples"
+    ] == quality["requested_sample_count"]
+
+
+def test_cross_section_requires_effective_or_native_grid_spacing_metadata():
+    payload = sample_payload()
+    payload["grids"]["grid_0"].pop("sampling")
+    with pytest.raises(ValueError, match="effective grid spacing metadata unavailable"):
+        build_cross_section(
+            payload, (44.0, -73.2), (44.2, -73.0),
+            {"omega": "w"}, pressure_levels_hpa=[900, 700, 500], sample_count=5,
+        )
 
 
 def test_cross_section_refuses_fields_on_different_hybrid_coordinates():
