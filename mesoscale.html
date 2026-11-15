@@ -1213,17 +1213,34 @@ function renderRapGridOverlay(payload,param){
   raster.addTo(map);modelOverlayLayer=raster;setContourSource(data,grid,cfg.min,cfg.max,field.units||cfg.units,cfg.label);updateMapLegend(cfg.label,cfg.min,cfg.max,field.units||cfg.units);
   document.getElementById('mapChip').textContent='RAP '+cfg.label+' · F'+String(payload.forecast_hour).padStart(2,'0')+' · '+payload.valid_time_utc+' · smooth 4× interpolated display · '+field.units;
 }
+function comparisonGridSampleAvailability(grid,point){
+  const limitKm=nativeGridSampleOffsetLimitKm(grid);
+  if(!Number.isFinite(limitKm)){
+    return {available:false,limit_km:null,reason:'effective grid spacing metadata unavailable'};
+  }
+  if(!Number.isFinite(point?.d)){
+    return {available:false,limit_km:limitKm,reason:'nearest-cell distance unavailable'};
+  }
+  if(point.d>limitKm){
+    return {available:false,limit_km:limitKm,reason:'selected point is outside the effective native-grid sampling radius'};
+  }
+  return {available:true,limit_km:limitKm,reason:null};
+}
 function sampleComparableSurface(payload,model,names,lat,lon){
   const field=model==='RAP'?findRapSurfaceField(payload,names):findHrrrField(payload,names);
   if(!field)return null;
   const grid=payload.grids?.[field.grid_id],data=squeezeRap2D(field.data);
   if(!grid||!data)return null;
-  const point=nearestRapGridPoint(grid,lat,lon),raw=data?.[point.y]?.[point.x];
-  if(!Number.isFinite(raw))return null;
-  return {value:raw,units:String(field.units||''),short_name:field.short_name,distance_km:point.d};
+  const point=nearestRapGridPoint(grid,lat,lon);
+  const base={units:String(field.units||''),short_name:field.short_name,distance_km:point.d,grid_id:field.grid_id};
+  const availability=comparisonGridSampleAvailability(grid,point);
+  if(!availability.available)return {...base,value:null,unavailable_reason:availability.reason};
+  const raw=data?.[point.y]?.[point.x];
+  if(!Number.isFinite(raw))return {...base,value:null,unavailable_reason:'nearest native-grid value is missing or non-finite'};
+  return {...base,value:raw};
 }
 function comparableTemperature(sample){
-  if(!sample)return null;
+  if(!sample||!Number.isFinite(sample.value))return null;
   const unit=sample.units.toLowerCase();
   if(unit.includes('k'))return sample.value-273.15;
   if(unit.includes('c'))return sample.value;
@@ -1236,8 +1253,14 @@ function comparableWind(payload,model,lat,lon){
   if(!vField)return null;
   const grid=payload.grids?.[uField.grid_id],uData=squeezeRap2D(uField.data),vData=squeezeRap2D(vField.data);
   if(!grid||!uData||!vData)return null;
-  const point=nearestRapGridPoint(grid,lat,lon),u=uData?.[point.y]?.[point.x],v=vData?.[point.y]?.[point.x];
-  if(!Number.isFinite(u)||!Number.isFinite(v))return null;
+  const point=nearestRapGridPoint(grid,lat,lon);
+  const base={units:'kt',distance_km:point.d,grid_id:uField.grid_id};
+  const availability=comparisonGridSampleAvailability(grid,point);
+  if(!availability.available)return {...base,value:null,unavailable_reason:availability.reason};
+  const u=uData?.[point.y]?.[point.x],v=vData?.[point.y]?.[point.x];
+  if(!Number.isFinite(u)||!Number.isFinite(v)){
+    return {...base,value:null,unavailable_reason:'nearest native-grid wind component is missing or non-finite'};
+  }
   const toKnots=(value,units)=>{
     const unit=String(units||'').toLowerCase().replace(/\s+/g,'');
     if(unit==='m/s'||unit==='ms-1'||unit==='ms**-1'||unit==='ms^-1')return value*1.943844;
@@ -1245,8 +1268,10 @@ function comparableWind(payload,model,lat,lon){
     return null;
   };
   const uKt=toKnots(u,uField.units),vKt=toKnots(v,vField.units);
-  if(!Number.isFinite(uKt)||!Number.isFinite(vKt))return null;
-  return {value:Math.hypot(uKt,vKt),units:'kt',distance_km:point.d,grid_id:uField.grid_id};
+  if(!Number.isFinite(uKt)||!Number.isFinite(vKt)){
+    return {...base,value:null,unavailable_reason:'wind units are missing or unsupported'};
+  }
+  return {...base,value:Math.hypot(uKt,vKt)};
 }
 let modelComparisonRequest=0;
 async function updateModelComparison(){
@@ -1303,7 +1328,14 @@ async function updateModelComparison(){
     const distanceLabel=value=>value===null?'unavailable':value.toFixed(1)+' km';
     const missing=metrics.filter(item=>!Number.isFinite(item.a)||!Number.isFinite(item.b)).map(item=>item.label);
     const missingLabel=missing.length?' · unavailable source values: '+missing.join(', '):'';
-    status.textContent='Exact valid-time match · RAP '+rap.model_cycle_utc+' F'+String(rap.forecast_hour).padStart(2,'0')+' · HRRR '+hrrr.model_cycle_utc+' F'+String(hrrr.forecast_hour).padStart(2,'0')+' · sampled at '+lat.toFixed(3)+', '+lon.toFixed(3)+'. Nearest-cell offsets RAP '+distanceLabel(rapDistance)+' / HRRR '+distanceLabel(hrrrDistance)+'. Missing source fields or unsupported units remain Unavailable; no proxy fields or nearest-time substitution.'+missingLabel;
+    const rejectedSamples=[
+      ['RAP 2-m temperature',tRapSample],['HRRR 2-m temperature',tHrrrSample],
+      ['RAP 2-m dewpoint',tdRapSample],['HRRR 2-m dewpoint',tdHrrrSample],
+      ['RAP 10-m wind',windRap],['HRRR 10-m wind',windHrrr]
+    ].filter(([,sample])=>sample?.unavailable_reason);
+    const rejectedLabel=rejectedSamples.length?' · sampling unavailable: '+
+      rejectedSamples.map(([label,sample])=>label+' ('+sample.unavailable_reason+')').join('; '):'';
+    status.textContent='Exact valid-time match · RAP '+rap.model_cycle_utc+' F'+String(rap.forecast_hour).padStart(2,'0')+' · HRRR '+hrrr.model_cycle_utc+' F'+String(hrrr.forecast_hour).padStart(2,'0')+' · sampled at '+lat.toFixed(3)+', '+lon.toFixed(3)+'. Nearest-cell offsets RAP '+distanceLabel(rapDistance)+' / HRRR '+distanceLabel(hrrrDistance)+'. Missing source fields or unsupported units remain Unavailable; no proxy fields or nearest-time substitution.'+missingLabel+rejectedLabel;
     document.getElementById('comparisonMeta').innerHTML='<span>Shared valid time · maximum native-grid sample offset</span><b>'+validTime+' · RAP '+distanceLabel(rapDistance)+' / HRRR '+distanceLabel(hrrrDistance)+'</b>';
   }catch(error){
     if(requestId!==modelComparisonRequest)return;
