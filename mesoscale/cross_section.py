@@ -58,7 +58,10 @@ def great_circle_points(start: tuple[float, float], end: tuple[float, float],
     return points, distances
 
 
-def _nearest_grid_indices(grid: Mapping, points: list[tuple[float, float]]) -> list[tuple[int, int]]:
+def _nearest_grid_indices(
+    grid: Mapping, points: list[tuple[float, float]]
+) -> list[tuple[int, int, float]]:
+    """Return nearest native-grid indices and great-circle offsets in km."""
     lat = np.asarray(grid["latitude"], dtype=float)
     lon = np.asarray(grid["longitude"], dtype=float)
     if lat.ndim != 2 or lon.shape != lat.shape:
@@ -77,8 +80,41 @@ def _nearest_grid_indices(grid: Mapping, points: list[tuple[float, float]]) -> l
         distance = 2 * EARTH_RADIUS_KM * np.arcsin(np.sqrt(np.clip(a, 0, 1)))
         distance[~valid] = np.inf
         iy, ix = np.unravel_index(int(np.argmin(distance)), distance.shape)
-        result.append((int(iy), int(ix)))
+        result.append((int(iy), int(ix), float(distance[iy, ix])))
     return result
+
+
+def _native_grid_sample_offset_limit_km(grid: Mapping) -> float:
+    """Return the accepted nearest-cell offset using effective grid spacing.
+
+    This matches the browser cross-section guard: 0.75 times the effective
+    grid-cell diagonal. If explicit effective spacing is absent, derive it
+    from native GRIB spacing and the published sampling stride. Fail closed
+    when neither representation is available.
+    """
+    sampling = grid.get("sampling") if isinstance(grid.get("sampling"), Mapping) else {}
+    effective = sampling.get("effective_spacing_m") if isinstance(
+        sampling.get("effective_spacing_m"), Mapping
+    ) else {}
+    try:
+        dx, dy = float(effective.get("x")), float(effective.get("y"))
+    except (TypeError, ValueError):
+        dx = dy = float("nan")
+
+    if not (math.isfinite(dx) and dx > 0 and math.isfinite(dy) and dy > 0):
+        projection = grid.get("projection") if isinstance(grid.get("projection"), Mapping) else {}
+        try:
+            stride = float(grid.get("stride", sampling.get("stride", 1)))
+            dx = float(projection.get("GRIB_DxInMetres")) * stride
+            dy = float(projection.get("GRIB_DyInMetres")) * stride
+        except (TypeError, ValueError):
+            dx = dy = float("nan")
+
+    if not (math.isfinite(dx) and dx > 0 and math.isfinite(dy) and dy > 0):
+        raise ValueError(
+            "RAP effective grid spacing metadata unavailable; cannot validate cross-section sample distance"
+        )
+    return math.hypot(dx, dy) * 0.75 / 1000.0
 
 
 def _select_field(payload: Mapping, short_name: str, grid_id: str) -> Mapping:
@@ -193,18 +229,33 @@ def build_cross_section(payload: Mapping, start: tuple[float, float],
 
     requested_points, requested_distances = great_circle_points(start, end, sample_count)
     requested_indices = _nearest_grid_indices(grid, requested_points)
-    # A dense display transect can hit the same native grid cell many times.
-    # Keep only the first occurrence of each consecutive native cell so the
-    # section does not imply sub-grid horizontal resolution.
+    sample_offset_limit_km = _native_grid_sample_offset_limit_km(grid)
+    # Keep only distinct native cells close enough to represent the requested
+    # geographic transect. A nearest cell alone is not evidence that a point
+    # lies within the model's actual regional coverage.
     samples = []
-    for point, distance, index in zip(requested_points, requested_distances, requested_indices):
-        if not samples or index != samples[-1][2]:
-            samples.append((point, float(distance), index))
+    seen_indices = set()
+    rejected_outside_grid = 0
+    for point, distance, (iy, ix, offset_km) in zip(
+        requested_points, requested_distances, requested_indices
+    ):
+        if not math.isfinite(offset_km) or offset_km > sample_offset_limit_km:
+            rejected_outside_grid += 1
+            continue
+        index = (iy, ix)
+        if index in seen_indices:
+            continue
+        seen_indices.add(index)
+        samples.append((point, float(distance), index, offset_km))
     if len(samples) < 2:
-        raise ValueError("Transect does not cross at least two distinct native grid points")
+        raise ValueError(
+            "Transect has fewer than two distinct native grid points within the "
+            f"native-grid distance limit ({sample_offset_limit_km:.1f} km)"
+        )
     points = [sample[0] for sample in samples]
     distances = np.asarray([sample[1] for sample in samples], dtype=float)
     indices = [sample[2] for sample in samples]
+    max_sample_offset_km = max(sample[3] for sample in samples)
     sampled = {name: [] for name in selected}
     for iy, ix in indices:
         column_pressure = pressure_data[:, iy, ix]
@@ -248,7 +299,12 @@ def build_cross_section(payload: Mapping, start: tuple[float, float],
             "status": "passed",
             "sample_count": len(points),
             "requested_sample_count": int(sample_count),
-            "duplicate_native_grid_samples_removed": int(sample_count - len(points)),
+            "duplicate_native_grid_samples_removed": int(
+                sample_count - rejected_outside_grid - len(points)
+            ),
+            "rejected_outside_native_grid_samples": int(rejected_outside_grid),
+            "native_grid_sample_offset_limit_km": float(sample_offset_limit_km),
+            "max_sample_offset_km": float(max_sample_offset_km),
             "native_grid_sampling": True,
             "vertical_interpolation": "linear in log-pressure",
             "extrapolation": "disabled; out-of-column values are null",
