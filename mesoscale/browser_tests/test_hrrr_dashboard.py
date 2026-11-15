@@ -666,7 +666,7 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         # A decoded HRRR grid with a different valid time must fail closed even
         # when the two archive manifests advertise an exact shared valid time.
         mismatched_valid_time = page.evaluate(
-            \"\"\"async () => {
+            """async () => {
                 const payload = window.hrrrGridPayload;
                 if (!payload) return {error: 'loaded HRRR grid payload unavailable'};
                 const originalValidTime = payload.valid_time_utc;
@@ -681,7 +681,7 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
                     payload.valid_time_utc = originalValidTime;
                     await window.updateModelComparison();
                 }
-            }\"\"\"
+            }"""
         )
         assert mismatched_valid_time.get("error") is None, mismatched_valid_time
         assert "Loaded grid valid times do not exactly match the selected time" in mismatched_valid_time["status"], mismatched_valid_time
