@@ -15,21 +15,31 @@ from metpy.units import units
 
 def _finite_profile(pressure_hpa, temperature_k, dewpoint_k, height_m,
                     u_ms=None, v_ms=None):
-    p = np.asarray(pressure_hpa, dtype=float)
-    t = np.asarray(temperature_k, dtype=float)
-    td = np.asarray(dewpoint_k, dtype=float)
-    z = np.asarray(height_m, dtype=float)
-    arrays = [p, t, td, z]
+    # Preserve NumPy masks until the common complete-level mask is built.
+    # np.asarray(masked_array) drops the mask and can expose its backing fill
+    # data as an apparently valid pressure, temperature, or wind value.
+    arrays = [
+        np.ma.asarray(pressure_hpa, dtype=float),
+        np.ma.asarray(temperature_k, dtype=float),
+        np.ma.asarray(dewpoint_k, dtype=float),
+        np.ma.asarray(height_m, dtype=float),
+    ]
+    if (u_ms is None) != (v_ms is None):
+        raise ValueError("Wind components must be provided together")
     if u_ms is not None:
-        arrays.extend([np.asarray(u_ms, dtype=float), np.asarray(v_ms, dtype=float)])
+        arrays.extend([
+            np.ma.asarray(u_ms, dtype=float),
+            np.ma.asarray(v_ms, dtype=float),
+        ])
     if any(a.ndim != 1 for a in arrays) or len({a.size for a in arrays}) != 1:
         raise ValueError("All profile arrays must be one-dimensional and equal length")
-    mask = np.ones(p.shape, dtype=bool)
-    for a in arrays:
-        mask &= np.isfinite(a)
+    mask = np.ones(arrays[0].shape, dtype=bool)
+    for array in arrays:
+        mask &= ~np.ma.getmaskarray(array)
+        mask &= np.isfinite(np.ma.getdata(array))
     if mask.sum() < 5:
         raise ValueError("At least five complete finite levels are required")
-    arrays = [a[mask] for a in arrays]
+    arrays = [np.asarray(np.ma.getdata(array)[mask], dtype=float) for array in arrays]
     order = np.argsort(arrays[0])[::-1]
     arrays = [a[order] for a in arrays]
     if np.any(np.diff(arrays[0]) >= 0):
@@ -69,7 +79,9 @@ def diagnose_profile(pressure_hpa, temperature_k, dewpoint_k, height_m,
     All returned values are JSON-safe numbers or None, with a quality
     section documenting unavailable diagnostics.
     """
-    has_wind = u_ms is not None and v_ms is not None
+    if (u_ms is None) != (v_ms is None):
+        raise ValueError("Wind components must be provided together")
+    has_wind = u_ms is not None
     arrays = _finite_profile(pressure_hpa, temperature_k, dewpoint_k, height_m,
                              u_ms if has_wind else None,
                              v_ms if has_wind else None)

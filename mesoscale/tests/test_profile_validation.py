@@ -3,7 +3,7 @@ import json
 import numpy as np
 import pytest
 
-from mesoscale.diagnostics import _finite_profile, _number
+from mesoscale.diagnostics import _finite_profile, _number, diagnose_profile
 from mesoscale.extract_profile import write_profile_json
 from mesoscale.process_grib import (
     grib_metadata, grid_projection_metadata,
@@ -133,3 +133,69 @@ def test_diagnostic_number_preserves_finite_scalar():
 
 def test_diagnostic_number_rejects_non_scalar_magnitudes():
     assert _number(_FakeQuantity([1.0, 2.0]), "dimensionless") is None
+
+
+def test_profile_drops_masked_levels_across_all_collocated_arrays():
+    pressure = np.ma.array(
+        [1000, 900, 1.0e20, 700, 600, 500, 400],
+        mask=[False, False, True, False, False, False, False],
+        fill_value=1.0e20,
+    )
+    temperature = np.ma.array(
+        [290, 285, 280, 275, -9999, 265, 260],
+        mask=[False, False, False, False, True, False, False],
+        fill_value=-9999,
+    )
+    dewpoint = np.array([285, 280, 275, 270, 265, 260, 255], dtype=float)
+    height = np.array([0, 1000, 2000, 3000, 4000, 5000, 6000], dtype=float)
+    u_wind = np.array([1, 2, 3, 4, 5, 6, 7], dtype=float)
+    v_wind = np.array([-1, -2, -3, -4, -5, -6, -7], dtype=float)
+
+    p, t, td, z, u, v = _finite_profile(
+        pressure, temperature, dewpoint, height, u_wind, v_wind
+    )
+
+    np.testing.assert_allclose(p, [1000, 900, 700, 500, 400])
+    np.testing.assert_allclose(t, [290, 285, 275, 265, 260])
+    np.testing.assert_allclose(td, [285, 280, 270, 260, 255])
+    np.testing.assert_allclose(z, [0, 1000, 3000, 5000, 6000])
+    np.testing.assert_allclose(u, [1, 2, 4, 6, 7])
+    np.testing.assert_allclose(v, [-1, -2, -4, -6, -7])
+
+
+def test_profile_rejects_too_few_complete_levels_after_masking():
+    pressure = np.ma.array(
+        [1000, 900, 800, 700, 600],
+        mask=[False, True, True, False, True],
+        fill_value=1.0e20,
+        dtype=float,
+    )
+
+    with pytest.raises(ValueError, match="five complete finite levels"):
+        _finite_profile(
+            pressure,
+            [290, 285, 280, 275, 270],
+            [285, 280, 275, 270, 265],
+            [0, 1000, 2000, 3000, 4000],
+        )
+
+
+def test_profile_requires_both_wind_components_together():
+    with pytest.raises(ValueError, match="provided together"):
+        _finite_profile(
+            [1000, 900, 800, 700, 600],
+            [290, 285, 280, 275, 270],
+            [285, 280, 275, 270, 265],
+            [0, 1000, 2000, 3000, 4000],
+            u_ms=[1, 2, 3, 4, 5],
+        )
+
+def test_diagnose_profile_rejects_incomplete_wind_pair():
+    with pytest.raises(ValueError, match="Wind components must be provided together"):
+        diagnose_profile(
+            [1000, 900, 800, 700, 600],
+            [290, 285, 280, 275, 270],
+            [285, 280, 275, 270, 265],
+            [0, 1000, 2000, 3000, 4000],
+            u_ms=[1, 2, 3, 4, 5],
+        )
