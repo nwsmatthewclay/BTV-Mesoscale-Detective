@@ -1,7 +1,10 @@
 import numpy as np
 import pytest
 
-from mesoscale.frontogenesis import build_frontogenesis_cross_section
+from mesoscale.frontogenesis import (
+    _grid_field_on_pressure,
+    build_frontogenesis_cross_section,
+)
 
 
 def frontogenesis_payload():
@@ -83,3 +86,52 @@ def test_frontogenesis_refuses_missing_projection_metadata():
             payload, (44.1, -73.2), (44.1, -73.0),
             pressure_levels_hpa=[800, 700], sample_count=5,
         )
+
+
+def test_frontogenesis_pressure_interpolation_does_not_bridge_missing_field_levels():
+    shape = (4, 3, 3)
+    pressure = np.broadcast_to(
+        np.array([1000.0, 800.0, 600.0, 400.0])[:, None, None], shape
+    ).copy()
+    values = np.broadcast_to(
+        np.array([100.0, 80.0, 60.0, 40.0])[:, None, None], shape
+    ).copy()
+    values[2, :, :] = np.nan
+
+    exact = _grid_field_on_pressure(pressure, values, 800.0)
+    gap_above = _grid_field_on_pressure(pressure, values, 700.0)
+    gap_below = _grid_field_on_pressure(pressure, values, 500.0)
+
+    assert np.all(exact == 80.0)
+    assert np.isnan(gap_above).all()
+    assert np.isnan(gap_below).all()
+
+
+def test_frontogenesis_pressure_interpolation_does_not_bridge_missing_pressure_levels():
+    shape = (4, 3, 3)
+    pressure = np.broadcast_to(
+        np.array([1000.0, 800.0, 600.0, 400.0])[:, None, None], shape
+    ).copy()
+    values = np.broadcast_to(
+        np.array([100.0, 80.0, 60.0, 40.0])[:, None, None], shape
+    ).copy()
+    pressure[2, :, :] = np.nan
+
+    gap_above = _grid_field_on_pressure(pressure, values, 700.0)
+    gap_below = _grid_field_on_pressure(pressure, values, 500.0)
+
+    assert np.isnan(gap_above).all()
+    assert np.isnan(gap_below).all()
+
+
+def test_frontogenesis_pressure_interpolation_rejects_non_monotonic_columns():
+    shape = (4, 3, 3)
+    pressure = np.broadcast_to(
+        np.array([1000.0, 700.0, 800.0, 400.0])[:, None, None], shape
+    ).copy()
+    values = np.broadcast_to(
+        np.array([100.0, 70.0, 80.0, 40.0])[:, None, None], shape
+    ).copy()
+
+    with pytest.raises(ValueError, match="strictly monotonic"):
+        _grid_field_on_pressure(pressure, values, 750.0)

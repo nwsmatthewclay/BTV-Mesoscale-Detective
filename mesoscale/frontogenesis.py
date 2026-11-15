@@ -18,23 +18,83 @@ from .cross_section import _pressure_hpa, _select_field, build_cross_section
 
 def _grid_field_on_pressure(pressure_hpa: np.ndarray, values: np.ndarray,
                             target_hpa: float) -> np.ndarray:
-    ny, nx = pressure_hpa.shape[1:]
+    """Interpolate one 3-D field without bridging missing native levels.
+
+    Pressure monotonicity is checked independently of field availability.
+    A target is populated only by an exact finite native value or by two
+    adjacent finite native pressure/field levels. Missing pressure or field
+    values therefore remain gaps instead of being removed before interpolation.
+    """
+    pressure = np.asarray(pressure_hpa, dtype=float)
+    field_values = np.asarray(values, dtype=float)
+    if pressure.ndim != 3 or field_values.shape != pressure.shape:
+        raise ValueError("Hybrid pressure and field arrays must share a 3-D grid shape")
+    if not math.isfinite(float(target_hpa)) or float(target_hpa) <= 0:
+        raise ValueError("Target pressure must be finite and positive")
+
+    ny, nx = pressure.shape[1:]
     result = np.full((ny, nx), np.nan, dtype=float)
-    log_target = math.log(float(target_hpa))
+    finite_pressure = np.isfinite(pressure) & (pressure > 0)
+
+    # Check the native finite-pressure sequence at every grid cell. Do not use
+    # field validity here: a missing field value must not hide a bad pressure
+    # coordinate or make non-adjacent levels appear adjacent.
     for iy in range(ny):
         for ix in range(nx):
-            p = pressure_hpa[:, iy, ix]
-            v = values[:, iy, ix]
-            valid = np.isfinite(p) & np.isfinite(v) & (p > 0)
-            if valid.sum() < 2:
-                continue
-            p, v = p[valid], v[valid]
-            order = np.argsort(p)
-            p, v = p[order], v[order]
-            if np.any(np.diff(p) <= 0):
-                raise ValueError(f"Hybrid pressure is not unique at grid cell ({iy}, {ix})")
-            if p[0] <= target_hpa <= p[-1]:
-                result[iy, ix] = np.interp(log_target, np.log(p), v)
+            column = pressure[finite_pressure[:, iy, ix], iy, ix]
+            if column.size > 1:
+                differences = np.diff(column)
+                if not (np.all(differences > 0) or np.all(differences < 0)):
+                    raise ValueError(
+                        f"Hybrid pressure is not strictly monotonic at grid cell ({iy}, {ix})"
+                    )
+
+    exact = finite_pressure & np.isclose(
+        pressure, float(target_hpa), rtol=1e-10, atol=1e-8
+    )
+    exact_count = exact.sum(axis=0)
+    if np.any(exact_count > 1):
+        raise ValueError("Multiple native pressure levels match the same target pressure")
+    has_exact = exact_count == 1
+    if np.any(has_exact):
+        exact_index = np.argmax(exact, axis=0)
+        exact_values = np.take_along_axis(
+            field_values, exact_index[None, :, :], axis=0
+        )[0]
+        exact_valid = has_exact & np.isfinite(exact_values)
+        result[exact_valid] = exact_values[exact_valid]
+
+    p0, p1 = pressure[:-1], pressure[1:]
+    v0, v1 = field_values[:-1], field_values[1:]
+    bracket = (
+        np.isfinite(p0) & (p0 > 0)
+        & np.isfinite(p1) & (p1 > 0)
+        & (np.minimum(p0, p1) < float(target_hpa))
+        & (float(target_hpa) < np.maximum(p0, p1))
+    )
+    pair_valid = (
+        bracket & np.isfinite(v0) & np.isfinite(v1)
+        & (~has_exact[None, :, :])
+    )
+
+    # Safe log operands plus np.divide(where=...) avoid warnings for pairs
+    # that are not eligible to interpolate.
+    safe_p0 = np.where(pair_valid, p0, 1.0)
+    safe_p1 = np.where(pair_valid, p1, 1.0)
+    denominator = np.log(safe_p1) - np.log(safe_p0)
+    fraction = np.zeros_like(p0, dtype=float)
+    np.divide(
+        np.log(float(target_hpa)) - np.log(safe_p0),
+        denominator,
+        out=fraction,
+        where=pair_valid,
+    )
+    interpolated = v0 + fraction * (v1 - v0)
+    has_pair = pair_valid.any(axis=0)
+    if np.any(has_pair):
+        result[has_pair] = np.sum(
+            np.where(pair_valid, interpolated, 0.0), axis=0
+        )[has_pair]
     return result
 
 
@@ -176,6 +236,9 @@ def build_frontogenesis_cross_section(
             "sample_count": len(transect_points),
             "pressure_levels_hpa": targets.tolist(),
             "extrapolation": "disabled",
+            "missing_level_policy": (
+                "native adjacent-level interpolation only; missing pressure or field levels are not bridged"
+            ),
             "note": "Diagnostic is calculated on the native projected grid before transect sampling.",
         },
     }
