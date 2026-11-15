@@ -170,6 +170,44 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         )
         assert missing_source, "Missing source fields must remain unavailable; no alternate field proxy is allowed"
 
+        # Point comparisons must reject distant nearest cells and fail closed when
+        # effective native-grid spacing cannot be established.
+        comparison_distance = page.evaluate(
+            """() => {
+                const lat = Array.from({length: 4}, (_, y) => Array.from({length: 4}, () => 44.0 + y * 0.01));
+                const lon = Array.from({length: 4}, () => Array.from({length: 4}, (_, x) => -73.0 + x * 0.01));
+                const values = Array.from({length: 4}, (_, y) => Array.from({length: 4}, (_, x) => 280 + y + x));
+                const grid = {latitude: lat, longitude: lon, sampling: {effective_spacing_m: {x: 13545, y: 13545}}};
+                const fields = {
+                    t: {short_name: "2t", grid_id: "g", data: values, units: "K"},
+                    u: {short_name: "10u", grid_id: "g", data: values, units: "m/s"},
+                    v: {short_name: "10v", grid_id: "g", data: values, units: "m/s"}
+                };
+                const payload = {grids: {g: grid}, fields};
+                const inside = sampleComparableSurface(payload, "RAP", ["2t"], 44.01, -72.99);
+                const outside = sampleComparableSurface(payload, "RAP", ["2t"], 46.0, -73.0);
+                const outsideWind = comparableWind(payload, "RAP", 46.0, -73.0);
+                const noSpacingPayload = {
+                    grids: {g: {latitude: lat, longitude: lon}},
+                    fields
+                };
+                const noSpacing = sampleComparableSurface(noSpacingPayload, "RAP", ["2t"], 44.01, -72.99);
+                return {
+                    localAccepted: Number.isFinite(inside?.value) && inside.distance_km < 1,
+                    distantSurfaceRejected: outside?.value === null
+                        && outside.unavailable_reason?.includes("outside the effective native-grid sampling radius")
+                        && comparableTemperature(outside) === null,
+                    distantWindRejected: outsideWind?.value === null
+                        && outsideWind.unavailable_reason?.includes("outside the effective native-grid sampling radius"),
+                    missingSpacingRejected: noSpacing?.value === null
+                        && noSpacing.unavailable_reason?.includes("grid spacing metadata unavailable"),
+                    distanceRetained: Number.isFinite(outside?.distance_km) && outside.distance_km > 100
+                };
+            }"""
+        )
+        assert all(comparison_distance.values()), comparison_distance
+
+
         # The current workstation has a two-column shell and a two-column analysis area.
         desktop_layout = page.evaluate(
             """() => {
