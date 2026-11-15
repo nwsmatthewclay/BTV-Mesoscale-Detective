@@ -1338,10 +1338,10 @@ async function updateModelComparison(){
     if(requestId!==modelComparisonRequest)return;
     if(rap.valid_time_utc!==validTime||hrrr.valid_time_utc!==validTime)throw new Error('Loaded grid valid times do not exactly match the selected time');
     const lat=selected.lat,lon=selected.lon;
-    const tRapSample=sampleComparableSurface(rap,'RAP',['2t','t2m'],lat,lon);
-    const tHrrrSample=sampleComparableSurface(hrrr,'HRRR',['2t'],lat,lon);
-    const tdRapSample=sampleComparableSurface(rap,'RAP',['2d','d2m'],lat,lon);
-    const tdHrrrSample=sampleComparableSurface(hrrr,'HRRR',['2d'],lat,lon);
+    const tRapSample=sampleComparableSurface(rap,['2t','t2m'],lat,lon);
+    const tHrrrSample=sampleComparableSurface(hrrr,['2t'],lat,lon);
+    const tdRapSample=sampleComparableSurface(rap,['2d','d2m'],lat,lon);
+    const tdHrrrSample=sampleComparableSurface(hrrr,['2d'],lat,lon);
     const tRapResult=comparableTemperature(tRapSample),tHrrrResult=comparableTemperature(tHrrrSample);
     const tdRapResult=comparableTemperature(tdRapSample),tdHrrrResult=comparableTemperature(tdHrrrSample);
     const windRap=comparableWind(rap,'RAP',lat,lon),windHrrr=comparableWind(hrrr,'HRRR',lat,lon);
