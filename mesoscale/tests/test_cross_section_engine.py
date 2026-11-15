@@ -135,6 +135,7 @@ def test_cross_section_refuses_ambiguous_short_name():
     with pytest.raises(ValueError, match="exactly one hybrid"):
         build_cross_section(payload, (44.0, -73.2), (44.2, -73.0), {"omega": "w"}, sample_count=3)
 
+
 def test_vertical_interpolation_preserves_missing_native_field_levels():
     result = _interpolate_log_pressure(
         np.array([1000.0, 800.0, 600.0, 400.0]),
@@ -182,3 +183,47 @@ def test_cross_section_reports_unavailable_values_without_bridging_gaps():
     assert result["quality"]["unavailable_values_by_field"]["omega"] == 2 * sample_count
     assert "does not bridge missing" in result["quality"]["missing_level_policy"]
 
+
+def test_cross_section_keeps_missing_level_gaps_independent_by_field():
+    payload = sample_payload()
+    shape = (4, 3, 3)
+    humidity = np.broadcast_to(
+        np.array([0.008, 0.006, 0.004, 0.002])[:, None, None], shape
+    ).tolist()
+    payload["fields"]["humidity"] = {
+        "short_name": "q",
+        "units": "kg kg**-1",
+        "dimensions": ["hybrid"],
+        "levels": {"hybrid": [1, 2, 3, 4]},
+        "grid_id": "grid_0",
+        "data": humidity,
+    }
+    payload["fields"]["omega"]["data"][2] = [
+        [float("nan")] * 3 for _ in range(3)
+    ]
+    payload["fields"]["humidity"]["data"][1] = [
+        [float("nan")] * 3 for _ in range(3)
+    ]
+
+    result = build_cross_section(
+        payload,
+        (44.0, -73.2),
+        (44.2, -73.0),
+        {"omega": "w", "specific_humidity": "q"},
+        pressure_levels_hpa=[900, 700, 500],
+        sample_count=5,
+    )
+    sample_count = result["quality"]["sample_count"]
+    for omega_column, humidity_column in zip(
+        result["fields"]["omega"]["values"],
+        result["fields"]["specific_humidity"]["values"],
+    ):
+        assert omega_column[0] is not None
+        assert omega_column[1:] == [None, None]
+        assert humidity_column[:2] == [None, None]
+        assert humidity_column[2] is not None
+
+    assert result["quality"]["unavailable_values_by_field"] == {
+        "omega": 2 * sample_count,
+        "specific_humidity": 2 * sample_count,
+    }
