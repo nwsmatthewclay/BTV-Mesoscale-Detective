@@ -1,5 +1,6 @@
 import gzip
 import json
+import pytest
 from datetime import datetime, timedelta
 
 from mesoscale.build_rap_forecast_archive import archive_needs_update, choose_cycle_products
@@ -175,10 +176,19 @@ def write_rap_archive_files(archive_root, archive):
                     "model_cycle_utc": archive["model_cycle_utc"],
                     "forecast_hour": entry["forecast_hour"],
                     "valid_time_utc": entry["valid_time_utc"],
+                    "profile": {
+                        "pressure_hpa": [1000.0 - 10.0 * level for level in range(50)],
+                        "temperature_k": [280.0 - 0.25 * level for level in range(50)],
+                        "dewpoint_k": [275.0 - 0.25 * level for level in range(50)],
+                        "height_agl_m": [100.0 * level for level in range(50)],
+                        "u_ms": [5.0] * 50,
+                        "v_ms": [-2.0] * 50,
+                    },
                     "quality": {
                         "levels": 50,
                         "pressure_decreases_upward": True,
                         "height_increases_upward": True,
+                        "profile_warnings": [],
                     },
                 }
             },
@@ -232,6 +242,42 @@ def test_rap_freshness_rebuilds_when_referenced_archive_files_are_missing(tmp_pa
     )[0] is False
 
     (archive_root / archive["hours"][0]["grid_file"]).unlink()
+    assert archive_needs_update(
+        manifest, archive, (0, 3, 6, 9, 12, 15), archive_root=archive_root
+    )[0] is True
+
+
+@pytest.mark.parametrize(
+    "corruption",
+    ["missing_wind", "mismatched_length", "nonfinite_value", "pressure_order", "height_order", "quality_warning"],
+)
+def test_rap_freshness_rebuilds_when_station_profile_arrays_are_invalid(tmp_path, corruption):
+    cycle = "2026-11-12T16:00:00Z"
+    manifest = {"models": {"RAP": {"latest_products": [
+        *[product(cycle, hour) for hour in (0, 3, 6, 9, 12, 15)],
+    ]}}}
+    archive = published_rap_archive(cycle)
+    archive_root = tmp_path / "forecast"
+    write_rap_archive_files(archive_root, archive)
+
+    station_path = archive_root / archive["hours"][0]["station_file"]
+    payload = json.loads(station_path.read_text(encoding="utf-8"))
+    station = payload["stations"]["KBTV"]
+    profile = station["profile"]
+    if corruption == "missing_wind":
+        del profile["v_ms"]
+    elif corruption == "mismatched_length":
+        profile["dewpoint_k"].pop()
+    elif corruption == "nonfinite_value":
+        profile["temperature_k"][10] = float("nan")
+    elif corruption == "pressure_order":
+        profile["pressure_hpa"][10] = profile["pressure_hpa"][9]
+    elif corruption == "height_order":
+        profile["height_agl_m"][10] = profile["height_agl_m"][9]
+    elif corruption == "quality_warning":
+        station["quality"]["profile_warnings"] = ["masked levels"]
+    station_path.write_text(json.dumps(payload), encoding="utf-8")
+
     assert archive_needs_update(
         manifest, archive, (0, 3, 6, 9, 12, 15), archive_root=archive_root
     )[0] is True
