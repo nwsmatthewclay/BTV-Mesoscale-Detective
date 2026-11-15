@@ -117,8 +117,11 @@ def test_model_comparison_requires_exact_shared_valid_time_and_samples_both_mode
     assert "comparableWind" in html
     assert "function findRapSurfaceField(payload,names,gridId)" in html
     assert "Nearest-cell offsets RAP " in html
-    assert "Missing source fields or unsupported units remain Unavailable" in html
-    assert "findRapSurfaceField(payload,['10v'],uField.grid_id)" in html
+    assert "Unavailable values include model-specific source reasons" in html
+    assert "source field missing: " in html
+    assert "temperature units missing or unsupported: " in html
+    assert "source wind component missing: 10v" in html
+    assert "comparisonFieldCandidates(payload,['10v'],uField.grid_id)" in html
 
 
 def test_rap_grid_payload_must_match_the_published_archive_cycle():
