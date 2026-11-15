@@ -121,7 +121,7 @@ def test_model_comparison_requires_exact_shared_valid_time_and_samples_both_mode
     assert "source field missing: " in html
     assert "temperature units missing or unsupported: " in html
     assert "source wind component missing: 10v" in html
-    assert "findRapSurfaceField(payload,['10v'],uField.grid_id)" in html
+    assert "comparisonFieldCandidates(payload,['10v'],uField.grid_id)" in html
 
 
 def test_rap_grid_payload_must_match_the_published_archive_cycle():
