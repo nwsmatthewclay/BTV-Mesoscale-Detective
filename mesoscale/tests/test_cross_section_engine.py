@@ -88,6 +88,24 @@ def test_cross_section_skips_outside_samples_and_reports_distance_quality():
     assert quality["sample_count"] + quality["duplicate_native_grid_samples_removed"] + quality[
         "rejected_outside_native_grid_samples"
     ] == quality["requested_sample_count"]
+    _, requested_distances = great_circle_points((44.0, -73.2), (44.4, -73.0), 9)
+    assert result["transect"]["total_distance_km"] == pytest.approx(requested_distances[-1])
+    assert result["transect"]["sampled_distance_range_km"][1] < result["transect"]["total_distance_km"]
+
+
+def test_cross_section_derives_effective_spacing_from_projection_and_stride():
+    payload = sample_payload()
+    grid = payload["grids"]["grid_0"]
+    grid.pop("sampling")
+    grid["projection"] = {"GRIB_DxInMetres": 13545.0, "GRIB_DyInMetres": 13545.0}
+    grid["stride"] = 2
+
+    result = build_cross_section(
+        payload, (44.0, -73.2), (44.2, -73.0),
+        {"omega": "w"}, pressure_levels_hpa=[900, 700, 500], sample_count=5,
+    )
+    expected_limit_km = np.hypot(27090.0, 27090.0) * 0.75 / 1000.0
+    assert result["quality"]["native_grid_sample_offset_limit_km"] == pytest.approx(expected_limit_km)
 
 
 def test_cross_section_requires_effective_or_native_grid_spacing_metadata():
