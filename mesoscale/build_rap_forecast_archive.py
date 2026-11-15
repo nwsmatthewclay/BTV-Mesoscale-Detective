@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import gzip
 import json
+import math
 import re
 import sys
 import zlib
@@ -101,6 +102,51 @@ def _expected_valid_time(cycle: object, hour: int) -> str | None:
     ).replace("+00:00", "Z")
 
 
+def _station_profile_arrays_are_valid(profile: object) -> bool:
+    """Require complete, finite, collocated arrays before reusing a sounding."""
+    if not isinstance(profile, dict):
+        return False
+    quality = profile.get("quality")
+    arrays = profile.get("profile")
+    if not isinstance(quality, dict) or not isinstance(arrays, dict):
+        return False
+    try:
+        levels = int(quality.get("levels", 0))
+    except (TypeError, ValueError):
+        return False
+    if levels < 20:
+        return False
+
+    required = (
+        "pressure_hpa", "temperature_k", "dewpoint_k",
+        "height_agl_m", "u_ms", "v_ms",
+    )
+    values = {}
+    for name in required:
+        series = arrays.get(name)
+        if not isinstance(series, list) or len(series) != levels:
+            return False
+        if any(
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(value)
+            for value in series
+        ):
+            return False
+        values[name] = series
+
+    pressure = values["pressure_hpa"]
+    height = values["height_agl_m"]
+    return (
+        all(value > 0 for value in pressure)
+        and all(upper < lower for lower, upper in zip(pressure, pressure[1:]))
+        and all(upper > lower for lower, upper in zip(height, height[1:]))
+        and quality.get("pressure_decreases_upward") is True
+        and quality.get("height_increases_upward") is True
+        and not quality.get("profile_warnings", [])
+    )
+
+
 def _archive_file_matches(path: Path, item: dict, cycle: str, kind: str) -> bool:
     """Return whether a published RAP grid or station JSON matches its manifest entry."""
     try:
@@ -150,16 +196,14 @@ def _archive_file_matches(path: Path, item: dict, cycle: str, kind: str) -> bool
         if not isinstance(stations, dict) or len(stations) != int(item.get("station_count", -1)):
             return False
         return all(
-            profile.get("model") == "RAP"
+            isinstance(profile, dict)
+            and profile.get("model") == "RAP"
             and profile.get("model_cycle_utc") == cycle
             and int(profile.get("forecast_hour", -1)) == int(item["forecast_hour"])
             and profile.get("valid_time_utc") == item.get("valid_time_utc")
-            and int((profile.get("quality") or {}).get("levels", 0)) >= 20
-            and (profile.get("quality") or {}).get("pressure_decreases_upward") is True
-            and (profile.get("quality") or {}).get("height_increases_upward") is True
+            and _station_profile_arrays_are_valid(profile)
             for profile in stations.values()
-            if isinstance(profile, dict)
-        ) and all(isinstance(profile, dict) for profile in stations.values())
+        )
     except (OSError, EOFError, zlib.error, UnicodeError, ValueError, TypeError, KeyError, AttributeError):
         return False
 
@@ -283,10 +327,8 @@ def main() -> None:
         station_profiles = {}
         for station, (lat, lon) in STATIONS.items():
             profile = extract_profile(payload, lat, lon, station)
-            if (profile["quality"]["levels"] < 20
-                    or not profile["quality"]["pressure_decreases_upward"]
-                    or not profile["quality"]["height_increases_upward"]):
-                raise RuntimeError(f"F{hour:02d} station profile quality failure at {station}")
+            if not _station_profile_arrays_are_valid(profile):
+                raise RuntimeError(f"F{hour:02d} station profile array/quality failure at {station}")
             station_profiles[station] = profile
         station_path = FIELDS_OUT / f"rap_f{hour:02d}_stations.json"
         station_path.write_text(json.dumps({
