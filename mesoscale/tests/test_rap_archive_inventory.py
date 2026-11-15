@@ -164,3 +164,68 @@ def test_all_published_rap_station_profiles_have_consistent_arrays_and_provenanc
             assert entry["quality"]["pressure_decreases_upward"] is True
             assert entry["quality"]["height_increases_upward"] is True
             assert entry["quality"]["profile_warnings"] == []
+
+
+def test_generic_cross_section_validates_all_published_forecast_hours():
+    """Exercise geographic/vertical sampling for every committed RAP hour."""
+    import numpy as np
+
+    manifest_path = ARCHIVE.parent.parent / "forecast_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    expected_hours = [0, 3, 6, 9, 12, 15]
+
+    assert manifest["model"] == "RAP"
+    assert manifest["quality"]["status"] == "passed"
+    assert [item["forecast_hour"] for item in manifest["hours"]] == expected_hours
+
+    reports = []
+    for hour in manifest["hours"]:
+        grid_path = manifest_path.parent / hour["grid_file"]
+        assert grid_path.is_file(), f"Missing published RAP grid: {grid_path}"
+        with gzip.open(grid_path, "rt", encoding="utf-8") as stream:
+            payload = json.load(stream)
+
+        assert payload["model"] == "RAP"
+        assert payload["model_cycle_utc"] == manifest["model_cycle_utc"]
+        assert payload["forecast_hour"] == hour["forecast_hour"]
+        assert payload["valid_time_utc"] == hour["valid_time_utc"]
+
+        section = build_cross_section(
+            payload,
+            (44.4719, -73.1533),
+            (44.2035, -72.5623),
+            {"temperature": "t", "specific_humidity": "q"},
+            pressure_levels_hpa=[850, 700, 500],
+            sample_count=50,
+        )
+        quality = section["quality"]
+        assert section["model_cycle_utc"] == manifest["model_cycle_utc"]
+        assert section["forecast_hour"] == hour["forecast_hour"]
+        assert section["valid_time_utc"] == hour["valid_time_utc"]
+        assert quality["status"] == "passed"
+        assert quality["sample_count"] >= 2
+        assert quality["max_sample_offset_km"] <= quality["native_grid_sample_offset_limit_km"]
+        assert section["transect"]["total_distance_km"] > 0
+        assert section["transect"]["sampled_distance_range_km"][1] <= section["transect"]["total_distance_km"]
+
+        finite_by_field = {}
+        for name, field in section["fields"].items():
+            values = [value for column in field["values"] for value in column if value is not None]
+            assert values, f"No finite {name} values for RAP F{hour['forecast_hour']:02d}"
+            assert np.all(np.isfinite(np.asarray(values, dtype=float)))
+            finite_by_field[name] = len(values)
+
+        reports.append({
+            "forecast_hour": hour["forecast_hour"],
+            "valid_time_utc": hour["valid_time_utc"],
+            "sample_count": quality["sample_count"],
+            "finite_values_by_field": finite_by_field,
+            "unavailable_values_by_field": quality["unavailable_values_by_field"],
+            "max_sample_offset_km": quality["max_sample_offset_km"],
+            "native_grid_sample_offset_limit_km": quality["native_grid_sample_offset_limit_km"],
+        })
+
+    print("RAP_ALL_HOUR_CROSS_SECTION_VALIDATION=" + json.dumps({
+        "model_cycle_utc": manifest["model_cycle_utc"],
+        "forecast_hours": reports,
+    }, sort_keys=True))
