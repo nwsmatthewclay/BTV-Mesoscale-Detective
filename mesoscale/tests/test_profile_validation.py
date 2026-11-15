@@ -3,7 +3,7 @@ import json
 import numpy as np
 import pytest
 
-from mesoscale.diagnostics import _finite_profile, _number
+from mesoscale.diagnostics import _finite_profile, _number, diagnose_profile
 from mesoscale.extract_profile import write_profile_json
 from mesoscale.process_grib import (
     grib_metadata, grid_projection_metadata,
@@ -183,6 +183,16 @@ def test_profile_rejects_too_few_complete_levels_after_masking():
 def test_profile_requires_both_wind_components_together():
     with pytest.raises(ValueError, match="provided together"):
         _finite_profile(
+            [1000, 900, 800, 700, 600],
+            [290, 285, 280, 275, 270],
+            [285, 280, 275, 270, 265],
+            [0, 1000, 2000, 3000, 4000],
+            u_ms=[1, 2, 3, 4, 5],
+        )
+
+def test_diagnose_profile_rejects_incomplete_wind_pair():
+    with pytest.raises(ValueError, match="Wind components must be provided together"):
+        diagnose_profile(
             [1000, 900, 800, 700, 600],
             [290, 285, 280, 275, 270],
             [285, 280, 275, 270, 265],
