@@ -747,6 +747,64 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         assert missing_wind["cells"][2] == "Unavailable", missing_wind
         assert missing_wind["cells"][3] == "—", missing_wind
         assert "HRRR 10-m wind speed (source wind component missing: 10v)" in missing_wind["status"], missing_wind
+
+        # A missing HRRR U component must also be identified explicitly.
+        missing_u_wind = page.evaluate(
+            """async () => {
+                const payload = window.hrrrGridPayload;
+                if (!payload?.fields) return {error: 'loaded HRRR grid payload unavailable'};
+                const originalFields = payload.fields;
+                payload.fields = Object.fromEntries(
+                    Object.entries(originalFields).filter(([, field]) => field.short_name !== '10u')
+                );
+                try {
+                    await window.updateModelComparison();
+                    const row = Array.from(document.querySelectorAll('#comparisonRows tr'))
+                        .find(item => item.querySelector('td')?.textContent.trim() === '10-m wind speed');
+                    return {
+                        cells: row ? Array.from(row.querySelectorAll('td')).map(cell => cell.textContent.trim()) : [],
+                        status: document.querySelector('#comparisonStatus')?.textContent || ''
+                    };
+                } finally {
+                    payload.fields = originalFields;
+                    await window.updateModelComparison();
+                }
+            }"""
+        )
+        assert missing_u_wind.get("error") is None, missing_u_wind
+        assert missing_u_wind["cells"][2] == "Unavailable", missing_u_wind
+        assert missing_u_wind["cells"][3] == "—", missing_u_wind
+        assert "HRRR 10-m wind speed (source wind component missing: 10u)" in missing_u_wind["status"], missing_u_wind
+
+        # Unsupported wind units must identify both component units and suppress
+        # the difference rather than silently treating an unsupported unit as knots.
+        unsupported_wind_units = page.evaluate(
+            """async () => {
+                const payload = window.rapGridPayload;
+                if (!payload?.fields) return {error: 'loaded RAP grid payload unavailable'};
+                const uField = Object.values(payload.fields).find(field => field.short_name === '10u');
+                if (!uField) return {error: 'RAP 10-m U wind field unavailable'};
+                const originalUnits = uField.units;
+                uField.units = 'mph';
+                try {
+                    await window.updateModelComparison();
+                    const row = Array.from(document.querySelectorAll('#comparisonRows tr'))
+                        .find(item => item.querySelector('td')?.textContent.trim() === '10-m wind speed');
+                    return {
+                        cells: row ? Array.from(row.querySelectorAll('td')).map(cell => cell.textContent.trim()) : [],
+                        status: document.querySelector('#comparisonStatus')?.textContent || ''
+                    };
+                } finally {
+                    uField.units = originalUnits;
+                    await window.updateModelComparison();
+                }
+            }"""
+        )
+        assert unsupported_wind_units.get("error") is None, unsupported_wind_units
+        assert unsupported_wind_units["cells"][1] == "Unavailable", unsupported_wind_units
+        assert unsupported_wind_units["cells"][3] == "—", unsupported_wind_units
+        assert "RAP 10-m wind speed (wind units missing or unsupported: U=mph, V=" in unsupported_wind_units["status"], unsupported_wind_units
+
         page.wait_for_function(
             "() => document.querySelector('#comparisonStatus').textContent.includes('Exact valid-time match')",
             timeout=20000,
