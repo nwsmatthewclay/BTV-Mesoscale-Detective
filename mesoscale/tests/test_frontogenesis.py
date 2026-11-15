@@ -68,6 +68,40 @@ def test_frontogenesis_calculates_from_verified_grid_relative_winds():
     assert max(finite_values) > 0
 
 
+def test_frontogenesis_reports_partial_transect_coverage(monkeypatch):
+    class FakeQuantity:
+        def __init__(self, magnitude):
+            self.magnitude = magnitude
+
+        def to(self, _units):
+            return self
+
+    def fake_frontogenesis(*_args, **_kwargs):
+        values = np.ones((3, 3), dtype=float)
+        values[1, 1] = np.nan
+        return FakeQuantity(values)
+
+    monkeypatch.setattr(
+        "mesoscale.frontogenesis.mpcalc.frontogenesis", fake_frontogenesis
+    )
+    result = build_frontogenesis_cross_section(
+        frontogenesis_payload(),
+        (44.1, -73.2),
+        (44.1, -73.0),
+        pressure_levels_hpa=[800, 700],
+        sample_count=5,
+    )
+
+    quality = result["quality"]
+    assert quality["coverage_status"] == "partial"
+    assert quality["expected_value_count"] == len(result["transect"]["points"]) * 2
+    assert quality["missing_value_count"] == 2
+    assert quality["valid_value_count"] == quality["expected_value_count"] - 2
+    assert quality["coverage_fraction"] == pytest.approx(
+        quality["valid_value_count"] / quality["expected_value_count"]
+    )
+
+
 def test_frontogenesis_refuses_unknown_wind_orientation():
     payload = frontogenesis_payload()
     payload["fields"]["u"]["grib_metadata"] = {}
