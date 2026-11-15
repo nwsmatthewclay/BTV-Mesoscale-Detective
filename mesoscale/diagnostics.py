@@ -79,7 +79,9 @@ def diagnose_profile(pressure_hpa, temperature_k, dewpoint_k, height_m,
     All returned values are JSON-safe numbers or None, with a quality
     section documenting unavailable diagnostics.
     """
-    has_wind = u_ms is not None and v_ms is not None
+    if (u_ms is None) != (v_ms is None):
+        raise ValueError("Wind components must be provided together")
+    has_wind = u_ms is not None
     arrays = _finite_profile(pressure_hpa, temperature_k, dewpoint_k, height_m,
                              u_ms if has_wind else None,
                              v_ms if has_wind else None)
