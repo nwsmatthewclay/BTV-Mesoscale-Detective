@@ -53,9 +53,9 @@ def test_model_discovery_orchestrates_rap_and_hrrr_ingestion_and_pages():
     rap = (ROOT / ".github" / "workflows" / "rap_ingestion_smoke.yml").read_text(encoding="utf-8")
     hrrr = (ROOT / ".github" / "workflows" / "hrrr_ingestion_smoke.yml").read_text(encoding="utf-8")
 
-    # Hourly discovery is the sole scheduled entry point; generated manifest
+    # Twice-hourly discovery is the sole scheduled entry point; generated manifest
     # commits must not retrigger discovery or cause a self-trigger loop.
-    assert 'cron: "17 * * * *"' in discovery
+    assert 'cron: "17,47 * * * *"' in discovery
     paths = discovery.partition("    paths:")[2].partition("  schedule:")[0]
     assert "mesoscale/data/model_manifest.json" not in paths
     assert "  schedule:" not in rap
