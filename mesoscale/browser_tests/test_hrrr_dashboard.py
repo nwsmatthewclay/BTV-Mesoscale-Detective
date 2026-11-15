@@ -164,8 +164,12 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
                     grids: {g: {latitude: [[44.5]], longitude: [[-73.2]]}},
                     fields: {temperature: {short_name: "2t", grid_id: "g", data: [[280]]}}
                 };
-                return sampleComparableSurface(payload, "RAP", ["2d"], 44.5, -73.2) === null
-                    && comparableTemperature(null) === null;
+                const missing = sampleComparableSurface(payload, ["2d"], 44.5, -73.2);
+                const converted = comparableTemperature(missing);
+                return missing?.value === null
+                    && missing?.unavailable_reason === "source field missing: 2d"
+                    && converted?.value === null
+                    && converted?.unavailable_reason === missing.unavailable_reason;
             }"""
         )
         assert missing_source, "Missing source fields must remain unavailable; no alternate field proxy is allowed"
@@ -687,7 +691,62 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         assert missing_comparison["cells"][1] != "Unavailable", missing_comparison
         assert missing_comparison["cells"][2] == "Unavailable", missing_comparison
         assert missing_comparison["cells"][3] == "—", missing_comparison
-        assert "unavailable source values: 2-m temperature" in missing_comparison["status"], missing_comparison
+        assert "HRRR 2-m temperature (source field missing: 2t)" in missing_comparison["status"], missing_comparison
+
+        # Unsupported temperature units remain unavailable and identify the affected model.
+        unsupported_units = page.evaluate(
+            """async () => {
+                const payload = window.rapGridPayload;
+                const field = Object.values(payload?.fields || {}).find(item => item.short_name === '2t');
+                if (!field) return {error: 'RAP 2-m temperature field unavailable'};
+                const originalUnits = field.units;
+                field.units = 'degF';
+                try {
+                    await window.updateModelComparison();
+                    const row = Array.from(document.querySelectorAll('#comparisonRows tr'))
+                        .find(item => item.querySelector('td')?.textContent.trim() === '2-m temperature');
+                    return {
+                        cells: row ? Array.from(row.querySelectorAll('td')).map(cell => cell.textContent.trim()) : [],
+                        status: document.querySelector('#comparisonStatus')?.textContent || ''
+                    };
+                } finally {
+                    field.units = originalUnits;
+                    await window.updateModelComparison();
+                }
+            }"""
+        )
+        assert unsupported_units.get("error") is None, unsupported_units
+        assert unsupported_units["cells"][1] == "Unavailable", unsupported_units
+        assert unsupported_units["cells"][3] == "—", unsupported_units
+        assert "RAP 2-m temperature (temperature units missing or unsupported: degF)" in unsupported_units["status"], unsupported_units
+
+        # A missing HRRR V component must identify the missing component, not only the metric.
+        missing_wind = page.evaluate(
+            """async () => {
+                const payload = window.hrrrGridPayload;
+                if (!payload?.fields) return {error: 'loaded HRRR grid payload unavailable'};
+                const originalFields = payload.fields;
+                payload.fields = Object.fromEntries(
+                    Object.entries(originalFields).filter(([, field]) => field.short_name !== '10v')
+                );
+                try {
+                    await window.updateModelComparison();
+                    const row = Array.from(document.querySelectorAll('#comparisonRows tr'))
+                        .find(item => item.querySelector('td')?.textContent.trim() === '10-m wind speed');
+                    return {
+                        cells: row ? Array.from(row.querySelectorAll('td')).map(cell => cell.textContent.trim()) : [],
+                        status: document.querySelector('#comparisonStatus')?.textContent || ''
+                    };
+                } finally {
+                    payload.fields = originalFields;
+                    await window.updateModelComparison();
+                }
+            }"""
+        )
+        assert missing_wind.get("error") is None, missing_wind
+        assert missing_wind["cells"][2] == "Unavailable", missing_wind
+        assert missing_wind["cells"][3] == "—", missing_wind
+        assert "HRRR 10-m wind speed (source wind component missing: 10v)" in missing_wind["status"], missing_wind
         page.wait_for_function(
             "() => document.querySelector('#comparisonStatus').textContent.includes('Exact valid-time match')",
             timeout=20000,
