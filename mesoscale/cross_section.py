@@ -282,7 +282,8 @@ def build_cross_section(payload: Mapping, start: tuple[float, float],
                  "distance_km": float(distance), "grid_y": index[0], "grid_x": index[1]}
                 for point, distance, index in zip(points, distances, indices)
             ],
-            "total_distance_km": float(distances[-1]),
+            "total_distance_km": float(requested_distances[-1]),
+            "sampled_distance_range_km": [float(distances[0]), float(distances[-1])],
         },
         "vertical_coordinate": {"type": "pressure", "levels_hpa": targets.tolist()},
         "fields": {
