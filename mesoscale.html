@@ -1226,40 +1226,73 @@ function comparisonGridSampleAvailability(grid,point){
   }
   return {available:true,limit_km:limitKm,reason:null};
 }
-function sampleComparableSurface(payload,model,names,lat,lon){
-  const field=model==='RAP'?findRapSurfaceField(payload,names):findHrrrField(payload,names);
-  if(!field)return null;
+function unavailableComparisonSample(reason,metadata={}){
+  return {value:null,units:'',short_name:null,distance_km:null,grid_id:null,...metadata,unavailable_reason:reason};
+}
+function comparisonFieldCandidates(payload,names,gridId){
+  return Object.values(payload.fields||{}).filter(field=>
+    names.includes(field.short_name)&&(!gridId||field.grid_id===gridId)
+  );
+}
+function sampleComparableSurface(payload,names,lat,lon){
+  const candidates=comparisonFieldCandidates(payload,names);
+  const field=candidates.find(candidate=>hasMatchingGridGeometry(payload,candidate));
+  if(!field){
+    const reason=candidates.length
+      ?'source field present but grid geometry is unavailable or incompatible'
+      :'source field missing: '+names.join(' or ');
+    return unavailableComparisonSample(reason);
+  }
   const grid=payload.grids?.[field.grid_id],data=squeezeRap2D(field.data);
-  if(!grid||!data)return null;
+  const base={units:String(field.units||''),short_name:field.short_name,distance_km:null,grid_id:field.grid_id};
+  if(!grid)return unavailableComparisonSample('source grid metadata missing',base);
+  if(!data)return unavailableComparisonSample('source field is not a usable 2-D array',base);
   const point=nearestRapGridPoint(grid,lat,lon);
-  const base={units:String(field.units||''),short_name:field.short_name,distance_km:point.d,grid_id:field.grid_id};
+  base.distance_km=point.d;
   const availability=comparisonGridSampleAvailability(grid,point);
-  if(!availability.available)return {...base,value:null,unavailable_reason:availability.reason};
+  if(!availability.available)return unavailableComparisonSample(availability.reason,base);
   const raw=data?.[point.y]?.[point.x];
-  if(!Number.isFinite(raw))return {...base,value:null,unavailable_reason:'nearest native-grid value is missing or non-finite'};
-  return {...base,value:raw};
+  if(!Number.isFinite(raw))return unavailableComparisonSample('nearest native-grid value is missing or non-finite',base);
+  return {...base,value:raw,unavailable_reason:null};
 }
 function comparableTemperature(sample){
-  if(!sample||!Number.isFinite(sample.value))return null;
-  const unit=sample.units.toLowerCase();
-  if(unit.includes('k'))return sample.value-273.15;
-  if(unit.includes('c'))return sample.value;
-  return null;
+  if(!sample)return {value:null,unavailable_reason:'source sample unavailable'};
+  if(!Number.isFinite(sample.value)){
+    return {value:null,unavailable_reason:sample.unavailable_reason||'source value unavailable'};
+  }
+  const unit=String(sample.units||'').trim().toLowerCase();
+  if(unit==='k'||unit==='degk'||unit.includes('kelvin'))return {value:sample.value-273.15,unavailable_reason:null};
+  if(unit==='c'||unit==='degc'||unit==='°c'||unit.includes('celsius'))return {value:sample.value,unavailable_reason:null};
+  return {value:null,unavailable_reason:'temperature units missing or unsupported: '+(sample.units||'missing')};
 }
 function comparableWind(payload,model,lat,lon){
-  const uField=model==='RAP'?findRapSurfaceField(payload,['10u']):findHrrrField(payload,['10u']);
-  if(!uField)return null;
-  const vField=model==='RAP'?findRapSurfaceField(payload,['10v'],uField.grid_id):findHrrrField(payload,['10v'],uField.grid_id);
-  if(!vField)return null;
+  const uCandidates=comparisonFieldCandidates(payload,['10u']);
+  const uField=uCandidates.find(candidate=>hasMatchingGridGeometry(payload,candidate));
+  if(!uField){
+    return unavailableComparisonSample(
+      uCandidates.length?'10-m U wind field has no matching grid geometry':'source wind component missing: 10u',
+      {units:'kt'}
+    );
+  }
+  const vCandidates=comparisonFieldCandidates(payload,['10v'],uField.grid_id);
+  const vField=vCandidates.find(candidate=>hasMatchingGridGeometry(payload,candidate));
+  if(!vField){
+    return unavailableComparisonSample(
+      vCandidates.length?'10-m V wind field has no matching grid geometry':'source wind component missing: 10v',
+      {units:'kt',grid_id:uField.grid_id}
+    );
+  }
   const grid=payload.grids?.[uField.grid_id],uData=squeezeRap2D(uField.data),vData=squeezeRap2D(vField.data);
-  if(!grid||!uData||!vData)return null;
+  const base={units:'kt',distance_km:null,grid_id:uField.grid_id};
+  if(!grid)return unavailableComparisonSample('10-m wind grid metadata missing',base);
+  if(!uData||!vData)return unavailableComparisonSample('10-m wind component is not a usable 2-D array',base);
   const point=nearestRapGridPoint(grid,lat,lon);
-  const base={units:'kt',distance_km:point.d,grid_id:uField.grid_id};
+  base.distance_km=point.d;
   const availability=comparisonGridSampleAvailability(grid,point);
-  if(!availability.available)return {...base,value:null,unavailable_reason:availability.reason};
+  if(!availability.available)return unavailableComparisonSample(availability.reason,base);
   const u=uData?.[point.y]?.[point.x],v=vData?.[point.y]?.[point.x];
   if(!Number.isFinite(u)||!Number.isFinite(v)){
-    return {...base,value:null,unavailable_reason:'nearest native-grid wind component is missing or non-finite'};
+    return unavailableComparisonSample('nearest native-grid wind component is missing or non-finite',base);
   }
   const toKnots=(value,units)=>{
     const unit=String(units||'').toLowerCase().replace(/\s+/g,'');
@@ -1269,9 +1302,12 @@ function comparableWind(payload,model,lat,lon){
   };
   const uKt=toKnots(u,uField.units),vKt=toKnots(v,vField.units);
   if(!Number.isFinite(uKt)||!Number.isFinite(vKt)){
-    return {...base,value:null,unavailable_reason:'wind units are missing or unsupported'};
+    return unavailableComparisonSample(
+      'wind units missing or unsupported: U='+(uField.units||'missing')+', V='+(vField.units||'missing'),
+      base
+    );
   }
-  return {...base,value:Math.hypot(uKt,vKt)};
+  return {...base,value:Math.hypot(uKt,vKt),unavailable_reason:null};
 }
 let modelComparisonRequest=0;
 async function updateModelComparison(){
@@ -1306,13 +1342,13 @@ async function updateModelComparison(){
     const tHrrrSample=sampleComparableSurface(hrrr,'HRRR',['2t'],lat,lon);
     const tdRapSample=sampleComparableSurface(rap,'RAP',['2d','d2m'],lat,lon);
     const tdHrrrSample=sampleComparableSurface(hrrr,'HRRR',['2d'],lat,lon);
-    const tRap=comparableTemperature(tRapSample),tHrrr=comparableTemperature(tHrrrSample);
-    const tdRap=comparableTemperature(tdRapSample),tdHrrr=comparableTemperature(tdHrrrSample);
+    const tRapResult=comparableTemperature(tRapSample),tHrrrResult=comparableTemperature(tHrrrSample);
+    const tdRapResult=comparableTemperature(tdRapSample),tdHrrrResult=comparableTemperature(tdHrrrSample);
     const windRap=comparableWind(rap,'RAP',lat,lon),windHrrr=comparableWind(hrrr,'HRRR',lat,lon);
     const metrics=[
-      {label:'2-m temperature',a:tRap,b:tHrrr,unit:'°C'},
-      {label:'2-m dewpoint',a:tdRap,b:tdHrrr,unit:'°C'},
-      {label:'10-m wind speed',a:windRap?.value??null,b:windHrrr?.value??null,unit:'kt'}
+      {label:'2-m temperature',a:tRapResult.value,b:tHrrrResult.value,unit:'°C',aResult:tRapResult,bResult:tHrrrResult},
+      {label:'2-m dewpoint',a:tdRapResult.value,b:tdHrrrResult.value,unit:'°C',aResult:tdRapResult,bResult:tdHrrrResult},
+      {label:'10-m wind speed',a:windRap.value,b:windHrrr.value,unit:'kt',aResult:windRap,bResult:windHrrr}
     ];
     rows.innerHTML=metrics.map(item=>{
       const fmt=value=>Number.isFinite(value)?value.toFixed(1)+' '+item.unit:'Unavailable';
@@ -1326,16 +1362,13 @@ async function updateModelComparison(){
     const rapDistance=distanceFor([tRapSample,tdRapSample,windRap]);
     const hrrrDistance=distanceFor([tHrrrSample,tdHrrrSample,windHrrr]);
     const distanceLabel=value=>value===null?'unavailable':value.toFixed(1)+' km';
-    const missing=metrics.filter(item=>!Number.isFinite(item.a)||!Number.isFinite(item.b)).map(item=>item.label);
-    const missingLabel=missing.length?' · unavailable source values: '+missing.join(', '):'';
-    const rejectedSamples=[
-      ['RAP 2-m temperature',tRapSample],['HRRR 2-m temperature',tHrrrSample],
-      ['RAP 2-m dewpoint',tdRapSample],['HRRR 2-m dewpoint',tdHrrrSample],
-      ['RAP 10-m wind',windRap],['HRRR 10-m wind',windHrrr]
-    ].filter(([,sample])=>sample?.unavailable_reason);
-    const rejectedLabel=rejectedSamples.length?' · sampling unavailable: '+
-      rejectedSamples.map(([label,sample])=>label+' ('+sample.unavailable_reason+')').join('; '):'';
-    status.textContent='Exact valid-time match · RAP '+rap.model_cycle_utc+' F'+String(rap.forecast_hour).padStart(2,'0')+' · HRRR '+hrrr.model_cycle_utc+' F'+String(hrrr.forecast_hour).padStart(2,'0')+' · sampled at '+lat.toFixed(3)+', '+lon.toFixed(3)+'. Nearest-cell offsets RAP '+distanceLabel(rapDistance)+' / HRRR '+distanceLabel(hrrrDistance)+'. Missing source fields or unsupported units remain Unavailable; no proxy fields or nearest-time substitution.'+missingLabel+rejectedLabel;
+    const unavailableDetails=metrics.flatMap(item=>[
+      ['RAP '+item.label,item.aResult],['HRRR '+item.label,item.bResult]
+    ]).filter(([,result])=>!Number.isFinite(result?.value))
+      .map(([label,result])=>label+' ('+(result?.unavailable_reason||'source value unavailable')+')');
+    const unavailableLabel=unavailableDetails.length
+      ?' · unavailable details: '+unavailableDetails.join('; '):'';
+    status.textContent='Exact valid-time match · RAP '+rap.model_cycle_utc+' F'+String(rap.forecast_hour).padStart(2,'0')+' · HRRR '+hrrr.model_cycle_utc+' F'+String(hrrr.forecast_hour).padStart(2,'0')+' · sampled at '+lat.toFixed(3)+', '+lon.toFixed(3)+'. Nearest-cell offsets RAP '+distanceLabel(rapDistance)+' / HRRR '+distanceLabel(hrrrDistance)+'. Unavailable values include model-specific source reasons; no proxy fields or nearest-time substitution.'+unavailableLabel;
     document.getElementById('comparisonMeta').innerHTML='<span>Shared valid time · maximum native-grid sample offset</span><b>'+validTime+' · RAP '+distanceLabel(rapDistance)+' / HRRR '+distanceLabel(hrrrDistance)+'</b>';
   }catch(error){
     if(requestId!==modelComparisonRequest)return;
