@@ -192,6 +192,12 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
                     fields
                 };
                 const noSpacing = sampleComparableSurface(noSpacingPayload, "RAP", ["2t"], 44.01, -72.99);
+                // Exercise the HRRR lookup branch independently with the same synthetic
+                // native grid; RAP coverage tests must not stand in for HRRR coverage.
+                const hrrrInside = sampleComparableSurface(payload, "HRRR", ["2t"], 44.01, -72.99);
+                const hrrrOutside = sampleComparableSurface(payload, "HRRR", ["2t"], 46.0, -73.0);
+                const hrrrOutsideWind = comparableWind(payload, "HRRR", 46.0, -73.0);
+                const hrrrNoSpacing = sampleComparableSurface(noSpacingPayload, "HRRR", ["2t"], 44.01, -72.99);
                 return {
                     localAccepted: Number.isFinite(inside?.value) && inside.distance_km < 1,
                     distantSurfaceRejected: outside?.value === null
@@ -201,7 +207,16 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
                         && outsideWind.unavailable_reason?.includes("outside the effective native-grid sampling radius"),
                     missingSpacingRejected: noSpacing?.value === null
                         && noSpacing.unavailable_reason?.includes("grid spacing metadata unavailable"),
-                    distanceRetained: Number.isFinite(outside?.distance_km) && outside.distance_km > 100
+                    distanceRetained: Number.isFinite(outside?.distance_km) && outside.distance_km > 100,
+                    hrrrLocalAccepted: Number.isFinite(hrrrInside?.value) && hrrrInside.distance_km < 1,
+                    hrrrDistantSurfaceRejected: hrrrOutside?.value === null
+                        && hrrrOutside.unavailable_reason?.includes("outside the effective native-grid sampling radius")
+                        && comparableTemperature(hrrrOutside) === null,
+                    hrrrDistantWindRejected: hrrrOutsideWind?.value === null
+                        && hrrrOutsideWind.unavailable_reason?.includes("outside the effective native-grid sampling radius"),
+                    hrrrMissingSpacingRejected: hrrrNoSpacing?.value === null
+                        && hrrrNoSpacing.unavailable_reason?.includes("grid spacing metadata unavailable"),
+                    hrrrDistanceRetained: Number.isFinite(hrrrOutside?.distance_km) && hrrrOutside.distance_km > 100
                 };
             }"""
         )
