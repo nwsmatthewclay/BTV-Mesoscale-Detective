@@ -663,6 +663,30 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         assert "RAP " in page.locator("#comparisonMeta").inner_text()
         assert "HRRR " in page.locator("#comparisonMeta").inner_text()
 
+        # A decoded HRRR grid with a different valid time must fail closed even
+        # when the two archive manifests advertise an exact shared valid time.
+        mismatched_valid_time = page.evaluate(
+            \"\"\"async () => {
+                const payload = window.hrrrGridPayload;
+                if (!payload) return {error: 'loaded HRRR grid payload unavailable'};
+                const originalValidTime = payload.valid_time_utc;
+                payload.valid_time_utc = new Date(Date.parse(originalValidTime) + 60 * 60 * 1000).toISOString();
+                try {
+                    await window.updateModelComparison();
+                    return {
+                        status: document.querySelector('#comparisonStatus')?.textContent || '',
+                        rows: Array.from(document.querySelectorAll('#comparisonRows tr')).map(row => row.textContent.trim())
+                    };
+                } finally {
+                    payload.valid_time_utc = originalValidTime;
+                    await window.updateModelComparison();
+                }
+            }\"\"\"
+        )
+        assert mismatched_valid_time.get("error") is None, mismatched_valid_time
+        assert "Loaded grid valid times do not exactly match the selected time" in mismatched_valid_time["status"], mismatched_valid_time
+        assert mismatched_valid_time["rows"] == ["Unable to load and verify both model grids."], mismatched_valid_time
+
         # Remove HRRR 2-m temperature in memory and verify the rendered row stays unavailable.
         missing_comparison = page.evaluate(
             """async () => {
