@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Read-only probe of real RAP projection and wind-orientation metadata.
+"""Read-only probe of real RAP projection, cross-section, and wind metadata.
 
 Downloads one RAP F00 hybrid-level product into a temporary directory,
-decodes the bounded BTV subset, and reports the metadata needed by the
-frontogenesis diagnostic. It never publishes or commits data.
+decodes the bounded BTV subset, exercises the generic vertical cross-section
+sampler and (when wind orientation is verified) frontogenesis. It never
+publishes or commits data.
 """
 from __future__ import annotations
 
@@ -17,8 +18,14 @@ import requests
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from mesoscale.build_rap_forecast_archive import choose_cycle_products, download
+from mesoscale.cross_section import build_cross_section
 from mesoscale.frontogenesis import build_frontogenesis_cross_section
 from mesoscale.process_grib import RAP_MAX_GRID_DIM, process_file
+
+
+TRANSECT_START = (44.4719, -73.1533)
+TRANSECT_END = (44.2035, -72.5623)
+PRESSURE_LEVELS_HPA = [850, 700, 500]
 
 
 def decode_probe_product(grib_path: Path, cycle: str, output_path: Path) -> dict:
@@ -95,17 +102,73 @@ def main() -> None:
         if not required_projection:
             raise RuntimeError("RAP source did not expose grid type and native Dx/Dy metadata")
 
+        # Exercise the generic pressure-coordinate cross-section engine against
+        # the actual decoded RAP temperature and specific-humidity columns.
+        # This is intentionally separate from frontogenesis: it validates the
+        # general transect sampler, native-grid distance guard, hybrid pressure
+        # selection, and missing-level reporting without requiring wind rotation.
+        section = build_cross_section(
+            payload,
+            TRANSECT_START,
+            TRANSECT_END,
+            {"temperature": "t", "specific_humidity": "q"},
+            pressure_levels_hpa=PRESSURE_LEVELS_HPA,
+            sample_count=50,
+        )
+        finite_by_field = {
+            name: sum(
+                value is not None
+                for column in field["values"]
+                for value in column
+            )
+            for name, field in section["fields"].items()
+        }
+        if section["quality"]["status"] != "passed" or section["quality"]["sample_count"] < 2:
+            raise RuntimeError("Real RAP generic cross-section did not pass native-grid sampling quality")
+        if any(count < 1 for count in finite_by_field.values()):
+            raise RuntimeError(
+                "Real RAP generic cross-section produced no finite values for one or more selected fields: "
+                f"{finite_by_field}"
+            )
+        if section["quality"]["max_sample_offset_km"] > section["quality"]["native_grid_sample_offset_limit_km"]:
+            raise RuntimeError("Real RAP generic cross-section exceeded the native-grid distance limit")
+
+        cross_section_report = {
+            "status": "real_rap_generic_cross_section_passed",
+            "model_cycle_utc": cycle,
+            "valid_time_utc": payload["valid_time_utc"],
+            "source_file": product["filename"],
+            "grid_id": section["grid_id"],
+            "sample_count": section["quality"]["sample_count"],
+            "requested_sample_count": section["quality"]["requested_sample_count"],
+            "pressure_levels_hpa": section["vertical_coordinate"]["levels_hpa"],
+            "field_short_names": {
+                name: field["short_name"] for name, field in section["fields"].items()
+            },
+            "field_units": {
+                name: field["units"] for name, field in section["fields"].items()
+            },
+            "finite_values_by_field": finite_by_field,
+            "unavailable_values_by_field": section["quality"]["unavailable_values_by_field"],
+            "total_distance_km": section["transect"]["total_distance_km"],
+            "sampled_distance_range_km": section["transect"]["sampled_distance_range_km"],
+            "native_grid_sample_offset_limit_km": section["quality"]["native_grid_sample_offset_limit_km"],
+            "max_sample_offset_km": section["quality"]["max_sample_offset_km"],
+            "missing_level_policy": section["quality"]["missing_level_policy"],
+        }
+        print("RAP_CROSS_SECTION_PROBE=" + json.dumps(cross_section_report, sort_keys=True))
+
         if u_relative in (1, True, "1") and v_relative in (1, True, "1"):
-            section = build_frontogenesis_cross_section(
+            frontogenesis = build_frontogenesis_cross_section(
                 payload,
-                (44.4719, -73.1533),
-                (44.2035, -72.5623),
-                pressure_levels_hpa=[850, 700, 500],
+                TRANSECT_START,
+                TRANSECT_END,
+                pressure_levels_hpa=PRESSURE_LEVELS_HPA,
                 sample_count=50,
             )
             values = [
                 value
-                for row in section["fields"]["frontogenesis"]["values"]
+                for row in frontogenesis["fields"]["frontogenesis"]["values"]
                 for value in row
                 if value is not None
             ]
@@ -113,12 +176,10 @@ def main() -> None:
                 "status": "real_rap_frontogenesis_passed",
                 "model_cycle_utc": cycle,
                 "valid_time_utc": payload["valid_time_utc"],
-                "sample_count": section["quality"]["sample_count"],
-                "pressure_levels_hpa": section["quality"]["pressure_levels_hpa"],
+                "sample_count": frontogenesis["quality"]["sample_count"],
+                "pressure_levels_hpa": frontogenesis["quality"]["pressure_levels_hpa"],
                 "finite_frontogenesis_values": len(values),
-                "min": min(values) if values else None,
-                "max": max(values) if values else None,
-                "units": section["fields"]["frontogenesis"]["units"],
+                "units": frontogenesis["fields"]["frontogenesis"]["units"],
             }
             print("RAP_FRONTGENESIS_PROBE=" + json.dumps(report, sort_keys=True))
             if not values:
