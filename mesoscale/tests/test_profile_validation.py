@@ -168,6 +168,7 @@ def test_profile_rejects_too_few_complete_levels_after_masking():
         [1000, 900, 800, 700, 600],
         mask=[False, True, True, False, True],
         fill_value=1.0e20,
+        dtype=float,
     )
 
     with pytest.raises(ValueError, match="five complete finite levels"):
