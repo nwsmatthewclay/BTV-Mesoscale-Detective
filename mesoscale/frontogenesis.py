@@ -206,6 +206,16 @@ def build_frontogenesis_cross_section(
         [output[level_index][point_index] for level_index in range(len(targets))]
         for point_index in range(len(transect_points))
     ]
+    expected_value_count = len(transect_points) * len(targets)
+    valid_value_count = sum(
+        value is not None and math.isfinite(float(value))
+        for row in values
+        for value in row
+    )
+    missing_value_count = expected_value_count - valid_value_count
+    coverage_fraction = (
+        valid_value_count / expected_value_count if expected_value_count else 0.0
+    )
     return {
         "model": payload.get("model"),
         "model_cycle_utc": payload.get("model_cycle_utc"),
@@ -235,6 +245,11 @@ def build_frontogenesis_cross_section(
             "status": "passed",
             "sample_count": len(transect_points),
             "pressure_levels_hpa": targets.tolist(),
+            "expected_value_count": expected_value_count,
+            "valid_value_count": valid_value_count,
+            "missing_value_count": missing_value_count,
+            "coverage_fraction": coverage_fraction,
+            "coverage_status": "complete" if missing_value_count == 0 else "partial",
             "extrapolation": "disabled",
             "missing_level_policy": (
                 "native adjacent-level interpolation only; missing pressure or field levels are not bridged"
