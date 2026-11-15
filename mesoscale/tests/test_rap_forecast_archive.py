@@ -303,3 +303,31 @@ def test_rap_freshness_rebuilds_when_grid_sampling_metadata_is_stale(tmp_path):
     assert archive_needs_update(
         manifest, archive, (0, 3, 6, 9, 12, 15), archive_root=archive_root
     )[0] is True
+
+
+
+def test_rap_freshness_keeps_complete_06z_archive_when_newer_07z_cycle_has_only_f01():
+    complete_cycle = "2026-11-15T06:00:00Z"
+    incomplete_cycle = "2026-11-15T07:00:00Z"
+    required_hours = (0, 3, 6, 9, 12, 15)
+    incomplete_product = {
+        "cycle_utc": incomplete_cycle,
+        "forecast_hour": 1,
+        "product": "hybrid_levels_conus_13km",
+        "filename": "rap.t07z.awp130bgrbf01.grib2",
+        "url": "https://example.test/rap.t07z.awp130bgrbf01.grib2",
+    }
+    manifest = {"models": {"RAP": {"latest_products": [
+        incomplete_product,
+        *[product(complete_cycle, hour) for hour in required_hours],
+    ]}}}
+
+    selected_cycle, selected = choose_cycle_products(manifest, required_hours)
+    needs_update, target = archive_needs_update(
+        manifest, published_rap_archive(complete_cycle), required_hours
+    )
+
+    assert selected_cycle == complete_cycle
+    assert [item["forecast_hour"] for item in selected] == list(required_hours)
+    assert target == complete_cycle
+    assert needs_update is False
