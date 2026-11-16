@@ -1078,8 +1078,6 @@ def test_soundings_cross_section_and_nws_forecast_zone_overlays():
                     hodographHeight: document.getElementById('hodograph')?.getBoundingClientRect().height,
                     panelHeight: document.getElementById('soundingPanel')?.getBoundingClientRect().height,
                     panelTop: document.getElementById('soundingPanel')?.getBoundingClientRect().top,
-                    profileHeight: document.getElementById('profile')?.getBoundingClientRect().height,
-                    hodographHeight: document.getElementById('hodograph')?.getBoundingClientRect().height
                 })"""
             )
             raise AssertionError(f"Sounding charts did not populate: {state}") from exc
