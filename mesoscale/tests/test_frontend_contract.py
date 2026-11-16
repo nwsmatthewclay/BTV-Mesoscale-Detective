@@ -255,3 +255,11 @@ def test_rap_ingestion_installs_sharppy_for_published_profiles():
     assert "shell: bash -el {0}" in workflow
     for dependency in ("sharppy", "numpy<2", "metpy", "xarray", "cfgrib", "eccodes", "requests"):
         assert any(line.strip() == "- " + dependency for line in environment.splitlines()), dependency
+
+
+def test_rap_ingestion_rebuilds_profiles_when_sharppy_enrichment_is_missing():
+    workflow = (ROOT / ".github" / "workflows" / "rap_ingestion_smoke.yml").read_text(encoding="utf-8")
+    assert "sharppy_refresh_required" in workflow
+    assert 'profile.get("sharppy") or {}).get("status") != "passed"' in workflow
+    assert "if sharppy_refresh_required:" in workflow
+    assert "target_cycle = target_cycle or existing.get(\"model_cycle_utc\")" in workflow
