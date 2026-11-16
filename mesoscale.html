@@ -384,6 +384,17 @@ body{
   }
 }
 
+
+/* Forecast zones, contour labels, and visible sounding workspace */
+.forecast-zone-label{background:rgba(5,18,32,.88)!important;border:1px solid rgba(92,218,255,.75)!important;border-radius:5px!important;color:#e9fbff!important;font-size:10px!important;font-weight:800!important;padding:2px 5px!important;box-shadow:0 0 10px rgba(52,190,255,.24)!important}
+.forecast-zone-label:before,.contour-value-label:before{display:none!important}
+.contour-value-label{background:rgba(5,13,25,.88)!important;border:1px solid rgba(220,240,255,.58)!important;border-radius:4px!important;color:#f4fbff!important;font-size:10px!important;font-weight:800!important;padding:1px 4px!important;box-shadow:0 1px 5px rgba(0,0,0,.45)!important}
+.sounding-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:12px;padding:12px}
+.sounding-chart{min-width:0;border:1px solid rgba(106,178,235,.16);border-radius:10px;background:rgba(3,12,25,.38);overflow:hidden}
+.sounding-chart-title{padding:8px 11px;color:#b9d8ef;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid rgba(106,178,235,.14)}
+#soundingPanel .placeholder{margin:0 12px 12px}
+@media(min-width:901px){body[data-active-tab="soundings"] .layout{flex:0 0 48vh;height:48vh}body[data-active-tab="soundings"] .bottom-grid{display:grid!important;flex:1 1 auto;min-height:0;overflow:auto;grid-template-columns:minmax(0,1fr)}body[data-active-tab="soundings"] .bottom-grid>#soundingPanel{display:block!important;grid-column:1/-1}body[data-active-tab="soundings"] .bottom-grid>section:not(#soundingPanel){display:none!important}}
+@media(max-width:900px){body[data-active-tab="soundings"] .bottom-grid{display:grid!important;grid-template-columns:1fr}body[data-active-tab="soundings"] .bottom-grid>#soundingPanel{display:block!important}body[data-active-tab="soundings"] .bottom-grid>section:not(#soundingPanel){display:none!important}.sounding-grid{grid-template-columns:1fr}#profile,#hodograph{height:330px!important}}
 </style>
 </head>
 <body>
@@ -407,16 +418,17 @@ body{
   <div class="sidebar-footer"><span class="sidebar-pulse"></span><span>Verified fields only · source metadata retained</span></div>
 </aside><main class="layout">
 <section class="panel map-panel"><div class="panel-heading"><div><span class="eyebrow">Regional analysis</span><h2 id="mapTitle">Environment · Surface observations</h2></div><span class="eyebrow">BTV forecast area</span></div><div class="map-wrap"><div class="map-corner-label">LIVE MODEL FIELD <span>•</span> NORTHEAST DOMAIN</div><div id="map"></div><div class="map-chip" id="mapChip">BTV CWA · Move cursor for gridpoint readout</div><div class="cursor-readout" id="cursorReadout" aria-live="polite"><b>CURSOR READOUT</b><span id="cursorCoordinates">Move over the map</span><span id="cursorValue">Select a model field to sample values</span></div><div class="map-legend" id="mapLegend"><div class="legend-title">Map base · OpenStreetMap</div><div class="legend-subtitle">Select a model field to display its color scale</div></div></div>
-<div class="map-actions"><div class="overlay-tools"><span class="tool-label">Overlays</span><div class="checks"><label><input type="checkbox" checked id="stations"> Stations</label><label><input type="checkbox" checked id="stateBoundaries"> State boundaries</label><label><input type="checkbox" checked id="countyBoundaries"> County boundaries (zoom in)</label><label><input type="checkbox" checked id="contours"> Model contours</label></div></div><button class="btn" id="drawTransect">Draw cross-section line</button><button class="btn" id="clearTransect">Clear line</button><button class="btn" id="locateBtv">Select KBTV</button><button class="btn primary" id="reset">Reset view</button><div class="point-badge"><span>Selected point</span><span id="pointReadout"><b>KBTV</b></span><span id="coords">44.4719°N, 73.1533°W</span></div><span id="selectionStatus">Selected: KBTV</span></div></section>
+<div class="map-actions"><div class="overlay-tools"><span class="tool-label">Overlays</span><div class="checks"><label><input type="checkbox" checked id="stations"> Stations</label><label><input type="checkbox" checked id="stateBoundaries"> State boundaries</label><label><input type="checkbox" checked id="countyBoundaries"> County boundaries (zoom in)</label><label><input type="checkbox" checked id="forecastZones"> NWS forecast zones</label><label><input type="checkbox" checked id="contours"> Model contours</label></div></div><button class="btn" id="drawTransect">Draw cross-section line</button><button class="btn" id="clearTransect">Clear line</button><button class="btn" id="locateBtv">Select KBTV</button><button class="btn primary" id="reset">Reset view</button><div class="point-badge"><span>Selected point</span><span id="pointReadout"><b>KBTV</b></span><span id="coords">44.4719°N, 73.1533°W</span></div><span id="selectionStatus">Selected: KBTV</span></div></section>
 <aside class="rightcol">
 <section class="panel"><h2>Point diagnostics</h2><div class="metrics" id="metrics"><div class="metric"><span>MUCAPE</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>MLCAPE</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>MLCIN</span><strong>—</strong><small>J/kg</small></div><div class="metric"><span>PWAT</span><strong>—</strong><small>mm</small></div><div class="metric"><span>0–6 km shear</span><strong>—</strong><small>kt</small></div><div class="metric"><span>0–1 km SRH</span><strong>—</strong><small>m²/s²</small></div></div><div class="placeholder">RAP profiles are available at the eight listed stations only. Custom map points will not inherit station diagnostics.</div></section>
 
 <section class="panel"><h2>Investigation notes</h2><div class="pad" id="investigation"><div class="detail-line"><span>Model</span><b>RAP</b></div><div class="detail-line"><span>Valid time</span><b>Awaiting feed</b></div><div class="detail-line"><span>Point</span><b>KBTV</b></div><div class="detail-line"><span>Interpretation</span><b style="color:var(--amber)">Not available</b></div></div><div class="notice">RAP station profiles: KBTV, KPBG, KMSS, KSLK, KMPV, KRUT, 1V4 and KEFK. HRRR currently provides a verified surface archive; RRFS remains experimental.</div></section>
-</aside><div class="legacy-profile-host" aria-hidden="true"><div id="profile" style="height:310px"></div><div id="hodograph" style="height:220px"></div></div></div>
+</aside></div>
 <div class="bottom-grid">
 <section class="panel"><h2>Vertical cross-section</h2><div class="field" style="padding:12px 14px 0"><label for="crossVariable">Cross-section variable</label><select id="crossVariable"><option value="temperature">Temperature (°C)</option><option value="dewpoint">Dewpoint (°C)</option><option value="omega">Vertical velocity / omega (Pa s⁻¹)</option><option value="u_wind">U wind (kt)</option><option value="v_wind">V wind (kt)</option><option value="specific_humidity">Specific humidity (g/kg)</option><option value="cloud_water">Cloud water mixing ratio (g/kg)</option><option value="rain_water">Rain mixing ratio (g/kg)</option><option value="snow">Snow mixing ratio (g/kg)</option><option value="graupel">Graupel mixing ratio (g/kg)</option><option value="tke">Turbulent kinetic energy (J/kg)</option></select></div><div id="crossSectionPlot" style="height:390px"></div><div class="placeholder" id="crossSectionStatus">Draw a transect on the map and select a vertical variable. RAP hybrid-level fields are sampled on native grid columns.</div></section>
 <section class="panel"><h2>Time evolution · Selected station</h2><div class="field" style="padding:12px 14px 0"><label for="trendParameter">Diagnostic</label><select id="trendParameter"><option value="sbcape_jkg">Surface-based CAPE</option><option value="mlcape_jkg">Mixed-layer CAPE</option><option value="mucape_jkg">Most-unstable CAPE</option><option value="mlcin_jkg">Mixed-layer CIN</option><option value="pwat_mm">Precipitable water</option><option value="bs06_kt">0–6 km bulk shear</option><option value="srh01_m2s2">0–1 km SRH</option><option value="lr03_k_km">0–3 km lapse rate</option></select></div><div id="trend" style="height:290px"></div><div class="placeholder" id="trendStatus">Select one of the eight verified stations to view RAP forecast-hour diagnostics. Custom points are not filled from nearby stations.</div></section>
 <section class="panel"><h2>Data provenance &amp; quality</h2><div class="pad"><div class="detail-line"><span>Model source</span><b id="provModel">RAP · not connected</b></div><div class="detail-line"><span>Model initialization</span><b>—</b></div><div class="detail-line"><span>Valid time</span><b>—</b></div><div class="detail-line"><span>Grid spacing</span><b id="gridSpacing">Awaiting decoded grid metadata</b></div><div class="detail-line"><span>Processing status</span><b style="color:var(--amber)">Awaiting ingestion pipeline</b></div><div class="detail-line"><span>Observation overlay</span><b>Not loaded</b></div><p style="font-size:10px;color:var(--muted);margin:12px 0 0">Every diagnostic carries source, initialization time, valid time, units and processing status. Model analysis and observed data remain visually distinct.</p></div></section>
+</section><section class="panel" id="soundingPanel" style="display:none"><h2>RAP forecast sounding · selected location</h2><div class="sounding-grid"><div class="sounding-chart"><div class="sounding-chart-title">Skew-T · temperature and dewpoint</div><div id="profile" style="height:440px"></div></div><div class="sounding-chart"><div class="sounding-chart-title">Hodograph · wind profile</div><div id="hodograph" style="height:440px"></div></div></div><div class="placeholder" id="soundingStatus">Select a supported station and forecast hour to load a RAP vertical profile.</div></section>
 </div>
 <section class="panel" id="modelComparisonPanel" style="display:none"><h2>Model comparison · RAP vs HRRR</h2><div class="pad"><div id="comparisonMeta" class="detail-line"><span>Comparison</span><b>Open Model Compare to load matching valid times</b></div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr><th style="padding:9px;border-bottom:1px solid var(--line)">Parameter</th><th style="padding:9px;border-bottom:1px solid var(--line)">RAP</th><th style="padding:9px;border-bottom:1px solid var(--line)">HRRR</th><th style="padding:9px;border-bottom:1px solid var(--line)">HRRR − RAP</th></tr></thead><tbody id="comparisonRows"><tr><td colspan="4" style="padding:12px;color:var(--muted)">Select Model Compare to sample both verified grids at the selected point.</td></tr></tbody></table></div><div class="placeholder" id="comparisonStatus">Only exact shared valid times are compared. Each value is sampled from its own model grid at the selected coordinates; missing fields remain unavailable.</div></div></section>
 <footer class="foot">BTV Mesoscale Detective · Development build · Not for operational decision-making until data ingestion and verification are complete.</footer>
@@ -426,7 +438,7 @@ const REGIONAL_DOMAIN={west:-90.0,east:-60.0,south:32.0,north:55.0};
 const REGIONAL_BOUNDS=[[REGIONAL_DOMAIN.south,REGIONAL_DOMAIN.west],[REGIONAL_DOMAIN.north,REGIONAL_DOMAIN.east]];
 const map=L.map('map',{zoomControl:true,minZoom:4}).fitBounds(REGIONAL_BOUNDS,{padding:[18,18]});
 window.__testMap=map;
-map.createPane('countyBoundaryPane');map.getPane('countyBoundaryPane').style.zIndex=455;map.getPane('countyBoundaryPane').style.pointerEvents='none';map.createPane('stateBoundaryPane');map.getPane('stateBoundaryPane').style.zIndex=456;map.getPane('stateBoundaryPane').style.pointerEvents='none';
+map.createPane('countyBoundaryPane');map.getPane('countyBoundaryPane').style.zIndex=455;map.getPane('countyBoundaryPane').style.pointerEvents='none';map.createPane('stateBoundaryPane');map.getPane('stateBoundaryPane').style.zIndex=456;map.getPane('stateBoundaryPane').style.pointerEvents='none';map.createPane('forecastZonePane');map.getPane('forecastZonePane').style.zIndex=457;map.getPane('forecastZonePane').style.pointerEvents='none';
 const baseTiles=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{subdomains:'abc',maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',crossOrigin:true}).addTo(map);
 baseTiles.on('tileerror',()=>{document.getElementById('mapChip').textContent='Basemap tile unavailable · check network access';});
 map.whenReady(()=>setTimeout(()=>map.invalidateSize(true),180));
@@ -469,6 +481,31 @@ document.getElementById('stateBoundaries').addEventListener('change',refreshBoun
 document.getElementById('countyBoundaries').addEventListener('change',refreshBoundaryVisibility);
 map.on('zoomend',refreshBoundaryVisibility);
 loadBoundaryLayers().catch(()=>{});
+const NWS_PUBLIC_ZONES_URL='https://mapservices.weather.noaa.gov/static/rest/services/nws_reference_maps/nws_reference_map/MapServer/8/query';
+const BTV_ZONE_BOUNDS={west:-76.2,east:-69.5,south:42.0,north:47.0};
+let forecastZoneLayer=null,forecastZoneLoadPromise=null;
+async function loadForecastZones(){
+ if(forecastZoneLayer)return forecastZoneLayer;if(forecastZoneLoadPromise)return forecastZoneLoadPromise;
+ forecastZoneLoadPromise=(async()=>{
+  const bbox=[BTV_ZONE_BOUNDS.west,BTV_ZONE_BOUNDS.south,BTV_ZONE_BOUNDS.east,BTV_ZONE_BOUNDS.north].join(',');
+  const params=new URLSearchParams({where:'1=1',outFields:'name,state_zone,ugc',returnGeometry:'true',outSR:'4326',inSR:'4326',geometry:bbox,geometryType:'esriGeometryEnvelope',spatialRel:'esriSpatialRelIntersects',f:'geojson'});
+  const response=await fetch(NWS_PUBLIC_ZONES_URL+'?'+params.toString(),{cache:'force-cache'});
+  if(!response.ok)throw new Error('NWS forecast-zone service HTTP '+response.status);
+  const data=await response.json();if(data.error)throw new Error(data.error.message||'NWS forecast-zone query failed');
+  if(!Array.isArray(data.features))throw new Error('NWS forecast-zone response contained no features');
+  forecastZoneLayer=L.geoJSON(data,{pane:'forecastZonePane',interactive:false,style:()=>({color:'#55d8f2',weight:1.25,opacity:.92,fill:false,dashArray:'4 3',lineJoin:'round'}),onEachFeature:(feature,layer)=>{
+   const props=feature.properties||{},code=props.state_zone||props.STATE_ZONE||props.ugc||props.UGC||'',name=props.name||props.NAME||'NWS forecast zone';
+   layer.bindTooltip(String(code||name),{permanent:true,direction:'center',className:'forecast-zone-label',opacity:.96});
+   layer.bindPopup('<b>'+String(name).replace(/[&<>"]/g,'')+'</b><br>'+String(code).replace(/[&<>"]/g,''));
+  }});
+  window.__forecastZoneLayer=forecastZoneLayer;refreshForecastZoneVisibility();return forecastZoneLayer;
+ })().catch(error=>{forecastZoneLoadPromise=null;console.error('NWS forecast zones failed to load',error);document.getElementById('mapChip').textContent='Forecast-zone overlay unavailable · '+error.message;throw error;});
+ return forecastZoneLoadPromise;
+}
+function refreshForecastZoneVisibility(){const enabled=document.getElementById('forecastZones')?.checked!==false;if(!forecastZoneLayer)return;if(enabled&&!map.hasLayer(forecastZoneLayer))forecastZoneLayer.addTo(map);else if(!enabled&&map.hasLayer(forecastZoneLayer))map.removeLayer(forecastZoneLayer);}
+document.getElementById('forecastZones').addEventListener('change',()=>{if(document.getElementById('forecastZones').checked)loadForecastZones().catch(()=>{});refreshForecastZoneVisibility();});
+loadForecastZones().catch(()=>{});
+
 let cursorFramePending=false,lastCursorLatLng=null,currentTileProduct=null;
 function cursorReadout(latlng){
   const coords=document.getElementById('cursorCoordinates'),value=document.getElementById('cursorValue');
@@ -702,14 +739,12 @@ document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{
   const titles={environment:'Environment',soundings:'Soundings',kinematics:'Kinematics & Forcing',cross:'Cross-Sections',compare:'Model Comparison',evolution:'Time Evolution'};
   document.getElementById('mapTitle').textContent=titles[window.activeTab]+' · Shared map selection';
   const workspace=document.querySelector('.bottom-grid');
-  const crossPanel=workspace.children[0],trendPanel=workspace.children[1],provenancePanel=workspace.children[2];
-  const showLower=window.activeTab==='cross'||window.activeTab==='evolution';
-  workspace.style.display=showLower?'grid':'none';
-  crossPanel.style.display=window.activeTab==='cross'?'block':'none';
-  trendPanel.style.display=window.activeTab==='evolution'?'block':'none';
-  provenancePanel.style.display=showLower?'block':'none';
+  const crossPanel=workspace.children[0],trendPanel=workspace.children[1],provenancePanel=workspace.children[2],soundingPanel=workspace.children[3];
+  const showLower=window.activeTab==='cross'||window.activeTab==='evolution'||window.activeTab==='soundings';
+  workspace.style.display=showLower?'grid':'none';crossPanel.style.display=window.activeTab==='cross'?'block':'none';trendPanel.style.display=window.activeTab==='evolution'?'block':'none';provenancePanel.style.display=(window.activeTab==='cross'||window.activeTab==='evolution')?'block':'none';if(soundingPanel)soundingPanel.style.display=window.activeTab==='soundings'?'block':'none';
   document.getElementById('modelComparisonPanel').style.display=window.activeTab==='compare'?'block':'none';
   if(window.activeTab==='cross'&&!line)document.getElementById('mapChip').textContent='Draw a transect using the button below';
+  if(window.activeTab==='soundings'){if(window.loadStationProfile)window.loadStationProfile(selected.name);requestAnimationFrame(()=>{if(window.Plotly){Plotly.Plots.resize(document.getElementById('profile'));Plotly.Plots.resize(document.getElementById('hodograph'));}});}
   if(window.activeTab==='evolution'&&window.updateRapTimeEvolution)window.updateRapTimeEvolution();
   if(window.activeTab==='compare'&&window.updateModelComparison)window.updateModelComparison();
   if(window.__testMap)requestAnimationFrame(()=>window.__testMap.invalidateSize());
@@ -1488,10 +1523,15 @@ async function renderPublishedModelTiles(payload,model,param){
     const response=await fetch(root+product.contour_url,{cache:'force-cache'});
     if(!response.ok)throw new Error('contour GeoJSON HTTP '+response.status);
     const geojson=await response.json();
-    preRenderedContourLayer=L.geoJSON(geojson,{
-      style:()=>({color:'#24364b',weight:1.15,opacity:.82}),
-      onEachFeature:(feature,layer)=>{const value=Number(feature.properties?.value);if(Number.isFinite(value))layer.bindTooltip(value.toLocaleString('en-US',{maximumFractionDigits:2}),{sticky:true});}
-    });
+    const contourFeatures=Array.isArray(geojson.features)?geojson.features:[];
+    const labelStride=Math.max(1,Math.ceil(contourFeatures.length/28));
+    const labelFeatures=contourFeatures.filter((feature,index)=>index%labelStride===0&&Number.isFinite(Number(feature.properties?.value)));
+    const contourLines=L.geoJSON(geojson,{style:()=>({color:'#e6f2ff',weight:.85,opacity:.58,lineCap:'round',lineJoin:'round'})});
+    const contourLabels=L.geoJSON({type:'FeatureCollection',features:labelFeatures},{style:()=>({opacity:0,weight:0}),onEachFeature:(feature,layer)=>{
+      const value=Number(feature.properties?.value);
+      if(Number.isFinite(value))layer.bindTooltip(value.toLocaleString('en-US',{maximumFractionDigits:2}),{permanent:true,direction:'center',className:'contour-value-label',opacity:.96});
+    }});
+    preRenderedContourLayer=L.layerGroup([contourLines,contourLabels]);
     if(document.getElementById('contours').checked)preRenderedContourLayer.addTo(map);
   }catch(error){console.warn('Pre-rendered contour overlay unavailable',error);}
   updateMapLegend(product.long_name||shortName,product.display_range[0],product.display_range[1],product.units,'native-grid contour interval '+product.contour_interval);
@@ -1531,6 +1571,7 @@ async function loadStationProfile(station){
   const notes=document.querySelectorAll('.rightcol .placeholder');
   const selectedModel=document.getElementById('model').value;
   if(selectedModel==='HRRR'){
+    const soundingStatus=document.getElementById('soundingStatus');if(soundingStatus)soundingStatus.textContent='HRRR is a verified surface-only archive; switch to RAP for vertical soundings and hodographs.';
     metrics.innerHTML='';
     if(notes[0])notes[0].textContent='The verified HRRR archive contains 2-D surface fields, not vertical soundings. Use RAP for profiles and hodographs.';
     if(notes[1])notes[1].textContent='HRRR surface grids are available on the map; cross-sections and full-column diagnostics remain RAP-only.';
@@ -1541,6 +1582,7 @@ async function loadStationProfile(station){
     return;
   }
   if(selectedModel!=='RAP'){
+    const soundingStatus=document.getElementById('soundingStatus');if(soundingStatus)soundingStatus.textContent='RRFS remains experimental and has no verified multi-hour vertical-profile archive. Select RAP for soundings.';
     metrics.innerHTML='';if(notes[0])notes[0].textContent='RRFS has a non-published experimental subset extraction; no verified multi-hour archive or station profiles are available.';
     if(notes[1])notes[1].textContent='No verified RRFS profile is available; use RAP for soundings, hodographs and cross-sections.';
     document.getElementById('feedStatus').textContent='RRFS EXPERIMENTAL · NOT PUBLISHED';document.getElementById('feedStatus').style.color='var(--amber)';return;
@@ -1572,6 +1614,7 @@ async function loadStationProfile(station){
       const items=[['SBCAPE',d.sbcape_jkg,'J/kg'],['MLCAPE',d.mlcape_jkg,'J/kg'],['MUCAPE',d.mucape_jkg,'J/kg'],['MLCIN',d.mlcin_jkg,'J/kg'],['PWAT',d.pwat_mm,'mm'],['0–6 km shear',d.bs06_kt,'kt']];
       metrics.innerHTML=items.map(([n,v,u])=>'<div class="metric"><span>'+n+'</span><strong>'+(Number.isFinite(v)?Number(v).toFixed(1):'—')+'</strong><small>'+u+'</small></div>').join('');
     }
+    const soundingStatus=document.getElementById('soundingStatus');if(soundingStatus)soundingStatus.textContent='RAP '+p.model_cycle_utc+' · valid '+p.valid_time_utc+' · '+station+' · '+p.quality.levels+' verified vertical levels · model-derived, not observed.';
     const z=p.profile,skew=35,ln=Math.log;
     const skewX=(tempC,pressure)=>tempC+skew*ln(1000/pressure);
     const traces=[];
@@ -1605,7 +1648,7 @@ async function loadStationProfile(station){
     if(notes[0])notes[0].textContent='RAP '+p.valid_time_utc+' · nearest grid point '+p.sampled_grid_point.distance_km.toFixed(1)+' km away · '+p.quality.levels+' hybrid levels. '+(p.regional_sample?'Regional profile; advanced parcel diagnostics are not yet calculated.':'Model-derived station diagnostics, not observations.');
     if(notes[1])notes[1].textContent='RAP '+station+' profile · nearest grid point '+p.sampled_grid_point.distance_km.toFixed(1)+' km away. Temperature/dewpoint and wind are sampled from the RAP grid.';
     document.getElementById('selectionStatus').textContent=station+' RAP · '+p.quality.levels+' levels';
-  }catch(e){console.warn('RAP station profile unavailable',e);metrics.innerHTML='';if(notes[0])notes[0].textContent='Published RAP station profile unavailable: '+e.message;document.getElementById('feedStatus').textContent='RAP PROFILE UNAVAILABLE';document.getElementById('feedStatus').style.color='var(--amber)';}
+  }catch(e){const soundingStatus=document.getElementById('soundingStatus');if(soundingStatus)soundingStatus.textContent='RAP sounding unavailable: '+e.message;console.warn('RAP station profile unavailable',e);metrics.innerHTML='';if(notes[0])notes[0].textContent='Published RAP station profile unavailable: '+e.message;document.getElementById('feedStatus').textContent='RAP PROFILE UNAVAILABLE';document.getElementById('feedStatus').style.color='var(--amber)';}
 }
 window.loadStationProfile=loadStationProfile;
 
