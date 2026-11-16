@@ -1000,10 +1000,11 @@ def test_soundings_cross_section_and_nws_forecast_zone_overlays():
                 }
             }]
         }
-        page.route(
-            "https://mapservices.weather.noaa.gov/**",
-            lambda route: route.fulfill(status=200, content_type="application/geo+json", body=__import__("json").dumps(zone)),
-        )
+        zone_requests = []
+        def _zone_response(route):
+            zone_requests.append(route.request.url)
+            return route.fulfill(status=200, content_type="application/geo+json", body=__import__("json").dumps(zone))
+        page.route("https://mapservices.weather.noaa.gov/**", _zone_response)
         page.goto("http://127.0.0.1:8765/", wait_until="domcontentloaded")
         page.wait_for_function(
             "() => window.rapKbtvProfile && window.__forecastZoneLayer",
@@ -1033,15 +1034,28 @@ def test_soundings_cross_section_and_nws_forecast_zone_overlays():
         assert contour_labels["permanent"], contour_labels
         assert contour_labels["value"] == "500", contour_labels
 
-        page.locator('#tabs button[data-tab="soundings"]').click()
+        # Soundings must be discoverable from the top-level action and have
+        # explicit station + forecast-hour selectors on desktop.
+        page.locator("#openSoundingAction").click()
         page.wait_for_function(
             """() => {
                 const panel = document.getElementById('soundingPanel');
+                const profile = document.getElementById('profile');
+                const hodograph = document.getElementById('hodograph');
+                const rect = element => element?.getBoundingClientRect();
                 return panel && getComputedStyle(panel).display !== 'none'
-                    && panel.getBoundingClientRect().height > 200;
+                    && rect(panel).height > 200
+                    && rect(profile).height > 200
+                    && rect(hodograph).height > 200
+                    && getComputedStyle(profile).display !== 'none'
+                    && getComputedStyle(hodograph).display !== 'none';
             }""",
             timeout=10000,
         )
+        assert page.locator("#soundingStation").is_visible()
+        assert page.locator("#soundingHour").is_visible()
+        page.locator("#soundingStation").select_option("KPBG")
+        page.locator("#loadSounding").click()
         try:
             page.wait_for_function(
                 """() => {
@@ -1062,7 +1076,8 @@ def test_soundings_cross_section_and_nws_forecast_zone_overlays():
                     hodographTraces: document.getElementById('hodograph')?.data?.length || 0,
                     profileHeight: document.getElementById('profile')?.getBoundingClientRect().height,
                     hodographHeight: document.getElementById('hodograph')?.getBoundingClientRect().height,
-                    panelHeight: document.getElementById('soundingPanel')?.getBoundingClientRect().height
+                    panelHeight: document.getElementById('soundingPanel')?.getBoundingClientRect().height,
+                    panelTop: document.getElementById('soundingPanel')?.getBoundingClientRect().top,
                 })"""
             )
             raise AssertionError(f"Sounding charts did not populate: {state}") from exc
@@ -1072,16 +1087,30 @@ def test_soundings_cross_section_and_nws_forecast_zone_overlays():
                 profileTraces: document.getElementById('profile')?.data?.length || 0,
                 hodographTraces: document.getElementById('hodograph')?.data?.length || 0,
                 zoneLayerVisible: Boolean(window.__forecastZoneLayer && window.__testMap.hasLayer(window.__forecastZoneLayer)),
-                zoneLabels: document.querySelectorAll('.forecast-zone-label').length
+                zoneLabels: document.querySelectorAll('.forecast-zone-label').length,
+                zoneCount: window.__forecastZoneLayer?.getLayers()?.length || 0,
+                soundingStation: document.getElementById('soundingStation')?.value,
+                soundingPanelHeight: document.getElementById('soundingPanel')?.getBoundingClientRect().height
             })"""
         )
         assert sounding["profileTraces"] >= 2, sounding
         assert sounding["hodographTraces"] >= 1, sounding
         assert sounding["zoneLayerVisible"], sounding
-        assert sounding["zoneLabels"] >= 1, sounding
+        assert sounding["zoneLabels"] == 0, sounding
+        assert sounding["zoneCount"] == 1, sounding
+        assert sounding["soundingStation"] == "KPBG", sounding
+        assert sounding["soundingPanelHeight"] > 200, sounding
+        assert len(zone_requests) == 1, zone_requests
+        from urllib.parse import parse_qs, urlparse
+        zone_query = parse_qs(urlparse(zone_requests[0]).query)
+        assert zone_query.get("where") == ["1=1"], zone_query
+        assert zone_query.get("geometry") == ["-80.5,38.5,-66,49"], zone_query
 
-        page.locator('#tabs button[data-tab="cross"]').click()
-        page.locator("#drawTransect").click()
+        # The prominent top action starts a transect; the user then clicks
+        # the map twice, with visible instructions and a populated chart.
+        page.locator("#startCrossSectionAction").click()
+        assert page.locator("#crossSectionStatus").is_visible()
+        assert "first point" in page.locator("#crossSectionStatus").inner_text().lower()
         page.evaluate(
             """() => {
                 const map = window.__testMap;
@@ -1091,8 +1120,10 @@ def test_soundings_cross_section_and_nws_forecast_zone_overlays():
         )
         page.wait_for_function(
             """() => {
-                const plot = document.getElementById('crossSectionPlot');
-                return plot?.data?.length && plot.data[0].z?.some(row => row?.some(Number.isFinite));
+                const panel = document.getElementById('crossSectionPlot');
+                const rect = panel?.getBoundingClientRect();
+                return rect?.height > 180 && rect?.width > 300
+                    && panel?.data?.length && panel.data[0].z?.some(row => row?.some(Number.isFinite));
             }""",
             timeout=60000,
         )
