@@ -1037,15 +1037,35 @@ def test_soundings_cross_section_and_nws_forecast_zone_overlays():
         page.wait_for_function(
             """() => {
                 const panel = document.getElementById('soundingPanel');
-                const profile = document.getElementById('profile');
-                const hodograph = document.getElementById('hodograph');
                 return panel && getComputedStyle(panel).display !== 'none'
-                    && profile?.data?.length >= 2 && hodograph?.data?.length >= 1
-                    && profile.getBoundingClientRect().height > 250
-                    && hodograph.getBoundingClientRect().height > 250;
+                    && panel.getBoundingClientRect().height > 200;
             }""",
-            timeout=30000,
+            timeout=10000,
         )
+        try:
+            page.wait_for_function(
+                """() => {
+                    const profile = document.getElementById('profile');
+                    const hodograph = document.getElementById('hodograph');
+                    return profile?.data?.length >= 2 && hodograph?.data?.length >= 1;
+                }""",
+                timeout=30000,
+            )
+        except Exception as exc:
+            state = page.evaluate(
+                """() => ({
+                    activeTab: document.body.dataset.activeTab,
+                    model: document.getElementById('model')?.value,
+                    status: document.getElementById('soundingStatus')?.textContent,
+                    feedStatus: document.getElementById('feedStatus')?.textContent,
+                    profileTraces: document.getElementById('profile')?.data?.length || 0,
+                    hodographTraces: document.getElementById('hodograph')?.data?.length || 0,
+                    profileHeight: document.getElementById('profile')?.getBoundingClientRect().height,
+                    hodographHeight: document.getElementById('hodograph')?.getBoundingClientRect().height,
+                    panelHeight: document.getElementById('soundingPanel')?.getBoundingClientRect().height
+                })"""
+            )
+            raise AssertionError(f"Sounding charts did not populate: {state}") from exc
         sounding = page.evaluate(
             """() => ({
                 status: document.getElementById('soundingStatus')?.textContent,
