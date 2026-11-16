@@ -1,5 +1,5 @@
 name: Mesoscale Model Discovery and Validation
-# Twice-hourly discovery is the single scheduled entry point for RAP freshness checks.
+# 15-minute discovery is the single scheduled entry point for RAP freshness checks.
 # Successful discovery completion triggers one downstream RAP check.
 # Test-only edits run in PR validation but do not trigger live model discovery or ingestion.
 
@@ -23,7 +23,8 @@ on:
       - "mesoscale/rrfs_range_smoke.py"
       - "mesoscale/rrfs_btv_subset.py"
   schedule:
-    - cron: "17,47 * * * *"
+    # Spread four opportunities per hour away from the top-of-hour queue.
+    - cron: "7,22,37,52 * * * *"
   workflow_dispatch:
 
 permissions:
