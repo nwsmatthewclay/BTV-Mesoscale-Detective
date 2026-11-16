@@ -1504,6 +1504,17 @@ function clearPreRenderedModelLayers(){
   if(modelOverlayLayer){map.removeLayer(modelOverlayLayer);modelOverlayLayer=null;}
   if(preRenderedContourLayer){map.removeLayer(preRenderedContourLayer);preRenderedContourLayer=null;}
 }
+function buildPublishedContourLayer(geojson){
+  const features=Array.isArray(geojson?.features)?geojson.features:[];
+  const labelStride=Math.max(1,Math.ceil(features.length/28));
+  const labelFeatures=features.filter((feature,index)=>index%labelStride===0&&Number.isFinite(Number(feature.properties?.value)));
+  const contourLines=L.geoJSON(geojson,{style:()=>({color:'#e6f2ff',weight:.85,opacity:.58,lineCap:'round',lineJoin:'round'})});
+  const contourLabels=L.geoJSON({type:'FeatureCollection',features:labelFeatures},{style:()=>({opacity:0,weight:0}),onEachFeature:(feature,layer)=>{
+    const value=Number(feature.properties?.value);
+    if(Number.isFinite(value))layer.bindTooltip(value.toLocaleString('en-US',{maximumFractionDigits:2}),{permanent:true,direction:'center',className:'contour-value-label',opacity:.96});
+  }});
+  return L.layerGroup([contourLines,contourLabels]);
+}
 async function renderPublishedModelTiles(payload,model,param){
   const fieldKey=selectedTileFieldKey(model,param,payload);
   if(!fieldKey)return false;
@@ -1522,15 +1533,7 @@ async function renderPublishedModelTiles(payload,model,param){
     const response=await fetch(root+product.contour_url,{cache:'force-cache'});
     if(!response.ok)throw new Error('contour GeoJSON HTTP '+response.status);
     const geojson=await response.json();
-    const contourFeatures=Array.isArray(geojson.features)?geojson.features:[];
-    const labelStride=Math.max(1,Math.ceil(contourFeatures.length/28));
-    const labelFeatures=contourFeatures.filter((feature,index)=>index%labelStride===0&&Number.isFinite(Number(feature.properties?.value)));
-    const contourLines=L.geoJSON(geojson,{style:()=>({color:'#e6f2ff',weight:.85,opacity:.58,lineCap:'round',lineJoin:'round'})});
-    const contourLabels=L.geoJSON({type:'FeatureCollection',features:labelFeatures},{style:()=>({opacity:0,weight:0}),onEachFeature:(feature,layer)=>{
-      const value=Number(feature.properties?.value);
-      if(Number.isFinite(value))layer.bindTooltip(value.toLocaleString('en-US',{maximumFractionDigits:2}),{permanent:true,direction:'center',className:'contour-value-label',opacity:.96});
-    }});
-    preRenderedContourLayer=L.layerGroup([contourLines,contourLabels]);
+    preRenderedContourLayer=buildPublishedContourLayer(geojson);
     if(document.getElementById('contours').checked)preRenderedContourLayer.addTo(map);
   }catch(error){console.warn('Pre-rendered contour overlay unavailable',error);}
   updateMapLegend(product.long_name||shortName,product.display_range[0],product.display_range[1],product.units,'native-grid contour interval '+product.contour_interval);
