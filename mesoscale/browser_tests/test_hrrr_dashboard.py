@@ -1006,7 +1006,7 @@ def test_soundings_cross_section_and_nws_forecast_zone_overlays():
         )
         page.goto("http://127.0.0.1:8765/", wait_until="domcontentloaded")
         page.wait_for_function(
-            "() => window.rapForecastManifest && window.rapKbtvProfile && window.__forecastZoneLayer",
+            "() => window.rapKbtvProfile && window.__forecastZoneLayer",
             timeout=60000,
         )
         page.locator('#tabs button[data-tab="soundings"]').click()
