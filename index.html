@@ -395,11 +395,47 @@ body{
 #soundingPanel .placeholder{margin:0 12px 12px}
 @media(min-width:901px){body[data-active-tab="soundings"] .layout{flex:0 0 48vh;height:48vh}body[data-active-tab="soundings"] .bottom-grid{display:grid!important;flex:1 1 auto;min-height:0;overflow:auto;grid-template-columns:minmax(0,1fr)}body[data-active-tab="soundings"] .bottom-grid>#soundingPanel{display:block!important;grid-column:1/-1}body[data-active-tab="soundings"] .bottom-grid>section:not(#soundingPanel){display:none!important}}
 @media(max-width:900px){body[data-active-tab="soundings"] .bottom-grid{display:grid!important;grid-template-columns:1fr}body[data-active-tab="soundings"] .bottom-grid>#soundingPanel{display:block!important}body[data-active-tab="soundings"] .bottom-grid>section:not(#soundingPanel){display:none!important}.sounding-grid{grid-template-columns:1fr}#profile,#hodograph{height:330px!important}}
+
+/* Explicit analysis-workspace layout: keep panels visible below the map on desktop. */
+.workspace-help{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:12px 14px;margin:0 12px 8px;border:1px solid rgba(116,185,235,.2);border-radius:10px;background:rgba(12,25,45,.7)}
+.workspace-help>div:first-child{display:flex;flex-direction:column;gap:4px;min-width:220px}
+.workspace-help b{color:#eaf8ff;font-size:12px}
+.workspace-help span,.workspace-hint{color:#a9bfd3;font-size:10px;line-height:1.45}
+.workspace-actions{display:flex;gap:8px;flex-wrap:wrap}
+.sounding-controls{align-items:flex-end}
+.sounding-selectors{display:grid;grid-template-columns:repeat(2,minmax(190px,1fr));gap:10px;flex:1 1 500px}
+.sounding-selectors .field{margin:0;min-width:0}
+.sounding-selectors select{width:100%;min-width:0}
+.workspace-hint{flex-basis:100%;margin:0}
+.nav-spacer{flex:1 1 auto}
+#tabs .nav-action{border-color:rgba(111,199,240,.35);background:rgba(25,85,118,.24);color:#cceeff}
+#tabs .nav-action-primary{border-color:rgba(213,255,98,.55);background:rgba(104,130,38,.24);color:#efffc7}
+#tabs .nav-action:hover{transform:translateY(-1px)}
+@media(min-width:901px){
+ body[data-active-tab="cross"] > .app-shell.layout{flex:0 0 43vh!important;height:43vh!important;min-height:0!important}
+ body[data-active-tab="cross"] > .bottom-grid{display:grid!important;flex:1 1 auto!important;height:auto!important;min-height:0!important;max-height:52vh;overflow:auto;grid-template-columns:minmax(0,1.3fr) minmax(260px,1fr)!important;margin:0 14px 8px!important;gap:10px!important}
+ body[data-active-tab="cross"] > .bottom-grid > section:first-child{display:block!important;grid-column:1}
+ body[data-active-tab="cross"] > .bottom-grid > section:nth-child(2){display:none!important}
+ body[data-active-tab="cross"] > .bottom-grid > section:nth-child(3){display:block!important;grid-column:2}
+ body[data-active-tab="cross"] > .bottom-grid > #soundingPanel{display:none!important}
+ body[data-active-tab="soundings"] > .app-shell.layout{flex:0 0 38vh!important;height:38vh!important;min-height:0!important}
+ body[data-active-tab="soundings"] > .bottom-grid{display:grid!important;flex:1 1 auto!important;height:auto!important;min-height:0!important;max-height:58vh;overflow:auto;grid-template-columns:minmax(0,1fr)!important;margin:0 14px 8px!important;gap:10px!important}
+ body[data-active-tab="soundings"] > .bottom-grid > section:not(#soundingPanel){display:none!important}
+ body[data-active-tab="soundings"] > .bottom-grid > #soundingPanel{display:block!important;grid-column:1/-1!important}
+ body[data-active-tab="soundings"] #profile,body[data-active-tab="soundings"] #hodograph{height:340px!important;min-height:260px!important}
+ body[data-active-tab="evolution"] > .app-shell.layout{flex:0 0 43vh!important;height:43vh!important}
+ body[data-active-tab="evolution"] > .bottom-grid{display:grid!important;flex:1 1 auto!important;height:auto!important;min-height:0!important;grid-template-columns:minmax(0,1fr)!important;margin:0 14px 8px!important}
+}
+@media(max-width:900px){
+ .workspace-help{align-items:stretch}
+ .sounding-selectors{grid-template-columns:1fr}
+ .sounding-controls>.btn{width:100%}
+}
 </style>
 </head>
 <body>
 <header class="topbar"><div class="brand"><div class="mark">BTV</div><div><h1>Mesoscale Detective</h1><p>NWS Burlington · Vermont &amp; Northern New York</p></div></div><div class="header-right"><span class="status" id="feedStatus">MODEL FEED NOT CONNECTED</span><span id="clock">--:-- UTC</span></div></header>
-<nav id="tabs" aria-label="Analysis workspaces"><button class="active" data-tab="environment">Environment</button><button data-tab="soundings">Soundings</button><button data-tab="kinematics">Kinematics &amp; Forcing</button><button data-tab="cross">Cross-Sections</button><button data-tab="compare">Model Compare</button><button data-tab="evolution">Time Evolution</button></nav>
+<nav id="tabs" aria-label="Analysis workspaces"><button class="active" data-tab="environment">Environment</button><button data-tab="soundings">Soundings</button><button data-tab="kinematics">Kinematics &amp; Forcing</button><button data-tab="cross">Cross-Sections</button><button data-tab="compare">Model Compare</button><button data-tab="evolution">Time Evolution</button><span class="nav-spacer"></span><button class="nav-action" id="openSoundingAction" type="button">Load sounding</button><button class="nav-action nav-action-primary" id="startCrossSectionAction" type="button">Draw cross-section</button></nav>
 <div class="app-shell layout">
 <aside class="model-sidebar panel" aria-label="Model and field controls">
   <div class="sidebar-heading"><span class="eyebrow">Atmospheric workstation</span><h2>Model Explorer</h2><p>Choose a guidance source and map field</p></div>
@@ -425,9 +461,9 @@ body{
 <section class="panel"><h2>Investigation notes</h2><div class="pad" id="investigation"><div class="detail-line"><span>Model</span><b>RAP</b></div><div class="detail-line"><span>Valid time</span><b>Awaiting feed</b></div><div class="detail-line"><span>Point</span><b>KBTV</b></div><div class="detail-line"><span>Interpretation</span><b style="color:var(--amber)">Not available</b></div></div><div class="notice">RAP station profiles: KBTV, KPBG, KMSS, KSLK, KMPV, KRUT, 1V4 and KEFK. HRRR currently provides a verified surface archive; RRFS remains experimental.</div></section>
 </aside></div>
 <div class="bottom-grid">
-<section class="panel"><h2>Vertical cross-section</h2><div class="field" style="padding:12px 14px 0"><label for="crossVariable">Cross-section variable</label><select id="crossVariable"><option value="temperature">Temperature (°C)</option><option value="dewpoint">Dewpoint (°C)</option><option value="omega">Vertical velocity / omega (Pa s⁻¹)</option><option value="u_wind">U wind (kt)</option><option value="v_wind">V wind (kt)</option><option value="specific_humidity">Specific humidity (g/kg)</option><option value="cloud_water">Cloud water mixing ratio (g/kg)</option><option value="rain_water">Rain mixing ratio (g/kg)</option><option value="snow">Snow mixing ratio (g/kg)</option><option value="graupel">Graupel mixing ratio (g/kg)</option><option value="tke">Turbulent kinetic energy (J/kg)</option></select></div><div id="crossSectionPlot" style="height:390px"></div><div class="placeholder" id="crossSectionStatus">Draw a transect on the map and select a vertical variable. RAP hybrid-level fields are sampled on native grid columns.</div></section>
+<section class="panel"><h2>Vertical cross-section</h2><div class="workspace-help"><div><b>How to create a cross-section</b><span>1. Start drawing · 2. Click a start point on the map · 3. Click an end point</span></div><div class="workspace-actions"><button class="btn primary" id="drawTransectPanel" type="button">Draw transect on map</button><button class="btn" id="clearTransectPanel" type="button">Clear</button></div></div><div class="field" style="padding:12px 14px 0"><label for="crossVariable">Cross-section variable</label><select id="crossVariable"><option value="temperature">Temperature (°C)</option><option value="dewpoint">Dewpoint (°C)</option><option value="omega">Vertical velocity / omega (Pa s⁻¹)</option><option value="u_wind">U wind (kt)</option><option value="v_wind">V wind (kt)</option><option value="specific_humidity">Specific humidity (g/kg)</option><option value="cloud_water">Cloud water mixing ratio (g/kg)</option><option value="rain_water">Rain mixing ratio (g/kg)</option><option value="snow">Snow mixing ratio (g/kg)</option><option value="graupel">Graupel mixing ratio (g/kg)</option><option value="tke">Turbulent kinetic energy (J/kg)</option></select></div><div id="crossSectionPlot" style="height:390px"></div><div class="placeholder" id="crossSectionStatus">Draw a transect on the map and select a vertical variable. RAP hybrid-level fields are sampled on native grid columns.</div></section>
 <section class="panel"><h2>Time evolution · Selected station</h2><div class="field" style="padding:12px 14px 0"><label for="trendParameter">Diagnostic</label><select id="trendParameter"><option value="sbcape_jkg">Surface-based CAPE</option><option value="mlcape_jkg">Mixed-layer CAPE</option><option value="mucape_jkg">Most-unstable CAPE</option><option value="mlcin_jkg">Mixed-layer CIN</option><option value="pwat_mm">Precipitable water</option><option value="bs06_kt">0–6 km bulk shear</option><option value="srh01_m2s2">0–1 km SRH</option><option value="lr03_k_km">0–3 km lapse rate</option></select></div><div id="trend" style="height:290px"></div><div class="placeholder" id="trendStatus">Select one of the eight verified stations to view RAP forecast-hour diagnostics. Custom points are not filled from nearby stations.</div></section>
-<section class="panel"><h2>Data provenance &amp; quality</h2><div class="pad"><div class="detail-line"><span>Model source</span><b id="provModel">RAP · not connected</b></div><div class="detail-line"><span>Model initialization</span><b>—</b></div><div class="detail-line"><span>Valid time</span><b>—</b></div><div class="detail-line"><span>Grid spacing</span><b id="gridSpacing">Awaiting decoded grid metadata</b></div><div class="detail-line"><span>Processing status</span><b style="color:var(--amber)">Awaiting ingestion pipeline</b></div><div class="detail-line"><span>Observation overlay</span><b>Not loaded</b></div><p style="font-size:10px;color:var(--muted);margin:12px 0 0">Every diagnostic carries source, initialization time, valid time, units and processing status. Model analysis and observed data remain visually distinct.</p></div></section><section class="panel" id="soundingPanel" style="display:none"><h2>RAP forecast sounding · selected location</h2><div class="sounding-grid"><div class="sounding-chart"><div class="sounding-chart-title">Skew-T · temperature and dewpoint</div><div id="profile" style="height:440px"></div></div><div class="sounding-chart"><div class="sounding-chart-title">Hodograph · wind profile</div><div id="hodograph" style="height:440px"></div></div></div><div class="placeholder" id="soundingStatus">Select a supported station and forecast hour to load a RAP vertical profile.</div></section>
+<section class="panel"><h2>Data provenance &amp; quality</h2><div class="pad"><div class="detail-line"><span>Model source</span><b id="provModel">RAP · not connected</b></div><div class="detail-line"><span>Model initialization</span><b>—</b></div><div class="detail-line"><span>Valid time</span><b>—</b></div><div class="detail-line"><span>Grid spacing</span><b id="gridSpacing">Awaiting decoded grid metadata</b></div><div class="detail-line"><span>Processing status</span><b style="color:var(--amber)">Awaiting ingestion pipeline</b></div><div class="detail-line"><span>Observation overlay</span><b>Not loaded</b></div><p style="font-size:10px;color:var(--muted);margin:12px 0 0">Every diagnostic carries source, initialization time, valid time, units and processing status. Model analysis and observed data remain visually distinct.</p></div></section><section class="panel" id="soundingPanel" style="display:none"><h2>RAP forecast sounding · selected location</h2><div class="workspace-help sounding-controls"><div class="sounding-selectors"><div class="field"><label for="soundingStation">Station / sounding location</label><select id="soundingStation"><option value="KBTV">KBTV · Burlington</option><option value="KPBG">KPBG · Plattsburgh</option><option value="KMSS">KMSS · Massena</option><option value="KSLK">KSLK · Saranac Lake</option><option value="KMPV">KMPV · Montpelier</option><option value="KRUT">KRUT · Rutland</option><option value="1V4">1V4 · St. Johnsbury</option><option value="KEFK">KEFK · Newport</option></select></div><div class="field"><label for="soundingHour">Forecast hour / valid time</label><select id="soundingHour"><option value="0">Loading RAP hours…</option></select></div></div><button class="btn primary" id="loadSounding" type="button">Load sounding</button><p class="workspace-hint">Choose a station and forecast hour, then load the RAP Skew-T and hodograph. You can also click a station marker on the map.</p></div><div class="sounding-grid"><div class="sounding-chart"><div class="sounding-chart-title">Skew-T · temperature and dewpoint</div><div id="profile" style="height:440px"></div></div><div class="sounding-chart"><div class="sounding-chart-title">Hodograph · wind profile</div><div id="hodograph" style="height:440px"></div></div></div><div class="placeholder" id="soundingStatus">Select a supported station and forecast hour to load a RAP vertical profile.</div></section>
 </div>
 <section class="panel" id="modelComparisonPanel" style="display:none"><h2>Model comparison · RAP vs HRRR</h2><div class="pad"><div id="comparisonMeta" class="detail-line"><span>Comparison</span><b>Open Model Compare to load matching valid times</b></div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr><th style="padding:9px;border-bottom:1px solid var(--line)">Parameter</th><th style="padding:9px;border-bottom:1px solid var(--line)">RAP</th><th style="padding:9px;border-bottom:1px solid var(--line)">HRRR</th><th style="padding:9px;border-bottom:1px solid var(--line)">HRRR − RAP</th></tr></thead><tbody id="comparisonRows"><tr><td colspan="4" style="padding:12px;color:var(--muted)">Select Model Compare to sample both verified grids at the selected point.</td></tr></tbody></table></div><div class="placeholder" id="comparisonStatus">Only exact shared valid times are compared. Each value is sampled from its own model grid at the selected coordinates; missing fields remain unavailable.</div></div></section>
 <footer class="foot">BTV Mesoscale Detective · Development build · Not for operational decision-making until data ingestion and verification are complete.</footer>
@@ -481,23 +517,21 @@ document.getElementById('countyBoundaries').addEventListener('change',refreshBou
 map.on('zoomend',refreshBoundaryVisibility);
 loadBoundaryLayers().catch(()=>{});
 const NWS_PUBLIC_ZONES_URL='https://mapservices.weather.noaa.gov/static/rest/services/nws_reference_maps/nws_reference_map/MapServer/8/query';
-const BTV_ZONE_BOUNDS={west:-76.2,east:-69.5,south:42.0,north:47.0};
+const NORTHEAST_ZONE_BOUNDS={west:-80.5,east:-66.0,south:38.5,north:49.0};
 let forecastZoneLayer=null,forecastZoneLoadPromise=null;
 async function loadForecastZones(){
  if(forecastZoneLayer)return forecastZoneLayer;if(forecastZoneLoadPromise)return forecastZoneLoadPromise;
  forecastZoneLoadPromise=(async()=>{
-  const bbox=[BTV_ZONE_BOUNDS.west,BTV_ZONE_BOUNDS.south,BTV_ZONE_BOUNDS.east,BTV_ZONE_BOUNDS.north].join(',');
-  const params=new URLSearchParams({where:"cwa='BTV'",outFields:'name,state_zone,cwa,state,zone',returnGeometry:'true',outSR:'4326',inSR:'4326',geometry:bbox,geometryType:'esriGeometryEnvelope',spatialRel:'esriSpatialRelIntersects',f:'geojson'});
+  const bbox=[NORTHEAST_ZONE_BOUNDS.west,NORTHEAST_ZONE_BOUNDS.south,NORTHEAST_ZONE_BOUNDS.east,NORTHEAST_ZONE_BOUNDS.north].join(',');
+  const params=new URLSearchParams({where:'1=1',outFields:'*',returnGeometry:'true',outSR:'4326',inSR:'4326',geometry:bbox,geometryType:'esriGeometryEnvelope',spatialRel:'esriSpatialRelIntersects',resultRecordCount:'2000',geometryPrecision:'4',f:'geojson'});
   const response=await fetch(NWS_PUBLIC_ZONES_URL+'?'+params.toString(),{cache:'force-cache'});
   if(!response.ok)throw new Error('NWS forecast-zone service HTTP '+response.status);
   const data=await response.json();if(data.error)throw new Error(data.error.message||'NWS forecast-zone query failed');
   if(!Array.isArray(data.features))throw new Error('NWS forecast-zone response contained no features');
-  forecastZoneLayer=L.geoJSON(data,{pane:'forecastZonePane',interactive:false,style:()=>({color:'#55d8f2',weight:1.25,opacity:.92,fill:false,dashArray:'4 3',lineJoin:'round'}),onEachFeature:(feature,layer)=>{
-   const props=feature.properties||{},code=props.state_zone||props.STATE_ZONE||((props.state||'')+(props.zone||''))||'',name=props.name||props.NAME||'NWS forecast zone';
-   layer.bindTooltip(String(code||name),{permanent:true,direction:'center',className:'forecast-zone-label',opacity:.96});
-   layer.bindPopup('<b>'+String(name).replace(/[&<>"]/g,'')+'</b><br>'+String(code).replace(/[&<>"]/g,''));
-  }});
-  window.__forecastZoneLayer=forecastZoneLayer;refreshForecastZoneVisibility();return forecastZoneLayer;
+  forecastZoneLayer=L.geoJSON(data,{pane:'forecastZonePane',interactive:false,style:()=>({color:'#55d8f2',weight:1.15,opacity:.88,fillColor:'#55d8f2',fillOpacity:.025,lineJoin:'round'})});
+  window.__forecastZoneLayer=forecastZoneLayer;refreshForecastZoneVisibility();
+  document.getElementById('mapChip').textContent='Northeast NWS forecast zones loaded · '+data.features.length+' polygons';
+  return forecastZoneLayer;
  })().catch(error=>{forecastZoneLoadPromise=null;console.error('NWS forecast zones failed to load',error);document.getElementById('mapChip').textContent='Forecast-zone overlay unavailable · '+error.message;throw error;});
  return forecastZoneLoadPromise;
 }
@@ -544,7 +578,7 @@ function cursorReadout(latlng){
 map.on('mousemove',event=>{lastCursorLatLng=event.latlng;if(cursorFramePending)return;cursorFramePending=true;requestAnimationFrame(()=>{cursorFramePending=false;cursorReadout(lastCursorLatLng);});});
 map.on('mouseout',()=>cursorReadout(null));
 function selectPoint(lat,lon,name){selected={name:name||"Custom point",lat,lon};document.getElementById('pointReadout').innerHTML='<span>Location</span><b>'+selected.name+'</b>';document.getElementById('coords').textContent=lat.toFixed(4)+'°N, '+Math.abs(lon).toFixed(4)+'°W';document.getElementById('selectionStatus').textContent='Selected: '+selected.name;document.querySelector('#investigation .detail-line:nth-child(3) b').textContent=selected.name;document.getElementById('mapChip').textContent='Selected '+selected.name+' · '+lat.toFixed(3)+', '+lon.toFixed(3);if(window.loadStationProfile)window.loadStationProfile(selected.name);if(window.activeTab==='evolution'&&window.updateRapTimeEvolution)window.updateRapTimeEvolution();if(window.activeTab==='compare'&&window.updateModelComparison)window.updateModelComparison();}
-map.on('click',e=>{if(drawing){transect.push([e.latlng.lat,e.latlng.lng]);if(transect.length===2){if(line)map.removeLayer(line);line=L.polyline(transect,{color:'#ffd166',weight:3,dashArray:'7 5'}).addTo(map);drawing=false;runRapCrossSection(transect).catch(e=>{console.error('RAP cross-section failed',e);document.getElementById('crossSectionStatus').textContent='Cross-section unavailable: '+e.message;});document.getElementById('drawTransect').textContent='Draw cross-section line';document.getElementById('mapChip').textContent='Transect selected · Cross-Sections tab';}return;}selectPoint(e.latlng.lat,e.latlng.lng,'Custom point');});
+map.on('click',e=>{if(drawing){transect.push([e.latlng.lat,e.latlng.lng]);if(transect.length===1){document.getElementById('crossSectionStatus').textContent='Start point selected · click a second location on the map to finish the transect.';document.getElementById('mapChip').textContent='Transect start selected · click the end point';}if(transect.length===2){if(line)map.removeLayer(line);line=L.polyline(transect,{color:'#ffd166',weight:3,dashArray:'7 5'}).addTo(map);drawing=false;document.getElementById('crossSectionStatus').textContent='Transect selected · sampling the RAP vertical grid…';runRapCrossSection(transect).catch(e=>{console.error('RAP cross-section failed',e);document.getElementById('crossSectionStatus').textContent='Cross-section unavailable: '+e.message;});document.getElementById('drawTransect').textContent='Draw cross-section line';document.getElementById('drawTransectPanel').textContent='Redraw transect';document.getElementById('mapChip').textContent='Transect selected · Cross-Sections tab';}return;}selectPoint(e.latlng.lat,e.latlng.lng,'Custom point');});
 stationLayer();document.getElementById('stations').addEventListener('change',stationLayer);
 document.getElementById('contours').addEventListener('change',()=>{
   updateModelContours();
@@ -711,7 +745,12 @@ document.getElementById('crossVariable').addEventListener('change',()=>{
   });
 });
 
-document.getElementById('drawTransect').onclick=()=>{document.querySelector('#tabs button[data-tab="cross"]').click();transect=[];drawing=true;document.getElementById('drawTransect').textContent='Click start, then end point';document.getElementById('mapChip').textContent='Choose two points on the map to define a transect';};
+function startTransectDrawing(){document.querySelector('#tabs button[data-tab="cross"]').click();transect=[];drawing=true;document.getElementById('drawTransect').textContent='Click start, then end point';document.getElementById('drawTransectPanel').textContent='Click start, then end';document.getElementById('crossSectionStatus').textContent='Drawing mode is on · click the first point on the map, then click the second point.';document.getElementById('mapChip').textContent='Choose two points on the map to define a transect';}
+document.getElementById('drawTransect').onclick=startTransectDrawing;
+document.getElementById('drawTransectPanel').onclick=startTransectDrawing;
+document.getElementById('startCrossSectionAction').onclick=startTransectDrawing;
+document.getElementById('clearTransectPanel').onclick=()=>document.getElementById('clearTransect').click();
+document.getElementById('openSoundingAction').onclick=()=>{document.querySelector('#tabs button[data-tab="soundings"]').click();document.getElementById('soundingStation').value=stations.some(x=>x[0]===selected.name)?selected.name:'KBTV';document.getElementById('loadSounding').click();};
 document.getElementById('clearTransect').onclick=()=>{transect=[];drawing=false;if(line){map.removeLayer(line);line=null;}document.getElementById('drawTransect').textContent='Draw cross-section line';document.getElementById('mapChip').textContent='BTV CWA · Click map to interrogate a point';};
 document.getElementById('locateBtv').onclick=()=>{
   map.setView([44.4719,-73.1533],7);selectPoint(44.4719,-73.1533,'KBTV');
@@ -743,7 +782,7 @@ document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{
   workspace.style.display=showLower?'grid':'none';crossPanel.style.display=window.activeTab==='cross'?'block':'none';trendPanel.style.display=window.activeTab==='evolution'?'block':'none';provenancePanel.style.display=(window.activeTab==='cross'||window.activeTab==='evolution')?'block':'none';if(soundingPanel)soundingPanel.style.display=window.activeTab==='soundings'?'block':'none';
   document.getElementById('modelComparisonPanel').style.display=window.activeTab==='compare'?'block':'none';
   if(window.activeTab==='cross'&&!line)document.getElementById('mapChip').textContent='Draw a transect using the button below';
-  if(window.activeTab==='soundings'){if(window.loadStationProfile)window.loadStationProfile(selected.name);requestAnimationFrame(()=>{if(window.Plotly){Plotly.Plots.resize(document.getElementById('profile'));Plotly.Plots.resize(document.getElementById('hodograph'));}});}
+  if(window.activeTab==='soundings'){syncSoundingControls();const station=document.getElementById('soundingStation')?.value||selected.name;if(window.loadStationProfile)window.loadStationProfile(station);requestAnimationFrame(()=>{if(window.Plotly){Plotly.Plots.resize(document.getElementById('profile'));Plotly.Plots.resize(document.getElementById('hodograph'));}});}
   if(window.activeTab==='evolution'&&window.updateRapTimeEvolution)window.updateRapTimeEvolution();
   if(window.activeTab==='compare'&&window.updateModelComparison)window.updateModelComparison();
   if(window.__testMap)requestAnimationFrame(()=>window.__testMap.invalidateSize());
@@ -1663,6 +1702,39 @@ async function loadStationProfile(station){
 }
 window.loadStationProfile=loadStationProfile;
 
+function syncSoundingControls(){
+  const stationSelect=document.getElementById('soundingStation');
+  const hourSelect=document.getElementById('soundingHour');
+  if(stationSelect&&stations.some(item=>item[0]===selected.name))stationSelect.value=selected.name;
+  if(!hourSelect)return;
+  const hours=availableRapHours.length?availableRapHours:[0];
+  hourSelect.innerHTML=hours.map(hour=>{
+    const entry=rapForecastManifest?.hours?.find(item=>Number(item.forecast_hour)===hour);
+    const valid=entry?.valid_time_utc?(' · '+entry.valid_time_utc.replace('T',' ').replace(':00:00Z','Z')):'';
+    return '<option value="'+hour+'">F'+String(hour).padStart(2,'0')+valid+'</option>';
+  }).join('');
+  hourSelect.value=String(hours.includes(activeRapHour)?activeRapHour:hours[0]);
+}
+document.getElementById('loadSounding').addEventListener('click',async()=>{
+  const station=stations.find(item=>item[0]===document.getElementById('soundingStation').value)||stations[0];
+  activeRapHour=nearestAvailableRapHour(Number(document.getElementById('soundingHour').value));
+  document.getElementById('hour').value=String(activeRapHour);
+  document.getElementById('hourOut').textContent='F'+String(activeRapHour).padStart(2,'0');
+  const entry=rapForecastManifest?.hours?.find(item=>Number(item.forecast_hour)===activeRapHour);
+  const valid=entry?.valid_time_utc||'valid time unavailable';
+  document.getElementById('soundingStatus').textContent='Loading RAP '+station[0]+' F'+String(activeRapHour).padStart(2,'0')+' · '+valid+'…';
+  document.getElementById('mapChip').textContent='Loading sounding · '+station[0]+' · F'+String(activeRapHour).padStart(2,'0');
+  map.setView([station[1],station[2]],7);
+  selectPoint(station[1],station[2],station[0]);
+  if(window.Plotly)requestAnimationFrame(()=>{Plotly.Plots.resize(document.getElementById('profile'));Plotly.Plots.resize(document.getElementById('hodograph'));});
+});
+document.getElementById('soundingHour').addEventListener('change',()=>{
+  activeRapHour=nearestAvailableRapHour(Number(document.getElementById('soundingHour').value));
+  document.getElementById('hour').value=String(activeRapHour);
+  document.getElementById('hourOut').textContent='F'+String(activeRapHour).padStart(2,'0');
+});
+syncSoundingControls();
+
 const RAP_TREND_METRICS={
   sbcape_jkg:{label:'Surface-based CAPE',units:'J/kg'},
   mlcape_jkg:{label:'Mixed-layer CAPE',units:'J/kg'},
@@ -1914,6 +1986,7 @@ document.getElementById('hour').addEventListener('change',async()=>{
   const requested=Number(document.getElementById('hour').value);
   if(model==='HRRR')activeHrrrHour=nearestAvailableHrrrHour(requested);
   else activeRapHour=nearestAvailableRapHour(requested);
+  if(model==='RAP'){const soundingHour=document.getElementById('soundingHour');if(soundingHour)soundingHour.value=String(activeRapHour);}
   const activeHour=model==='HRRR'?activeHrrrHour:activeRapHour;
   document.getElementById('hour').value=activeHour;
   document.getElementById('hourOut').textContent='F'+String(activeHour).padStart(2,'0');
