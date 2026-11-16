@@ -79,6 +79,24 @@ jobs:
           needs_update, target_cycle = archive_needs_update(
               model_manifest, existing, (0, 3, 6, 9, 12, 15), archive_root=archive_path.parent
           )
+          # Rebuild the already-published cycle once when its station profiles
+          # lack SHARPpy enrichment. This avoids waiting for a new model cycle
+          # before parcel, Bunkers-motion, shear and SRH diagnostics appear.
+          profile_path = Path("mesoscale/data/fields/rap_kbtv_profile.json")
+          profile = json.loads(profile_path.read_text(encoding="utf-8")) if profile_path.exists() else None
+          profile_matches_archive = bool(
+              profile and existing
+              and profile.get("model_cycle_utc") == existing.get("model_cycle_utc")
+          )
+          sharppy_refresh_required = bool(
+              existing and (
+                  not profile_matches_archive
+                  or (profile.get("sharppy") or {}).get("status") != "passed"
+              )
+          )
+          if sharppy_refresh_required:
+              needs_update = True
+              target_cycle = target_cycle or existing.get("model_cycle_utc")
           if os.environ.get("EVENT_NAME") == "workflow_dispatch":
               needs_update = True
           report = build_rap_freshness_report(
