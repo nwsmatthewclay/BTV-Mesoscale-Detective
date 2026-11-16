@@ -1009,6 +1009,30 @@ def test_soundings_cross_section_and_nws_forecast_zone_overlays():
             "() => window.rapKbtvProfile && window.__forecastZoneLayer",
             timeout=60000,
         )
+        contour_labels = page.evaluate(
+            """() => {
+                const layer = buildPublishedContourLayer({
+                    type: "FeatureCollection",
+                    features: [{
+                        type: "Feature",
+                        properties: {value: 500},
+                        geometry: {type: "LineString", coordinates: [[-73.8, 44.0], [-72.8, 44.8]]}
+                    }]
+                });
+                const children = layer.getLayers();
+                const labels = children[1].getLayers();
+                const tooltip = labels[0]?.getTooltip();
+                return {
+                    labelCount: labels.length,
+                    permanent: Boolean(tooltip?.options?.permanent),
+                    value: tooltip?.getContent()
+                };
+            }"""
+        )
+        assert contour_labels["labelCount"] == 1, contour_labels
+        assert contour_labels["permanent"], contour_labels
+        assert contour_labels["value"] == "500", contour_labels
+
         page.locator('#tabs button[data-tab="soundings"]').click()
         page.wait_for_function(
             """() => {
