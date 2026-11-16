@@ -6,4 +6,8 @@ dependencies:
   - numpy<2
   - sharppy
   - metpy
+  - xarray
+  - cfgrib
+  - eccodes
+  - requests
   - pytest
