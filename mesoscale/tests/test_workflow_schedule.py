@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 
-def test_twice_hourly_model_refresh_is_owned_by_discovery_and_triggers_one_rap_check():
+def test_quarter_hourly_model_refresh_is_owned_by_discovery_and_triggers_one_rap_check():
     rap = (ROOT / ".github/workflows/rap_ingestion_smoke.yml").read_text(encoding="utf-8")
     discovery = (ROOT / ".github/workflows/mesoscale_model_discovery.yml").read_text(encoding="utf-8")
 
@@ -17,7 +17,7 @@ def test_twice_hourly_model_refresh_is_owned_by_discovery_and_triggers_one_rap_c
     schedule = discovery[schedule_start:schedule_end]
     paths = discovery[paths_start:paths_end]
 
-    assert '    - cron: "17,47 * * * *"' in schedule
+    assert '    - cron: "7,22,37,52 * * * *"' in schedule
     assert "group: mesoscale-model-discovery" in discovery
     assert "cancel-in-progress: false" in discovery
     assert "mesoscale/data/model_manifest.json" not in paths
