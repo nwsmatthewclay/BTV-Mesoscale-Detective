@@ -1610,10 +1610,19 @@ async function loadStationProfile(station){
       if(notes[0])notes[0].textContent='Custom RAP grid profile · '+(sp?sp.distance_km.toFixed(1)+' km from nearest grid point':'nearest grid point')+' · '+p.valid_time_utc;
       if(notes[1])notes[1].textContent='Regional RAP diagnostics are sampled/interpolated from the selected grid point; MLCAPE and SRH are intentionally withheld until validated.';
     }else{
-      const items=[['SBCAPE',d.sbcape_jkg,'J/kg'],['MLCAPE',d.mlcape_jkg,'J/kg'],['MUCAPE',d.mucape_jkg,'J/kg'],['MLCIN',d.mlcin_jkg,'J/kg'],['PWAT',d.pwat_mm,'mm'],['0–6 km shear',d.bs06_kt,'kt']];
-      metrics.innerHTML=items.map(([n,v,u])=>'<div class="metric"><span>'+n+'</span><strong>'+(Number.isFinite(v)?Number(v).toFixed(1):'—')+'</strong><small>'+u+'</small></div>').join('');
+      const sharp=p.sharppy?.diagnostics||{},sharpReady=p.sharppy?.status==='passed';
+      const items=[
+        ['SBCAPE',sharpReady?sharp.parcels?.surface?.cape_jkg:d.sbcape_jkg,'J/kg',sharpReady?'SHARPpy':'MetPy'],
+        ['MLCAPE',sharpReady?sharp.parcels?.mixed_layer?.cape_jkg:d.mlcape_jkg,'J/kg',sharpReady?'SHARPpy':'MetPy'],
+        ['MUCAPE',sharpReady?sharp.parcels?.most_unstable?.cape_jkg:d.mucape_jkg,'J/kg',sharpReady?'SHARPpy':'MetPy'],
+        ['MLCIN',sharpReady?sharp.parcels?.mixed_layer?.cin_jkg:d.mlcin_jkg,'J/kg',sharpReady?'SHARPpy':'MetPy'],
+        ['PWAT',d.pwat_mm,'mm','MetPy'],
+        ['0–6 km shear',sharpReady?sharp.kinematics?.bulk_shear_0_6km_kt:d.bs06_kt,'kt',sharpReady?'SHARPpy':'MetPy'],
+        ['0–1 km SRH',sharpReady?sharp.kinematics?.srh_0_1km_m2s2:d.srh01_m2s2,'m²/s²',sharpReady?'SHARPpy':'MetPy']
+      ];
+      metrics.innerHTML=items.map(([n,v,u,source])=>'<div class="metric"><span>'+n+'</span><strong>'+(Number.isFinite(v)?Number(v).toFixed(1):'—')+'</strong><small>'+u+' · '+source+'</small></div>').join('');
     }
-    const soundingStatus=document.getElementById('soundingStatus');if(soundingStatus)soundingStatus.textContent='RAP '+p.model_cycle_utc+' · valid '+p.valid_time_utc+' · '+station+' · '+p.quality.levels+' verified vertical levels · model-derived, not observed.';
+    const soundingStatus=document.getElementById('soundingStatus');if(soundingStatus){const sharpState=p.sharppy?.status||'not available';const sharpVersion=p.sharppy?.diagnostics?.library_version?' v'+p.sharppy.diagnostics.library_version:'';soundingStatus.textContent='RAP '+p.model_cycle_utc+' · valid '+p.valid_time_utc+' · '+station+' · '+p.quality.levels+' verified vertical levels · SHARPpy '+sharpState+sharpVersion+' · model-derived, not observed.';}
     const z=p.profile,skew=35,ln=Math.log;
     const skewX=(tempC,pressure)=>tempC+skew*ln(1000/pressure);
     const traces=[];
