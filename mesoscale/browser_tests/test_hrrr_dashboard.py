@@ -972,3 +972,129 @@ def test_hrrr_surface_parameter_and_all_forecast_hours():
         browser.close()
 
     assert not page_errors, "Uncaught browser errors: " + "; ".join(page_errors)
+
+
+def test_soundings_cross_section_and_nws_forecast_zone_overlays():
+    page_errors = []
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        page = browser.new_page(viewport={"width": 1600, "height": 1100})
+        page.on("pageerror", lambda error: page_errors.append(str(error)))
+        page.route("**/tile.openstreetmap.org/**", lambda route: route.abort())
+        page.route(
+            "https://tigerweb.geo.census.gov/**",
+            lambda route: route.fulfill(
+                status=200,
+                content_type="application/geo+json",
+                body='{"type":"FeatureCollection","features":[]}',
+            ),
+        )
+        zone = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "properties": {"name": "Chittenden", "state_zone": "VT001", "ugc": "VTZ001"},
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[[-73.5, 44.2], [-73.0, 44.2], [-73.0, 44.6], [-73.5, 44.6], [-73.5, 44.2]]]
+                }
+            }]
+        }
+        page.route(
+            "https://mapservices.weather.noaa.gov/**",
+            lambda route: route.fulfill(status=200, content_type="application/geo+json", body=__import__("json").dumps(zone)),
+        )
+        page.goto("http://127.0.0.1:8765/", wait_until="domcontentloaded")
+        page.wait_for_function(
+            "() => window.rapKbtvProfile && window.__forecastZoneLayer",
+            timeout=60000,
+        )
+        contour_labels = page.evaluate(
+            """() => {
+                const layer = buildPublishedContourLayer({
+                    type: "FeatureCollection",
+                    features: [{
+                        type: "Feature",
+                        properties: {value: 500},
+                        geometry: {type: "LineString", coordinates: [[-73.8, 44.0], [-72.8, 44.8]]}
+                    }]
+                });
+                const children = layer.getLayers();
+                const labels = children[1].getLayers();
+                const tooltip = labels[0]?.getTooltip();
+                return {
+                    labelCount: labels.length,
+                    permanent: Boolean(tooltip?.options?.permanent),
+                    value: tooltip?.getContent()
+                };
+            }"""
+        )
+        assert contour_labels["labelCount"] == 1, contour_labels
+        assert contour_labels["permanent"], contour_labels
+        assert contour_labels["value"] == "500", contour_labels
+
+        page.locator('#tabs button[data-tab="soundings"]').click()
+        page.wait_for_function(
+            """() => {
+                const panel = document.getElementById('soundingPanel');
+                return panel && getComputedStyle(panel).display !== 'none'
+                    && panel.getBoundingClientRect().height > 200;
+            }""",
+            timeout=10000,
+        )
+        try:
+            page.wait_for_function(
+                """() => {
+                    const profile = document.getElementById('profile');
+                    const hodograph = document.getElementById('hodograph');
+                    return profile?.data?.length >= 2 && hodograph?.data?.length >= 1;
+                }""",
+                timeout=30000,
+            )
+        except Exception as exc:
+            state = page.evaluate(
+                """() => ({
+                    activeTab: document.body.dataset.activeTab,
+                    model: document.getElementById('model')?.value,
+                    status: document.getElementById('soundingStatus')?.textContent,
+                    feedStatus: document.getElementById('feedStatus')?.textContent,
+                    profileTraces: document.getElementById('profile')?.data?.length || 0,
+                    hodographTraces: document.getElementById('hodograph')?.data?.length || 0,
+                    profileHeight: document.getElementById('profile')?.getBoundingClientRect().height,
+                    hodographHeight: document.getElementById('hodograph')?.getBoundingClientRect().height,
+                    panelHeight: document.getElementById('soundingPanel')?.getBoundingClientRect().height
+                })"""
+            )
+            raise AssertionError(f"Sounding charts did not populate: {state}") from exc
+        sounding = page.evaluate(
+            """() => ({
+                status: document.getElementById('soundingStatus')?.textContent,
+                profileTraces: document.getElementById('profile')?.data?.length || 0,
+                hodographTraces: document.getElementById('hodograph')?.data?.length || 0,
+                zoneLayerVisible: Boolean(window.__forecastZoneLayer && window.__testMap.hasLayer(window.__forecastZoneLayer)),
+                zoneLabels: document.querySelectorAll('.forecast-zone-label').length
+            })"""
+        )
+        assert sounding["profileTraces"] >= 2, sounding
+        assert sounding["hodographTraces"] >= 1, sounding
+        assert sounding["zoneLayerVisible"], sounding
+        assert sounding["zoneLabels"] >= 1, sounding
+
+        page.locator('#tabs button[data-tab="cross"]').click()
+        page.locator("#drawTransect").click()
+        page.evaluate(
+            """() => {
+                const map = window.__testMap;
+                map.fire('click', {latlng: L.latLng(44.35, -74.2)});
+                map.fire('click', {latlng: L.latLng(44.55, -72.8)});
+            }"""
+        )
+        page.wait_for_function(
+            """() => {
+                const plot = document.getElementById('crossSectionPlot');
+                return plot?.data?.length && plot.data[0].z?.some(row => row?.some(Number.isFinite));
+            }""",
+            timeout=60000,
+        )
+        assert not page_errors, page_errors
+        browser.close()

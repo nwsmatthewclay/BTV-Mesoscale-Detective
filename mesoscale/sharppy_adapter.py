@@ -75,8 +75,8 @@ def calculate_sharppy_diagnostics(profile: dict) -> dict:
         from sharppy.sharptab import interp, params, profile as sharp_profile, winds
     except ImportError as exc:
         raise ImportError(
-            "SHARPpy is optional; install mesoscale/requirements-sharppy.txt "
-            "to enable SHARPpy sounding diagnostics"
+            "SHARPpy is optional; create the mesoscale/environment-sharppy.yml "
+            "conda environment to enable SHARPpy sounding diagnostics"
         ) from exc
 
     # SHARPpy's BasicProfile API requires Celsius and knots.

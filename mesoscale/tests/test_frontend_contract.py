@@ -246,3 +246,12 @@ def test_pages_publish_only_after_hrrr_browser_and_tile_validation():
     assert "needs.render-and-publish.outputs.changed == 'true'" in tiles
     assert "actions/deploy-pages@v5" in tiles
 
+
+
+def test_rap_ingestion_installs_sharppy_for_published_profiles():
+    workflow = (ROOT / ".github" / "workflows" / "rap_ingestion_smoke.yml").read_text(encoding="utf-8")
+    environment = (ROOT / "mesoscale" / "environment-sharppy.yml").read_text(encoding="utf-8")
+    assert "environment-file: mesoscale/environment-sharppy.yml" in workflow
+    assert "shell: bash -el {0}" in workflow
+    for dependency in ("sharppy", "numpy<2", "metpy", "xarray", "cfgrib", "eccodes", "requests"):
+        assert any(line.strip() == "- " + dependency for line in environment.splitlines()), dependency
