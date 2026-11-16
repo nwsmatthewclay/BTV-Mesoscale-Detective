@@ -487,13 +487,13 @@ async function loadForecastZones(){
  if(forecastZoneLayer)return forecastZoneLayer;if(forecastZoneLoadPromise)return forecastZoneLoadPromise;
  forecastZoneLoadPromise=(async()=>{
   const bbox=[BTV_ZONE_BOUNDS.west,BTV_ZONE_BOUNDS.south,BTV_ZONE_BOUNDS.east,BTV_ZONE_BOUNDS.north].join(',');
-  const params=new URLSearchParams({where:'1=1',outFields:'name,state_zone,ugc',returnGeometry:'true',outSR:'4326',inSR:'4326',geometry:bbox,geometryType:'esriGeometryEnvelope',spatialRel:'esriSpatialRelIntersects',f:'geojson'});
+  const params=new URLSearchParams({where:"cwa='BTV'",outFields:'name,state_zone,cwa,state,zone',returnGeometry:'true',outSR:'4326',inSR:'4326',geometry:bbox,geometryType:'esriGeometryEnvelope',spatialRel:'esriSpatialRelIntersects',f:'geojson'});
   const response=await fetch(NWS_PUBLIC_ZONES_URL+'?'+params.toString(),{cache:'force-cache'});
   if(!response.ok)throw new Error('NWS forecast-zone service HTTP '+response.status);
   const data=await response.json();if(data.error)throw new Error(data.error.message||'NWS forecast-zone query failed');
   if(!Array.isArray(data.features))throw new Error('NWS forecast-zone response contained no features');
   forecastZoneLayer=L.geoJSON(data,{pane:'forecastZonePane',interactive:false,style:()=>({color:'#55d8f2',weight:1.25,opacity:.92,fill:false,dashArray:'4 3',lineJoin:'round'}),onEachFeature:(feature,layer)=>{
-   const props=feature.properties||{},code=props.state_zone||props.STATE_ZONE||props.ugc||props.UGC||'',name=props.name||props.NAME||'NWS forecast zone';
+   const props=feature.properties||{},code=props.state_zone||props.STATE_ZONE||((props.state||'')+(props.zone||''))||'',name=props.name||props.NAME||'NWS forecast zone';
    layer.bindTooltip(String(code||name),{permanent:true,direction:'center',className:'forecast-zone-label',opacity:.96});
    layer.bindPopup('<b>'+String(name).replace(/[&<>"]/g,'')+'</b><br>'+String(code).replace(/[&<>"]/g,''));
   }});
