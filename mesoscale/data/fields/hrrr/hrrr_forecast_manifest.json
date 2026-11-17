@@ -2,8 +2,8 @@
   "schema_version": 1,
   "model": "HRRR",
   "product": "surface",
-  "model_cycle_utc": "20261116T23:00:00Z",
-  "created_utc": "2026-11-17T01:43:00.857227+00:00",
+  "model_cycle_utc": "20261117T07:00:00Z",
+  "created_utc": "2026-11-17T09:49:22.343858+00:00",
   "domain": {
     "west": -90.0,
     "east": -60.0,
@@ -16,390 +16,12 @@
   },
   "hours": [
     {
-      "forecast_hour": 0,
-      "valid_time_utc": "2026-11-16T23:00:00Z",
-      "source_file": "hrrr.t23z.wrfsfcf00.grib2",
-      "download_bytes": 19496400,
-      "grid_file": "hrrr_f00_btv.json.gz",
-      "decoded_bytes": 1764603,
-      "grid_count": 7,
-      "grid_sampling": {
-        "grid_0": {
-          "max_grid_dim": 160,
-          "stride": 5,
-          "source_spacing_m": {
-            "x": 3000.0,
-            "y": 3000.0
-          },
-          "effective_spacing_m": {
-            "x": 15000.0,
-            "y": 15000.0
-          }
-        },
-        "grid_1": {
-          "max_grid_dim": 160,
-          "stride": 5,
-          "source_spacing_m": {
-            "x": 3000.0,
-            "y": 3000.0
-          },
-          "effective_spacing_m": {
-            "x": 15000.0,
-            "y": 15000.0
-          }
-        },
-        "grid_2": {
-          "max_grid_dim": 160,
-          "stride": 5,
-          "source_spacing_m": {
-            "x": 3000.0,
-            "y": 3000.0
-          },
-          "effective_spacing_m": {
-            "x": 15000.0,
-            "y": 15000.0
-          }
-        },
-        "grid_3": {
-          "max_grid_dim": 160,
-          "stride": 5,
-          "source_spacing_m": {
-            "x": 3000.0,
-            "y": 3000.0
-          },
-          "effective_spacing_m": {
-            "x": 15000.0,
-            "y": 15000.0
-          }
-        },
-        "grid_4": {
-          "max_grid_dim": 160,
-          "stride": 5,
-          "source_spacing_m": {
-            "x": 3000.0,
-            "y": 3000.0
-          },
-          "effective_spacing_m": {
-            "x": 15000.0,
-            "y": 15000.0
-          }
-        },
-        "grid_5": {
-          "max_grid_dim": 160,
-          "stride": 5,
-          "source_spacing_m": {
-            "x": 3000.0,
-            "y": 3000.0
-          },
-          "effective_spacing_m": {
-            "x": 15000.0,
-            "y": 15000.0
-          }
-        },
-        "grid_6": {
-          "max_grid_dim": 160,
-          "stride": 5,
-          "source_spacing_m": {
-            "x": 3000.0,
-            "y": 3000.0
-          },
-          "effective_spacing_m": {
-            "x": 15000.0,
-            "y": 15000.0
-          }
-        }
-      },
-      "field_count": 20,
-      "available_short_names": [
-        "10u",
-        "10v",
-        "2d",
-        "2t",
-        "blh",
-        "cape",
-        "cin",
-        "dpt",
-        "gust",
-        "prate",
-        "refc",
-        "t",
-        "tp",
-        "u",
-        "v",
-        "vis"
-      ],
-      "required_field_groups": {
-        "2-m temperature": [
-          "2t"
-        ],
-        "10-m u wind": [
-          "10u"
-        ],
-        "10-m v wind": [
-          "10v"
-        ]
-      },
-      "warnings": []
-    },
-    {
-      "forecast_hour": 3,
-      "valid_time_utc": "2026-11-17T02:00:00Z",
-      "source_file": "hrrr.t23z.wrfsfcf03.grib2",
-      "download_bytes": 21700471,
-      "grid_file": "hrrr_f03_btv.json.gz",
-      "decoded_bytes": 1774755,
-      "grid_count": 7,
-      "grid_sampling": {
-        "grid_0": {
-          "max_grid_dim": 160,
-          "stride": 5,
-          "source_spacing_m": {
-            "x": 3000.0,
-            "y": 3000.0
-          },
-          "effective_spacing_m": {
-            "x": 15000.0,
-            "y": 15000.0
-          }
-        },
-        "grid_1": {
-          "max_grid_dim": 160,
-          "stride": 5,
-          "source_spacing_m": {
-            "x": 3000.0,
-            "y": 3000.0
-          },
-          "effective_spacing_m": {
-            "x": 15000.0,
-            "y": 15000.0
-          }
-        },
-        "grid_2": {
-          "max_grid_dim": 160,
-          "stride": 5,
-          "source_spacing_m": {
-            "x": 3000.0,
-            "y": 3000.0
-          },
-          "effective_spacing_m": {
-            "x": 15000.0,
-            "y": 15000.0
-          }
-        },
-        "grid_3": {
-          "max_grid_dim": 160,
-          "stride": 5,
-          "source_spacing_m": {
-            "x": 3000.0,
-            "y": 3000.0
-          },
-          "effective_spacing_m": {
-            "x": 15000.0,
-            "y": 15000.0
-          }
-        },
-        "grid_4": {
-          "max_grid_dim": 160,
-          "stride": 5,
-          "source_spacing_m": {
-            "x": 3000.0,
-            "y": 3000.0
-          },
-          "effective_spacing_m": {
-            "x": 15000.0,
-            "y": 15000.0
-          }
-        },
-        "grid_5": {
-          "max_grid_dim": 160,
-          "stride": 5,
-          "source_spacing_m": {
-            "x": 3000.0,
-            "y": 3000.0
-          },
-          "effective_spacing_m": {
-            "x": 15000.0,
-            "y": 15000.0
-          }
-        },
-        "grid_6": {
-          "max_grid_dim": 160,
-          "stride": 5,
-          "source_spacing_m": {
-            "x": 3000.0,
-            "y": 3000.0
-          },
-          "effective_spacing_m": {
-            "x": 15000.0,
-            "y": 15000.0
-          }
-        }
-      },
-      "field_count": 20,
-      "available_short_names": [
-        "10u",
-        "10v",
-        "2d",
-        "2t",
-        "blh",
-        "cape",
-        "cin",
-        "dpt",
-        "gust",
-        "prate",
-        "refc",
-        "t",
-        "tp",
-        "u",
-        "v",
-        "vis"
-      ],
-      "required_field_groups": {
-        "2-m temperature": [
-          "2t"
-        ],
-        "10-m u wind": [
-          "10u"
-        ],
-        "10-m v wind": [
-          "10v"
-        ]
-      },
-      "warnings": []
-    },
-    {
-      "forecast_hour": 6,
-      "valid_time_utc": "2026-11-17T05:00:00Z",
-      "source_file": "hrrr.t23z.wrfsfcf06.grib2",
-      "download_bytes": 21631600,
-      "grid_file": "hrrr_f06_btv.json.gz",
-      "decoded_bytes": 1777811,
-      "grid_count": 7,
-      "grid_sampling": {
-        "grid_0": {
-          "max_grid_dim": 160,
-          "stride": 5,
-          "source_spacing_m": {
-            "x": 3000.0,
-            "y": 3000.0
-          },
-          "effective_spacing_m": {
-            "x": 15000.0,
-            "y": 15000.0
-          }
-        },
-        "grid_1": {
-          "max_grid_dim": 160,
-          "stride": 5,
-          "source_spacing_m": {
-            "x": 3000.0,
-            "y": 3000.0
-          },
-          "effective_spacing_m": {
-            "x": 15000.0,
-            "y": 15000.0
-          }
-        },
-        "grid_2": {
-          "max_grid_dim": 160,
-          "stride": 5,
-          "source_spacing_m": {
-            "x": 3000.0,
-            "y": 3000.0
-          },
-          "effective_spacing_m": {
-            "x": 15000.0,
-            "y": 15000.0
-          }
-        },
-        "grid_3": {
-          "max_grid_dim": 160,
-          "stride": 5,
-          "source_spacing_m": {
-            "x": 3000.0,
-            "y": 3000.0
-          },
-          "effective_spacing_m": {
-            "x": 15000.0,
-            "y": 15000.0
-          }
-        },
-        "grid_4": {
-          "max_grid_dim": 160,
-          "stride": 5,
-          "source_spacing_m": {
-            "x": 3000.0,
-            "y": 3000.0
-          },
-          "effective_spacing_m": {
-            "x": 15000.0,
-            "y": 15000.0
-          }
-        },
-        "grid_5": {
-          "max_grid_dim": 160,
-          "stride": 5,
-          "source_spacing_m": {
-            "x": 3000.0,
-            "y": 3000.0
-          },
-          "effective_spacing_m": {
-            "x": 15000.0,
-            "y": 15000.0
-          }
-        },
-        "grid_6": {
-          "max_grid_dim": 160,
-          "stride": 5,
-          "source_spacing_m": {
-            "x": 3000.0,
-            "y": 3000.0
-          },
-          "effective_spacing_m": {
-            "x": 15000.0,
-            "y": 15000.0
-          }
-        }
-      },
-      "field_count": 20,
-      "available_short_names": [
-        "10u",
-        "10v",
-        "2d",
-        "2t",
-        "blh",
-        "cape",
-        "cin",
-        "dpt",
-        "gust",
-        "prate",
-        "refc",
-        "t",
-        "tp",
-        "u",
-        "v",
-        "vis"
-      ],
-      "required_field_groups": {
-        "2-m temperature": [
-          "2t"
-        ],
-        "10-m u wind": [
-          "10u"
-        ],
-        "10-m v wind": [
-          "10v"
-        ]
-      },
-      "warnings": []
-    },
-    {
-      "forecast_hour": 9,
+      "forecast_hour": 1,
       "valid_time_utc": "2026-11-17T08:00:00Z",
-      "source_file": "hrrr.t23z.wrfsfcf09.grib2",
-      "download_bytes": 21631599,
-      "grid_file": "hrrr_f09_btv.json.gz",
-      "decoded_bytes": 1778959,
+      "source_file": "hrrr.t07z.wrfsfcf01.grib2",
+      "download_bytes": 20460585,
+      "grid_file": "hrrr_f01_btv.json.gz",
+      "decoded_bytes": 1767026,
       "grid_count": 7,
       "grid_sampling": {
         "grid_0": {
@@ -520,12 +142,12 @@
       "warnings": []
     },
     {
-      "forecast_hour": 12,
+      "forecast_hour": 4,
       "valid_time_utc": "2026-11-17T11:00:00Z",
-      "source_file": "hrrr.t23z.wrfsfcf12.grib2",
-      "download_bytes": 21631600,
-      "grid_file": "hrrr_f12_btv.json.gz",
-      "decoded_bytes": 1775541,
+      "source_file": "hrrr.t07z.wrfsfcf04.grib2",
+      "download_bytes": 21493857,
+      "grid_file": "hrrr_f04_btv.json.gz",
+      "decoded_bytes": 1771025,
       "grid_count": 7,
       "grid_sampling": {
         "grid_0": {
@@ -646,12 +268,390 @@
       "warnings": []
     },
     {
-      "forecast_hour": 15,
+      "forecast_hour": 7,
       "valid_time_utc": "2026-11-17T14:00:00Z",
-      "source_file": "hrrr.t23z.wrfsfcf15.grib2",
-      "download_bytes": 21631598,
-      "grid_file": "hrrr_f15_btv.json.gz",
-      "decoded_bytes": 1767130,
+      "source_file": "hrrr.t07z.wrfsfcf07.grib2",
+      "download_bytes": 21700467,
+      "grid_file": "hrrr_f07_btv.json.gz",
+      "decoded_bytes": 1772228,
+      "grid_count": 7,
+      "grid_sampling": {
+        "grid_0": {
+          "max_grid_dim": 160,
+          "stride": 5,
+          "source_spacing_m": {
+            "x": 3000.0,
+            "y": 3000.0
+          },
+          "effective_spacing_m": {
+            "x": 15000.0,
+            "y": 15000.0
+          }
+        },
+        "grid_1": {
+          "max_grid_dim": 160,
+          "stride": 5,
+          "source_spacing_m": {
+            "x": 3000.0,
+            "y": 3000.0
+          },
+          "effective_spacing_m": {
+            "x": 15000.0,
+            "y": 15000.0
+          }
+        },
+        "grid_2": {
+          "max_grid_dim": 160,
+          "stride": 5,
+          "source_spacing_m": {
+            "x": 3000.0,
+            "y": 3000.0
+          },
+          "effective_spacing_m": {
+            "x": 15000.0,
+            "y": 15000.0
+          }
+        },
+        "grid_3": {
+          "max_grid_dim": 160,
+          "stride": 5,
+          "source_spacing_m": {
+            "x": 3000.0,
+            "y": 3000.0
+          },
+          "effective_spacing_m": {
+            "x": 15000.0,
+            "y": 15000.0
+          }
+        },
+        "grid_4": {
+          "max_grid_dim": 160,
+          "stride": 5,
+          "source_spacing_m": {
+            "x": 3000.0,
+            "y": 3000.0
+          },
+          "effective_spacing_m": {
+            "x": 15000.0,
+            "y": 15000.0
+          }
+        },
+        "grid_5": {
+          "max_grid_dim": 160,
+          "stride": 5,
+          "source_spacing_m": {
+            "x": 3000.0,
+            "y": 3000.0
+          },
+          "effective_spacing_m": {
+            "x": 15000.0,
+            "y": 15000.0
+          }
+        },
+        "grid_6": {
+          "max_grid_dim": 160,
+          "stride": 5,
+          "source_spacing_m": {
+            "x": 3000.0,
+            "y": 3000.0
+          },
+          "effective_spacing_m": {
+            "x": 15000.0,
+            "y": 15000.0
+          }
+        }
+      },
+      "field_count": 20,
+      "available_short_names": [
+        "10u",
+        "10v",
+        "2d",
+        "2t",
+        "blh",
+        "cape",
+        "cin",
+        "dpt",
+        "gust",
+        "prate",
+        "refc",
+        "t",
+        "tp",
+        "u",
+        "v",
+        "vis"
+      ],
+      "required_field_groups": {
+        "2-m temperature": [
+          "2t"
+        ],
+        "10-m u wind": [
+          "10u"
+        ],
+        "10-m v wind": [
+          "10v"
+        ]
+      },
+      "warnings": []
+    },
+    {
+      "forecast_hour": 10,
+      "valid_time_utc": "2026-11-17T17:00:00Z",
+      "source_file": "hrrr.t07z.wrfsfcf10.grib2",
+      "download_bytes": 21562728,
+      "grid_file": "hrrr_f10_btv.json.gz",
+      "decoded_bytes": 1759796,
+      "grid_count": 7,
+      "grid_sampling": {
+        "grid_0": {
+          "max_grid_dim": 160,
+          "stride": 5,
+          "source_spacing_m": {
+            "x": 3000.0,
+            "y": 3000.0
+          },
+          "effective_spacing_m": {
+            "x": 15000.0,
+            "y": 15000.0
+          }
+        },
+        "grid_1": {
+          "max_grid_dim": 160,
+          "stride": 5,
+          "source_spacing_m": {
+            "x": 3000.0,
+            "y": 3000.0
+          },
+          "effective_spacing_m": {
+            "x": 15000.0,
+            "y": 15000.0
+          }
+        },
+        "grid_2": {
+          "max_grid_dim": 160,
+          "stride": 5,
+          "source_spacing_m": {
+            "x": 3000.0,
+            "y": 3000.0
+          },
+          "effective_spacing_m": {
+            "x": 15000.0,
+            "y": 15000.0
+          }
+        },
+        "grid_3": {
+          "max_grid_dim": 160,
+          "stride": 5,
+          "source_spacing_m": {
+            "x": 3000.0,
+            "y": 3000.0
+          },
+          "effective_spacing_m": {
+            "x": 15000.0,
+            "y": 15000.0
+          }
+        },
+        "grid_4": {
+          "max_grid_dim": 160,
+          "stride": 5,
+          "source_spacing_m": {
+            "x": 3000.0,
+            "y": 3000.0
+          },
+          "effective_spacing_m": {
+            "x": 15000.0,
+            "y": 15000.0
+          }
+        },
+        "grid_5": {
+          "max_grid_dim": 160,
+          "stride": 5,
+          "source_spacing_m": {
+            "x": 3000.0,
+            "y": 3000.0
+          },
+          "effective_spacing_m": {
+            "x": 15000.0,
+            "y": 15000.0
+          }
+        },
+        "grid_6": {
+          "max_grid_dim": 160,
+          "stride": 5,
+          "source_spacing_m": {
+            "x": 3000.0,
+            "y": 3000.0
+          },
+          "effective_spacing_m": {
+            "x": 15000.0,
+            "y": 15000.0
+          }
+        }
+      },
+      "field_count": 20,
+      "available_short_names": [
+        "10u",
+        "10v",
+        "2d",
+        "2t",
+        "blh",
+        "cape",
+        "cin",
+        "dpt",
+        "gust",
+        "prate",
+        "refc",
+        "t",
+        "tp",
+        "u",
+        "v",
+        "vis"
+      ],
+      "required_field_groups": {
+        "2-m temperature": [
+          "2t"
+        ],
+        "10-m u wind": [
+          "10u"
+        ],
+        "10-m v wind": [
+          "10v"
+        ]
+      },
+      "warnings": []
+    },
+    {
+      "forecast_hour": 13,
+      "valid_time_utc": "2026-11-17T20:00:00Z",
+      "source_file": "hrrr.t07z.wrfsfcf13.grib2",
+      "download_bytes": 21562727,
+      "grid_file": "hrrr_f13_btv.json.gz",
+      "decoded_bytes": 1759263,
+      "grid_count": 7,
+      "grid_sampling": {
+        "grid_0": {
+          "max_grid_dim": 160,
+          "stride": 5,
+          "source_spacing_m": {
+            "x": 3000.0,
+            "y": 3000.0
+          },
+          "effective_spacing_m": {
+            "x": 15000.0,
+            "y": 15000.0
+          }
+        },
+        "grid_1": {
+          "max_grid_dim": 160,
+          "stride": 5,
+          "source_spacing_m": {
+            "x": 3000.0,
+            "y": 3000.0
+          },
+          "effective_spacing_m": {
+            "x": 15000.0,
+            "y": 15000.0
+          }
+        },
+        "grid_2": {
+          "max_grid_dim": 160,
+          "stride": 5,
+          "source_spacing_m": {
+            "x": 3000.0,
+            "y": 3000.0
+          },
+          "effective_spacing_m": {
+            "x": 15000.0,
+            "y": 15000.0
+          }
+        },
+        "grid_3": {
+          "max_grid_dim": 160,
+          "stride": 5,
+          "source_spacing_m": {
+            "x": 3000.0,
+            "y": 3000.0
+          },
+          "effective_spacing_m": {
+            "x": 15000.0,
+            "y": 15000.0
+          }
+        },
+        "grid_4": {
+          "max_grid_dim": 160,
+          "stride": 5,
+          "source_spacing_m": {
+            "x": 3000.0,
+            "y": 3000.0
+          },
+          "effective_spacing_m": {
+            "x": 15000.0,
+            "y": 15000.0
+          }
+        },
+        "grid_5": {
+          "max_grid_dim": 160,
+          "stride": 5,
+          "source_spacing_m": {
+            "x": 3000.0,
+            "y": 3000.0
+          },
+          "effective_spacing_m": {
+            "x": 15000.0,
+            "y": 15000.0
+          }
+        },
+        "grid_6": {
+          "max_grid_dim": 160,
+          "stride": 5,
+          "source_spacing_m": {
+            "x": 3000.0,
+            "y": 3000.0
+          },
+          "effective_spacing_m": {
+            "x": 15000.0,
+            "y": 15000.0
+          }
+        }
+      },
+      "field_count": 20,
+      "available_short_names": [
+        "10u",
+        "10v",
+        "2d",
+        "2t",
+        "blh",
+        "cape",
+        "cin",
+        "dpt",
+        "gust",
+        "prate",
+        "refc",
+        "t",
+        "tp",
+        "u",
+        "v",
+        "vis"
+      ],
+      "required_field_groups": {
+        "2-m temperature": [
+          "2t"
+        ],
+        "10-m u wind": [
+          "10u"
+        ],
+        "10-m v wind": [
+          "10v"
+        ]
+      },
+      "warnings": []
+    },
+    {
+      "forecast_hour": 16,
+      "valid_time_utc": "2026-11-17T23:00:00Z",
+      "source_file": "hrrr.t07z.wrfsfcf16.grib2",
+      "download_bytes": 21769338,
+      "grid_file": "hrrr_f16_btv.json.gz",
+      "decoded_bytes": 1767132,
       "grid_count": 7,
       "grid_sampling": {
         "grid_0": {
@@ -779,15 +779,15 @@
   "publishing": true,
   "valid_time_alignment": {
     "reference_model": "RAP",
-    "reference_cycle_utc": "20261116T23:00:00Z",
+    "reference_cycle_utc": "20261117T08:00:00Z",
     "valid_times_utc": [
-      "2026-11-16T23:00:00Z",
-      "2026-11-17T02:00:00Z",
-      "2026-11-17T05:00:00Z",
       "2026-11-17T08:00:00Z",
       "2026-11-17T11:00:00Z",
-      "2026-11-17T14:00:00Z"
+      "2026-11-17T14:00:00Z",
+      "2026-11-17T17:00:00Z",
+      "2026-11-17T20:00:00Z",
+      "2026-11-17T23:00:00Z"
     ]
   },
-  "published_utc": "2026-11-17T01:47:23.512275+00:00"
+  "published_utc": "2026-11-17T09:53:35.243921+00:00"
 }
