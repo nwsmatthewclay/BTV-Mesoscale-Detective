@@ -65,6 +65,26 @@ Open the dedicated [Forecast Sounding Workbench](../sounding.html) from GitHub P
 - Temperature/dewpoint adjustment depth and mixing depth are separate controls, both specified in metres AGL. Mixing potential temperature, moisture and momentum can transport stronger winds downward into the lower levels. This is an idealized sensitivity experiment, not a replacement for the model's PBL scheme.
 - Source profile arrays are copied before adjustment and never overwritten. A modified result is labeled experimental and keeps the original model provenance.
 
+### Cloudflare Container deployment
+
+A production container scaffold is included at the repository root:
+
+- `Dockerfile.sharppy` builds the Python 3.10 + SHARPpy API image.
+- `workers/sounding-api/src/index.js` exposes the API through a Cloudflare Worker and enables outbound internet access for PSU BUFKIT downloads.
+- `wrangler.sharppy.toml` defines the Durable Object-backed Container.
+- `package.json` provides `npm run deploy:sharppy`.
+
+From the repository root, with Docker and Wrangler authenticated to the intended Cloudflare account:
+
+```bash
+npm install
+npm run deploy:sharppy
+```
+
+Cloudflare Containers are available on the Workers Paid plan. The first deployment builds and provisions the container; confirm the Worker and container are healthy before pointing the public Pages UI at its `workers.dev` URL. The UI's API endpoint field is editable; set it to the deployed Worker URL once Cloudflare returns the exact hostname. Do not publish a guessed hostname.
+
+For Workers Builds, connect the repository with the root directory set to the repository root and use `npm run deploy:sharppy` as the production deploy command. The container requires outbound internet access to fetch BUFKIT files from PSU. Local BUFKIT cache storage is ephemeral and short-lived; a persistent R2 cache can be added after the first end-to-end validation.
+
 Start the local SHARPpy calculation API:
 
 ```bash
