@@ -61,7 +61,7 @@ main{max-width:1800px;margin:auto;padding:16px 20px 30px}.intro{display:flex;ali
 <script>
 let stations=[], locationRegistry=[], manifest=null, sourceProfile=null, sourceRecord=null, modifiedResult=null, apiReady=false, bufkitProfiles=[], bufkitKey='', bufkitFeed=null;
 const $=id=>document.getElementById(id);
-const fmt=(v,d=0)=>Number.isFinite(Number(v))?Number(v).toFixed(d):'—';
+const fmt=(v,d=0)=>v===null||v===undefined||v===''?'—':(Number.isFinite(Number(v))?Number(v).toFixed(d):'—');
 function formatForecastHour(value){const n=Number(value);return 'F'+(Number.isInteger(n)?String(n).padStart(2,'0'):n.toFixed(1));}
 function populateLocations(){
  const cwa=$('cwa').value, region=locationRegistry.find(x=>x.cwa===cwa), select=$('location');
@@ -302,7 +302,7 @@ async function applyAdjustments(){
 function reset(){$('tempOffset').value=0;$('dewOffset').value=0;$('offsetDepth').value=1000;$('mixDepth').value=0;updateOutputs();modifiedResult=null;render();$('apiStatus').textContent='Adjustments reset. Original model profile and original SHARPpy diagnostics restored.';$('apiStatus').style.color='var(--muted)';}
 $('tempOffset').addEventListener('input',updateOutputs);$('dewOffset').addEventListener('input',updateOutputs);$('offsetDepth').addEventListener('input',updateOutputs);$('mixDepth').addEventListener('input',updateOutputs);
 $('apply').addEventListener('click',applyAdjustments);$('reset').addEventListener('click',reset);$('checkApi').addEventListener('click',checkApi);
-$('usePbl').addEventListener('click',()=>{const pbl=originalDiagnostics().thermodynamics?.boundary_layer_height_agl_m;if(Number.isFinite(Number(pbl))){$('mixDepth').value=String(Math.min(3000,Math.max(0,Math.round(Number(pbl)/100)*100)));updateOutputs();}else{$('apiStatus').textContent='SHARPpy PBL height is not available for this profile yet.';$('apiStatus').style.color='var(--amber)';}});
+$('usePbl').addEventListener('click',()=>{const pbl=originalDiagnostics().thermodynamics?.boundary_layer_height_agl_m;if(pbl!==null&&pbl!==undefined&&Number.isFinite(Number(pbl))){$('mixDepth').value=String(Math.min(3000,Math.max(0,Math.round(Number(pbl)/100)*100)));updateOutputs();}else{$('apiStatus').textContent='SHARPpy PBL height is not available for this profile yet.';$('apiStatus').style.color='var(--amber)';}});
 $('cwa').addEventListener('change',()=>{populateLocations();loadProfile().catch(e=>$('dataStatus').textContent='Profile unavailable: '+e.message);});
 $('model').addEventListener('change',()=>loadProfile().catch(e=>{$('dataStatus').textContent='Profile unavailable: '+e.message;$('dataStatus').style.color='var(--amber)';}));
 $('location').addEventListener('change',()=>loadProfile().catch(e=>{$('dataStatus').textContent='Profile unavailable: '+e.message;$('dataStatus').style.color='var(--amber)';}));
