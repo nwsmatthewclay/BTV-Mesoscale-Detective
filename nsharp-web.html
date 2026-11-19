@@ -131,6 +131,24 @@ function populateHours(){
   setStatus(entry?"BUFKIT file available · waiting for browser SHARPpy.":"No station file in selected cycle.","loading");
  }
 }
+
+// Persistent browser cache for decoded BUFKIT profiles and SHARPpy diagnostics.
+const NSHARP_CACHE_DB="btv-nsharp-cache-v1";
+function nsharpCacheDB(){
+ return new Promise((resolve,reject)=>{
+  if(!("indexedDB" in window)){resolve(null);return}
+  const req=indexedDB.open(NSHARP_CACHE_DB,1);
+  req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains("decoded"))db.createObjectStore("decoded");if(!db.objectStoreNames.contains("diagnostics"))db.createObjectStore("diagnostics")};
+  req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
+ });
+}
+async function nsharpCacheGet(store,key){
+ try{const db=await nsharpCacheDB();if(!db)return null;return await new Promise((resolve,reject)=>{const tx=db.transaction(store,"readonly"),req=tx.objectStore(store).get(key);req.onsuccess=()=>resolve(req.result??null);req.onerror=()=>reject(req.error)})}catch(e){log("Persistent cache read skipped: "+e.message);return null}
+}
+async function nsharpCachePut(store,key,value){
+ try{const db=await nsharpCacheDB();if(!db)return;await new Promise((resolve,reject)=>{const tx=db.transaction(store,"readwrite");tx.objectStore(store).put(value,key);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)})}catch(e){log("Persistent cache write skipped: "+e.message)}
+}
+function nsharpProfileKey(p){return "sharppy-1.4.0:"+JSON.stringify(p)}
 async function decompressGzip(buffer){
  if(typeof DecompressionStream==="undefined")throw new Error("This browser does not support gzip decompression streams.");
  const stream=new Blob([buffer]).stream().pipeThrough(new DecompressionStream("gzip"));
@@ -164,6 +182,10 @@ async function loadProfile(){
  const cacheKey=[model,cycleKey,station].join("/");
  let decoded=decodedCache.get(cacheKey);
  if(!decoded){
+  decoded=await nsharpCacheGet("decoded",cacheKey);
+  if(decoded){decodedCache.set(cacheKey,decoded);log("Loaded decoded BUFKIT from persistent browser cache: "+station+".")}
+ }
+ if(!decoded){
   setStatus("Downloading archived BUFKIT file…");log("Fetching "+model+" "+cycleKey+" "+station+".");
   const url="./mesoscale/data/bufkit/"+entry.file;
   let compressed=prefetchedBufkit.get(cacheKey);
@@ -179,6 +201,7 @@ async function loadProfile(){
   const code="import json\n_decoded=decode_bufkit_file('/tmp/selected.buf',"+JSON.stringify(station)+","+JSON.stringify(selectedCycle.model_cycle_utc)+","+JSON.stringify(model)+")\njson.dumps(_decoded,allow_nan=False)";
   decoded=JSON.parse(await pyodide.runPythonAsync(code));
   decodedCache.set(cacheKey,decoded);
+  await nsharpCachePut("decoded",cacheKey,decoded);
   log("SHARPpy BufDecoder decoded "+decoded.profiles.length+" forecast times for "+station+".");
  }
  record=decoded.profiles.find(p=>Number(p.forecast_hour)===hour);
@@ -223,7 +246,7 @@ async function runDiagnostics(inputProfile,adjustments){
 }
 async function calculateBaseline(){
  if(!engineReady||!profile)return;const serial=++calcSerial,start=performance.now();setStatus("SHARPpy calculating baseline…");log("Running original ConvectiveProfile.");
- try{const result=await runDiagnostics(profile,{});if(serial!==calcSerial)return;original=result;render();$("raw").textContent=JSON.stringify({original,modified},null,2);const ms=performance.now()-start;setStatus("SHARPpy ConvectiveProfile passed · "+ms.toFixed(0)+" ms","ready");$("suiteStatus").innerHTML="<span>Engine</span><b>Browser Python</b><b>SHARPpy 1.4.0</b>";$("calcStatus").textContent="Original SHARPpy baseline calculated in "+ms.toFixed(0)+" ms.";log("Original SHARPpy suite completed in "+ms.toFixed(0)+" ms.");const a=adjustments();if(a.temperature_offset_c||a.dewpoint_offset_c||a.mixing_depth_m)await calculateModified();}
+ try{const diagnosticKey=nsharpProfileKey(profile);let result=await nsharpCacheGet("diagnostics",diagnosticKey);if(result){log("Loaded SHARPpy diagnostics from persistent cache.");}else{result=await runDiagnostics(profile,{});await nsharpCachePut("diagnostics",diagnosticKey,result);}if(serial!==calcSerial)return;original=result;render();$("raw").textContent=JSON.stringify({original,modified},null,2);const ms=performance.now()-start;setStatus("SHARPpy ConvectiveProfile passed · "+ms.toFixed(0)+" ms","ready");$("suiteStatus").innerHTML="<span>Engine</span><b>Browser Python</b><b>SHARPpy 1.4.0</b>";$("calcStatus").textContent="Original SHARPpy baseline calculated in "+ms.toFixed(0)+" ms.";log("Original SHARPpy suite completed in "+ms.toFixed(0)+" ms.");const a=adjustments();if(a.temperature_offset_c||a.dewpoint_offset_c||a.mixing_depth_m)await calculateModified();}
  catch(error){setStatus("SHARPpy calculation failed: "+error.message,"error");log("BASELINE ERROR: "+(error.stack||error.message))}
 }
 function adjustments(){return {temperature_offset_c:Number($("temp").value),dewpoint_offset_c:Number($("dew").value),low_level_depth_m:Number($("offsetDepth").value),mixing_depth_m:Number($("mixDepth").value)}}
