@@ -29,8 +29,6 @@ try:
         if "ConvectiveProfile passed" not in initial:
             raise RuntimeError("Browser SHARPpy did not automatically initialize: " + initial)
         page.locator("#model").select_option("RRFS")
-        page.locator("#station").select_option("KBTV")
-        page.locator("#initEngine").click()
         page.wait_for_function(
             "() => { const s=document.querySelector('#runtimeStatus'); return s.dataset.state==='error' || s.innerText.includes('ConvectiveProfile passed'); }",
             timeout=300000,
