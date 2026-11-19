@@ -99,7 +99,7 @@ def _profile_to_contract(profile) -> dict[str, list[float]]:
     # BUFKIT height is MSL. The lowest valid model level is used as the
     # profile's zero-height reference, avoiding an invented station elevation.
     height_agl = height - height[0]
-    return {
+    result = {
         "pressure_hpa": pressure.tolist(),
         "temperature_k": (arrays["temperature_c"] + 273.15).tolist(),
         "dewpoint_k": (arrays["dewpoint_c"] + 273.15).tolist(),
@@ -107,6 +107,17 @@ def _profile_to_contract(profile) -> dict[str, list[float]]:
         "u_ms": (arrays["u_kt"] / 1.9438444924406).tolist(),
         "v_ms": (arrays["v_kt"] / 1.9438444924406).tolist(),
     }
+    omega = getattr(profile, "omeg", None)
+    if omega is not None:
+        omega_array = np.ma.asarray(omega, dtype=float)
+        if omega_array.size == pressure.size:
+            omega_data = np.asarray(omega_array.data, dtype=float)[mask][order]
+            omega_mask = np.ma.getmaskarray(omega_array)[mask][order] | ~np.isfinite(omega_data)
+            result["omega_pa_s"] = [
+                None if omega_mask[i] else float(omega_data[i])
+                for i in range(omega_data.size)
+            ]
+    return result
 
 
 def _cache_path(model: str, station: str, cache_dir: str | Path | None = None) -> Path:
