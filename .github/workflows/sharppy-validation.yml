@@ -6,7 +6,9 @@ on:
     paths:
       - "mesoscale/sharppy_adapter.py"
       - "mesoscale/sharppy_service.py"
+      - "mesoscale/bufkit_feed.py"
       - "mesoscale/tests/test_sharppy_*.py"
+      - "mesoscale/tests/test_bufkit_feed.py"
       - "mesoscale/environment-sharppy.yml"
       - ".github/workflows/sharppy-validation.yml"
 
@@ -25,4 +27,4 @@ jobs:
         shell: micromamba-shell {0}
         run: |
           python -m compileall -q mesoscale
-          pytest -q mesoscale/tests/test_sharppy_adapter.py mesoscale/tests/test_sharppy_service.py
+          pytest -q mesoscale/tests/test_sharppy_adapter.py mesoscale/tests/test_sharppy_service.py mesoscale/tests/test_bufkit_feed.py
