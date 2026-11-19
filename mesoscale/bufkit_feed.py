@@ -28,6 +28,7 @@ MODEL_PRODUCTS = {
     "HIRESW": ("HIRESW", "hiresw"),
 }
 CACHE_TTL_SECONDS = int(os.getenv("BUFKIT_CACHE_TTL_SECONDS", "300"))
+_PARSED_CACHE: dict[tuple[str, str], tuple[int, dict]] = {}
 
 
 def parse_bufkit_record_headers(text: str) -> list[dict[str, Any]]:
@@ -172,6 +173,11 @@ def fetch_and_parse_bufkit(model: str, station: str, cache_dir: str | Path | Non
         }
         metadata_file.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
 
+    file_signature = cache_file.stat().st_mtime_ns
+    cached = _PARSED_CACHE.get((model, station))
+    if cached and cached[0] == file_signature:
+        return cached[1]
+
     text = cache_file.read_text(encoding="utf-8")
     headers = parse_bufkit_record_headers(text)
     try:
@@ -211,7 +217,7 @@ def fetch_and_parse_bufkit(model: str, station: str, cache_dir: str | Path | Non
         })
     if len(profiles) != len(headers):
         raise ValueError("SHARPpy decoder profile count does not match BUFKIT time-block count")
-    return {
+    result = {
         "model": model,
         "station": station.upper(),
         "source": "Penn State BUFKIT Data Distribution System",
@@ -220,3 +226,5 @@ def fetch_and_parse_bufkit(model: str, station: str, cache_dir: str | Path | Non
         "profile_count": len(profiles),
         "profiles": profiles,
     }
+    _PARSED_CACHE[(model, station)] = (file_signature, result)
+    return result
