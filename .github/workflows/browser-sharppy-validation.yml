@@ -1,0 +1,29 @@
+name: Browser SHARPpy Runtime Test
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "sounding-browser.html"
+      - "mesoscale/browser_adjustments.py"
+      - "mesoscale/sharppy_adapter.py"
+      - "mesoscale/data/fields/forecast/**"
+      - ".github/scripts/test_browser_sharppy.py"
+      - ".github/workflows/browser-sharppy-validation.yml"
+
+jobs:
+  browser-sharppy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Playwright
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Run local browser SHARPpy smoke test
+        run: python .github/scripts/test_browser_sharppy.py
