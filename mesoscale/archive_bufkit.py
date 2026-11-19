@@ -123,7 +123,7 @@ def main() -> int:
                 if not args.dry_run:
                     target_dir.mkdir(parents=True, exist_ok=True)
                     digest = hashlib.sha256(content).hexdigest()
-                    metadata_path = target.with_suffix(".json")
+                    metadata_path = target.with_name(f"{station.lower()}.json")
                     previous = {}
                     if metadata_path.exists():
                         try:
@@ -174,7 +174,7 @@ def main() -> int:
                 for meta_path in sorted(cycle_dir.glob("*.json")):
                     try:
                         meta = json.loads(meta_path.read_text(encoding="utf-8"))
-                        buf_path = meta_path.with_suffix(".buf.gz")
+                        buf_path = meta_path.with_name(meta_path.stem + ".buf.gz")
                         if buf_path.exists():
                             stations_in_cycle.append({
                                 "station": meta["station"], "file": str(buf_path.relative_to(ROOT / "data" / "bufkit")),
