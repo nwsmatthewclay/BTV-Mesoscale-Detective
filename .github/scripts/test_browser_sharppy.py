@@ -47,6 +47,24 @@ try:
         if "SHARPpy recalculated" not in modified_status:
             raise RuntimeError("Modified profile was not recalculated: " + modified_status)
         print("BROWSER SHARPpy SMOKE TEST PASSED")
+        archive = browser.new_page()
+        archive.goto(f"http://127.0.0.1:{PORT}/bufkit-archive.html", wait_until="domcontentloaded", timeout=60000)
+        archive.wait_for_function(
+            "() => document.querySelector('#status').innerText.includes('Catalog updated') || document.querySelector('#status').innerText.includes('Archive not populated')",
+            timeout=60000,
+        )
+        archive_status = archive.locator("#status").inner_text()
+        print("BUFKIT ARCHIVE:", archive_status)
+        if "Catalog updated" not in archive_status:
+            raise RuntimeError("BUFKIT archive catalog did not load: " + archive_status)
+        model_count = archive.locator("#model option").count()
+        if model_count != 4:
+            raise RuntimeError(f"Expected four archived models, found {model_count}")
+        archive.locator("#model").select_option("RRFS")
+        archive.locator("#cycle").select_option(index=0)
+        if archive.locator("#station option").count() != 32:
+            raise RuntimeError("Expected all 32 BUFKIT stations in RRFS archive")
+        print("BUFKIT ARCHIVE SMOKE TEST PASSED: four models, 32 RRFS stations")
         browser.close()
 finally:
     server.terminate()
