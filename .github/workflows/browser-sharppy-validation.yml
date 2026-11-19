@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - "sounding-browser.html"
+      - "nsharp-web.html"
       - "mesoscale/browser_adjustments.py"
       - "mesoscale/sharppy_adapter.py"
       - "mesoscale/bufkit_browser.py"
