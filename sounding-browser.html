@@ -39,7 +39,7 @@
 <div class="footnote"><strong>Scientific integrity:</strong> modified diagnostics are displayed only after the actual SHARPpy ConvectiveProfile returns successfully. The original profile is immutable. The mixing experiment pressure-mass-weights potential temperature, water-vapor mixing ratio, and horizontal momentum; it is a sensitivity experiment, not a forecast-model boundary-layer scheme. If the browser cannot load SHARPpy or any required dependency, no substitute diagnostic engine is used.</div>
 </main>
 <script>
-const PYODIDE_VERSION="0.26.4",PYODIDE_BASE="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/",SHARPPY_ARCHIVE="https://codeload.github.com/sharppy/SHARPpy/zip/refs/tags/v1.4.0";
+const PYODIDE_VERSION="0.26.4",PYODIDE_BASE="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/",SHARPPY_ARCHIVE="./mesoscale/vendor/sharppy-1.4.0-browser.zip";
 const $=id=>document.getElementById(id);
 let manifest=null,stations=[],profile=null,record=null,original=null,modified=null,pyodide=null,engineReady=false,calcTimer=null,calcSerial=0;
 const log=message=>{$("log").textContent+="\n"+new Date().toISOString().slice(11,19)+" "+message;$("log").scrollTop=$("log").scrollHeight};
