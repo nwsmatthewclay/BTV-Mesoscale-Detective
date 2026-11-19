@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#000000">
+<title>NSHARP Web · BTV Mesoscale Detective</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#000;--panel:#050505;--line:#555;--text:#f2f2f2;--muted:#aaa;--cyan:#49e5f0;--red:#ff4136;--green:#57ff42;--yellow:#fff000;--magenta:#ed40ff;--blue:#3c8dff}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;color:var(--text);font:12px Arial,Helvetica,sans-serif}
+button,select,input{font:inherit;color:#eee;background:#090909;border:1px solid #666;border-radius:0;padding:4px}
+.top{height:42px;display:flex;align-items:center;gap:12px;padding:4px 10px;border-bottom:1px solid #777;background:#000;white-space:nowrap}
+.brand{font-size:16px;font-weight:bold;letter-spacing:.04em}.status{color:#9fe8a0;font-size:10px;overflow:hidden;text-overflow:ellipsis}.tools{display:flex;gap:6px;margin-left:auto;align-items:center}.tools select{max-width:135px}.tools button{cursor:pointer}
+.workspace{height:calc(100vh - 42px);display:grid;grid-template-rows:minmax(0,1fr) 228px;gap:3px;padding:3px}
+.upper{min-height:0;display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);gap:3px}
+.left{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 88px 118px;gap:2px}
+.panel{min-width:0;min-height:0;background:#000;border:1px solid #666;position:relative;overflow:hidden}
+.paneltitle{height:22px;padding:4px 6px;border-bottom:1px solid #777;font-size:11px;font-weight:bold;letter-spacing:.02em;background:#050505}
+.plot{height:calc(100% - 22px);width:100%}.skewplot{height:calc(100% - 22px)}
+.skewplot .js-plotly-plot,.hodoplot .js-plotly-plot{height:100%!important}
+.hodoplot{height:calc(100% - 22px)}
+.sidecol{display:grid;grid-template-rows:1fr 1fr 1fr;gap:2px;min-height:0}
+.tiny{height:100%;width:100%;font:9px/1.2 ui-monospace,monospace;color:#eee;padding:5px;overflow:hidden}
+.tiny .val{color:var(--cyan)}.tiny .warn{color:#ff6464}.tiny .good{color:#65ff65}
+.lower{min-height:0;display:grid;grid-template-columns:1.12fr .92fr .86fr 1fr 1fr 1fr;gap:3px}
+.tablepanel{display:flex;flex-direction:column}.tablecontent{padding:5px;overflow:auto;font:10px/1.25 ui-monospace,monospace}
+.data-table{width:100%;border-collapse:collapse;font-size:10px}.data-table th,.data-table td{padding:3px 4px;border-bottom:1px solid #333;text-align:right;white-space:nowrap}.data-table th:first-child,.data-table td:first-child{text-align:left}.data-table th{color:#aaa;font-weight:normal}.data-table td{color:#eee}.data-table .hot{color:#ff5353}.data-table .cool{color:#4eeaff}
+.metricline{display:flex;justify-content:space-between;gap:5px;border-bottom:1px dotted #444;padding:3px 0}.metricline span{color:#aaa}.metricline b{color:#fff;font-weight:normal}
+.controls{display:flex;gap:5px;align-items:center}.controls label{color:#aaa;font-size:10px}.controls input{width:70px}
+#metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:5px}.metric{border:1px solid #444;padding:4px;text-align:center}.metric span{display:block;color:#aaa;font-size:9px}.metric strong{display:block;font-size:15px;color:#fff}
+#rows .diagrow{display:grid;grid-template-columns:1fr .7fr .7fr;gap:4px;padding:3px 0;border-bottom:1px solid #333;font:9px ui-monospace,monospace}#rows .diagrow span{color:#aaa}#rows .diagrow b{text-align:right;font-weight:normal}
+#raw{display:none}#log{display:none}#profileMeta{display:none}#suiteStatus{display:none}
+@media(max-width:1050px){.workspace{overflow:auto;height:calc(100vh - 42px);grid-template-rows:650px 260px}.upper{grid-template-columns:1fr}.left{grid-template-columns:1fr 70px 90px}.lower{grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:220px}.tools select{max-width:90px}}
+</style>
+</head>
+<body>
+<header class="top">
+ <div class="brand">NSHARP · BTV</div>
+ <div id="runtimeStatus" class="status" data-state="loading">Loading archived BUFKIT catalog and SHARPpy runtime…</div>
+ <div class="tools">
+  <label>Model <select id="model"></select></label>
+  <label>Cycle <select id="cycle"></select></label>
+  <label>Site <select id="station"></select></label>
+  <label>Hour <select id="hour"></select></label>
+  <button id="initEngine">Initialize SHARPpy</button>
+  <button id="reset">Reset edits</button>
+  <a href="./sounding-browser.html" style="color:#9defff">Workbench</a>
+ </div>
+</header>
+<main class="workspace">
+ <section class="upper">
+  <div class="left">
+   <section class="panel"><div class="paneltitle">Skew-T / Log-P · Temperature / Dewpoint / Parcel Paths</div><div id="skewt" class="skewplot"></div></section>
+   <div class="sidecol">
+    <section class="panel"><div class="paneltitle">A · Thermo</div><div id="miniThermo" class="tiny">Waiting for sounding…</div></section>
+    <section class="panel"><div class="paneltitle">B · Wind</div><div id="miniWind" class="tiny">Waiting for sounding…</div></section>
+    <section class="panel"><div class="paneltitle">C · Levels</div><div id="miniLevels" class="tiny">Waiting for sounding…</div></section>
+   </div>
+   <div class="sidecol">
+    <section class="panel"><div class="paneltitle">D · Parcel</div><div id="miniParcel" class="tiny">Waiting for sounding…</div></section>
+    <section class="panel"><div class="paneltitle">E · Severe</div><div id="miniSevere" class="tiny">Waiting for sounding…</div></section>
+    <section class="panel"><div class="paneltitle">F · Quality</div><div id="miniQuality" class="tiny">Waiting for sounding…</div></section>
+   </div>
+  </div>
+  <section class="panel"><div class="paneltitle">Hodograph · Wind Profile / Storm Motion</div><div id="hodo" class="hodoplot"></div></section>
+ </section>
+ <section class="lower">
+  <section class="panel tablepanel"><div class="paneltitle">G · Parcel Analysis</div><div class="tablecontent" id="parcelTable">Awaiting SHARPpy diagnostics</div></section>
+  <section class="panel tablepanel"><div class="paneltitle">H · Thermodynamics</div><div class="tablecontent" id="thermoTable">Awaiting SHARPpy diagnostics</div></section>
+  <section class="panel tablepanel"><div class="paneltitle">I · Kinematics</div><div class="tablecontent" id="kinTable">Awaiting SHARPpy diagnostics</div></section>
+  <section class="panel tablepanel"><div class="paneltitle">J · Severe Parameters</div><div class="tablecontent" id="severeTable">Awaiting SHARPpy diagnostics</div></section>
+  <section class="panel tablepanel"><div class="paneltitle">K · SHARPpy Summary</div><div id="metrics"></div><div class="tablecontent" id="rows"></div></section>
+  <section class="panel tablepanel"><div class="paneltitle">L · Profile Adjustments</div><div class="tablecontent">
+   <div class="controls"><label>Temp</label><input id="temp" type="range" min="-8" max="8" step=".5" value="0"><span id="tempOut">0.0 °C</span></div>
+   <div class="controls"><label>Dewpoint</label><input id="dew" type="range" min="-8" max="8" step=".5" value="0"><span id="dewOut">0.0 °C</span></div>
+   <div class="controls"><label>Depth</label><input id="offsetDepth" type="range" min="0" max="4000" step="100" value="1000"><span id="offsetOut">1000 m</span></div>
+   <div class="controls"><label>Mix</label><input id="mixDepth" type="range" min="0" max="4000" step="100" value="0"><span id="mixOut">0 m</span></div>
+   <p id="calcStatus">Initializing browser Python…</p>
+   <p id="profileMeta"></p><pre id="raw"></pre><div id="suiteStatus"></div><div id="log"></div>
+  </div></section>
+ </section>
+</main>
+<script>
+const PYODIDE_VERSION="0.26.4",PYODIDE_BASE="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/",SHARPPY_ARCHIVE="./mesoscale/vendor/sharppy-1.4.0-browser.zip";
+const $=id=>document.getElementById(id);
+let catalog=null,siteNames={},selectedCycle=null,stations=[],profile=null,record=null,original=null,modified=null,pyodide=null,engineReady=false,calcTimer=null,calcSerial=0,decodedCache=new Map();
+const log=message=>{$("log").textContent+="\n"+new Date().toISOString().slice(11,19)+" "+message;$("log").scrollTop=$("log").scrollHeight};
+const setStatus=(message,state="loading")=>{$("runtimeStatus").textContent=message;$("runtimeStatus").dataset.state=state};
+const fmt=(v,d=0)=>v===null||v===undefined||!Number.isFinite(Number(v))?"—":Number(v).toFixed(d);
+const formatHour=v=>"F"+String(Math.round(Number(v))).padStart(2,"0");
+async function loadRegistry(){
+ const [catalogResponse,sitesResponse]=await Promise.all([
+  fetch("./mesoscale/data/bufkit/catalog.json",{cache:"no-store"}),
+  fetch("./mesoscale/bufkit_sites.json",{cache:"no-store"})
+ ]);
+ if(!catalogResponse.ok)throw new Error("BUFKIT archive catalog HTTP "+catalogResponse.status);
+ if(!sitesResponse.ok)throw new Error("BUFKIT station inventory HTTP "+sitesResponse.status);
+ catalog=await catalogResponse.json();
+ const siteData=await sitesResponse.json();
+ siteNames=Object.fromEntries((siteData.stations||[]).map(s=>[s.id,s.name||s.id]));
+ const models=Object.keys(catalog.models||{}).filter(m=>(catalog.models[m]||[]).length);
+ if(!models.length)throw new Error("No retained BUFKIT model cycles are available");
+ $("model").innerHTML=models.map(m=>'<option value="'+m+'">'+m+'</option>').join("");
+ $("model").value=models.includes("RAP")?"RAP":models[0];
+ populateCycles();
+}
+function populateCycles(){
+ const model=$("model").value,cycles=catalog.models[model]||[];
+ $("cycle").innerHTML=cycles.map(c=>'<option value="'+c.cycle_key+'">'+c.model_cycle_utc.replace("T"," ").replace(":00Z","Z")+'</option>').join("");
+ selectedCycle=cycles.find(c=>c.cycle_key===$("cycle").value)||null;
+ populateStations();
+}
+function populateStations(){
+ selectedCycle=(catalog.models[$("model").value]||[]).find(c=>c.cycle_key===$("cycle").value)||null;
+ const entries=selectedCycle?.stations||[];
+ $("station").innerHTML=entries.map(st=>'<option value="'+st.station+'">'+st.station+' · '+(siteNames[st.station]||st.station)+'</option>').join("");
+ populateHours();
+}
+function populateHours(){
+ const entry=selectedCycle?.stations?.find(st=>st.station===$("station").value);
+ const hours=entry?.forecast_hours||[];
+ $("hour").innerHTML=hours.map(h=>'<option value="'+h+'">'+formatHour(h)+'</option>').join("");
+ $("hour").value=String(hours.includes(0)?0:(hours[0]??""));
+ if(engineReady&&entry)loadProfile().catch(showProfileError);
+ else{
+  profile=null;record=null;original=null;modified=null;render();
+  $("profileMeta").textContent=entry?$("model").value+" · "+selectedCycle.model_cycle_utc+" · "+$("station").value+" · "+hours.length+" forecast periods available. Initialize browser Python to decode the selected BUFKIT file.":"No BUFKIT file is available for this station and cycle.";
+  $("calcStatus").textContent="Initialize browser Python to decode BUFKIT and run SHARPpy.";
+  setStatus(entry?"BUFKIT file available · waiting for browser SHARPpy.":"No station file in selected cycle.","loading");
+ }
+}
+async function decompressGzip(buffer){
+ if(typeof DecompressionStream==="undefined")throw new Error("This browser does not support gzip decompression streams.");
+ const stream=new Blob([buffer]).stream().pipeThrough(new DecompressionStream("gzip"));
+ return await new Response(stream).text();
+}
+function showProfileError(error){
+ setStatus("BUFKIT/SHARPpy profile load failed: "+error.message,"error");
+ $("calcStatus").textContent="No sounding was decoded; no substitute profile was used.";
+ log("BUFKIT PROFILE ERROR: "+(error.stack||error.message));
+}
+async function loadProfile(){
+ const model=$("model").value,cycleKey=$("cycle").value,station=$("station").value,hour=Number($("hour").value);
+ selectedCycle=(catalog.models[model]||[]).find(c=>c.cycle_key===cycleKey);
+ const entry=selectedCycle?.stations?.find(st=>st.station===station);
+ if(!entry)throw new Error("No archived BUFKIT file for "+model+" "+station+" "+cycleKey);
+ if(!engineReady){populateHours();return}
+ const cacheKey=[model,cycleKey,station].join("/");
+ let decoded=decodedCache.get(cacheKey);
+ if(!decoded){
+  setStatus("Downloading archived BUFKIT file…");log("Fetching "+model+" "+cycleKey+" "+station+".");
+  const url="./mesoscale/data/bufkit/"+entry.file;
+  const response=await fetch(url,{cache:"no-store"});
+  if(!response.ok)throw new Error("Archived BUFKIT file HTTP "+response.status);
+  const text=await decompressGzip(await response.arrayBuffer());
+  if(!text.includes("STID")||text.length<1000)throw new Error("Downloaded archive file is not valid BUFKIT text");
+  pyodide.FS.writeFile("/tmp/selected.buf",text);
+  const code="import json\n_decoded=decode_bufkit_file('/tmp/selected.buf',"+JSON.stringify(station)+","+JSON.stringify(selectedCycle.model_cycle_utc)+","+JSON.stringify(model)+")\njson.dumps(_decoded,allow_nan=False)";
+  decoded=JSON.parse(await pyodide.runPythonAsync(code));
+  decodedCache.set(cacheKey,decoded);
+  log("SHARPpy BufDecoder decoded "+decoded.profiles.length+" forecast times for "+station+".");
+ }
+ record=decoded.profiles.find(p=>Number(p.forecast_hour)===hour);
+ if(!record)throw new Error("Forecast hour F"+hour+" is not present in the decoded BUFKIT file");
+ profile={...record.profile,location:station,latitude:siteDataLatitude(station),date:record.valid_time_utc,valid_time_utc:record.valid_time_utc};
+ original=null;modified=null;render();
+ $("profileMeta").textContent=model+" BUFKIT · "+selectedCycle.model_cycle_utc+" · "+station+" · "+formatHour(hour)+" · valid "+record.valid_time_utc+" · "+record.quality.levels+" levels · SHARPpy BufDecoder · "+entry.source_url;
+ $("raw").textContent=JSON.stringify({bufkit_quality:record.quality,source:entry.source_url},null,2);
+ $("calcStatus").textContent="BUFKIT decoded · running SHARPpy ConvectiveProfile…";
+ setStatus("Verified BUFKIT profile decoded · "+profile.pressure_hpa.length+" levels","ready");
+ await calculateBaseline();
+}
+function siteDataLatitude(station){
+ const site=(window.__btvSites||[]).find(s=>s.id===station);
+ return site?.lat??44.47;
+}
+async function loadSiteCoordinates(){
+ try{const r=await fetch("./mesoscale/bufkit_sites.json");const d=await r.json();window.__btvSites=d.stations||[]}catch(_){window.__btvSites=[]}
+}
+async function initializeEngine(){
+ if(engineReady)return;$("initEngine").disabled=true;setStatus("Starting Pyodide "+PYODIDE_VERSION+"…");log("Loading CPython/WebAssembly runtime.");
+ try{
+  pyodide=await loadPyodide({indexURL:PYODIDE_BASE});log("Python runtime ready; loading NumPy.");
+  await pyodide.loadPackage("numpy");const numpyVersion=await pyodide.runPythonAsync("import numpy as np; np.__version__");log("NumPy "+numpyVersion+" loaded.");
+  setStatus("Downloading SHARPpy 1.4.0 source…");log("Fetching pinned upstream SHARPpy v1.4.0 source archive.");
+  const archiveResponse=await fetch(SHARPPY_ARCHIVE);if(!archiveResponse.ok)throw new Error("SHARPpy source download HTTP "+archiveResponse.status);
+  pyodide.FS.mkdir("/tmp/sharppy-src");await pyodide.unpackArchive(await archiveResponse.arrayBuffer(),"zip",{extractDir:"/tmp/sharppy-src"});
+  const [adapterResponse,adjustResponse,decoderResponse]=await Promise.all([fetch("./mesoscale/sharppy_adapter.py"),fetch("./mesoscale/browser_adjustments.py"),fetch("./mesoscale/bufkit_browser.py")]);
+  if(!adapterResponse.ok||!adjustResponse.ok||!decoderResponse.ok)throw new Error("Could not load repository SHARPpy adapter, BUFKIT decoder, or adjustment module");
+  pyodide.FS.writeFile("/tmp/sharppy_adapter.py",await adapterResponse.text());pyodide.FS.writeFile("/tmp/browser_adjustments.py",await adjustResponse.text());pyodide.FS.writeFile("/tmp/bufkit_browser.py",await decoderResponse.text());
+  pyodide.FS.mkdir("/tmp/sutils");pyodide.FS.writeFile("/tmp/sutils/__init__.py","");pyodide.FS.writeFile("/tmp/sutils/frozenutils.py","class Process:\n    def __init__(self, *args, **kwargs): raise RuntimeError('SHARPpy multiprocessing is not used in browser mode')\nclass Queue:\n    def __init__(self, *args, **kwargs): raise RuntimeError('SHARPpy multiprocessing is not used in browser mode')\n");pyodide.FS.writeFile("/tmp/sutils/utils.py","import sys\ndef is_py3(): return sys.version_info[0] == 3\ndef total_seconds(td): return td.days * 86400 + td.seconds + td.microseconds * 1e-6\n");pyodide.FS.writeFile("/tmp/certifi.py","def where(): return ''\n");pyodide.FS.writeFile("/tmp/imp.py","def load_source(*args, **kwargs): raise RuntimeError('Dynamic decoder loading is not supported in browser mode')\n");
+  await pyodide.runPythonAsync("import glob, os, sys\nroots=glob.glob('/tmp/sharppy-src/*')\nsharppy_root=next((root for root in roots if os.path.isdir(os.path.join(root,'sharppy'))),None)\nif sharppy_root is None: raise RuntimeError('SHARPpy source archive did not contain the sharppy package')\nsys.path.insert(0,sharppy_root)\nsys.path.insert(0,'/tmp')\nimport types\n_sutils=types.ModuleType('sutils'); _sutils.__path__=[]\n_utils=types.ModuleType('sutils.utils'); _utils.is_py3=lambda: True; _utils.total_seconds=lambda td: td.days*86400+td.seconds+td.microseconds*1e-6\n_frozen=types.ModuleType('sutils.frozenutils'); _frozen.Process=type('Process',(),{'__init__':lambda self,*a,**k: (_ for _ in ()).throw(RuntimeError('multiprocessing unavailable in browser'))}); _frozen.Queue=type('Queue',(),{'__init__':lambda self,*a,**k: (_ for _ in ()).throw(RuntimeError('multiprocessing unavailable in browser'))})\nsys.modules['sutils']=_sutils; sys.modules['sutils.utils']=_utils; sys.modules['sutils.frozenutils']=_frozen\n_certifi=types.ModuleType('certifi'); _certifi.where=lambda: ''; sys.modules['certifi']=_certifi\n_imp=types.ModuleType('imp'); _imp.load_source=lambda *a,**k: (_ for _ in ()).throw(RuntimeError('dynamic decoder loading unavailable in browser')); sys.modules['imp']=_imp\nimport numpy\nfrom sharppy.sharptab import profile as sharp_profile\nfrom sharppy_adapter import calculate_sharppy_diagnostics\nfrom browser_adjustments import adjust_profile\nfrom bufkit_browser import decode_bufkit_file");
+  log("SHARPpy source and native BufDecoder imports succeeded with NumPy "+numpyVersion+".");engineReady=true;
+  $("initEngine").textContent="Python engine ready";$("initEngine").classList.remove("primary");$("calcStatus").textContent="Browser SHARPpy initialized · decoding archived BUFKIT.";
+  await loadProfile();
+ }catch(error){engineReady=false;setStatus("Browser SHARPpy initialization failed: "+error.message,"error");$("calcStatus").textContent="No browser calculation engine available. Archived baseline remains visible.";log("ENGINE ERROR: "+(error.stack||error.message));$("initEngine").disabled=false}
+}
+function pyString(value){return JSON.stringify(JSON.stringify(value))}
+async function runDiagnostics(inputProfile,adjustments){
+ const code="import json\n_input_profile=json.loads("+pyString(inputProfile)+")\n_adjustments=json.loads("+pyString(adjustments||{})+")\n_adjusted_profile,_warnings=adjust_profile(_input_profile,_adjustments)\n_result=calculate_sharppy_diagnostics(_adjusted_profile)\n_result['library_version']='1.4.0 · browser source'\n_result['quality']['warnings']=list(_warnings)+list(_result['quality'].get('warnings',[]))\n_result['adjusted_profile']=_adjusted_profile\njson.dumps(_result,allow_nan=False)";
+ return JSON.parse(await pyodide.runPythonAsync(code));
+}
+async function calculateBaseline(){
+ if(!engineReady||!profile)return;const serial=++calcSerial,start=performance.now();setStatus("SHARPpy calculating baseline…");log("Running original ConvectiveProfile.");
+ try{const result=await runDiagnostics(profile,{});if(serial!==calcSerial)return;original=result;render();$("raw").textContent=JSON.stringify({original,modified},null,2);const ms=performance.now()-start;setStatus("SHARPpy ConvectiveProfile passed · "+ms.toFixed(0)+" ms","ready");$("suiteStatus").innerHTML="<span>Engine</span><b>Browser Python</b><b>SHARPpy 1.4.0</b>";$("calcStatus").textContent="Original SHARPpy baseline calculated in "+ms.toFixed(0)+" ms.";log("Original SHARPpy suite completed in "+ms.toFixed(0)+" ms.");const a=adjustments();if(a.temperature_offset_c||a.dewpoint_offset_c||a.mixing_depth_m)await calculateModified();}
+ catch(error){setStatus("SHARPpy calculation failed: "+error.message,"error");log("BASELINE ERROR: "+(error.stack||error.message))}
+}
+function adjustments(){return {temperature_offset_c:Number($("temp").value),dewpoint_offset_c:Number($("dew").value),low_level_depth_m:Number($("offsetDepth").value),mixing_depth_m:Number($("mixDepth").value)}}
+function updateLabels(){$("tempOut").textContent=(Number($("temp").value)>0?"+":"")+Number($("temp").value).toFixed(1)+" °C";$("dewOut").textContent=(Number($("dew").value)>0?"+":"")+Number($("dew").value).toFixed(1)+" °C";$("offsetOut").textContent=$("offsetDepth").value+" m";$("mixOut").textContent=$("mixDepth").value+" m"}
+function scheduleCalculation(){updateLabels();if(!engineReady||!profile)return;clearTimeout(calcTimer);calcTimer=setTimeout(calculateModified,250)}
+async function calculateModified(){
+ if(!engineReady||!profile)return;const adj=adjustments(),zero=!adj.temperature_offset_c&&!adj.dewpoint_offset_c&&!adj.mixing_depth_m;
+ if(zero){calcSerial++;modified=null;render();$("calcStatus").textContent="Original profile · no modifications active.";return}
+ const serial=++calcSerial,start=performance.now();$("calcStatus").textContent="Recalculating full SHARPpy suite…";
+ try{const result=await runDiagnostics(profile,adj);if(serial!==calcSerial)return;modified=result;render();$("raw").textContent=JSON.stringify({original,modified},null,2);const ms=performance.now()-start;$("calcStatus").textContent="SHARPpy recalculated in "+ms.toFixed(0)+" ms · "+(result.quality.warnings||[]).length+" warning(s)";setStatus("Modified ConvectiveProfile passed · "+ms.toFixed(0)+" ms","ready");log("Modified profile recalculated in "+ms.toFixed(0)+" ms · T "+adj.temperature_offset_c+"°C · Td "+adj.dewpoint_offset_c+"°C · mix "+adj.mixing_depth_m+" m.");}
+ catch(error){modified=null;render();$("calcStatus").textContent="SHARPpy recalculation failed: "+error.message;setStatus("Modified SHARPpy calculation failed","error");log("MODIFIED PROFILE ERROR: "+(error.stack||error.message))}
+}
+function skewX(t,p){return t+35*Math.log(1000/p)}
+function interpolateLogPressure(values,pressures,target){
+ if(!Number.isFinite(Number(target))||target<=0)return null;
+ for(let i=0;i<pressures.length-1;i++){
+  const p1=Number(pressures[i]),p2=Number(pressures[i+1]),v1=Number(values[i]),v2=Number(values[i+1]);
+  if(![p1,p2,v1,v2].every(Number.isFinite))continue;
+  if((target<=p1&&target>=p2)||(target>=p1&&target<=p2)){
+   const f=(Math.log(target)-Math.log(p1))/(Math.log(p2)-Math.log(p1));return v1+f*(v2-v1);
+  }
+ }
+ return null;
+}
+function renderSkew(){
+ if(!profile)return;const p=profile.pressure_hpa,pp=[1050,1000,900,800,700,600,500,400,300,250,200,150,100],traces=[];
+ [-40,-30,-20,-10,0,10,20,30,40,50].forEach(t=>traces.push({x:pp.map(v=>skewX(t,v)),y:pp,mode:"lines",hoverinfo:"skip",showlegend:false,line:{color:"#1d3045",width:1,dash:"dot"}}));
+ [-30,-20,-10,0,10,20,30,40,50].forEach(th=>traces.push({x:pp.map(v=>skewX((th+273.15)*Math.pow(v/1000,.2854)-273.15,v)),y:pp,mode:"lines",hoverinfo:"skip",showlegend:false,line:{color:"#24394e",width:1}}));
+ const envT=profile.temperature_k.map(v=>v-273.15);
+ traces.push({x:envT.map((v,i)=>skewX(v,p[i])),y:p,mode:"lines+markers",name:"Original T",line:{color:"#ff777e",width:2.4},marker:{size:3}});
+ traces.push({x:profile.dewpoint_k.map((v,i)=>skewX(v-273.15,p[i])),y:p,mode:"lines+markers",name:"Original Td",line:{color:"#55d6e8",width:2.4},marker:{size:3}});
+ const wet=original?.thermodynamic_profiles?.wetbulb_c;
+ if(Array.isArray(wet)&&wet.length===p.length)traces.push({x:wet.map((v,i)=>v==null?null:skewX(Number(v),p[i])),y:p,mode:"lines",connectgaps:false,name:"Wet-bulb",line:{color:"#69d7a5",width:1.8,dash:"dot"}});
+ const parcels=original?.parcels||{},modParcels=modified?.parcels||{},parcelStyles=[
+  ["surface","SFC","#ffad66","circle"],["mixed_layer","ML","#c792ea","square"],["most_unstable","MU","#66aaff","diamond"],["effective","EFF","#69d7a5","triangle-up"]
+ ];
+ for(const [key,label,color] of parcelStyles){
+  const parcel=parcels[key]||{},tp=parcel.trace_pressure_hpa,tt=parcel.trace_temperature_c;
+  if(Array.isArray(tp)&&Array.isArray(tt)&&tp.length===tt.length&&tp.length>1){
+   traces.push({x:tt.map((v,i)=>v==null?null:skewX(Number(v),Number(tp[i]))),y:tp,mode:"lines",connectgaps:false,name:label+" parcel",line:{color,width:2.1,dash:"dash"},hovertemplate:label+" parcel<br>%{x:.1f}°C<br>%{y:.0f} hPa<extra></extra>"});
+  }
+  const mpcl=modParcels[key]||{},mtp=mpcl.trace_pressure_hpa,mtt=mpcl.trace_temperature_c;
+  if(Array.isArray(mtp)&&Array.isArray(mtt)&&mtp.length===mtt.length&&mtp.length>1){
+   traces.push({x:mtt.map((v,i)=>v==null?null:skewX(Number(v),Number(mtp[i]))),y:mtp,mode:"lines",connectgaps:false,name:label+" modified parcel",line:{color,width:1.8,dash:"dot"},opacity:.8});
+  }
+ }
+ const freeze=[];
+ for(let i=0;i<envT.length-1;i++)if((envT[i]>=0&&envT[i+1]<=0)||(envT[i]<=0&&envT[i+1]>=0)){
+  const f=(0-envT[i])/(envT[i+1]-envT[i]),pr=Math.exp(Math.log(p[i])+f*(Math.log(p[i+1])-Math.log(p[i])));
+  freeze.push({x:skewX(0,pr),y:pr});
+ }
+ if(freeze.length)traces.push({x:freeze.map(v=>v.x),y:freeze.map(v=>v.y),mode:"markers+text",text:freeze.map((_,i)=>i===0?"0°C":"0°C"),textposition:"middle right",name:"Freezing level",marker:{symbol:"diamond",size:10,color:"#f4d35e",line:{color:"#090f18",width:1}},textfont:{color:"#f4d35e",size:10},hovertemplate:"Environmental 0°C level<br>%{y:.0f} hPa<extra></extra>"});
+ const markerParcels=parcels;
+ for(const [key,label,color,symbol] of parcelStyles){
+  const parcel=markerParcels[key]||{};
+  for(const [field,tag] of [["lcl_pressure_hpa","LCL"],["lfc_pressure_hpa","LFC"],["equilibrium_level_pressure_hpa","EL"]]){
+   const pr=Number(parcel[field]);if(!Number.isFinite(pr)||pr<=0)continue;
+   const temp=interpolateLogPressure(envT,p,pr);if(temp===null)continue;
+   traces.push({x:[skewX(temp,pr)],y:[pr],mode:"markers",name:label+" "+tag,showlegend:false,marker:{symbol,size:10,color,line:{color:"#07101a",width:1.3}},customdata:[[label,tag,temp]],hovertemplate:"%{customdata[0]} parcel · %{customdata[1]}<br>Pressure: %{y:.0f} hPa<br>Environmental T: %{customdata[2]:.1f}°C<extra></extra>"});
+  }
+ }
+ if(modified?.adjusted_profile){const a=modified.adjusted_profile;traces.push({x:a.temperature_k.map((v,i)=>skewX(v-273.15,a.pressure_hpa[i])),y:a.pressure_hpa,mode:"lines",name:"Modified T",line:{color:"#ffad66",width:2.2,dash:"dash"}});traces.push({x:a.dewpoint_k.map((v,i)=>skewX(v-273.15,a.pressure_hpa[i])),y:a.pressure_hpa,mode:"lines",name:"Modified Td",line:{color:"#75dfa9",width:2.2,dash:"dash"}})}
+ Plotly.react("skewt",traces,{paper_bgcolor:"#090f18",plot_bgcolor:"#090f18",margin:{l:55,r:12,t:12,b:42},xaxis:{title:"Temperature (°C)",color:"#91a4b9",gridcolor:"#1c2d40",tickvals:[-40,-30,-20,-10,0,10,20,30,40,50]},yaxis:{title:"Pressure (hPa)",type:"log",range:[Math.log10(1050),Math.log10(100)],autorange:false,color:"#91a4b9",gridcolor:"#1c2d40"},legend:{font:{color:"#cbd8e6",size:9},orientation:"h",y:1.12}},{responsive:true,displaylogo:false});
+}
+function renderHodo(){
+ if(!profile)return;const traces=[{x:profile.u_ms.map(v=>v*1.943844),y:profile.v_ms.map(v=>v*1.943844),mode:"lines+markers",name:"Original",line:{color:"#66aaff",width:2.4},marker:{size:5}}];
+ if(modified?.adjusted_profile){const a=modified.adjusted_profile;traces.push({x:a.u_ms.map(v=>v*1.943844),y:a.v_ms.map(v=>v*1.943844),mode:"lines",name:"Modified",line:{color:"#ffad66",width:2.2,dash:"dash"}})}
+ Plotly.react("hodo",traces,{paper_bgcolor:"#090f18",plot_bgcolor:"#090f18",margin:{l:48,r:18,t:12,b:42},xaxis:{title:"U wind (kt)",zeroline:true,zerolinecolor:"#60748a",color:"#91a4b9",gridcolor:"#1c2d40"},yaxis:{title:"V wind (kt)",zeroline:true,zerolinecolor:"#60748a",color:"#91a4b9",gridcolor:"#1c2d40",scaleanchor:"x",scaleratio:1},legend:{font:{color:"#cbd8e6",size:9}}},{responsive:true,displaylogo:false});
+}
+function renderDiagnostics(){
+ const orig=original||record?.sharppy?.diagnostics||{},mod=modified,parcels=orig.parcels||{},mp=mod?.parcels||{},kin=orig.kinematics||{},mkin=mod?.kinematics||{};
+ const metrics=[["SBCAPE",parcels.surface?.cape_jkg,mp.surface?.cape_jkg,"J/kg"],["MLCAPE",parcels.mixed_layer?.cape_jkg,mp.mixed_layer?.cape_jkg,"J/kg"],["MUCAPE",parcels.most_unstable?.cape_jkg,mp.most_unstable?.cape_jkg,"J/kg"],["DCAPE",orig.severe?.dcape_jkg,mod?.severe?.dcape_jkg,"J/kg"]];
+ $("metrics").innerHTML=metrics.map(([label,a,b,unit])=>'<div class="metric"><span>'+label+'</span><strong>'+fmt(b??a,0)+'</strong><small>'+(mod?"modified":"original archive")+' · '+unit+'</small></div>').join("");
+ const rows=[["Diagnostic","Original","Modified"],["SBCIN",fmt(parcels.surface?.cin_jkg,0)+" J/kg",mod?fmt(mp.surface?.cin_jkg,0)+" J/kg":"—"],["0–6 km shear",fmt(kin.bulk_shear_0_6km_kt,1)+" kt",mod?fmt(mkin.bulk_shear_0_6km_kt,1)+" kt":"—"],["0–1 km SRH",fmt(kin.srh_0_1km_m2s2,0)+" m²/s²",mod?fmt(mkin.srh_0_1km_m2s2,0)+" m²/s²":"—"],["PWAT",fmt(orig.thermodynamics?.precipitable_water_in,2)+" in",mod?fmt(mod.thermodynamics?.precipitable_water_in,2)+" in":"—"],["PBL height",fmt(orig.thermodynamics?.boundary_layer_height_agl_m,0)+" m",mod?fmt(mod.thermodynamics?.boundary_layer_height_agl_m,0)+" m":"—"],["Right SCP",fmt(orig.severe?.supercell_composite_right,2),mod?fmt(mod.severe?.supercell_composite_right,2):"—"]];
+ $("rows").innerHTML=rows.map((r,i)=>'<div class="diagrow"><span>'+r[0]+'</span><b>'+r[1]+'</b><b>'+(i===0?r[2]:'<span style="color:#9de4c5">'+r[2]+'</span>')+'</b></div>').join("");
+ $("suiteStatus").innerHTML="<span>Diagnostics</span><b>"+(orig.library||"Archive")+"</b><b>"+(mod?.profile_class||"Not recalculated")+"</b>";
+}
+function render(){renderSkew();renderHodo();renderDiagnostics()}
+async function boot(){
+ try{
+  await loadSiteCoordinates();
+  await loadRegistry();
+  log("Archive catalog loaded: "+Object.keys(catalog.models).join(", "));
+  $("initEngine").disabled=true;
+  $("initEngine").textContent="Loading sounding engine…";
+  setStatus("Archive ready · automatically starting browser SHARPpy and loading the default sounding…","loading");
+  await initializeEngine();
+ }catch(error){
+  $("initEngine").disabled=false;
+  $("initEngine").textContent="Initialize browser Python";
+  setStatus("Data initialization failed: "+error.message,"error");
+  log("DATA ERROR: "+(error.stack||error.message));
+ }
+}
+$("initEngine").addEventListener("click",initializeEngine);
+$("model").addEventListener("change",populateCycles);
+$("cycle").addEventListener("change",populateStations);
+$("station").addEventListener("change",populateHours);
+$("hour").addEventListener("change",()=>loadProfile().catch(showProfileError));
+["temp","dew","offsetDepth","mixDepth"].forEach(id=>$(id).addEventListener("input",scheduleCalculation));
+$("reset").addEventListener("click",()=>{["temp","dew","mixDepth"].forEach(id=>$(id).value=0);$("offsetDepth").value=1000;updateLabels();modified=null;render();if(engineReady)calculateModified()});
+updateLabels();boot();
+</script>
+</body></html>
+<script>
+const _renderDiagnosticsBase=renderDiagnostics;
+renderDiagnostics=function(){
+ _renderDiagnosticsBase();
+ const o=original||{},p=o.parcels||{},t=o.thermodynamics||{},k=o.kinematics||{},s=o.severe||{},q=o.quality||{};
+ const f=(v,d=0)=>v==null||!Number.isFinite(Number(v))?"—":Number(v).toFixed(d);
+ const lines=(pairs)=>pairs.map(([a,b])=>'<div class="metricline"><span>'+a+'</span><b>'+b+'</b></div>').join("");
+ $("miniThermo").innerHTML=lines([["PWAT",f(t.precipitable_water_in,2)+" in"],["K index",f(t.k_index)],["TT",f(t.totals_totals)],["0–3 km LR",f(t.lapse_rate_0_3km_c_km,1)],["DCAPE",f(s.dcape_jkg)+" J/kg"]]);
+ $("miniWind").innerHTML=lines([["0–6 km",f(k.bulk_shear_0_6km_kt,1)+" kt"],["0–1 km SRH",f(k.srh_0_1km_m2s2)],["EBWD",f(k.effective_bulk_shear_kt,1)+" kt"],["Bunkers RM",f(k.right_mover_u_kt,0)+", "+f(k.right_mover_v_kt,0)]]);
+ $("miniLevels").innerHTML=lines([["SFC",f(profile?.pressure_hpa?.[0])+" hPa"],["LCL",f(p.surface?.lcl_height_agl_m)+" m"],["LFC",f(p.surface?.lfc_height_agl_m)+" m"],["EL",f(p.surface?.equilibrium_level_agl_m)+" m"],["Levels",f(q.input_levels)]]);
+ $("miniParcel").innerHTML=lines([["SBCAPE",f(p.surface?.cape_jkg)],["MLCAPE",f(p.mixed_layer?.cape_jkg)],["MUCAPE",f(p.most_unstable?.cape_jkg)],["SBCIN",f(p.surface?.cin_jkg)],["MLCIN",f(p.mixed_layer?.cin_jkg)]]);
+ $("miniSevere").innerHTML=lines([["STP (eff)",f(s.significant_tornado_parameter_effective_right,2)],["STP (fixed)",f(s.significant_tornado_parameter_fixed_right,2)],["SCP",f(s.supercell_composite_right,2)],["SHIP",f(s.significant_hail_parameter,2)],["Watch",s.watch_type??"—"]]);
+ $("miniQuality").innerHTML=lines([["Engine","SHARPpy"],["Version",o.library_version??"—"],["Class",o.profile_class??"—"],["Warnings",(q.warnings||[]).length],["Levels",f(q.input_levels)]]);
+ const table=(headers,rows)=>'<table class="data-table"><thead><tr>'+headers.map(x=>'<th>'+x+'</th>').join("")+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map((v,i)=>'<td>'+(i===0?v:f(v))+'</td>').join("")+'</tr>').join("")+'</tbody></table>';
+ $("parcelTable").innerHTML=table(["Parcel","CAPE","CIN","LCL m","LFC m","EL m"],[["SFC",p.surface?.cape_jkg,p.surface?.cin_jkg,p.surface?.lcl_height_agl_m,p.surface?.lfc_height_agl_m,p.surface?.equilibrium_level_agl_m],["ML",p.mixed_layer?.cape_jkg,p.mixed_layer?.cin_jkg,p.mixed_layer?.lcl_height_agl_m,p.mixed_layer?.lfc_height_agl_m,p.mixed_layer?.equilibrium_level_agl_m],["MU",p.most_unstable?.cape_jkg,p.most_unstable?.cin_jkg,p.most_unstable?.lcl_height_agl_m,p.most_unstable?.lfc_height_agl_m,p.most_unstable?.equilibrium_level_agl_m],["FCST",p.forecast_surface?.cape_jkg,p.forecast_surface?.cin_jkg,p.forecast_surface?.lcl_height_agl_m,p.forecast_surface?.lfc_height_agl_m,p.forecast_surface?.equilibrium_level_agl_m]]);
+ $("thermoTable").innerHTML=table(["Parameter","Value"],[["PWAT (in)",t.precipitable_water_in],["K Index",t.k_index],["Total Totals",t.totals_totals],["0–3 km LR",t.lapse_rate_0_3km_c_km],["3–6 km LR",t.lapse_rate_3_6km_c_km],["850–500 LR",t.lapse_rate_850_500_c_km],["Conv T (°F)",t.convective_temperature_f],["Mean Mix (g/kg)",t.mean_mixing_ratio_gkg]]);
+ $("kinTable").innerHTML=table(["Parameter","Value"],[["0–1 km SRH",k.srh_0_1km_m2s2],["0–3 km SRH",k.srh_0_3km_m2s2],["0–6 km Shear (kt)",k.bulk_shear_0_6km_kt],["Effective Shear (kt)",k.effective_bulk_shear_kt],["Bunkers RM U (kt)",k.right_mover_u_kt],["Bunkers RM V (kt)",k.right_mover_v_kt],["Effective SRH",k.effective_srh_right_m2s2]]);
+ $("severeTable").innerHTML=table(["Parameter","Value"],[["Right SCP",s.supercell_composite_right],["Left SCP",s.supercell_composite_left],["STP fixed",s.significant_tornado_parameter_fixed_right],["STP effective",s.significant_tornado_parameter_effective_right],["SHIP",s.significant_hail_parameter],["DCAPE",s.dcape_jkg],["Microburst",s.microburst_parameter],["WNDG",s.wind_damage_parameter]]);
+};
+</script>
+</body></html>
