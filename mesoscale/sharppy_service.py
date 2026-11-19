@@ -54,20 +54,24 @@ def adjust_profile(profile: dict[str, Any], adjustments: dict[str, Any]) -> tupl
     temp_offset = float(adjustments.get("temperature_offset_c", 0.0))
     dew_offset = float(adjustments.get("dewpoint_offset_c", 0.0))
     depth = float(adjustments.get("mixing_depth_m", 0.0))
+    offset_depth = float(adjustments.get("low_level_depth_m", 1000.0))
     if not -15 <= temp_offset <= 15 or not -15 <= dew_offset <= 15:
         raise ValueError("Temperature and dewpoint offsets must be between -15 and +15 °C")
     if not 0 <= depth <= 5000:
         raise ValueError("Mixing depth must be between 0 and 5000 m AGL")
+    if not 0 <= offset_depth <= 5000:
+        raise ValueError("Low-level adjustment depth must be between 0 and 5000 m AGL")
 
     t = arrays["temperature_k"]
     td = arrays["dewpoint_k"]
     z = arrays["height_agl_m"]
     p = arrays["pressure_hpa"]
+    offset_layer = z <= offset_depth if offset_depth > 0 else np.zeros(z.shape, dtype=bool)
     layer = z <= depth if depth > 0 else np.zeros(z.shape, dtype=bool)
     if temp_offset:
-        t[layer] += temp_offset
+        t[offset_layer] += temp_offset
     if dew_offset:
-        td[layer] += dew_offset
+        td[offset_layer] += dew_offset
     supersaturated = td > t
     if np.any(supersaturated):
         warnings.append(f"Dewpoint capped at temperature at {int(np.count_nonzero(supersaturated))} levels to prevent supersaturation.")
@@ -131,6 +135,7 @@ def diagnose_adjusted_profile(payload: dict[str, Any]) -> dict[str, Any]:
             "temperature_offset_c": float(adjustments.get("temperature_offset_c", 0.0)),
             "dewpoint_offset_c": float(adjustments.get("dewpoint_offset_c", 0.0)),
             "mixing_depth_m": float(adjustments.get("mixing_depth_m", 0.0)),
+            "low_level_depth_m": float(adjustments.get("low_level_depth_m", 1000.0)),
         },
         "quality": {
             "status": "passed",
