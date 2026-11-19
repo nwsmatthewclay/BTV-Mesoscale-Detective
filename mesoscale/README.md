@@ -220,3 +220,18 @@ Open the dark-only [Browser SHARPpy Lab](../sounding-browser.html) from the Soun
 - A Playwright Chromium smoke test now loads the real archived KBTV RAP profile, initializes Pyodide, imports SHARPpy, verifies the full `ConvectiveProfile` baseline, changes low-level temperature, and verifies a second SHARPpy calculation. The successful GitHub Actions run measured approximately 899 ms for the baseline and 677 ms for the modified profile on its hosted runner; actual workstation timing will vary.
 
 The first initialization downloads the Python/WebAssembly runtime and the vendored SHARPpy source bundle, so it is expected to take longer than subsequent recalculations. This remains a research prototype until the browser diagnostics have been numerically compared against the native Python/SHARPpy environment and the additional data sources are integrated.
+
+
+## Regional BUFKIT sounding archive
+
+A separate hourly BUFKIT acquisition pipeline is now in place for the exact 32 station identifiers transcribed from the user's BUFKIT selector screenshot. The model set is RRFS, GFS, RAP and HRRR. The first live provider acquisition confirmed all 32 requested station files were available for each of the four models after correctly reading the final site code as `LO1` (not `LOI`).
+
+Retention is six model cycles for RAP and HRRR, and eight cycles for GFS and RRFS. Original provider BUFKIT text is gzip-compressed for repository storage; per-file JSON metadata preserves source URL, initialization cycle, valid times, forecast hours, byte counts and SHA-256. The archive job runs hourly and can also be manually dispatched. It avoids rewriting unchanged files and prunes older cycles according to the configured retention.
+
+- Station/model inventory: `bufkit_sites.json`
+- Hourly archive downloader: `archive_bufkit.py`
+- GitHub Actions workflow: `.github/workflows/bufkit_archive.yml`
+- Published archive catalog: `data/bufkit/catalog.json`
+- Dark-mode archive browser: `../bufkit-archive.html`
+
+The archive browser lists model cycles, stations, forecast periods and direct compressed BUFKIT downloads. The archive-to-browser-SHARPpy decoding integration is the next step; at this stage the archive pipeline and catalog are being validated independently from the interactive SHARPpy calculations.
