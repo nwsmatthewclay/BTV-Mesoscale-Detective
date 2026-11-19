@@ -151,7 +151,7 @@ def main() -> int:
         manifest_path.write_text(json.dumps(summary, indent=2)+"\n", encoding="utf-8")
     # Publish a compact index of every retained model cycle and station file.
     catalog = {"schema_version": 1, "updated_at_utc": summary["created_at_utc"], "provider": BASE, "retention_cycles": config["retention_cycles"], "models": {}}
-    for model in models:
+    for model in config["models"]:
         model_dir = ARCHIVE / model
         entries = []
         if model_dir.exists():
