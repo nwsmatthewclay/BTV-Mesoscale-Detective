@@ -26,6 +26,7 @@ def test_supported_model_filename_conventions():
     assert MODEL_PRODUCTS["RAP"] == ("RAP", "rap")
     assert MODEL_PRODUCTS["GFS"] == ("GFS", "gfs3")
     assert MODEL_PRODUCTS["RRFS"] == ("RRFS", "rrfs")
+    assert "SREF" not in MODEL_PRODUCTS  # Ensemble members need an explicit selection UI.
 
 
 def test_sharppy_profile_is_converted_to_si_and_relative_height():
