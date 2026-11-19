@@ -249,6 +249,7 @@ def calculate_sharppy_diagnostics(profile: dict) -> dict:
 
     thermodynamics = {
         "precipitable_water_in": _finite(_get(sounding, "pwat")),
+        "precipitable_water_climatology_in": _finite(_get(sounding, "pwv_climo")),
         "k_index": _finite(_get(sounding, "k_idx")),
         "totals_totals": _finite(_get(sounding, "totals_totals")),
         "lapse_rate_0_3km_c_km": _finite(_get(sounding, "lapserate_3km")),
