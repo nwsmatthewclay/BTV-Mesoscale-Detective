@@ -1,13 +1,12 @@
 {
-  "schema_version": 2,
-  "source": "User-provided BUFKIT station selector screenshot; identifiers preserved exactly",
+  "schema_version": 1,
   "regions": [
     {
       "cwa": "BTV",
-      "name": "BTV BUFKIT sounding network",
+      "name": "Burlington, Vermont",
       "subregions": [
         {
-          "name": "Core BTV stations",
+          "name": "Vermont",
           "stations": [
             {
               "id": "KBTV",
@@ -16,16 +15,16 @@
               "lon": -73.1533
             },
             {
-              "id": "KPBG",
-              "name": "Plattsburgh",
-              "lat": 44.6509,
-              "lon": -73.4681
-            },
-            {
               "id": "KMPV",
               "name": "Montpelier",
               "lat": 44.2035,
               "lon": -72.5623
+            },
+            {
+              "id": "KRUT",
+              "name": "Rutland",
+              "lat": 43.5294,
+              "lon": -72.9496
             },
             {
               "id": "KEFK",
@@ -34,10 +33,21 @@
               "lon": -72.2292
             },
             {
-              "id": "RUT",
-              "name": "Rutland",
-              "lat": 43.5294,
-              "lon": -72.9496
+              "id": "1V4",
+              "name": "St. Johnsbury",
+              "lat": 44.4193,
+              "lon": -72.0194
+            }
+          ]
+        },
+        {
+          "name": "Northern New York",
+          "stations": [
+            {
+              "id": "KPBG",
+              "name": "Plattsburgh",
+              "lat": 44.6509,
+              "lon": -73.4681
             },
             {
               "id": "KMSS",
@@ -50,113 +60,6 @@
               "name": "Saranac Lake",
               "lat": 44.3853,
               "lon": -74.2062
-            },
-            {
-              "id": "KMVL",
-              "name": "KMVL"
-            },
-            {
-              "id": "VSF",
-              "name": "VSF"
-            },
-            {
-              "id": "OGS",
-              "name": "OGS"
-            },
-            {
-              "id": "MALO",
-              "name": "MALO"
-            },
-            {
-              "id": "1V4",
-              "name": "St. Johnsbury",
-              "lat": 44.4193,
-              "lon": -72.0194
-            }
-          ]
-        },
-        {
-          "name": "Additional BUFKIT sites",
-          "stations": [
-            {
-              "id": "ALBU",
-              "name": "ALBU"
-            },
-            {
-              "id": "CLCR",
-              "name": "CLCR"
-            },
-            {
-              "id": "GTB",
-              "name": "GTB"
-            },
-            {
-              "id": "JAYV",
-              "name": "JAYV"
-            },
-            {
-              "id": "KALB",
-              "name": "KALB"
-            },
-            {
-              "id": "KBGR",
-              "name": "KBGR"
-            },
-            {
-              "id": "KBHB",
-              "name": "KBHB"
-            },
-            {
-              "id": "KCAR",
-              "name": "KCAR"
-            },
-            {
-              "id": "KFVE",
-              "name": "KFVE"
-            },
-            {
-              "id": "KGFL",
-              "name": "KGFL"
-            },
-            {
-              "id": "KHUL",
-              "name": "KHUL"
-            },
-            {
-              "id": "KLEB",
-              "name": "KLEB"
-            },
-            {
-              "id": "KLGN",
-              "name": "KLGN"
-            },
-            {
-              "id": "KPOU",
-              "name": "KPOU"
-            },
-            {
-              "id": "KPQI",
-              "name": "KPQI"
-            },
-            {
-              "id": "KPSF",
-              "name": "KPSF"
-            },
-            {
-              "id": "LO1",
-              "name": "LO1"
-            },
-            {
-              "id": "MCGL",
-              "name": "MCGL"
-            },
-            {
-              "id": "NUND",
-              "name": "NUND"
-            },
-            {
-              "id": "RIPT",
-              "name": "RIPT"
             }
           ]
         }
