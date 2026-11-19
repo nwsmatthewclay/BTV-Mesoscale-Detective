@@ -121,6 +121,11 @@ def adjust_profile(profile: dict[str, Any], adjustments: dict[str, Any]) -> tupl
     if np.any(td > t):
         raise ValueError("Adjusted dewpoint exceeds temperature after mixing")
     adjusted = {key: value.tolist() for key, value in arrays.items()}
+    # Preserve profile metadata and optional BUFKIT vertical velocity for the
+    # ConvectiveProfile diagnostic suite; the source object itself is untouched.
+    for key in ("location", "latitude", "date", "valid_time_utc", "omega_pa_s"):
+        if key in profile:
+            adjusted[key] = profile[key]
     return adjusted, warnings
 
 
