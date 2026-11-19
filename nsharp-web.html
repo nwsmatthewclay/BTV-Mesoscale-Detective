@@ -12,23 +12,23 @@ button,select,input{font:inherit;color:#eee;background:#090909;border:1px solid 
 .top{height:42px;display:flex;align-items:center;gap:12px;padding:4px 10px;border-bottom:1px solid #777;background:#000;white-space:nowrap}
 .brand{font-size:16px;font-weight:bold;letter-spacing:.04em}.status{color:#9fe8a0;font-size:10px;overflow:hidden;text-overflow:ellipsis}.tools{display:flex;gap:6px;margin-left:auto;align-items:center}.tools select{max-width:135px}.tools button{cursor:pointer}
 .workspace{height:calc(100vh - 42px);display:grid;grid-template-rows:minmax(0,1fr) 228px;gap:3px;padding:3px}
-.upper{min-height:0;display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);gap:3px}
-.left{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 88px 118px;gap:2px}
+.upper{min-height:0;display:grid;grid-template-columns:minmax(0,1.38fr) minmax(0,.62fr);gap:3px}
+.left{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 116px 148px;gap:2px}
 .panel{min-width:0;min-height:0;background:#000;border:1px solid #666;position:relative;overflow:hidden}
 .paneltitle{height:22px;padding:4px 6px;border-bottom:1px solid #777;font-size:11px;font-weight:bold;letter-spacing:.02em;background:#050505}
 .plot{height:calc(100% - 22px);width:100%}.skewplot{height:calc(100% - 22px)}
 .skewplot .js-plotly-plot,.hodoplot .js-plotly-plot{height:100%!important}
 .hodoplot{height:calc(100% - 22px)}
 .sidecol{display:grid;grid-template-rows:1fr 1fr 1fr;gap:2px;min-height:0}
-.tiny{height:100%;width:100%;font:9px/1.2 ui-monospace,monospace;color:#eee;padding:5px;overflow:hidden}
+.tiny{height:100%;width:100%;font:11px/1.3 ui-monospace,monospace;color:#eee;padding:5px;overflow:hidden}
 .tiny .val{color:var(--cyan)}.tiny .warn{color:#ff6464}.tiny .good{color:#65ff65}
 .lower{min-height:0;display:grid;grid-template-columns:1.12fr .92fr .86fr 1fr 1fr 1fr;gap:3px}
 .tablepanel{display:flex;flex-direction:column}.tablecontent{padding:5px;overflow:auto;font:10px/1.25 ui-monospace,monospace}
 .data-table{width:100%;border-collapse:collapse;font-size:10px}.data-table th,.data-table td{padding:3px 4px;border-bottom:1px solid #333;text-align:right;white-space:nowrap}.data-table th:first-child,.data-table td:first-child{text-align:left}.data-table th{color:#aaa;font-weight:normal}.data-table td{color:#eee}.data-table .hot{color:#ff5353}.data-table .cool{color:#4eeaff}
 .metricline{display:flex;justify-content:space-between;gap:5px;border-bottom:1px dotted #444;padding:3px 0}.metricline span{color:#aaa}.metricline b{color:#fff;font-weight:normal}
 .controls{display:flex;gap:5px;align-items:center}.controls label{color:#aaa;font-size:10px}.controls input{width:70px}
-#metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:5px}.metric{border:1px solid #444;padding:4px;text-align:center}.metric span{display:block;color:#aaa;font-size:9px}.metric strong{display:block;font-size:15px;color:#fff}
-#rows .diagrow{display:grid;grid-template-columns:1fr .7fr .7fr;gap:4px;padding:3px 0;border-bottom:1px solid #333;font:9px ui-monospace,monospace}#rows .diagrow span{color:#aaa}#rows .diagrow b{text-align:right;font-weight:normal}
+#metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:5px}.metric{border:1px solid #444;padding:4px;text-align:center}.metric span{display:block;color:#aaa;font-size:9px}.metric strong{display:block;font-size:17px;color:#fff}
+#rows .diagrow{display:grid;grid-template-columns:1fr .7fr .7fr;gap:4px;padding:3px 0;border-bottom:1px solid #333;font:10px ui-monospace,monospace}#rows .diagrow span{color:#aaa}#rows .diagrow b{text-align:right;font-weight:normal}
 #raw{display:none}#log{display:none}#profileMeta{display:none}#suiteStatus{display:none}
 @media(max-width:1050px){.workspace{overflow:auto;height:calc(100vh - 42px);grid-template-rows:650px 260px}.upper{grid-template-columns:1fr}.left{grid-template-columns:1fr 70px 90px}.lower{grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:220px}.tools select{max-width:90px}}
 </style>
@@ -284,12 +284,20 @@ function renderSkew(){
   }
  }
  if(modified?.adjusted_profile){const a=modified.adjusted_profile;traces.push({x:a.temperature_k.map((v,i)=>skewX(v-273.15,a.pressure_hpa[i])),y:a.pressure_hpa,mode:"lines",name:"Modified T",line:{color:"#ffad66",width:2.2,dash:"dash"}});traces.push({x:a.dewpoint_k.map((v,i)=>skewX(v-273.15,a.pressure_hpa[i])),y:a.pressure_hpa,mode:"lines",name:"Modified Td",line:{color:"#75dfa9",width:2.2,dash:"dash"}})}
- Plotly.react("skewt",traces,{paper_bgcolor:"#090f18",plot_bgcolor:"#090f18",margin:{l:55,r:12,t:12,b:42},xaxis:{title:"Temperature (°C)",color:"#91a4b9",gridcolor:"#1c2d40",tickvals:[-40,-30,-20,-10,0,10,20,30,40,50]},yaxis:{title:"Pressure (hPa)",type:"log",range:[Math.log10(1050),Math.log10(100)],autorange:false,color:"#91a4b9",gridcolor:"#1c2d40"},legend:{font:{color:"#cbd8e6",size:9},orientation:"h",y:1.12}},{responsive:true,displaylogo:false});
+ const soundingTemps=[...envT,...profile.dewpoint_k.map(v=>v-273.15)];
+ for(const parcel of Object.values(parcels)){if(Array.isArray(parcel.trace_temperature_c))soundingTemps.push(...parcel.trace_temperature_c.filter(Number.isFinite));}
+ const validTemps=soundingTemps.filter(Number.isFinite);
+ const tMin=Math.floor((Math.min(...validTemps)-6)/5)*5,tMax=Math.ceil((Math.max(...validTemps)+6)/5)*5;
+ const pBottom=Math.min(1050,Math.max(...p)),pTop=Math.max(50,Math.min(...p));
+ Plotly.react("skewt",traces,{paper_bgcolor:"#090f18",plot_bgcolor:"#090f18",margin:{l:55,r:12,t:12,b:42},xaxis:{title:"Temperature (°C)",range:[skewX(tMin,pBottom),skewX(tMax,pBottom)],autorange:false,color:"#91a4b9",gridcolor:"#1c2d40",tickvals:Array.from({length:Math.floor((tMax-tMin)/10)+1},(_,i)=>tMin+i*10)},yaxis:{title:"Pressure (hPa)",type:"log",range:[Math.log10(pBottom),Math.log10(pTop)],autorange:false,color:"#91a4b9",gridcolor:"#1c2d40"},legend:{font:{color:"#cbd8e6",size:9},orientation:"h",y:1.12}},{responsive:true,displaylogo:false});
 }
 function renderHodo(){
- if(!profile)return;const traces=[{x:profile.u_ms.map(v=>v*1.943844),y:profile.v_ms.map(v=>v*1.943844),mode:"lines+markers",name:"Original",line:{color:"#66aaff",width:2.4},marker:{size:5}}];
- if(modified?.adjusted_profile){const a=modified.adjusted_profile;traces.push({x:a.u_ms.map(v=>v*1.943844),y:a.v_ms.map(v=>v*1.943844),mode:"lines",name:"Modified",line:{color:"#ffad66",width:2.2,dash:"dash"}})}
- Plotly.react("hodo",traces,{paper_bgcolor:"#090f18",plot_bgcolor:"#090f18",margin:{l:48,r:18,t:12,b:42},xaxis:{title:"U wind (kt)",zeroline:true,zerolinecolor:"#60748a",color:"#91a4b9",gridcolor:"#1c2d40"},yaxis:{title:"V wind (kt)",zeroline:true,zerolinecolor:"#60748a",color:"#91a4b9",gridcolor:"#1c2d40",scaleanchor:"x",scaleratio:1},legend:{font:{color:"#cbd8e6",size:9}}},{responsive:true,displaylogo:false});
+ if(!profile)return;
+ const heights=profile.height_agl_m||[];
+ const indices=heights.map((z,i)=>({z:Number(z),i})).filter(x=>Number.isFinite(x.z)&&x.z>=0&&x.z<=6000).map(x=>x.i);
+ const traces=[{x:indices.map(i=>profile.u_ms[i]*1.943844),y:indices.map(i=>profile.v_ms[i]*1.943844),mode:"lines+markers",name:"0–6 km",line:{color:"#66aaff",width:2.4},marker:{size:5},customdata:indices.map(i=>heights[i]/1000),hovertemplate:"Height: %{customdata:.1f} km<br>U: %{x:.1f} kt<br>V: %{y:.1f} kt<extra></extra>"}];
+ if(modified?.adjusted_profile){const a=modified.adjusted_profile;traces.push({x:indices.map(i=>a.u_ms[i]*1.943844),y:indices.map(i=>a.v_ms[i]*1.943844),mode:"lines",name:"Modified 0–6 km",line:{color:"#ffad66",width:2.2,dash:"dash"}})}
+ Plotly.react("hodo",traces,{paper_bgcolor:"#090f18",plot_bgcolor:"#090f18",margin:{l:42,r:10,t:8,b:38},xaxis:{title:"U (kt)",zeroline:true,zerolinecolor:"#60748a",color:"#91a4b9",gridcolor:"#1c2d40",tickfont:{size:10}},yaxis:{title:"V (kt)",zeroline:true,zerolinecolor:"#60748a",color:"#91a4b9",gridcolor:"#1c2d40",scaleanchor:"x",scaleratio:1,tickfont:{size:10}},legend:{font:{color:"#cbd8e6",size:9}}},{responsive:true,displaylogo:false});
 }
 function renderDiagnostics(){
  const orig=original||record?.sharppy?.diagnostics||{},mod=modified,parcels=orig.parcels||{},mp=mod?.parcels||{},kin=orig.kinematics||{},mkin=mod?.kinematics||{};
