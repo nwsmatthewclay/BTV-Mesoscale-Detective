@@ -47,7 +47,7 @@ The main map viewer enables HRRR only for its verified surface archive. Its arch
 
 **Forecaster-facing native SHARPpy setup:** see [native-sharppy/README.md](native-sharppy/README.md). This installs the official SHARPpy desktop GUI in an isolated Conda environment and adds BTV CWA RRFS, GFS, RAP and HRRR BUFKIT data-source entries through SHARPpy's XML/CSV configuration mechanism. It does not replace SHARPpy's interface with a browser implementation.
 
-The first integration pass is a live-feed prototype against Penn State's current BUFKIT files. The versioned multi-cycle BTV archive still needs a cycle-aware adapter before it can be represented accurately in SHARPpy's native calendar. The browser workbench remains separate while that adapter is developed and validated.
+The native configuration now targets a cycle-aware Cloudflare Worker adapter for the versioned BTV BUFKIT archive. The Worker source and deployment instructions are in `native-sharppy/worker/` and `native-sharppy/README.md`. Deployment into the user's Cloudflare account and workstation validation remain alpha gates. The browser workbench remains separate.
 
 ## Forecast Sounding Workbench
 
