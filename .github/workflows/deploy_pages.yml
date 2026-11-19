@@ -8,6 +8,7 @@ on:
       - "mesoscale.html"
       - "sounding.html"
       - "nsharp.html"
+      - "nsharp-web.html"
       - "sounding-browser.html"
       - "bufkit-archive.html"
       - "mesoscale/sounding_locations.json"
