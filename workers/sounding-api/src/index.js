@@ -36,7 +36,7 @@ export default {
     // The native desktop's VNC stream is only reachable through this
     // authenticated WebSocket route. Store SHARPPY_DESKTOP_TOKEN as a
     // Cloudflare Worker secret; never put it in wrangler vars or source.
-    if (url.pathname === "/websockify") {
+    if (url.pathname === "/websockify" || url.pathname === "/desktop/websockify") {
       const expected = env.SHARPPY_DESKTOP_TOKEN;
       const supplied = url.searchParams.get("token");
       if (!expected || !supplied || supplied !== expected) {
@@ -46,6 +46,7 @@ export default {
         });
       }
       const upstream = new URL(request.url);
+      upstream.pathname = "/websockify";
       upstream.search = "";
       return getContainer(env.SHARPPY_API).fetch(
         switchPort(new Request(upstream, request), 6080),
