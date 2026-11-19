@@ -22,7 +22,7 @@ main{max-width:1800px;margin:auto;padding:16px 20px 30px}.intro{display:flex;ali
 <div class="intro"><div><div class="eyebrow">Vertical analysis laboratory</div><h2>Explore the model atmosphere. Modify the boundary layer.</h2><p>Original model profiles remain immutable. Experimental changes are recalculated independently with SHARPpy.</p></div><div class="status" id="dataStatus">Loading verified RAP sounding archive…</div></div>
 <section class="panel controls">
  <div class="field"><label for="cwa">Forecast office / CWA</label><select id="cwa"><option value="BTV">BTV · Burlington</option></select><small>Location groups are CWA-aware.</small></div>
- <div class="field"><label for="model">Model</label><select id="model"><option value="RAP">RAP · 13 km hybrid</option><option disabled>HRRR · full-column profile not yet archived</option><option disabled>RRFS · not yet published</option><option disabled>NAM · BUFKIT feed pending</option><option disabled>GFS · BUFKIT feed pending</option></select><small>Only verified full-column sources enabled.</small></div>
+ <div class="field"><label for="model">Model</label><select id="model"><option value="RAP_ARCHIVE">RAP · verified profile archive</option><option value="RAP">RAP · BUFKIT feed</option><option value="HRRR">HRRR · BUFKIT feed</option><option value="GFS">GFS · BUFKIT feed</option><option value="NAM">NAM · BUFKIT feed</option><option value="NAMNEST">NAM Nest · BUFKIT feed</option><option value="RRFS">RRFS · BUFKIT feed</option><option value="SREF">SREF · BUFKIT feed</option><option value="HIRESW">HIRESW · BUFKIT feed</option></select><small>BUFKIT availability varies by model and station.</small></div>
  <div class="field"><label for="location">Sounding location</label><select id="location"><optgroup label="Vermont"><option>KBTV</option></optgroup></select><small id="locationDetail">Burlington International</small></div>
  <div class="field"><label for="forecastHour">Forecast hour</label><select id="forecastHour"><option>F00</option></select><small id="validTime">Valid time pending</small></div>
  <div class="field"><label for="cycle">Model initialization</label><select id="cycle"><option>Latest verified cycle</option></select><small id="cycleDetail">Cycle and valid time are read from the archive manifest.</small></div>
@@ -59,7 +59,7 @@ main{max-width:1800px;margin:auto;padding:16px 20px 30px}.intro{display:flex;ali
 <div class="notice"><b>Operational safeguards:</b> this is a research and forecast-exploration tool, not an operationally approved decision aid. Original model data are never overwritten. Modified results are labeled experimental and must not be confused with model guidance. HRRR is currently surface-only in this archive and is intentionally not offered as a sounding.</div>
 </main>
 <script>
-let stations=[], locationRegistry=[], manifest=null, sourceProfile=null, sourceRecord=null, modifiedResult=null, apiReady=false;
+let stations=[], locationRegistry=[], manifest=null, sourceProfile=null, sourceRecord=null, modifiedResult=null, apiReady=false, bufkitProfiles=[], bufkitKey='';
 const $=id=>document.getElementById(id);
 const fmt=(v,d=0)=>Number.isFinite(Number(v))?Number(v).toFixed(d):'—';
 function populateLocations(){
@@ -82,7 +82,7 @@ async function loadLocations(){
 }
 function populateHours(){
  const select=$('forecastHour');select.innerHTML='';
- (manifest?.hours||[]).forEach(h=>{const o=document.createElement('option');o.value=String(h.forecast_hour);o.textContent='F'+String(h.forecast_hour).padStart(2,'0');select.appendChild(o);});
+ (String($('model').value)==='RAP_ARCHIVE'?(manifest?.hours||[]):bufkitProfiles).forEach(h=>{const o=document.createElement('option');o.value=String(h.forecast_hour);o.textContent='F'+String(h.forecast_hour).padStart(2,'0')+(h.valid_time_utc?' · '+h.valid_time_utc.replace('T',' ').slice(0,16)+'Z':'');select.appendChild(o);});
 }
 async function loadManifest(){
  const r=await fetch('./mesoscale/data/fields/forecast/forecast_manifest.json?ts='+Date.now(),{cache:'no-store'});
@@ -93,10 +93,10 @@ async function loadManifest(){
  const c=$('cycle');c.innerHTML='';const o=document.createElement('option');o.value=m.model_cycle_utc;o.textContent=m.model_cycle_utc+' · latest archive';c.appendChild(o);
  populateHours();$('forecastHour').value=String(m.hours.find(h=>Number(h.forecast_hour)===0)?.forecast_hour??m.hours[0].forecast_hour);
 }
-async function loadProfile(){
+async function loadArchiveProfile(){
  const hour=Number($('forecastHour').value),station=$('location').value;
  const entry=manifest.hours.find(h=>Number(h.forecast_hour)===hour);
- if(!entry)throw new Error('Selected forecast hour is not in the verified archive');
+ if(!entry)throw new Error('Selected forecast hour is not in the verified RAP archive');
  const url='./mesoscale/data/fields/forecast/'+entry.station_file;
  const r=await fetch(url+'?ts='+Date.now(),{cache:'no-store'});
  if(!r.ok)throw new Error('Station profile HTTP '+r.status+' · '+url);
@@ -109,10 +109,58 @@ async function loadProfile(){
  $('validTime').textContent='Valid '+record.valid_time_utc;
  $('locationDetail').textContent=stations.find(s=>s.id===station)?.name||station;
  $('cycleDetail').textContent='Initialized '+record.model_cycle_utc;
- $('dataStatus').textContent='Verified RAP profile loaded · SHARPpy '+record.sharppy.diagnostics.library_version;
+ $('dataStatus').textContent='Verified RAP archive profile loaded · SHARPpy '+record.sharppy.diagnostics.library_version;
  $('dataStatus').style.color='var(--green)';
- $('profileMeta').textContent='RAP '+record.model_cycle_utc+' · '+station+' · F'+String(hour).padStart(2,'0')+' · valid '+record.valid_time_utc+' · '+record.quality.levels+' vertical levels · source '+record.source_file+' · SHARPpy '+record.sharppy.diagnostics.library_version+'.';
+ $('profileMeta').textContent='RAP archive · '+record.model_cycle_utc+' · '+station+' · F'+String(hour).padStart(2,'0')+' · valid '+record.valid_time_utc+' · '+record.quality.levels+' vertical levels · source '+record.source_file+' · SHARPpy '+record.sharppy.diagnostics.library_version+'.';
  render();
+}
+async function loadBufkitProfiles(){
+ const model=$('model').value,station=$('location').value,base=$('apiBase').value.trim().replace(/\/$/,'');
+ $('dataStatus').textContent='Requesting '+model+' BUFKIT file for '+station+' from Penn State…';
+ $('dataStatus').style.color='var(--amber)';
+ const r=await fetch(base+'/bufkit/'+encodeURIComponent(model)+'/'+encodeURIComponent(station));
+ const data=await r.json();if(!r.ok)throw new Error(data.detail||'BUFKIT provider HTTP '+r.status);
+ if(data.model!==model||data.station!==station||!Array.isArray(data.profiles)||!data.profiles.length)throw new Error('BUFKIT response failed model/station/profile validation');
+ bufkitProfiles=data.profiles;bufkitKey=model+'|'+station;
+ populateHours();
+ const first=bufkitProfiles.find(p=>Number(p.forecast_hour)===0)||bufkitProfiles[0];
+ $('forecastHour').value=String(first.forecast_hour);
+ await loadBufkitSelectedProfile();
+}
+async function loadBufkitSelectedProfile(){
+ const hour=Number($('forecastHour').value),record=bufkitProfiles.find(p=>Math.abs(Number(p.forecast_hour)-hour)<0.001);
+ if(!record)throw new Error('Selected forecast hour is not present in this BUFKIT file');
+ sourceRecord=record;sourceProfile=record.profile;modifiedResult=null;
+ $('validTime').textContent='Valid '+record.valid_time_utc;
+ $('locationDetail').textContent=stations.find(s=>s.id===record.station)?.name||record.station;
+ $('cycleDetail').textContent='Initialized '+record.model_cycle_utc;
+ $('profileMeta').textContent=record.model+' BUFKIT · '+record.model_cycle_utc+' · '+record.station+' · F'+record.forecast_hour+' · valid '+record.valid_time_utc+' · '+record.quality.levels+' vertical levels · native SHARPpy BufDecoder · '+(record.source_url||'Penn State BUFKIT')+'.';
+ $('dataStatus').textContent=record.model+' BUFKIT profile decoded · '+record.quality.levels+' levels · SHARPpy BufDecoder';
+ $('dataStatus').style.color='var(--green)';
+ render();
+ const base=$('apiBase').value.trim().replace(/\/$/,'');
+ try{
+  const response=await fetch(base+'/diagnose',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({profile:sourceProfile,adjustments:{}})});
+  const result=await response.json();if(!response.ok)throw new Error(result.detail||'HTTP '+response.status);
+  if(result.engine!=='SHARPpy'||result.quality?.status!=='passed')throw new Error('SHARPpy baseline calculation did not pass');
+  sourceRecord.sharppy={diagnostics:result.diagnostics};
+  buildDiagnostics();
+  $('diagStatus').textContent='Original profile diagnostics calculated by SHARPpy '+(result.diagnostics.library_version||'')+'. Modified results will be independently recalculated by SHARPpy.';
+ }catch(e){
+  sourceRecord.sharppy=null;buildDiagnostics();
+  $('apiStatus').textContent='BUFKIT profile loaded, but SHARPpy diagnostic calculation failed: '+e.message;
+  $('apiStatus').style.color='var(--amber)';
+ }
+}
+async function loadProfile(){
+ if($('model').value==='RAP_ARCHIVE'){
+  if(!manifest)await loadManifest();
+  populateHours();
+  return loadArchiveProfile();
+ }
+ const key=$('model').value+'|'+$('location').value;
+ if(key!==bufkitKey)return loadBufkitProfiles();
+ return loadBufkitSelectedProfile();
 }
 function originalDiagnostics(){return sourceRecord?.sharppy?.diagnostics||{};}
 function modifiedDiagnostics(){return modifiedResult?.diagnostics||null;}
@@ -174,7 +222,8 @@ async function applyAdjustments(){
 function reset(){$('tempOffset').value=0;$('dewOffset').value=0;$('offsetDepth').value=1000;$('mixDepth').value=0;updateOutputs();modifiedResult=null;render();$('apiStatus').textContent='Adjustments reset. Original model profile and original SHARPpy diagnostics restored.';$('apiStatus').style.color='var(--muted)';}
 $('tempOffset').addEventListener('input',updateOutputs);$('dewOffset').addEventListener('input',updateOutputs);$('offsetDepth').addEventListener('input',updateOutputs);$('mixDepth').addEventListener('input',updateOutputs);
 $('apply').addEventListener('click',applyAdjustments);$('reset').addEventListener('click',reset);$('checkApi').addEventListener('click',checkApi);
-$('cwa').addEventListener('change',()=>{populateLocations();loadProfile().catch(e=>$('dataStatus').textContent='Profile unavailable: '+e.message);});\n$('location').addEventListener('change',()=>loadProfile().catch(e=>$('dataStatus').textContent='Profile unavailable: '+e.message));
+$('cwa').addEventListener('change',()=>{populateLocations();loadProfile().catch(e=>$('dataStatus').textContent='Profile unavailable: '+e.message);});\n$('model').addEventListener('change',()=>loadProfile().catch(e=>{$('dataStatus').textContent='Profile unavailable: '+e.message;$('dataStatus').style.color='var(--amber)';}));
+$('location').addEventListener('change',()=>loadProfile().catch(e=>{$('dataStatus').textContent='Profile unavailable: '+e.message;$('dataStatus').style.color='var(--amber)';}));
 $('forecastHour').addEventListener('change',()=>loadProfile().catch(e=>$('dataStatus').textContent='Profile unavailable: '+e.message));
 (async()=>{updateOutputs();try{await loadLocations();await loadManifest();await loadProfile();}catch(e){$('dataStatus').textContent='Verified RAP profile archive unavailable: '+e.message;$('dataStatus').style.color='var(--amber)';}})();
 </script>
