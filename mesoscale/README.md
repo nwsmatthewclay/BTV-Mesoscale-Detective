@@ -211,7 +211,7 @@ This is an initial tile-rendering implementation. Validate the published product
 Open the dark-only [Browser SHARPpy Lab](../sounding-browser.html) from the Sounding Workbench. This is a technical proof of concept for running the actual SHARPpy calculation routines inside the user's browser with Pyodide/WebAssembly; it does not require a local Python installation, API server, or GitHub Action for interactive profile changes.
 
 - The lab loads a verified RAP station profile from the published forecast archive.
-- On user request, it initializes Pyodide 0.26.4, loads NumPy, fetches the pinned upstream SHARPpy v1.4.0 source archive, and imports the repository's existing `sharppy_adapter.py`.
+- On user request, it initializes Pyodide 0.26.4, loads NumPy, loads the same-origin, repository-vendored SHARPpy v1.4.0 source bundle (built from the pinned upstream tag by GitHub Actions), and imports the repository's existing `sharppy_adapter.py`.
 - The adapter calls SHARPpy's actual `create_profile(profile="convective")` path. The lab only labels a calculation successful after the `ConvectiveProfile` suite returns.
 - `browser_adjustments.py` is a NumPy-only module (no MetPy or server dependency) for low-level temperature/dewpoint offsets and pressure-mass-weighted mixing of potential temperature, water-vapor mixing ratio, and horizontal momentum.
 - Slider changes are debounced briefly and recalculate in the already initialized browser Python runtime. GitHub Actions is not invoked for these interactive changes.
