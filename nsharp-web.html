@@ -299,7 +299,7 @@ function renderSkew(){
    const z=window.__nsharpSkewZoom||(window.__nsharpSkewZoom={x:[-50,50],y:[Math.log10(1050),Math.log10(100)]});
    if(ev["xaxis.range[0]"]!==undefined)z.x=[ev["xaxis.range[0]"],ev["xaxis.range[1]"]];
    if(ev["yaxis.range[0]"]!==undefined)z.y=[ev["yaxis.range[0]"],ev["yaxis.range[1]"]];
-   try{localStorage.setItem("btv-nsharp-skew-zoom",JSON.stringify(z))}catch(_){}
+   try{localStorage.setItem("btv-nsharp-skew-zoom-v2",JSON.stringify(z))}catch(_){}
   })}
  });
 }
@@ -345,9 +345,9 @@ $("hour").addEventListener("change",()=>loadProfile().catch(showProfileError));
 ["temp","dew","offsetDepth","mixDepth"].forEach(id=>$(id).addEventListener("input",scheduleCalculation));
 $("reset").addEventListener("click",()=>{["temp","dew","mixDepth"].forEach(id=>$(id).value=0);$("offsetDepth").value=1000;updateLabels();modified=null;render();if(engineReady)calculateModified()});
 // Restore manual Skew-T zoom between page visits.
-try{const saved=JSON.parse(localStorage.getItem("btv-nsharp-skew-zoom")||"null");if(saved&&Array.isArray(saved.x)&&Array.isArray(saved.y))window.__nsharpSkewZoom=saved}catch(_){}
+try{const saved=JSON.parse(localStorage.getItem("btv-nsharp-skew-zoom-v2")||"null");if(saved&&Array.isArray(saved.x)&&Array.isArray(saved.y))window.__nsharpSkewZoom=saved}catch(_){}
 $("reset").insertAdjacentHTML("afterend",'<button id="resetSkewZoom" title="Restore the default Skew-T view">Reset Skew-T zoom</button>');
-$("resetSkewZoom").addEventListener("click",()=>{window.__nsharpSkewZoom=null;try{localStorage.removeItem("btv-nsharp-skew-zoom")}catch(_){}if(profile)renderSkew()});
+$("resetSkewZoom").addEventListener("click",()=>{window.__nsharpSkewZoom=null;try{localStorage.removeItem("btv-nsharp-skew-zoom-v2")}catch(_){}if(profile)renderSkew()});
 updateLabels();boot();
 </script>
 <script>
