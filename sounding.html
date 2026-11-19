@@ -111,8 +111,23 @@ async function loadArchiveProfile(){
  $('cycleDetail').textContent='Initialized '+record.model_cycle_utc;
  $('dataStatus').textContent='Verified RAP archive profile loaded · SHARPpy '+record.sharppy.diagnostics.library_version;
  $('dataStatus').style.color='var(--green)';
- $('profileMeta').textContent='RAP archive · '+record.model_cycle_utc+' · '+station+' · F'+String(hour).padStart(2,'0')+' · valid '+record.valid_time_utc+' · '+record.quality.levels+' vertical levels · source '+record.source_file+' · SHARPpy '+record.sharppy.diagnostics.library_version+'.';
+ $('profileMeta').textContent='RAP archive · '+record.model_cycle_utc+' · '+station+' · F'+String(hour).padStart(2,'0')+' · valid '+record.valid_time_utc+' · '+record.quality.levels+' vertical levels · source '+record.source_file+' · archived SHARPpy '+record.sharppy.diagnostics.library_version+'.';
  render();
+ // Refresh the full NSHARP-style diagnostic suite with the ConvectiveProfile
+ // engine; retain the archived baseline if the API is not connected.
+ try{
+  const base=$('apiBase').value.trim().replace(/\/$/,'');
+  const response=await fetch(base+'/diagnose',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({profile:sourceProfile,adjustments:{}})});
+  const result=await response.json();if(!response.ok)throw new Error(result.detail||'HTTP '+response.status);
+  if(result.engine!=='SHARPpy'||result.quality?.status!=='passed')throw new Error('SHARPpy baseline calculation did not pass');
+  sourceRecord.sharppy={status:'passed',diagnostics:result.diagnostics};
+  render();
+  $('apiStatus').textContent='Full SHARPpy ConvectiveProfile suite active · '+result.diagnostics.library_version;
+  $('apiStatus').style.color='var(--green)';
+ }catch(e){
+  $('apiStatus').textContent='Showing archived SHARPpy baseline. Full ConvectiveProfile refresh requires the SHARPpy API: '+e.message;
+  $('apiStatus').style.color='var(--muted)';
+ }
 }
 async function loadBufkitProfiles(){
  const model=$('model').value,station=$('location').value,base=$('apiBase').value.trim().replace(/\/$/,'');
