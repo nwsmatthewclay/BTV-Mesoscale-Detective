@@ -1,0 +1,210 @@
+{
+  "schema_version": 2,
+  "source": "User-provided BUFKIT station selector screenshot",
+  "models": [
+    "RRFS",
+    "GFS",
+    "RAP",
+    "HRRR"
+  ],
+  "retention_cycles": {
+    "RAP": 6,
+    "HRRR": 6,
+    "GFS": 8,
+    "RRFS": 8
+  },
+  "stations": [
+    [
+      "KBTV",
+      "Burlington International",
+      44.4719,
+      -73.1533
+    ],
+    [
+      "KPBG",
+      "Plattsburgh",
+      44.6509,
+      -73.4681
+    ],
+    [
+      "KMPV",
+      "Montpelier",
+      44.2035,
+      -72.5623
+    ],
+    [
+      "KEFK",
+      "Newport",
+      44.8888,
+      -72.2292
+    ],
+    [
+      "RUT",
+      "Rutland",
+      null,
+      null
+    ],
+    [
+      "KMSS",
+      "Massena",
+      44.9358,
+      -74.8456
+    ],
+    [
+      "KSLK",
+      "Saranac Lake",
+      44.3853,
+      -74.2062
+    ],
+    [
+      "KMVL",
+      "Morrisville",
+      null,
+      null
+    ],
+    [
+      "VSF",
+      "Springfield",
+      null,
+      null
+    ],
+    [
+      "OGS",
+      "Ogdensburg",
+      null,
+      null
+    ],
+    [
+      "MALO",
+      "Malone",
+      null,
+      null
+    ],
+    [
+      "1V4",
+      "St. Johnsbury",
+      44.4193,
+      -72.0194
+    ],
+    [
+      "ALBU",
+      "Albany",
+      null,
+      null
+    ],
+    [
+      "CLCR",
+      "Clear",
+      null,
+      null
+    ],
+    [
+      "GTB",
+      "Fort Drum",
+      null,
+      null
+    ],
+    [
+      "JAYV",
+      "Jay Peak",
+      null,
+      null
+    ],
+    [
+      "KALB",
+      "Albany International",
+      null,
+      null
+    ],
+    [
+      "KBGR",
+      "Bangor",
+      null,
+      null
+    ],
+    [
+      "KBHB",
+      "Bar Harbor",
+      null,
+      null
+    ],
+    [
+      "KCAR",
+      "Caribou",
+      null,
+      null
+    ],
+    [
+      "KFVE",
+      "Frenchville",
+      null,
+      null
+    ],
+    [
+      "KGFL",
+      "Glens Falls",
+      null,
+      null
+    ],
+    [
+      "KHUL",
+      "Houlton",
+      null,
+      null
+    ],
+    [
+      "KLEB",
+      "Lebanon",
+      null,
+      null
+    ],
+    [
+      "KLGN",
+      "Logan",
+      null,
+      null
+    ],
+    [
+      "KPOU",
+      "Poughkeepsie",
+      null,
+      null
+    ],
+    [
+      "KPQI",
+      "Presque Isle",
+      null,
+      null
+    ],
+    [
+      "KPSF",
+      "Pittsfield",
+      null,
+      null
+    ],
+    [
+      "LOI",
+      "Limestone",
+      null,
+      null
+    ],
+    [
+      "MCGL",
+      "McGrath",
+      null,
+      null
+    ],
+    [
+      "NUND",
+      "Nund",
+      null,
+      null
+    ],
+    [
+      "RIPT",
+      "Ripton",
+      null,
+      null
+    ]
+  ]
+}
