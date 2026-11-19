@@ -43,6 +43,12 @@ The main map viewer enables HRRR only for its verified surface archive. Its arch
 - Plot verified RAP station diagnostics across the published forecast hours in Time Evolution; custom points are not assigned nearby-station values.
 - The model manifest reader distinguishes discovered products from decoded and published fields.
 
+## Native SHARPpy desktop application
+
+**Forecaster-facing native SHARPpy setup:** see [native-sharppy/README.md](native-sharppy/README.md). This installs the official SHARPpy desktop GUI in an isolated Conda environment and adds BTV CWA RRFS, GFS, RAP and HRRR BUFKIT data-source entries through SHARPpy's XML/CSV configuration mechanism. It does not replace SHARPpy's interface with a browser implementation.
+
+The first integration pass is a live-feed prototype against Penn State's current BUFKIT files. The versioned multi-cycle BTV archive still needs a cycle-aware adapter before it can be represented accurately in SHARPpy's native calendar. The browser workbench remains separate while that adapter is developed and validated.
+
 ## Forecast Sounding Workbench
 
 [Open the Forecast Sounding Workbench](https://nwsmatthewclay.github.io/BTV-Mesoscale-Detective/sounding.html)
