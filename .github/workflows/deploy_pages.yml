@@ -6,6 +6,11 @@ on:
     paths:
       - "index.html"
       - "mesoscale.html"
+      - "sounding.html"
+      - "sounding-browser.html"
+      - "bufkit-archive.html"
+      - "mesoscale/sounding_locations.json"
+      - "mesoscale/bufkit_sites.json"
       # Only browser entry points and published model data affect this site.
       # Backend diagnostics/ingestion code is not a Pages asset.
       - "mesoscale/data/**"
