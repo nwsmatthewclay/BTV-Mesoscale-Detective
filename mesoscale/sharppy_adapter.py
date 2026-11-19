@@ -103,6 +103,10 @@ def _parcel_summary(parcel) -> dict:
         "parcel_start_pressure_hpa": _finite(_get(parcel, "pres")),
         "parcel_start_temperature_c": _finite(_get(parcel, "tmpc")),
         "parcel_start_dewpoint_c": _finite(_get(parcel, "dwpc")),
+        # These are SHARPpy's own lifted-parcel path arrays (not a
+        # separately approximated dry/moist adiabat).
+        "trace_pressure_hpa": _json_safe(_get(parcel, "ptrace")),
+        "trace_temperature_c": _json_safe(_get(parcel, "ttrace")),
     }
 
 
