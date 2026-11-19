@@ -24,10 +24,12 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git rebase origin/main
           git add mesoscale/vendor/sharppy-1.4.0-browser.zip
           if git diff --cached --quiet; then
             echo "SHARPpy browser bundle is already current."
             exit 0
           fi
           git commit -m "Vendor SHARPpy 1.4.0 browser calculation source"
-          git push
+          git push origin HEAD:main
