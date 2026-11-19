@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Native NSHARP Desktop · BTV Mesoscale Detective</title>
+<style>
+:root{color-scheme:dark;--bg:#07111d;--panel:#0d1e2e;--line:#24445c;--text:#eaf2f8;--muted:#9ab0c2;--cyan:#61d1d2;--amber:#f2c16d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,"Segoe UI",Arial,sans-serif}
+header{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px}h1{font-size:18px;margin:0}a{color:var(--cyan);text-decoration:none}
+main{max-width:1800px;margin:auto;padding:16px}.intro{color:var(--muted);font-size:12px;margin:0 0 14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
+.controls{display:grid;grid-template-columns:minmax(240px,1fr) minmax(240px,1fr) auto;gap:10px;align-items:end}
+label{display:block;color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+input{width:100%;padding:10px;border-radius:7px;border:1px solid #34536b;background:#091a29;color:var(--text)}
+button{padding:10px 15px;border-radius:7px;border:1px solid #347da9;background:#174a70;color:white;font-weight:700;cursor:pointer}
+#status{font-size:11px;color:var(--amber);margin-top:9px}
+.desktop{height:calc(100vh - 205px);min-height:620px;padding:0;overflow:hidden}
+iframe{width:100%;height:100%;border:0;background:#101820}
+@media(max-width:700px){.controls{grid-template-columns:1fr}.desktop{height:70vh;min-height:480px}header{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<header><div><h1>Native SHARPpy / NSHARP Desktop</h1><div class="intro">Official SHARPpy Qt application streamed from the BTV container</div></div><a href="./sounding.html">← Sounding Workbench</a></header>
+<main>
+<section class="panel">
+<p class="intro">This launches the upstream SHARPpy desktop application inside a headless Linux display. Enter the deployed Cloudflare Worker origin and the desktop access token configured as the Worker secret <code>SHARPPY_DESKTOP_TOKEN</code>. The token is used only for the desktop WebSocket connection.</p>
+<div class="controls">
+<div><label for="endpoint">SHARPpy Worker URL</label><input id="endpoint" type="url" placeholder="https://btv-sharppy-api.your-subdomain.workers.dev"></div>
+<div><label for="token">Desktop access token</label><input id="token" type="password" autocomplete="off" placeholder="Cloudflare Worker secret"></div>
+<button id="launch">Launch native NSHARP</button>
+</div>
+<div id="status">Waiting for the Cloudflare desktop service to be deployed.</div>
+</section>
+<section class="panel desktop"><iframe id="viewer" title="Native SHARPpy desktop" allow="clipboard-read; clipboard-write" referrerpolicy="no-referrer"></iframe></section>
+</main>
+<script>
+const endpoint=document.getElementById("endpoint");
+const token=document.getElementById("token");
+const status=document.getElementById("status");
+const viewer=document.getElementById("viewer");
+async function loadConfig(){
+  try{
+    const r=await fetch("./mesoscale/sharppy_api_config.json?ts="+Date.now(),{cache:"no-store"});
+    if(r.ok){const c=await r.json();if(c.service_url)endpoint.value=c.service_url;}
+  }catch(e){}
+}
+document.getElementById("launch").addEventListener("click",()=>{
+  const base=endpoint.value.trim().replace(/\/$/,"");
+  const secret=token.value.trim();
+  if(!/^https:\/\//i.test(base)){status.textContent="Enter the HTTPS workers.dev origin first.";return;}
+  if(!secret){status.textContent="Enter the desktop access token configured in Cloudflare.";return;}
+  const wsPath="websockify?token="+encodeURIComponent(secret);
+  const src=base+"/desktop/vnc.html?autoconnect=true&resize=remote&reconnect=true&path="+encodeURIComponent(wsPath);
+  viewer.src=src;
+  status.textContent="Connecting to the native SHARPpy desktop…";
+  viewer.onload=()=>{status.textContent="Viewer loaded. If NSHARP is not visible, check the desktop container logs and Worker token.";};
+});
+loadConfig();
+</script>
+</body>
+</html>
