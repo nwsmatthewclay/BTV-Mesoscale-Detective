@@ -69,8 +69,8 @@ def _profile_arrays(profile: dict) -> tuple[np.ndarray, ...]:
         arrays.append(values)
 
     lengths = {array.size for array in arrays}
-    if len(lengths) != 1 or not lengths or next(iter(lengths)) < 10:
-        raise ValueError("SHARPpy requires at least 10 collocated profile levels")
+    if len(lengths) != 1 or not lengths or next(iter(lengths)) < 10 or next(iter(lengths)) > 500:
+        raise ValueError("SHARPpy requires 10–500 collocated profile levels")
     if not all(np.all(np.isfinite(array)) for array in arrays):
         raise ValueError("SHARPpy input profile contains non-finite values")
 
