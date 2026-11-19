@@ -235,6 +235,11 @@ function buildDiagnostics(){
  const rows=[['Parameter','Original','Modified'],...values.map(([label,parcel,key,unit])=>[label,fmt(op[parcel]?.[key],1)+' '+unit,mod?fmt(mp[parcel]?.[key],1)+' '+unit:'—']),['0–6 km bulk shear',fmt(ok.bulk_shear_0_6km_kt,1)+' kt',mod?fmt(mk.bulk_shear_0_6km_kt,1)+' kt':'—'],['0–1 km SRH',fmt(ok.srh_0_1km_m2s2,1)+' m²/s²',mod?fmt(mk.srh_0_1km_m2s2,1)+' m²/s²':'—'],['LCL · surface',fmt(op.surface?.lcl_height_agl_m,0)+' m',mod?fmt(mp.surface?.lcl_height_agl_m,0)+' m':'—']];
  $('diagRows').innerHTML=rows.map((r,i)=>'<div class="diagrow"><span>'+r[0]+'</span><b>'+r[1]+'</b><b class="delta">'+r[2]+'</b></div>').join('');
  const extended=[
+  ['Effective bulk shear','kinematics','effective_bulk_shear_kt',' kt'],
+  ['0–3 km SRH','kinematics','srh_0_3km_m2s2',' m²/s²'],
+  ['Effective SRH · right','kinematics','effective_srh_right_m2s2',' m²/s²'],
+  ['Bunkers right mover U','kinematics','right_mover_u_kt',' kt'],
+  ['Bunkers right mover V','kinematics','right_mover_v_kt',' kt'],
   ['PWAT','thermodynamics','precipitable_water_in',' in'],
   ['K-index','thermodynamics','k_index',''],
   ['Totals totals','thermodynamics','totals_totals',''],
