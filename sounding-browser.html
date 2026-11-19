@@ -175,12 +175,43 @@ async function calculateModified(){
  catch(error){modified=null;render();$("calcStatus").textContent="SHARPpy recalculation failed: "+error.message;setStatus("Modified SHARPpy calculation failed","error");log("MODIFIED PROFILE ERROR: "+(error.stack||error.message))}
 }
 function skewX(t,p){return t+35*Math.log(1000/p)}
+function interpolateLogPressure(values,pressures,target){
+ if(!Number.isFinite(Number(target))||target<=0)return null;
+ for(let i=0;i<pressures.length-1;i++){
+  const p1=Number(pressures[i]),p2=Number(pressures[i+1]),v1=Number(values[i]),v2=Number(values[i+1]);
+  if(![p1,p2,v1,v2].every(Number.isFinite))continue;
+  if((target<=p1&&target>=p2)||(target>=p1&&target<=p2)){
+   const f=(Math.log(target)-Math.log(p1))/(Math.log(p2)-Math.log(p1));return v1+f*(v2-v1);
+  }
+ }
+ return null;
+}
 function renderSkew(){
  if(!profile)return;const p=profile.pressure_hpa,pp=[1050,1000,900,800,700,600,500,400,300,250,200,150,100],traces=[];
  [-40,-30,-20,-10,0,10,20,30,40,50].forEach(t=>traces.push({x:pp.map(v=>skewX(t,v)),y:pp,mode:"lines",hoverinfo:"skip",showlegend:false,line:{color:"#1d3045",width:1,dash:"dot"}}));
  [-30,-20,-10,0,10,20,30,40,50].forEach(th=>traces.push({x:pp.map(v=>skewX((th+273.15)*Math.pow(v/1000,.2854)-273.15,v)),y:pp,mode:"lines",hoverinfo:"skip",showlegend:false,line:{color:"#24394e",width:1}}));
- traces.push({x:profile.temperature_k.map((v,i)=>skewX(v-273.15,p[i])),y:p,mode:"lines+markers",name:"Original T",line:{color:"#ff777e",width:2.4},marker:{size:3}});
+ const envT=profile.temperature_k.map(v=>v-273.15);
+ traces.push({x:envT.map((v,i)=>skewX(v,p[i])),y:p,mode:"lines+markers",name:"Original T",line:{color:"#ff777e",width:2.4},marker:{size:3}});
  traces.push({x:profile.dewpoint_k.map((v,i)=>skewX(v-273.15,p[i])),y:p,mode:"lines+markers",name:"Original Td",line:{color:"#55d6e8",width:2.4},marker:{size:3}});
+ const wet=original?.thermodynamic_profiles?.wetbulb_c;
+ if(Array.isArray(wet)&&wet.length===p.length)traces.push({x:wet.map((v,i)=>v==null?null:skewX(Number(v),p[i])),y:p,mode:"lines",connectgaps:false,name:"Wet-bulb",line:{color:"#69d7a5",width:1.8,dash:"dot"}});
+ const freeze=[];
+ for(let i=0;i<envT.length-1;i++)if((envT[i]>=0&&envT[i+1]<=0)||(envT[i]<=0&&envT[i+1]>=0)){
+  const f=(0-envT[i])/(envT[i+1]-envT[i]),pr=Math.exp(Math.log(p[i])+f*(Math.log(p[i+1])-Math.log(p[i])));
+  freeze.push({x:skewX(0,pr),y:pr});
+ }
+ if(freeze.length)traces.push({x:freeze.map(v=>v.x),y:freeze.map(v=>v.y),mode:"markers+text",text:freeze.map((_,i)=>i===0?"0°C":"0°C"),textposition:"middle right",name:"Freezing level",marker:{symbol:"diamond",size:10,color:"#f4d35e",line:{color:"#090f18",width:1}},textfont:{color:"#f4d35e",size:10},hovertemplate:"Environmental 0°C level<br>%{y:.0f} hPa<extra></extra>"});
+ const parcels=original?.parcels||{},parcelStyles=[
+  ["surface","SFC","#ffad66","circle"],["mixed_layer","ML","#c792ea","square"],["most_unstable","MU","#66aaff","diamond"],["effective","EFF","#69d7a5","triangle-up"]
+ ];
+ for(const [key,label,color,symbol] of parcelStyles){
+  const parcel=parcels[key]||{};
+  for(const [field,tag] of [["lcl_pressure_hpa","LCL"],["lfc_pressure_hpa","LFC"],["equilibrium_level_pressure_hpa","EL"]]){
+   const pr=Number(parcel[field]);if(!Number.isFinite(pr)||pr<=0)continue;
+   const temp=interpolateLogPressure(envT,p,pr);if(temp===null)continue;
+   traces.push({x:[skewX(temp,pr)],y:[pr],mode:"markers",name:label+" "+tag,showlegend:false,marker:{symbol,size:10,color,line:{color:"#07101a",width:1.3}},customdata:[[label,tag,temp]],hovertemplate:"%{customdata[0]} parcel · %{customdata[1]}<br>Pressure: %{y:.0f} hPa<br>Environmental T: %{customdata[2]:.1f}°C<extra></extra>"});
+  }
+ }
  if(modified?.adjusted_profile){const a=modified.adjusted_profile;traces.push({x:a.temperature_k.map((v,i)=>skewX(v-273.15,a.pressure_hpa[i])),y:a.pressure_hpa,mode:"lines",name:"Modified T",line:{color:"#ffad66",width:2.2,dash:"dash"}});traces.push({x:a.dewpoint_k.map((v,i)=>skewX(v-273.15,a.pressure_hpa[i])),y:a.pressure_hpa,mode:"lines",name:"Modified Td",line:{color:"#75dfa9",width:2.2,dash:"dash"}})}
  Plotly.react("skewt",traces,{paper_bgcolor:"#090f18",plot_bgcolor:"#090f18",margin:{l:55,r:12,t:12,b:42},xaxis:{title:"Temperature (°C)",color:"#91a4b9",gridcolor:"#1c2d40",tickvals:[-40,-30,-20,-10,0,10,20,30,40,50]},yaxis:{title:"Pressure (hPa)",type:"log",range:[Math.log10(1050),Math.log10(100)],autorange:false,color:"#91a4b9",gridcolor:"#1c2d40"},legend:{font:{color:"#cbd8e6",size:9},orientation:"h",y:1.12}},{responsive:true,displaylogo:false});
 }
