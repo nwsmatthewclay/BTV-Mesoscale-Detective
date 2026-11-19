@@ -149,7 +149,10 @@ def calculate_sharppy_diagnostics(profile: dict) -> dict:
             "or mesoscale/environment-sharppy-api.yml"
         ) from exc
 
-    location = str(profile.get("location") or "KBTV").upper()
+    station_id = str(profile.get("location") or "KBTV").upper()
+    # SHARPpy's PWV climatology database uses 3-character U.S. station IDs;
+    # retain the original ICAO ID separately in the returned metadata.
+    location = station_id[1:] if station_id.startswith("K") and len(station_id) == 4 else station_id
     latitude = float(profile.get("latitude", 44.47))
     date_text = profile.get("date") or profile.get("valid_time_utc")
     if isinstance(date_text, datetime):
@@ -171,6 +174,7 @@ def calculate_sharppy_diagnostics(profile: dict) -> dict:
         "v": v_ms * 1.9438444924406,
         "strictQC": False,
         "location": location,
+        "station_id": station_id,
         "latitude": latitude,
         "date": valid_date,
     }
