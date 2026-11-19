@@ -136,7 +136,7 @@ def fetch_and_parse_bufkit(model: str, station: str, cache_dir: str | Path | Non
     if not re.fullmatch(r"[a-z0-9]{3,6}", station):
         raise ValueError("Station identifier must be 3–6 alphanumeric characters")
     folder, prefix = MODEL_PRODUCTS[model]
-    source_url = f"{PSU_ROOT}/{folder}/{prefix}_{station}.buf"
+    source_url = f"{PSU_ROOT}/{folder}/latest/{prefix}_{station}.buf"
     cache_file = _cache_path(model, station, cache_dir)
     metadata_file = cache_file.with_suffix(".json")
     metadata: dict[str, Any] = {}
@@ -148,14 +148,25 @@ def fetch_and_parse_bufkit(model: str, station: str, cache_dir: str | Path | Non
 
     cache_age = time.time() - cache_file.stat().st_mtime if cache_file.exists() else float("inf")
     if cache_age > CACHE_TTL_SECONDS:
-        response = requests.get(
-            source_url,
-            timeout=(10, 45),
-            headers={"User-Agent": "BTV-Mesoscale-Detective/1.0"},
-        )
-        if response.status_code == 404:
+        response = None
+        candidates = [
+            f"{PSU_ROOT}/{folder}/latest/{prefix}_{station}.buf",
+            f"{PSU_ROOT}/{folder}/{prefix}_{station}.buf",
+        ]
+        for candidate in candidates:
+            attempt = requests.get(
+                candidate,
+                timeout=(10, 45),
+                headers={"User-Agent": "BTV-Mesoscale-Detective/1.0"},
+            )
+            if attempt.status_code == 404:
+                continue
+            attempt.raise_for_status()
+            response = attempt
+            source_url = candidate
+            break
+        if response is None:
             raise FileNotFoundError(f"No {model} BUFKIT file is published for {station.upper()}")
-        response.raise_for_status()
         content = response.content
         if len(content) < 1024 or b"STID" not in content[:20000]:
             raise ValueError("BUFKIT provider response is not a valid sounding file")
