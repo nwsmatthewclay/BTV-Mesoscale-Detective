@@ -81,7 +81,7 @@ Run focused tests with:
 pytest -q mesoscale/tests/test_sharppy_adapter.py mesoscale/tests/test_sharppy_service.py
 ```
 
-The initial UI uses the verified RAP archive while BUFKIT model-feed acquisition is developed. HRRR is intentionally disabled for soundings because its current published archive is surface-only; NAM/GFS/RRFS will be enabled only after full-column profile ingestion and SHARPpy validation are in place.
+The UI retains the verified RAP archive as a static fallback and the SHARPpy API now exposes on-demand BUFKIT ingestion through SHARPpy's own `BufDecoder`. The source is the Penn State BUFKIT Data Distribution System; supported model keys include RAP, HRRR, GFS, NAM, NAMNEST, RRFS, SREF, and HIRESW. Files are downloaded only when requested and cached locally for a short TTL. The model cycle is derived from the BUFKIT valid time and STIM lead. A model can be missing or stale at the upstream provider; the endpoint reports that condition instead of substituting another model. BUFKIT height is referenced to its lowest valid model level for AGL adjustments.
 
 ## Development sequence
 
