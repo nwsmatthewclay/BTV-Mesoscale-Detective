@@ -22,6 +22,8 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: regional-bufkit-archive
@@ -67,3 +69,31 @@ jobs:
           git fetch origin main
           git rebase origin/main
           git push origin HEAD:main
+
+  publish-pages:
+    needs: archive
+    if: ${{ inputs.dry_run != true }}
+    runs-on: ubuntu-latest
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout latest main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          name: github-pages-bufkit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .
+      - name: Deploy BUFKIT archive and site
+        id: deployment
+        uses: actions/deploy-pages@v5
+        with:
+          artifact_name: github-pages-bufkit-${{ github.run_id }}-${{ github.run_attempt }}
