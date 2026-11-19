@@ -149,6 +149,31 @@ def main() -> int:
         manifest_path = ROOT / "data" / "bufkit" / "manifest.json"
         manifest_path.parent.mkdir(parents=True, exist_ok=True)
         manifest_path.write_text(json.dumps(summary, indent=2)+"\n", encoding="utf-8")
+    # Publish a compact index of every retained model cycle and station file.
+    catalog = {"schema_version": 1, "updated_at_utc": summary["created_at_utc"], "provider": BASE, "retention_cycles": config["retention_cycles"], "models": {}}
+    for model in models:
+        model_dir = ARCHIVE / model
+        entries = []
+        if model_dir.exists():
+            for cycle_dir in sorted((p for p in model_dir.iterdir() if p.is_dir()), key=lambda p:p.name, reverse=True):
+                stations_in_cycle = []
+                for meta_path in sorted(cycle_dir.glob("*.json")):
+                    try:
+                        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+                        buf_path = meta_path.with_suffix(".buf")
+                        if buf_path.exists():
+                            stations_in_cycle.append({
+                                "station": meta["station"], "file": str(buf_path.relative_to(ROOT / "data" / "bufkit")),
+                                "bytes": meta["bytes"], "forecast_hours": meta["forecast_hours"],
+                                "valid_times_utc": meta["valid_times_utc"], "source_url": meta["source_url"]
+                            })
+                    except (OSError, ValueError, KeyError):
+                        continue
+                if stations_in_cycle:
+                    entries.append({"cycle_key": cycle_dir.name, "model_cycle_utc": json.loads((cycle_dir / (stations_in_cycle[0]["station"].lower()+".json")).read_text(encoding="utf-8"))["model_cycle_utc"], "stations": stations_in_cycle})
+        catalog["models"][model] = entries
+    catalog_path = ROOT / "data" / "bufkit" / "catalog.json"
+    catalog_path.write_text(json.dumps(catalog, indent=2)+"\\n", encoding="utf-8")
     print(json.dumps({m:{k:v for k,v in d.items() if k not in ("successes","failures")} for m,d in summary["models"].items()},indent=2))
     return 0
 
