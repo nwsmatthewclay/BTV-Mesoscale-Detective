@@ -43,17 +43,13 @@ jobs:
           INPUT_MODELS: ${{ inputs.models || 'all' }}
           DRY_RUN: ${{ inputs.dry_run || 'false' }}
         run: |
-          if [ "$INPUT_MODELS" = "all" ]; then
-            python mesoscale/archive_bufkit.py
-          else
+          ARGS=()
+          if [ "$INPUT_MODELS" != "all" ]; then
             IFS=',' read -ra MODELS <<< "$INPUT_MODELS"
-            ARGS=()
             for MODEL in "${MODELS[@]}"; do ARGS+=(--model "$(echo "$MODEL" | xargs)"); done
-            python mesoscale/archive_bufkit.py "${ARGS[@]}"
           fi
-          if [ "$DRY_RUN" = "true" ]; then
-            python mesoscale/archive_bufkit.py --dry-run
-          fi
+          if [ "$DRY_RUN" = "true" ]; then ARGS+=(--dry-run); fi
+          python mesoscale/archive_bufkit.py "${ARGS[@]}"
       - name: Commit rolling BUFKIT archive
         if: ${{ inputs.dry_run != true }}
         run: |
