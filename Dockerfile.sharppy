@@ -3,7 +3,7 @@ FROM --platform=linux/amd64 mambaorg/micromamba:1.5.8
 
 WORKDIR /app
 COPY mesoscale/environment-sharppy-api.yml /tmp/environment-sharppy-api.yml
-RUN micromamba create -y -n btv-sharppy-api -f /tmp/environment-sharppy.yml \
+RUN micromamba create -y -n btv-sharppy-api -f /tmp/environment-sharppy-api.yml \
     && micromamba clean --all --yes
 
 COPY mesoscale/sharppy_adapter.py mesoscale/sharppy_service.py mesoscale/bufkit_feed.py /app/mesoscale/
