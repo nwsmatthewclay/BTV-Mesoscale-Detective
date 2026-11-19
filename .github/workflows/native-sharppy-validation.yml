@@ -22,6 +22,10 @@ on:
       - "mesoscale/bufkit_feed.py"
       - "mesoscale/tests/test_sharppy_*.py"
       - "mesoscale/tests/test_bufkit_feed.py"
+      - "workers/sounding-api/**"
+      - "Dockerfile.sharppy"
+      - "mesoscale/environment-sharppy-api.yml"
+      - "nsharp.html"
       - ".github/workflows/native-sharppy-validation.yml"
   workflow_dispatch:
 
@@ -67,6 +71,8 @@ jobs:
             echo "SHARPpy GUI exited before the smoke-test timeout (exit $code)."
             exit 1
           fi
+      - name: Build native SHARPpy desktop container
+        run: docker build -f Dockerfile.sharppy -t btv-sharppy-desktop-ci .
       - name: Run actual SHARPpy adapter and service tests
         shell: micromamba-shell {0}
         run: python -m pytest -q mesoscale/tests/test_sharppy_adapter.py mesoscale/tests/test_sharppy_service.py mesoscale/tests/test_bufkit_feed.py
