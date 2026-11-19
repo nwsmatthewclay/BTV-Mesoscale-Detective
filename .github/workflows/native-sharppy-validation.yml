@@ -4,6 +4,11 @@ on:
   push:
     paths:
       - "native-sharppy/**"
+      - "mesoscale/sharppy_*.py"
+      - "mesoscale/browser_adjustments.py"
+      - "mesoscale/bufkit_feed.py"
+      - "mesoscale/tests/test_sharppy_*.py"
+      - "mesoscale/tests/test_bufkit_feed.py"
       - ".github/workflows/native-sharppy-validation.yml"
   pull_request:
     paths:
@@ -33,3 +38,6 @@ jobs:
       - name: Validate native SHARPpy data-source integration
         shell: micromamba-shell {0}
         run: python native-sharppy/test_native_config.py
+      - name: Run actual SHARPpy adapter and service tests
+        shell: micromamba-shell {0}
+        run: python -m pytest -q mesoscale/tests/test_sharppy_adapter.py mesoscale/tests/test_sharppy_service.py mesoscale/tests/test_bufkit_feed.py
