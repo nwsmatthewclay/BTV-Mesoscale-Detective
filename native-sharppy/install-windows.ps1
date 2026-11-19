@@ -10,7 +10,11 @@ if (-not (Get-Command conda -ErrorAction SilentlyContinue)) {
 conda create -y -n $envName -c conda-forge python=3.10 sharppy=1.4.0 pyside2 requests python-dateutil
 if ($LASTEXITCODE -ne 0) { throw "SHARPpy environment creation failed." }
 
-Copy-Item (Join-Path $root "btv_cwa.xml") (Join-Path $dsDir "btv_cwa.xml") -Force
+$workerHost = Read-Host "Enter the Worker hostname (for example btv-sharppy-bufkit.your-subdomain.workers.dev)"
+if ([string]::IsNullOrWhiteSpace($workerHost) -or $workerHost -match "[/ ]") { throw "Enter only the hostname, without https://" }
+$xml = Get-Content (Join-Path $root "btv_cwa.xml") -Raw
+$xml = $xml.Replace("BTV_WORKER_HOST", $workerHost.Trim())
+Set-Content -Path (Join-Path $dsDir "btv_cwa.xml") -Value $xml -Encoding UTF8
 Copy-Item (Join-Path $root "btv_cwa.csv") (Join-Path $dsDir "btv_cwa.csv") -Force
 
 Write-Host ""
