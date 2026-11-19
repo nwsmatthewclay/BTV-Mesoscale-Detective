@@ -52,7 +52,7 @@ def test_sharppy_adapter_runs_when_optional_dependency_is_installed():
     assert "dcape_jkg" in result["severe"]
     assert "wetbulb_c" in result["thermodynamic_profiles"]
     assert result["units"]["cape"] == "J/kg"
-    assert set(result["parcels"]) == {"surface", "most_unstable", "mixed_layer"}
+    assert set(result["parcels"]) == {"surface", "most_unstable", "mixed_layer", "forecast_surface", "effective"}
     assert result["parcels"]["surface"]["cape_jkg"] is not None
     assert result["kinematics"]["bulk_shear_0_6km_kt"] is not None
     assert "srh_0_1km_m2s2" in result["kinematics"]
