@@ -7,6 +7,8 @@ on:
       - "sounding-browser.html"
       - "mesoscale/browser_adjustments.py"
       - "mesoscale/sharppy_adapter.py"
+      - "mesoscale/bufkit_browser.py"
+      - "mesoscale/bufkit_sites.json"
       - "mesoscale/vendor/sharppy-1.4.0-browser.zip"
       - "mesoscale/data/fields/forecast/**"
       - "mesoscale/data/bufkit/**"
