@@ -16,13 +16,13 @@ This deployment runs the upstream SHARPpy Qt application inside the existing Clo
 
 Do not expose the desktop WebSocket without its access token.
 
-1. Deploy the Worker using `.github/workflows/deploy-sharppy-api.yml`, or run:
+1. Add these three repository Actions secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, and a long random `SHARPPY_DESKTOP_TOKEN`. The deploy workflow installs the desktop token as a Worker secret after deployment. Then run `.github/workflows/deploy-sharppy-api.yml` from the Actions tab, or deploy locally with:
 
    ```sh
    npx wrangler deploy --config wrangler.sharppy.toml
    ```
 
-2. Generate a long random token and set it as a Cloudflare Worker secret:
+2. If deploying locally, generate a long random token and set it as a Cloudflare Worker secret:
 
    ```sh
    npx wrangler secret put SHARPPY_DESKTOP_TOKEN --config wrangler.sharppy.toml
