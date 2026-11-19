@@ -204,3 +204,18 @@ The model viewer now has a pre-rendered map-tile path alongside the legacy in-br
 The renderer intentionally refuses ambiguous short-name matches and non-2-D fields. Three-dimensional pressure/hybrid-level products must first be selected or vertically interpolated to a defined pressure surface; they must not be silently treated as surface fields. The first automated product set is limited to verified 2-D surface fields. Temperature, visibility, and gust products are converted to display-friendly units while the original units and transform are retained in product metadata.
 
 This is an initial tile-rendering implementation. Validate the published products against native grid values and independent plotting before operational use. Tile zoom levels currently target regional viewing (z3-z7); higher zoom levels upscale the highest-resolution tiles until a finer native-grid tiling strategy is added.
+
+
+## Browser-based SHARPpy experiment (new)
+
+Open the dark-only [Browser SHARPpy Lab](../sounding-browser.html) from the Sounding Workbench. This is a technical proof of concept for running the actual SHARPpy calculation routines inside the user's browser with Pyodide/WebAssembly; it does not require a local Python installation, API server, or GitHub Action for interactive profile changes.
+
+- The lab loads a verified RAP station profile from the published forecast archive.
+- On user request, it initializes Pyodide 0.26.4, loads NumPy, fetches the pinned upstream SHARPpy v1.4.0 source archive, and imports the repository's existing `sharppy_adapter.py`.
+- The adapter calls SHARPpy's actual `create_profile(profile="convective")` path. The lab only labels a calculation successful after the `ConvectiveProfile` suite returns.
+- `browser_adjustments.py` is a NumPy-only module (no MetPy or server dependency) for low-level temperature/dewpoint offsets and pressure-mass-weighted mixing of potential temperature, water-vapor mixing ratio, and horizontal momentum.
+- Slider changes are debounced briefly and recalculate in the already initialized browser Python runtime. GitHub Actions is not invoked for these interactive changes.
+- The original profile remains immutable. If the browser cannot load SHARPpy or a diagnostic fails, the page reports the error and retains the archived original diagnostics; it does not substitute JavaScript or MetPy values.
+- The initial prototype is limited to the verified RAP station archive. BUFKIT ingestion, arbitrary map-click profiles, Web Worker isolation, and full browser regression testing remain follow-on work.
+
+The first initialization downloads the Python/WebAssembly runtime and SHARPpy source, so it is expected to take longer than subsequent recalculations. This implementation is experimental until the browser runtime has been tested in a real browser and its diagnostics compared against the native Python/SHARPpy environment.
