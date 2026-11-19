@@ -12,7 +12,6 @@ changes or overwrites the source profile.
 """
 from __future__ import annotations
 
-from copy import deepcopy
 from typing import Any
 
 import numpy as np
@@ -69,9 +68,10 @@ def adjust_profile(profile: dict[str, Any], adjustments: dict[str, Any]) -> tupl
         t[layer] += temp_offset
     if dew_offset:
         td[layer] += dew_offset
+    supersaturated = td > t
+    if np.any(supersaturated):
+        warnings.append(f"Dewpoint capped at temperature at {int(np.count_nonzero(supersaturated))} levels to prevent supersaturation.")
     td[:] = np.minimum(td, t)
-    if np.any(td < arrays["dewpoint_k"] - 273.15 - 80):
-        warnings.append("Dewpoint constrained not to exceed temperature (supersaturation guard).")
 
     if depth > 0 and int(layer.sum()) >= 2:
         idx = np.flatnonzero(layer)
@@ -153,7 +153,7 @@ try:
     app = FastAPI(title="BTV SHARPpy Sounding API", version="0.1.0")
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # Restrict to the deployed Pages origin before public deployment.
+        allow_origins=["https://nwsmatthewclay.github.io", "http://localhost:8000", "http://127.0.0.1:8000"],
         allow_methods=["GET", "POST"],
         allow_headers=["*"],
     )
