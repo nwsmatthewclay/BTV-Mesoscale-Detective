@@ -150,6 +150,7 @@ try:
     from fastapi import FastAPI, HTTPException
     from fastapi.middleware.cors import CORSMiddleware
     from pydantic import BaseModel
+    import requests
 
     class DiagnoseRequest(BaseModel):
         profile: dict
@@ -165,8 +166,27 @@ try:
 
     @app.get("/health")
     def health():
-        import sharppy
-        return {"status": "ok", "engine": "SHARPpy", "version": getattr(sharppy, "__version__", "installed")}
+        from importlib.metadata import version
+        return {"status": "ok", "engine": "SHARPpy", "version": version("SHARPpy")}
+
+    @app.get("/bufkit/models")
+    def bufkit_models():
+        from .bufkit_feed import MODEL_PRODUCTS
+        return {"provider": "Penn State BUFKIT", "models": sorted(MODEL_PRODUCTS)}
+
+    @app.get("/bufkit/{model}/{station}")
+    def bufkit_profile_feed(model: str, station: str):
+        from .bufkit_feed import fetch_and_parse_bufkit
+        try:
+            return fetch_and_parse_bufkit(model, station)
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        except requests.RequestException as exc:
+            raise HTTPException(status_code=502, detail=f"BUFKIT provider request failed: {exc}") from exc
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"BUFKIT decode failed: {type(exc).__name__}: {exc}") from exc
 
     @app.post("/diagnose")
     def diagnose(request: DiagnoseRequest):
