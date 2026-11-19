@@ -304,6 +304,7 @@ def calculate_sharppy_diagnostics(profile: dict) -> dict:
         "sherb": _finite(_get(sounding, "sherbe")),
         "enhanced_sig_tornado_parameter": _finite(_get(sounding, "esp")),
         "microburst_parameter": _finite(_get(sounding, "mburst")),
+        "midlevel_microburst_parameter": _finite(_get(sounding, "mmp")),
         "wind_damage_parameter": _finite(_get(sounding, "wndg")),
         "tei": _finite(_get(sounding, "tei")),
         "dcape_jkg": _finite(_get(sounding, "dcape")),
@@ -362,6 +363,10 @@ def calculate_sharppy_diagnostics(profile: dict) -> dict:
         "severe": severe,
         "fire": fire,
         "thermodynamic_profiles": thermodynamic_profiles,
+        "trajectory": {
+            "updraft_tilt": _json_safe(_get(sounding, "updraft_tilt")),
+            "slinky_trajectory": _json_safe(_get(sounding, "slinky_traj")),
+        },
         "sars": {
             "hail_matches": _json_safe(_get(sounding, "matches")),
             "supercell_matches": _json_safe(_get(sounding, "supercell_matches")),
