@@ -31,6 +31,8 @@ button,select,input{font:inherit;color:#eee;background:#090909;border:1px solid 
 #rows .diagrow{display:grid;grid-template-columns:1fr .7fr .7fr;gap:4px;padding:3px 0;border-bottom:1px solid #333;font:10px ui-monospace,monospace}#rows .diagrow span{color:#aaa}#rows .diagrow b{text-align:right;font-weight:normal}
 #raw{display:none}#log{display:none}#profileMeta{display:none}#suiteStatus{display:none}
 @media(max-width:1050px){.workspace{overflow:auto;height:calc(100vh - 42px);grid-template-rows:650px 260px}.upper{grid-template-columns:1fr}.left{grid-template-columns:1fr 70px 90px}.lower{grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:220px}.tools select{max-width:90px}}
+
+:root{--good:#57e389;--caution:#ffe05a;--bad:#ff555f;--info:#4fe6f2;--accent:#d58cff}.data-table td.good{color:var(--good)}.data-table td.caution{color:var(--caution)}.data-table td.bad{color:var(--bad)}.data-table td.info{color:var(--info)}.data-table tbody tr:hover{background:#101a25}.metric small{display:block;color:#8293a8;font-size:8px;margin-top:2px}
 </style>
 </head>
 <body>
@@ -357,5 +359,45 @@ renderDiagnostics=function(){
 <script>
 
 
+</script>
+
+<script>
+/* Expand the visible diagnostic suite using SHARPpy ConvectiveProfile output only. */
+(function(){
+ const previous=renderDiagnostics;
+ const ok=v=>v!==null&&v!==undefined&&Number.isFinite(Number(v));
+ const f=(v,d=0,u="")=>ok(v)?Number(v).toFixed(d)+(u?" "+u:""):"—";
+ const cell=(v,c="")=>'<td class="'+c+'">'+v+'</td>';
+ const table=(h,rows)=>'<table class="data-table"><thead><tr>'+h.map(x=>'<th>'+x+'</th>').join("")+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.join("")+'</tr>').join("")+'</tbody></table>';
+ function expanded(){
+  previous();
+  const o=original||{},p=o.parcels||{},t=o.thermodynamics||{},k=o.kinematics||{},s=o.severe||{},w=o.winter||{},fire=o.fire||{},sar=o.sars||{},q=o.quality||{};
+  const parcels=[["SFC",p.surface],["ML",p.mixed_layer],["MU",p.most_unstable],["FCST",p.forecast_surface],["EFF",p.effective]];
+  $("parcelTable").innerHTML=table(["Parcel","CAPE","CIN","LCL m","LFC m","EL m"],parcels.map(([n,x])=>[cell(n,"info"),cell(f(x?.cape_jkg),ok(x?.cape_jkg)&&x.cape_jkg>=1000?"good":""),cell(f(x?.cin_jkg),ok(x?.cin_jkg)&&x.cin_jkg<=-200?"bad":""),cell(f(x?.lcl_height_agl_m)),cell(f(x?.lfc_height_agl_m)),cell(f(x?.equilibrium_level_agl_m))]));
+  const thermo=[["PWAT",f(t.precipitable_water_in,2,"in")],["PWAT climatology",f(t.precipitable_water_climatology_in,2,"in")],["K Index",f(t.k_index)],["Total Totals",f(t.totals_totals)],["0–3 km lapse rate",f(t.lapse_rate_0_3km_c_km,1,"°C/km")],["3–6 km lapse rate",f(t.lapse_rate_3_6km_c_km,1,"°C/km")],["850–500 lapse rate",f(t.lapse_rate_850_500_c_km,1,"°C/km")],["700–500 lapse rate",f(t.lapse_rate_700_500_c_km,1,"°C/km")],["Max 2–6 km lapse rate",f(t.maximum_lapse_rate_2_6km_c_km,1,"°C/km")],["Convective temperature",f(t.convective_temperature_f,0,"°F")],["Maximum temperature",f(t.maximum_temperature_f,0,"°F")],["Mean mixing ratio",f(t.mean_mixing_ratio_gkg,1,"g/kg")],["Low-level RH",f(t.low_level_mean_rh_pct,0,"%")],["Mid-level RH",f(t.mid_level_mean_rh_pct,0,"%")],["Surface RH",f(t.surface_relative_humidity_pct,0,"%")],["PBL height",f(t.boundary_layer_height_agl_m,0,"m")],["DGZ mean RH",f(w.dendritic_growth_zone_mean_rh_pct,0,"%")],["DGZ PW",f(w.dendritic_growth_zone_precipitable_water_in,2,"in")],["DGZ mean omega",f(w.dendritic_growth_zone_mean_omega_microbar_s,1,"µbar/s")],["Precipitation type",w.precipitation_type??"—"]];
+  $("thermoTable").innerHTML=table(["Thermodynamic parameter","Value"],thermo.map(r=>[cell(r[0]),cell(r[1])]));
+  const kin=[["0–1 km shear",f(k.bulk_shear_0_1km_kt,1,"kt")],["0–3 km shear",f(k.bulk_shear_0_3km_kt,1,"kt")],["0–6 km shear",f(k.bulk_shear_0_6km_kt,1,"kt")],["0–8 km shear",f(k.bulk_shear_0_8km_kt,1,"kt")],["0–9 km shear",f(k.bulk_shear_0_9km_kt,1,"kt")],["0–1 km SRH",f(k.srh_0_1km_m2s2,0,"m²/s²")],["0–3 km SRH",f(k.srh_0_3km_m2s2,0,"m²/s²")],["Effective SRH right",f(k.effective_srh_right_m2s2,0,"m²/s²")],["Effective SRH left",f(k.effective_srh_left_m2s2,0,"m²/s²")],["Effective bulk shear",f(k.effective_bulk_shear_kt,1,"kt")],["Effective layer bottom",f(k.effective_layer_bottom_agl_m,0,"m AGL")],["Effective layer top",f(k.effective_layer_top_agl_m,0,"m AGL")],["Bunkers RM U / V",ok(k.right_mover_u_kt)?f(k.right_mover_u_kt,0)+" / "+f(k.right_mover_v_kt,0)+" kt":"—"],["Bunkers LM U / V",ok(k.left_mover_u_kt)?f(k.left_mover_u_kt,0)+" / "+f(k.left_mover_v_kt,0)+" kt":"—"]];
+  $("kinTable").innerHTML=table(["Kinematic parameter","Value"],kin.map(r=>[cell(r[0]),cell(r[1])]));
+  const severe=[["Right SCP",s.supercell_composite_right],["Left SCP",s.supercell_composite_left],["Right STP fixed",s.significant_tornado_parameter_fixed_right],["Left STP fixed",s.significant_tornado_parameter_fixed_left],["Right STP effective",s.significant_tornado_parameter_effective_right],["Left STP effective",s.significant_tornado_parameter_effective_left],["SHIP",s.significant_hail_parameter],["Significant severe",s.significant_severe_parameter],["SHERB",s.sherb],["Enhanced sig tornado",s.enhanced_sig_tornado_parameter],["Microburst",s.microburst_parameter],["Midlevel microburst",s.midlevel_microburst_parameter],["WNDG",s.wind_damage_parameter],["TEI",s.tei],["DCAPE",s.dcape_jkg],["Downburst max temp",s.downburst_max_temperature_f],["Watch type",s.watch_type]];
+  $("severeTable").innerHTML=table(["Severe parameter","Value"],severe.map(([a,b])=>[cell(a),cell(f(b,2),ok(b)&&Number(b)>0?"caution":"")]));
+  $("rows").innerHTML=table(["Additional SHARPpy diagnostics","Value"],[["Fosberg FWI",fire.fosberg_fire_weather_index],["Haines low",fire.haines_index_low],["Haines mid",fire.haines_index_mid],["Haines high",fire.haines_index_high],["DGZ bottom",w.dendritic_growth_zone_bottom_hpa],["DGZ top",w.dendritic_growth_zone_top_hpa],["SARS hail matches",Array.isArray(sar.hail_matches)?sar.hail_matches.length:null],["SARS supercell matches",Array.isArray(sar.supercell_matches)?sar.supercell_matches.length:null],["Profile warnings",(q.warnings||[]).length]].map(r=>[cell(r[0]),cell(f(r[1]) )]));
+  const quick=(id,a)=>$(id).innerHTML=a.map(([n,v,c])=>'<div class="metricline"><span>'+n+'</span><b class="'+(c||"")+'">'+v+'</b></div>').join("");
+  quick("miniParcel",[["SBCAPE",f(p.surface?.cape_jkg),ok(p.surface?.cape_jkg)&&p.surface.cape_jkg>=1000?"good":""],["MLCAPE",f(p.mixed_layer?.cape_jkg),""],["MUCAPE",f(p.most_unstable?.cape_jkg),""],["SBCIN",f(p.surface?.cin_jkg),ok(p.surface?.cin_jkg)&&p.surface.cin_jkg<=-200?"bad":""],["MLCIN",f(p.mixed_layer?.cin_jkg),""]]);
+  quick("miniSevere",[["STP eff",f(s.significant_tornado_parameter_effective_right,2),"caution"],["STP fixed",f(s.significant_tornado_parameter_fixed_right,2),"caution"],["SCP",f(s.supercell_composite_right,2),"caution"],["SHIP",f(s.significant_hail_parameter,2),"caution"],["Watch",s.watch_type??"—","info"]]);
+  quick("miniThermo",[["PWAT",f(t.precipitable_water_in,2)+" in","info"],["K index",f(t.k_index)],["TT",f(t.totals_totals)],["0–3 km LR",f(t.lapse_rate_0_3km_c_km,1)],["DCAPE",f(s.dcape_jkg)+" J/kg","caution"]]);
+ }
+ renderDiagnostics=expanded;
+ renderHodo=function(){
+  if(!profile)return;
+  const z=profile.height_agl_m||[],u=profile.u_ms||[],v=profile.v_ms||[],kt=1.943844,ts=[];
+  for(const L of [{a:0,b:1000,n:"0–1 km",c:"#57e389"},{a:1000,b:3000,n:"1–3 km",c:"#ffe05a"},{a:3000,b:6000,n:"3–6 km",c:"#4fe6f2"}]){
+   const ix=z.map((h,i)=>({h:Number(h),i})).filter(x=>x.h>=L.a&&x.h<=L.b).map(x=>x.i);
+   if(ix.length)ts.push({x:ix.map(i=>u[i]*kt),y:ix.map(i=>v[i]*kt),mode:"lines+markers",name:L.n,line:{color:L.c,width:2.6},marker:{size:4,color:L.c},customdata:ix.map(i=>z[i]/1000),hovertemplate:L.n+" · %{customdata:.2f} km AGL<br>U %{x:.1f} kt<br>V %{y:.1f} kt<extra></extra>"});
+  }
+  const k=original?.kinematics||{};
+  for(const [name,x,y,c,sym] of [["Bunkers RM",k.right_mover_u_kt,k.right_mover_v_kt,"#ff626b","diamond"],["Bunkers LM",k.left_mover_u_kt,k.left_mover_v_kt,"#d58cff","square"]])if(ok(x)&&ok(y))ts.push({x:[x],y:[y],mode:"markers+text",name,text:[name],textposition:"top right",marker:{size:10,color:c,symbol:sym,line:{color:"#fff",width:1}}});
+  Plotly.react("hodo",ts,{paper_bgcolor:"#090f18",plot_bgcolor:"#090f18",margin:{l:42,r:10,t:8,b:38},xaxis:{title:"U (kt)",zeroline:true,zerolinecolor:"#60748a",color:"#91a4b9",gridcolor:"#1c2d40"},yaxis:{title:"V (kt)",zeroline:true,zerolinecolor:"#60748a",color:"#91a4b9",gridcolor:"#1c2d40",scaleanchor:"x",scaleratio:1},legend:{font:{color:"#cbd8e6",size:9}}},{responsive:true,displaylogo:false});
+ };
+})();
 </script>
 </body></html>
