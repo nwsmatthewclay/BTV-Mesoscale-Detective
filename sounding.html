@@ -151,7 +151,7 @@ async function loadBufkitSelectedProfile(){
  $('locationDetail').textContent=stations.find(s=>s.id===record.station)?.name||record.station;
  $('cycleDetail').textContent='Initialized '+record.model_cycle_utc;
  const ageHours=(Date.now()-Date.parse(record.model_cycle_utc))/3600000;
- const ageText=Number.isFinite(ageHours)?' · cycle age '+Math.max(0,ageHours).toFixed(1)+' h':'';
+ const ageText=Number.isFinite(ageHours)?' · cycle age '+Math.max(0,ageHours).toFixed(1)+' h'+(ageHours>36?' · STALE':''):'';
  $('profileMeta').textContent=record.model+' BUFKIT · '+record.model_cycle_utc+' · '+record.station+' · '+formatForecastHour(record.forecast_hour)+' · valid '+record.valid_time_utc+' · '+record.quality.levels+' vertical levels · native SHARPpy BufDecoder · '+(bufkitFeed?.source_url||'Penn State BUFKIT')+' · retrieved '+(bufkitFeed?.download?.downloaded_at_utc||'cache')+'.';
  $('dataStatus').textContent=record.model+' BUFKIT profile decoded · '+record.quality.levels+' levels · SHARPpy BufDecoder'+ageText;
  $('dataStatus').style.color=Number.isFinite(ageHours)&&ageHours>36?'var(--amber)':'var(--green)';
