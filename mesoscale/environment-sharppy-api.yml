@@ -1,0 +1,11 @@
+name: btv-sharppy-api
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - numpy<2
+  - sharppy=1.4.0
+  - metpy
+  - requests
+  - fastapi
+  - uvicorn
