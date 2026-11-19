@@ -21,6 +21,9 @@ def synthetic_profile():
         "height_agl_m": height.tolist(),
         "u_ms": np.linspace(2, 25, pressure.size).tolist(),
         "v_ms": np.linspace(0, 12, pressure.size).tolist(),
+        "location": "KBTV",
+        "latitude": 44.47,
+        "date": "2026-11-19T12:00:00Z",
     }
 
 
@@ -42,7 +45,12 @@ def test_sharppy_adapter_runs_when_optional_dependency_is_installed():
     pytest.importorskip("sharppy")
     result = calculate_sharppy_diagnostics(synthetic_profile())
     assert result["library"] == "SHARPpy"
+    assert result["profile_class"] == "ConvectiveProfile"
     assert result["quality"]["input_levels"] == 17
+    assert result["thermodynamics"]["precipitable_water_in"] is not None
+    assert "precipitation_type" in result["winter"]
+    assert "dcape_jkg" in result["severe"]
+    assert "wetbulb_c" in result["thermodynamic_profiles"]
     assert result["units"]["cape"] == "J/kg"
     assert set(result["parcels"]) == {"surface", "most_unstable", "mixed_layer"}
     assert result["parcels"]["surface"]["cape_jkg"] is not None
