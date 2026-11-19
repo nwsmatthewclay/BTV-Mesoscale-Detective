@@ -1,0 +1,15 @@
+{
+  "name": "btv-sharppy-container",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev:sharppy": "wrangler dev --config wrangler.sharppy.toml",
+    "deploy:sharppy": "wrangler deploy --config wrangler.sharppy.toml"
+  },
+  "dependencies": {
+    "@cloudflare/containers": "^0.2.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.45.0"
+  }
+}
