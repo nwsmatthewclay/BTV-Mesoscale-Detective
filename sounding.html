@@ -299,7 +299,8 @@ async function applyAdjustments(){
 function reset(){$('tempOffset').value=0;$('dewOffset').value=0;$('offsetDepth').value=1000;$('mixDepth').value=0;updateOutputs();modifiedResult=null;render();$('apiStatus').textContent='Adjustments reset. Original model profile and original SHARPpy diagnostics restored.';$('apiStatus').style.color='var(--muted)';}
 $('tempOffset').addEventListener('input',updateOutputs);$('dewOffset').addEventListener('input',updateOutputs);$('offsetDepth').addEventListener('input',updateOutputs);$('mixDepth').addEventListener('input',updateOutputs);
 $('apply').addEventListener('click',applyAdjustments);$('reset').addEventListener('click',reset);$('checkApi').addEventListener('click',checkApi);
-$('cwa').addEventListener('change',()=>{populateLocations();loadProfile().catch(e=>$('dataStatus').textContent='Profile unavailable: '+e.message);});\n$('model').addEventListener('change',()=>loadProfile().catch(e=>{$('dataStatus').textContent='Profile unavailable: '+e.message;$('dataStatus').style.color='var(--amber)';}));
+$('cwa').addEventListener('change',()=>{populateLocations();loadProfile().catch(e=>$('dataStatus').textContent='Profile unavailable: '+e.message);});
+$('model').addEventListener('change',()=>loadProfile().catch(e=>{$('dataStatus').textContent='Profile unavailable: '+e.message;$('dataStatus').style.color='var(--amber)';}));
 $('location').addEventListener('change',()=>loadProfile().catch(e=>{$('dataStatus').textContent='Profile unavailable: '+e.message;$('dataStatus').style.color='var(--amber)';}));
 $('forecastHour').addEventListener('change',()=>loadProfile().catch(e=>$('dataStatus').textContent='Profile unavailable: '+e.message));
 (async()=>{updateOutputs();try{await loadLocations();await loadManifest();await loadProfile();}catch(e){$('dataStatus').textContent='Verified RAP profile archive unavailable: '+e.message;$('dataStatus').style.color='var(--amber)';}})();
