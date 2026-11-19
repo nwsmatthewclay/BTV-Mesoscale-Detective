@@ -83,7 +83,7 @@ button,select,input{font:inherit;color:#eee;background:#090909;border:1px solid 
 <script>
 const PYODIDE_VERSION="0.26.4",PYODIDE_BASE="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/",SHARPPY_ARCHIVE="./mesoscale/vendor/sharppy-1.4.0-browser.zip";
 const $=id=>document.getElementById(id);
-let catalog=null,siteNames={},selectedCycle=null,stations=[],profile=null,record=null,original=null,modified=null,pyodide=null,engineReady=false,calcTimer=null,calcSerial=0,decodedCache=new Map();
+let catalog=null,siteNames={},selectedCycle=null,stations=[],profile=null,record=null,original=null,modified=null,pyodide=null,engineReady=false,calcTimer=null,calcSerial=0,decodedCache=new Map(),prefetchedBufkit=new Map();
 const log=message=>{$("log").textContent+="\n"+new Date().toISOString().slice(11,19)+" "+message;$("log").scrollTop=$("log").scrollHeight};
 const setStatus=(message,state="loading")=>{$("runtimeStatus").textContent=message;$("runtimeStatus").dataset.state=state};
 const fmt=(v,d=0)=>v===null||v===undefined||!Number.isFinite(Number(v))?"—":Number(v).toFixed(d);
@@ -139,6 +139,20 @@ function showProfileError(error){
  $("calcStatus").textContent="No sounding was decoded; no substitute profile was used.";
  log("BUFKIT PROFILE ERROR: "+(error.stack||error.message));
 }
+async function prefetchSelectedBufkit(){
+ const model=$("model").value,cycleKey=$("cycle").value,station=$("station").value;
+ const cycle=(catalog?.models?.[model]||[]).find(c=>c.cycle_key===cycleKey);
+ const entry=cycle?.stations?.find(st=>st.station===station);
+ if(!entry)return;
+ const key=[model,cycleKey,station].join("/");
+ if(decodedCache.has(key)||prefetchedBufkit.has(key))return;
+ try{
+  const response=await fetch("./mesoscale/data/bufkit/"+entry.file,{cache:"default"});
+  if(!response.ok)throw new Error("HTTP "+response.status);
+  prefetchedBufkit.set(key,await response.arrayBuffer());
+  log("Prefetched default "+model+" BUFKIT profile while SHARPpy initializes.");
+ }catch(error){log("BUFKIT prefetch skipped: "+error.message);}
+}
 async function loadProfile(){
  const model=$("model").value,cycleKey=$("cycle").value,station=$("station").value,hour=Number($("hour").value);
  selectedCycle=(catalog.models[model]||[]).find(c=>c.cycle_key===cycleKey);
@@ -150,9 +164,14 @@ async function loadProfile(){
  if(!decoded){
   setStatus("Downloading archived BUFKIT file…");log("Fetching "+model+" "+cycleKey+" "+station+".");
   const url="./mesoscale/data/bufkit/"+entry.file;
-  const response=await fetch(url,{cache:"no-store"});
-  if(!response.ok)throw new Error("Archived BUFKIT file HTTP "+response.status);
-  const text=await decompressGzip(await response.arrayBuffer());
+  let compressed=prefetchedBufkit.get(cacheKey);
+  if(compressed)prefetchedBufkit.delete(cacheKey);
+  else{
+   const response=await fetch(url,{cache:"default"});
+   if(!response.ok)throw new Error("Archived BUFKIT file HTTP "+response.status);
+   compressed=await response.arrayBuffer();
+  }
+  const text=await decompressGzip(compressed);
   if(!text.includes("STID")||text.length<1000)throw new Error("Downloaded archive file is not valid BUFKIT text");
   pyodide.FS.writeFile("/tmp/selected.buf",text);
   const code="import json\n_decoded=decode_bufkit_file('/tmp/selected.buf',"+JSON.stringify(station)+","+JSON.stringify(selectedCycle.model_cycle_utc)+","+JSON.stringify(model)+")\njson.dumps(_decoded,allow_nan=False)";
@@ -286,6 +305,7 @@ async function boot(){
   await loadSiteCoordinates();
   await loadRegistry();
   log("Archive catalog loaded: "+Object.keys(catalog.models).join(", "));
+  prefetchSelectedBufkit();
   $("initEngine").disabled=true;
   $("initEngine").textContent="Loading sounding engine…";
   setStatus("Archive ready · automatically starting browser SHARPpy and loading the default sounding…","loading");
