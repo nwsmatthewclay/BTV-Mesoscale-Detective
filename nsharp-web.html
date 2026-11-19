@@ -286,12 +286,18 @@ function renderSkew(){
   }
  }
  if(modified?.adjusted_profile){const a=modified.adjusted_profile;traces.push({x:a.temperature_k.map((v,i)=>skewX(v-273.15,a.pressure_hpa[i])),y:a.pressure_hpa,mode:"lines",name:"Modified T",line:{color:"#ffad66",width:2.2,dash:"dash"}});traces.push({x:a.dewpoint_k.map((v,i)=>skewX(v-273.15,a.pressure_hpa[i])),y:a.pressure_hpa,mode:"lines",name:"Modified Td",line:{color:"#75dfa9",width:2.2,dash:"dash"}})}
- const soundingTemps=[...envT,...profile.dewpoint_k.map(v=>v-273.15)];
- for(const parcel of Object.values(parcels)){if(Array.isArray(parcel.trace_temperature_c))soundingTemps.push(...parcel.trace_temperature_c.filter(Number.isFinite));}
- const validTemps=soundingTemps.filter(Number.isFinite);
- const tMin=Math.floor((Math.min(...validTemps)-6)/5)*5,tMax=Math.ceil((Math.max(...validTemps)+6)/5)*5;
- const pBottom=Math.min(1050,Math.max(...p)),pTop=Math.max(50,Math.min(...p));
- Plotly.react("skewt",traces,{paper_bgcolor:"#090f18",plot_bgcolor:"#090f18",margin:{l:55,r:12,t:12,b:42},xaxis:{title:"Temperature (°C)",range:[skewX(tMin,pBottom),skewX(tMax,pBottom)],autorange:false,color:"#91a4b9",gridcolor:"#1c2d40",tickvals:Array.from({length:Math.floor((tMax-tMin)/10)+1},(_,i)=>tMin+i*10)},yaxis:{title:"Pressure (hPa)",type:"log",range:[Math.log10(pBottom),Math.log10(pTop)],autorange:false,color:"#91a4b9",gridcolor:"#1c2d40"},legend:{font:{color:"#cbd8e6",size:9},orientation:"h",y:1.12}},{responsive:true,displaylogo:false});
+ // Stable operational default: show the troposphere with a useful temperature span.
+ // Keep the user's manual zoom across model/site/hour changes; do not autoscale per profile.
+ const zoom=window.__nsharpSkewZoom||{x:[-50,50],y:[Math.log10(1050),Math.log10(100)]};
+ const gd=$("skewt");
+ Plotly.react(gd,traces,{paper_bgcolor:"#090f18",plot_bgcolor:"#090f18",margin:{l:55,r:12,t:12,b:42},xaxis:{title:"Temperature (°C)",range:zoom.x,autorange:false,color:"#91a4b9",gridcolor:"#1c2d40",tickvals:[-50,-40,-30,-20,-10,0,10,20,30,40,50]},yaxis:{title:"Pressure (hPa)",type:"log",range:zoom.y,autorange:false,color:"#91a4b9",gridcolor:"#1c2d40"},legend:{font:{color:"#cbd8e6",size:9},orientation:"h",y:1.12}},{responsive:true,displaylogo:false}).then(()=>{
+  if(!gd.__nsharpZoomBound){gd.__nsharpZoomBound=true;gd.on("plotly_relayout",ev=>{
+   const z=window.__nsharpSkewZoom||(window.__nsharpSkewZoom={x:[-50,50],y:[Math.log10(1050),Math.log10(100)]});
+   if(ev["xaxis.range[0]"]!==undefined)z.x=[ev["xaxis.range[0]"],ev["xaxis.range[1]"]];
+   if(ev["yaxis.range[0]"]!==undefined)z.y=[ev["yaxis.range[0]"],ev["yaxis.range[1]"]];
+   try{localStorage.setItem("btv-nsharp-skew-zoom",JSON.stringify(z))}catch(_){}
+  })}
+ });
 }
 function renderHodo(){
  if(!profile)return;
@@ -334,6 +340,10 @@ $("station").addEventListener("change",populateHours);
 $("hour").addEventListener("change",()=>loadProfile().catch(showProfileError));
 ["temp","dew","offsetDepth","mixDepth"].forEach(id=>$(id).addEventListener("input",scheduleCalculation));
 $("reset").addEventListener("click",()=>{["temp","dew","mixDepth"].forEach(id=>$(id).value=0);$("offsetDepth").value=1000;updateLabels();modified=null;render();if(engineReady)calculateModified()});
+// Restore manual Skew-T zoom between page visits.
+try{const saved=JSON.parse(localStorage.getItem("btv-nsharp-skew-zoom")||"null");if(saved&&Array.isArray(saved.x)&&Array.isArray(saved.y))window.__nsharpSkewZoom=saved}catch(_){}
+$("reset").insertAdjacentHTML("afterend",'<button id="resetSkewZoom" title="Restore the default Skew-T view">Reset Skew-T zoom</button>');
+$("resetSkewZoom").addEventListener("click",()=>{window.__nsharpSkewZoom={x:[-50,50],y:[Math.log10(1050),Math.log10(100)]};try{localStorage.removeItem("btv-nsharp-skew-zoom")}catch(_){}if(profile)renderSkew()});
 updateLabels();boot();
 </script>
 <script>
