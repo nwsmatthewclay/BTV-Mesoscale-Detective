@@ -1,8 +1,6 @@
 from __future__ import annotations
 import csv
-import os
 from pathlib import Path
-import tempfile
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parent
@@ -22,12 +20,13 @@ def main():
     for name, node in sources.items():
         outlet = node.find("outlet")
         assert outlet is not None and outlet.attrib["format"] == "bufkit"
-        assert "{srcid}" in outlet.attrib["url"]
+        assert "{srcid}" in outlet.attrib["url"] and "{date}{cycle}" in outlet.attrib["url"]
+        assert "BTV_WORKER_HOST" in outlet.attrib["url"]
         assert node.find("outlet/points").attrib["csv"] == "btv_cwa.csv"
     # Validate the exact XML/CSV contract documented by SHARPpy. The GUI
     # discovers user sources from ~/.sharppy/datasources at startup.
     assert all(set(("icao","iata","synop","name","state","country","lat","lon","elev","priority","srcid")).issubset(row) for row in rows)
-    print(f"PASS: native SHARPpy loaded {len(rows)} BTV CWA station entries and {len(expected)} model data sources")
+    print(f"PASS: validated {len(rows)} BTV CWA station entries and {len(expected)} model data sources")
 
 if __name__ == "__main__":
     main()
