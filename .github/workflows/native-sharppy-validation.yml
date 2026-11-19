@@ -1,0 +1,31 @@
+name: Native SHARPpy Integration Validation
+
+on:
+  push:
+    paths:
+      - "native-sharppy/**"
+      - ".github/workflows/native-sharppy-validation.yml"
+  pull_request:
+    paths:
+      - "native-sharppy/**"
+      - ".github/workflows/native-sharppy-validation.yml"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-name: sharppy-ci
+          create-args: >-
+            python=3.10
+            sharppy=1.4.0
+            pyside2
+            requests
+            python-dateutil
+          cache-environment: true
+      - name: Validate native SHARPpy data-source integration
+        shell: micromamba-shell {0}
+        run: python native-sharppy/test_native_config.py
