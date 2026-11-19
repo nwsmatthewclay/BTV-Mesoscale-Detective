@@ -25,8 +25,8 @@ def _profile_arrays(profile: dict[str, Any]) -> dict[str, np.ndarray]:
     keys = ("pressure_hpa", "temperature_k", "dewpoint_k", "height_agl_m", "u_ms", "v_ms")
     arrays = {key: np.asarray(profile[key], dtype=float).copy() for key in keys}
     lengths = {a.size for a in arrays.values()}
-    if len(lengths) != 1 or not lengths or next(iter(lengths)) < 10:
-        raise ValueError("Profile arrays must be collocated and contain at least 10 levels")
+    if len(lengths) != 1 or not lengths or next(iter(lengths)) < 10 or next(iter(lengths)) > 500:
+        raise ValueError("Profile arrays must be collocated and contain 10–500 levels")
     if any(a.ndim != 1 or not np.all(np.isfinite(a)) for a in arrays.values()):
         raise ValueError("Profile arrays must be finite one-dimensional arrays")
     p, z = arrays["pressure_hpa"], arrays["height_agl_m"]
