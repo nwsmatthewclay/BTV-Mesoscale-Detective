@@ -55,15 +55,16 @@ Every generated field must include:
 
 Never silently mix analysis time and forecast valid time. Never label model-derived fields as observations. Surface observations remain a separate layer with station ID, observation timestamp and age.
 
-## Interactive Forecast Sounding Workbench (new)
+## Interactive Forecast Sounding Workbench
 
-Open the dedicated [Forecast Sounding Workbench](../sounding.html) from GitHub Pages. It reads only verified RAP full-column profiles from the published forecast manifest and station-profile archives. Locations are grouped by BTV subregion (Vermont / northern New York), with the CWA registry in `sounding_locations.json`.
+Open the [Browser SHARPpy Lab](../sounding-browser.html) from GitHub Pages. It reads the rolling BUFKIT archive catalog at `data/bufkit/catalog.json`, lets the forecaster select RRFS, GFS, RAP or HRRR, then choose an initialization cycle, station and forecast hour. The archived `.buf.gz` file is downloaded by the browser, decompressed with the Web Streams API, and decoded with SHARPpy's native `BufDecoder` inside Pyodide. No API server, paid container, or local Python installation is required.
 
-- All live BUFKIT profiles and API recalculations use SHARPpy 1.4.0 `ConvectiveProfile`, not merely `BasicProfile`. The static RAP archive still carries its earlier embedded diagnostics until its archive-generation workflow is rebuilt; the Workbench attempts a full `ConvectiveProfile` refresh whenever the API is connected. The full suite includes: surface, mixed-layer, most-unstable, forecast and effective parcels; effective inflow layers; Bunkers storm motion; 0–1/3 km SRH; 0–1/3/6/8/9 km bulk shear; PWAT; lapse rates; PBL height and winds; SCP/STP/SHIP/SHERBE; DCAPE and downburst indices; precipitation phase/type and DGZ diagnostics; fire-weather indices; SARS matches; and vertical wet-bulb, theta, theta-e, mixing-ratio and RH profiles. Optional BUFKIT omega is retained for SHARPpy winter diagnostics.
-- The browser displays original Skew-T and hodograph traces; adjusted traces are only displayed after a successful SHARPpy service response.
-- `sharppy_service.py` exposes `GET /health` and `POST /diagnose`. It applies low-level temperature/dewpoint offsets and a pressure-mass-weighted mixing experiment to potential temperature, water-vapor mixing ratio and horizontal momentum, then recalculates the adjusted profile with SHARPpy.
-- Temperature/dewpoint adjustment depth and mixing depth are separate controls, both specified in metres AGL. Mixing potential temperature, moisture and momentum can transport stronger winds downward into the lower levels. This is an idealized sensitivity experiment, not a replacement for the model's PBL scheme.
-- Source profile arrays are copied before adjustment and never overwritten. A modified result is labeled experimental and keeps the original model provenance.
+- The browser loads pinned SHARPpy 1.4.0 source and the repository's `sharppy_adapter.py`, `bufkit_browser.py` and `browser_adjustments.py` modules into its Python/WebAssembly runtime.
+- Every selected BUFKIT forecast time is converted to the shared SI profile contract and recalculated through SHARPpy `ConvectiveProfile`. The Skew-T and hodograph use the decoded model profile.
+- The diagnostic suite includes surface, mixed-layer, most-unstable, forecast and effective parcels; effective inflow layers; Bunkers storm motion; SRH and bulk shear; PWAT; lapse rates; PBL height and winds; SCP/STP/SHIP/SHERBE; DCAPE and downburst indices; precipitation phase/type and DGZ diagnostics; fire-weather indices; SARS matches; and vertical wet-bulb, theta, theta-e, mixing-ratio and RH profiles.
+- Temperature/dewpoint adjustment depth and mixing depth are separate controls in metres AGL. Mixing potential temperature, moisture and horizontal momentum can transport stronger winds downward. This is an idealized sensitivity experiment, not a replacement for the forecast model's PBL scheme.
+- Original profile arrays are immutable. Adjusted diagnostics are shown only after a successful SHARPpy calculation; no substitute JavaScript indices are produced when SHARPpy fails.
+- `sharppy_service.py` remains available as an optional local FastAPI interface for external workflows, but the public browser lab runs SHARPpy locally in the tab.
 
 ### Cloudflare Container deployment
 
