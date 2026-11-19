@@ -83,7 +83,7 @@ npm run deploy:sharppy
 
 Cloudflare Containers are available on the Workers Paid plan. The first deployment builds and provisions the container; confirm the Worker and container are healthy before pointing the public Pages UI at its `workers.dev` URL. The UI's API endpoint field is editable; set it to the deployed Worker URL once Cloudflare returns the exact hostname. Do not publish a guessed hostname.
 
-For Workers Builds, connect the repository with the root directory set to the repository root and use `npm run deploy:sharppy` as the production deploy command. The container requires outbound internet access to fetch BUFKIT files from PSU. Local BUFKIT cache storage is ephemeral and short-lived; a persistent R2 cache can be added after the first end-to-end validation.
+For Workers Builds, connect the repository with the root directory set to the repository root and use `npm run deploy:sharppy` as the production deploy command. The container requires outbound internet access to fetch BUFKIT files from PSU. Local BUFKIT cache storage is ephemeral and short-lived; a persistent R2 cache can be added after the first end-to-end validation. Before making the API broadly reachable, protect it with Cloudflare Access and/or rate-limiting rules; CORS is a browser policy, not authentication, and SHARPpy calculations consume container resources.
 
 Start the local SHARPpy calculation API:
 
