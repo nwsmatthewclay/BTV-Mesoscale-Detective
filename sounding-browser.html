@@ -13,7 +13,7 @@
 <body>
 <header><div class="brand"><div class="mark">BTV</div><div><h1>Browser SHARPpy Lab</h1><p>Python · WebAssembly · ConvectiveProfile</p></div></div><div class="header-actions"><a class="btn" href="./sounding.html">← Sounding Workbench</a><a class="btn" href="./bufkit-archive.html">BUFKIT Archive</a><span class="btn primary">DARK MODE ONLY</span></div></header>
 <main>
-<div class="topline"><div><div class="eyebrow">In-browser scientific runtime experiment</div><h2>Modify the atmosphere. Recalculate with SHARPpy.</h2><p>Python executes inside this browser tab. No local install, API server, or GitHub Action is used for profile adjustments.</p></div><div class="runtime" id="runtimeStatus" data-state="loading">Loading verified RAP archive…</div></div>
+<div class="topline"><div><div class="eyebrow">Archived BUFKIT · SHARPpy ConvectiveProfile</div><h2>Modify the atmosphere. Recalculate with SHARPpy.</h2><p>Select a model cycle and station. SHARPpy decodes the archived BUFKIT profile and runs entirely in this browser tab.</p></div><div class="runtime" id="runtimeStatus" data-state="loading">Loading verified RAP archive…</div></div>
 <section class="panel selector">
  <div class="field"><label for="model">Model</label><select id="model"></select></div>
  <div class="field"><label for="cycle">Initialization cycle (UTC)</label><select id="cycle"></select></div>
@@ -36,7 +36,7 @@
   <section class="panel"><div class="sectionhead">SHARPpy · original vs modified</div><div class="metrics" id="metrics"></div><div class="diag"><h3>Parcel / kinematic comparison</h3><div id="rows"></div><h3>Full diagnostic suite</h3><div id="suiteStatus" class="diagrow"><span>Engine</span><b>Archived</b><b>Not initialized</b></div></div><div class="details"><details><summary>Inspect complete diagnostic payload</summary><pre id="raw">Archived original diagnostics will appear here.</pre></details></div></section>
  </aside>
 </div>
-<div class="log" id="log">[startup] Browser Python experiment initialized. No Python service configured.</div>
+<div class="log" id="log">[startup] Browser Python experiment initialized. SHARPpy and BUFKIT decoding run locally in this tab.</div>
 <div class="footnote"><strong>Scientific integrity:</strong> modified diagnostics are displayed only after the actual SHARPpy ConvectiveProfile returns successfully. The original profile is immutable. The mixing experiment pressure-mass-weights potential temperature, water-vapor mixing ratio, and horizontal momentum; it is a sensitivity experiment, not a forecast-model boundary-layer scheme. If the browser cannot load SHARPpy or any required dependency, no substitute diagnostic engine is used.</div>
 </main>
 <script>
@@ -199,9 +199,9 @@ function renderDiagnostics(){
 function render(){renderSkew();renderHodo();renderDiagnostics()}
 async function boot(){try{await loadSiteCoordinates();await loadRegistry();setStatus("BUFKIT archive catalog loaded · initialize browser Python to decode a real model sounding.","ready");log("Archive catalog loaded: "+Object.keys(catalog.models).join(", "));}catch(error){setStatus("Data initialization failed: "+error.message,"error");log("DATA ERROR: "+(error.stack||error.message))}}
 $("initEngine").addEventListener("click",initializeEngine);
-$("model").addEventListener("change",()=>{populateCycles();if(engineReady)loadProfile().catch(showProfileError)});
-$("cycle").addEventListener("change",()=>{populateStations();if(engineReady)loadProfile().catch(showProfileError)});
-$("station").addEventListener("change",()=>{populateHours();if(engineReady)loadProfile().catch(showProfileError)});
+$("model").addEventListener("change",populateCycles);
+$("cycle").addEventListener("change",populateStations);
+$("station").addEventListener("change",populateHours);
 $("hour").addEventListener("change",()=>loadProfile().catch(showProfileError));
 ["temp","dew","offsetDepth","mixDepth"].forEach(id=>$(id).addEventListener("input",scheduleCalculation));
 $("reset").addEventListener("click",()=>{["temp","dew","mixDepth"].forEach(id=>$(id).value=0);$("offsetDepth").value=1000;updateLabels();modified=null;render();if(engineReady)calculateModified()});
