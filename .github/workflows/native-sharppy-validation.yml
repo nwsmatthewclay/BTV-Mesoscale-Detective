@@ -13,6 +13,11 @@ on:
   pull_request:
     paths:
       - "native-sharppy/**"
+      - "mesoscale/sharppy_*.py"
+      - "mesoscale/browser_adjustments.py"
+      - "mesoscale/bufkit_feed.py"
+      - "mesoscale/tests/test_sharppy_*.py"
+      - "mesoscale/tests/test_bufkit_feed.py"
       - ".github/workflows/native-sharppy-validation.yml"
   workflow_dispatch:
 
@@ -30,6 +35,8 @@ jobs:
             pyside2
             requests
             python-dateutil
+            pytest
+            fastapi
           cache-environment: true
       - name: Check Worker JavaScript syntax
         run: node --check native-sharppy/worker/src/index.js
