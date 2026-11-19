@@ -46,7 +46,7 @@ main{max-width:1800px;margin:auto;padding:16px 20px 30px}.intro{display:flex;ali
     <div class="explain"><b>Mixing experiment:</b> within the selected depth, the service mixes potential temperature, water-vapor mixing ratio and horizontal momentum using pressure-layer mass weighting. This can transport stronger winds toward the surface. It is an idealized sensitivity experiment, not a forecast model PBL scheme.</div>
     <div class="actions"><button class="btn primary" id="apply">Apply adjustments · recalculate SHARPpy</button><button class="btn" id="reset">Reset</button></div>
    </div>
-   <div class="apirow"><label for="apiBase">SHARPpy calculation service</label><div class="inline"><input id="apiBase" type="text" value="http://127.0.0.1:8000"><button class="btn" id="checkApi">Check</button></div><div class="apiStatus" id="apiStatus">Connect to the Python SHARPpy service to recalculate modified profiles. Original archive diagnostics are available without the service.</div></div>
+   <div class="apirow"><label for="apiBase">SHARPpy calculation service</label><div class="inline"><input id="apiBase" type="text" placeholder="Cloudflare SHARPpy API URL (workers.dev)"><button class="btn" id="checkApi">Check</button></div><div class="apiStatus" id="apiStatus">Connect to the Python SHARPpy service to recalculate modified profiles. Original archive diagnostics are available without the service.</div></div>
   </section>
   <section class="panel">
    <div class="panelhead">SHARPpy diagnostics · original vs modified</div>
@@ -280,8 +280,18 @@ function buildDiagnostics(){
 }
 function render(){plotSkew();plotHodo();buildDiagnostics();}
 function updateOutputs(){$('offsetDepthOut').textContent=$('offsetDepth').value+' m';$('tempOut').textContent=Number($('tempOffset').value)>0?'+':''+$('tempOffset').value+'°C';$('dewOut').textContent=Number($('dewOffset').value)>0?'+':''+$('dewOffset').value+'°C';$('mixOut').textContent=$('mixDepth').value+' m';}
+async function loadApiConfig(){
+ try{
+  const response=await fetch('./mesoscale/sharppy_api_config.json?ts='+Date.now(),{cache:'no-store'});
+  if(!response.ok)throw new Error('API configuration HTTP '+response.status);
+  const config=await response.json();
+  if(config.service_url){$('apiBase').value=String(config.service_url).replace(/\/$/,'');$('apiStatus').textContent='Cloudflare SHARPpy endpoint configured · checking service…';await checkApi();}
+  else{$('apiBase').value='';$('apiStatus').textContent='Cloudflare SHARPpy API deployment is pending. The live endpoint will be configured here after the Container is deployed.';$('apiStatus').style.color='var(--amber)';}
+ }catch(error){$('apiBase').value='';$('apiStatus').textContent='SHARPpy API endpoint is not configured. Deploy the Python Container and add its workers.dev URL to mesoscale/sharppy_api_config.json.';$('apiStatus').style.color='var(--amber)';}
+}
 async function checkApi(){
  const base=$('apiBase').value.trim().replace(/\/$/,'');
+ if(!base){apiReady=false;$('apiStatus').textContent='Enter the deployed Cloudflare SHARPpy API URL first.';$('apiStatus').style.color='var(--amber)';return;}
  try{const r=await fetch(base+'/health');if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();if(j.engine!=='SHARPpy')throw new Error('Endpoint did not identify SHARPpy');apiReady=true;$('apiStatus').textContent='Connected · SHARPpy '+j.version+' · ready to recalculate adjusted profiles.';$('apiStatus').style.color='var(--green)';}
  catch(e){apiReady=false;$('apiStatus').textContent='SHARPpy service unavailable: '+e.message+'. Start mesoscale.sharppy_service with Uvicorn; the original profile remains available.';$('apiStatus').style.color='var(--amber)';}
 }
@@ -307,6 +317,6 @@ $('cwa').addEventListener('change',()=>{populateLocations();loadProfile().catch(
 $('model').addEventListener('change',()=>loadProfile().catch(e=>{$('dataStatus').textContent='Profile unavailable: '+e.message;$('dataStatus').style.color='var(--amber)';}));
 $('location').addEventListener('change',()=>loadProfile().catch(e=>{$('dataStatus').textContent='Profile unavailable: '+e.message;$('dataStatus').style.color='var(--amber)';}));
 $('forecastHour').addEventListener('change',()=>loadProfile().catch(e=>$('dataStatus').textContent='Profile unavailable: '+e.message));
-(async()=>{updateOutputs();try{await loadLocations();await loadManifest();await loadProfile();}catch(e){$('dataStatus').textContent='Verified RAP profile archive unavailable: '+e.message;$('dataStatus').style.color='var(--amber)';}})();
+(async()=>{updateOutputs();await loadApiConfig();try{await loadLocations();await loadManifest();await loadProfile();}catch(e){$('dataStatus').textContent='Verified RAP profile archive unavailable: '+e.message;$('dataStatus').style.color='var(--amber)';}})();
 </script>
 </body></html>
