@@ -44,7 +44,7 @@ def test_mixing_depth_homogenizes_thermodynamics_and_wind():
 def test_offsets_only_change_levels_inside_mixing_depth():
     source = profile()
     adjusted, _ = adjust_profile(source, {
-        "temperature_offset_c": 2, "dewpoint_offset_c": 1, "mixing_depth_m": 500
+        "temperature_offset_c": 2, "dewpoint_offset_c": 1, "low_level_depth_m": 500, "mixing_depth_m": 0
     })
     layer = np.array(source["height_agl_m"]) <= 500
     outside = ~layer
