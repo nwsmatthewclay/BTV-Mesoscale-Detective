@@ -187,7 +187,7 @@ def main() -> int:
         default=None,
     )
     catalog_path = ROOT / "data" / "bufkit" / "catalog.json"
-    catalog_path.write_text(json.dumps(catalog, indent=2)+"\\n", encoding="utf-8")
+    catalog_path.write_text(json.dumps(catalog, indent=2)+"\n", encoding="utf-8")
     print(json.dumps({m:{k:v for k,v in d.items() if k not in ("successes","failures")} for m,d in summary["models"].items()},indent=2))
     return 0
 
