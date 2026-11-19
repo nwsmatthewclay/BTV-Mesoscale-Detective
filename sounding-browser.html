@@ -62,10 +62,10 @@ async function loadProfile(){
  const r=await fetch("./mesoscale/data/fields/forecast/"+entry.station_file,{cache:"no-store"});if(!r.ok)throw new Error("Station archive HTTP "+r.status);
  const collection=await r.json();if(collection.model!=="RAP"||collection.model_cycle_utc!==manifest.model_cycle_utc||Number(collection.forecast_hour)!==hour||collection.valid_time_utc!==entry.valid_time_utc)throw new Error("Profile provenance mismatch");
  record=collection.stations?.[station];if(!record)throw new Error("No archived "+station+" profile at "+formatHour(hour));
- if(record.quality?.status!=="passed")throw new Error("Profile quality status is not passed");
+ if(record.sharppy?.status!=="passed")throw new Error("Archived SHARPpy profile status is not passed");
  profile={...record.profile,location:station,latitude:stations.find(s=>s.id===station)?.lat??44.47,date:record.valid_time_utc,valid_time_utc:record.valid_time_utc};
  original=record.sharppy?.diagnostics||null;modified=null;render();
- $("profileMeta").textContent="RAP · "+manifest.model_cycle_utc+" · "+station+" · "+formatHour(hour)+" · valid "+record.valid_time_utc+" · "+record.quality.levels+" levels · source "+record.source_file;
+ $("profileMeta").textContent="RAP · "+manifest.model_cycle_utc+" · "+station+" · "+formatHour(hour)+" · valid "+record.valid_time_utc+" · "+(record.sharppy?.diagnostics?.quality?.input_levels||record.profile.pressure_hpa.length)+" levels · source "+record.source_file;
  $("raw").textContent=JSON.stringify({archived_original:original},null,2);
  $("calcStatus").textContent=engineReady?"Profile loaded · browser SHARPpy ready.":"Profile loaded · initialize browser Python to recalculate.";
  setStatus("Verified "+station+" profile loaded · "+profile.pressure_hpa.length+" levels","ready");
