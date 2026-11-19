@@ -1,0 +1,21 @@
+name = "btv-sharppy-api"
+main = "workers/sounding-api/src/index.js"
+compatibility_date = "2026-11-19"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+[[containers]]
+class_name = "SharpPyContainer"
+image = "./Dockerfile.sharppy"
+max_instances = 1
+
+[[durable_objects.bindings]]
+name = "SHARPPY_API"
+class_name = "SharpPyContainer"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["SharpPyContainer"]
+
+[observability]
+enabled = true
