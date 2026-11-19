@@ -1,0 +1,14 @@
+name: btv-nsharp-build
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - numpy<2
+  - sharppy=1.4.0
+  - pyside2
+  - qtpy
+  - requests
+  - python-dateutil
+  - pip
+  - pip:
+      - pyinstaller==6.11.1
