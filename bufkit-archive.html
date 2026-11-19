@@ -9,7 +9,7 @@
 <section class="panel selectors"><div class="field"><label for="model">Model</label><select id="model"></select></div><div class="field"><label for="cycle">Initialization cycle</label><select id="cycle"></select></div><div class="field"><label for="station">Station</label><select id="station"></select></div></section>
 <div class="summary"><div class="stat"><span>Available model cycles</span><b id="cycleCount">—</b></div><div class="stat"><span>Stations in selected cycle</span><b id="stationCount">—</b></div><div class="stat"><span>Forecast periods</span><b id="periodCount">—</b></div><div class="stat"><span>BUFKIT file size</span><b id="fileSize">—</b></div></div>
 <section class="panel results"><h3 id="resultTitle">Selected BUFKIT file</h3><div id="result"><div class="empty">Waiting for archive data.</div></div></section>
-<div class="foot">Original BUFKIT text files are retained by model initialization cycle. Missing station/model combinations are shown as unavailable rather than substituted. The archive is populated by the hourly GitHub Actions acquisition job; model runs do not necessarily arrive at the same time.</div>
+<div class="foot">Original BUFKIT text files are retained by model initialization cycle. Missing station/model combinations are shown as unavailable rather than substituted. The archive is refreshed hourly by GitHub Actions. Original BUFKIT text is stored as gzip-compressed files; the model cycles do not necessarily arrive at the same time.</div>
 </main>
 <script>
 const $=id=>document.getElementById(id);let catalog=null,models=[],cycles=[],selectedEntry=null;
