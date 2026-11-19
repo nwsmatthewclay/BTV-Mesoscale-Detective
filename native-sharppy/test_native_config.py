@@ -25,7 +25,7 @@ def main():
         assert "{srcid}" in outlet.attrib["url"]
         assert node.find("outlet/points").attrib["csv"] == "btv_cwa.csv"
     # Verify SHARPpy itself can load the source XML and station CSV.
-    from sharppy.datasources.data_source import loadDataSources
+    from datasources.data_source import loadDataSources
     with tempfile.TemporaryDirectory() as temp:
         target = Path(temp)
         (target / "btv_cwa.xml").write_bytes(XML.read_bytes())
