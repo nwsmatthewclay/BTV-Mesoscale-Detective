@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "source": "User-provided BUFKIT station selector screenshot",
+  "source": "User-provided BUFKIT station selector screenshot; identifiers preserved exactly",
   "models": [
     "RRFS",
     "GFS",
@@ -14,37 +14,147 @@
     "RRFS": 8
   },
   "stations": [
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {}
+    {
+      "id": "KBTV",
+      "name": "KBTV",
+      "lat": 44.4719,
+      "lon": -73.1533
+    },
+    {
+      "id": "KPBG",
+      "name": "KPBG",
+      "lat": 44.6509,
+      "lon": -73.4681
+    },
+    {
+      "id": "KMPV",
+      "name": "KMPV",
+      "lat": 44.2035,
+      "lon": -72.5623
+    },
+    {
+      "id": "KEFK",
+      "name": "KEFK",
+      "lat": 44.8888,
+      "lon": -72.2292
+    },
+    {
+      "id": "RUT",
+      "name": "RUT"
+    },
+    {
+      "id": "KMSS",
+      "name": "KMSS",
+      "lat": 44.9358,
+      "lon": -74.8456
+    },
+    {
+      "id": "KSLK",
+      "name": "KSLK",
+      "lat": 44.3853,
+      "lon": -74.2062
+    },
+    {
+      "id": "KMVL",
+      "name": "KMVL"
+    },
+    {
+      "id": "VSF",
+      "name": "VSF"
+    },
+    {
+      "id": "OGS",
+      "name": "OGS"
+    },
+    {
+      "id": "MALO",
+      "name": "MALO"
+    },
+    {
+      "id": "1V4",
+      "name": "1V4",
+      "lat": 44.4193,
+      "lon": -72.0194
+    },
+    {
+      "id": "ALBU",
+      "name": "ALBU"
+    },
+    {
+      "id": "CLCR",
+      "name": "CLCR"
+    },
+    {
+      "id": "GTB",
+      "name": "GTB"
+    },
+    {
+      "id": "JAYV",
+      "name": "JAYV"
+    },
+    {
+      "id": "KALB",
+      "name": "KALB"
+    },
+    {
+      "id": "KBGR",
+      "name": "KBGR"
+    },
+    {
+      "id": "KBHB",
+      "name": "KBHB"
+    },
+    {
+      "id": "KCAR",
+      "name": "KCAR"
+    },
+    {
+      "id": "KFVE",
+      "name": "KFVE"
+    },
+    {
+      "id": "KGFL",
+      "name": "KGFL"
+    },
+    {
+      "id": "KHUL",
+      "name": "KHUL"
+    },
+    {
+      "id": "KLEB",
+      "name": "KLEB"
+    },
+    {
+      "id": "KLGN",
+      "name": "KLGN"
+    },
+    {
+      "id": "KPOU",
+      "name": "KPOU"
+    },
+    {
+      "id": "KPQI",
+      "name": "KPQI"
+    },
+    {
+      "id": "KPSF",
+      "name": "KPSF"
+    },
+    {
+      "id": "LOI",
+      "name": "LOI"
+    },
+    {
+      "id": "MCGL",
+      "name": "MCGL"
+    },
+    {
+      "id": "NUND",
+      "name": "NUND"
+    },
+    {
+      "id": "RIPT",
+      "name": "RIPT"
+    }
   ]
 }
