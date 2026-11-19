@@ -55,6 +55,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -f mesoscale/data/bufkit/manifest.json
+          rm -rf mesoscale/__pycache__
           git add -A mesoscale/data/bufkit
           git status --short
           if git diff --cached --quiet; then
@@ -62,8 +64,6 @@ jobs:
             exit 0
           fi
           git commit -m "Archive regional BUFKIT model soundings"
-          rm -f mesoscale/data/bufkit/manifest.json
-          rm -rf mesoscale/__pycache__
           git fetch origin main
           git rebase origin/main
           git push origin HEAD:main
