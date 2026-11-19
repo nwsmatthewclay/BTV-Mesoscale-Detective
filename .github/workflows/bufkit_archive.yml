@@ -61,6 +61,7 @@ jobs:
             exit 0
           fi
           git commit -m "Archive regional BUFKIT model soundings"
+          rm -f mesoscale/data/bufkit/manifest.json
           git fetch origin main
           git rebase origin/main
           git push origin HEAD:main
