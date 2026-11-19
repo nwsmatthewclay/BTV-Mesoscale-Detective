@@ -1,0 +1,68 @@
+name: Archive Regional BUFKIT Soundings
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+    inputs:
+      models:
+        description: "Models to acquire (comma-separated, or all)"
+        required: false
+        default: "all"
+      dry_run:
+        description: "Probe availability without saving files"
+        type: boolean
+        required: false
+        default: false
+  push:
+    paths:
+      - "mesoscale/bufkit_sites.json"
+      - "mesoscale/archive_bufkit.py"
+      - ".github/workflows/bufkit_archive.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: regional-bufkit-archive
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install downloader dependencies
+        run: python -m pip install requests
+      - name: Download current BUFKIT files and enforce retention
+        env:
+          INPUT_MODELS: ${{ inputs.models || 'all' }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+        run: |
+          if [ "$INPUT_MODELS" = "all" ]; then
+            python mesoscale/archive_bufkit.py
+          else
+            IFS=',' read -ra MODELS <<< "$INPUT_MODELS"
+            ARGS=()
+            for MODEL in "${MODELS[@]}"; do ARGS+=(--model "$(echo "$MODEL" | xargs)"); done
+            python mesoscale/archive_bufkit.py "${ARGS[@]}"
+          fi
+          if [ "$DRY_RUN" = "true" ]; then
+            python mesoscale/archive_bufkit.py --dry-run
+          fi
+      - name: Commit rolling BUFKIT archive
+        if: ${{ inputs.dry_run != true }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mesoscale/data/bufkit
+          if git diff --cached --quiet; then
+            echo "No BUFKIT archive changes to commit."
+            exit 0
+          fi
+          git commit -m "Archive regional BUFKIT model soundings"
+          git push
