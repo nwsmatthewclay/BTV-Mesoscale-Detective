@@ -59,26 +59,26 @@ main{max-width:1800px;margin:auto;padding:16px 20px 30px}.intro{display:flex;ali
 <div class="notice"><b>Operational safeguards:</b> this is a research and forecast-exploration tool, not an operationally approved decision aid. Original model data are never overwritten. Modified results are labeled experimental and must not be confused with model guidance. HRRR is currently surface-only in this archive and is intentionally not offered as a sounding.</div>
 </main>
 <script>
-const stations = [
- {id:'KBTV',name:'Burlington International',region:'Vermont'},
- {id:'KMPV',name:'Montpelier',region:'Vermont'},
- {id:'KRUT',name:'Rutland',region:'Vermont'},
- {id:'KEFK',name:'Newport',region:'Vermont'},
- {id:'1V4',name:'St. Johnsbury',region:'Vermont'},
- {id:'KPBG',name:'Plattsburgh',region:'Northern New York'},
- {id:'KMSS',name:'Massena',region:'Northern New York'},
- {id:'KSLK',name:'Saranac Lake',region:'Northern New York'}
-];
-let manifest=null, sourceProfile=null, sourceRecord=null, modifiedResult=null, apiReady=false;
+let stations=[], locationRegistry=[], manifest=null, sourceProfile=null, sourceRecord=null, modifiedResult=null, apiReady=false;
 const $=id=>document.getElementById(id);
 const fmt=(v,d=0)=>Number.isFinite(Number(v))?Number(v).toFixed(d):'—';
 function populateLocations(){
- const select=$('location');select.innerHTML='';
- for(const region of ['Vermont','Northern New York']){
-  const group=document.createElement('optgroup');group.label=region;
-  stations.filter(s=>s.region===region).forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent=s.id+' · '+s.name;group.appendChild(o);});
+ const cwa=$('cwa').value, region=locationRegistry.find(x=>x.cwa===cwa), select=$('location');
+ select.innerHTML='';stations=[];
+ if(!region)return;
+ for(const subregion of region.subregions||[]){
+  const group=document.createElement('optgroup');group.label=subregion.name;
+  (subregion.stations||[]).forEach(s=>{stations.push({...s,region:subregion.name});const o=document.createElement('option');o.value=s.id;o.textContent=s.id+' · '+s.name;group.appendChild(o);});
   select.appendChild(group);
  }
+}
+async function loadLocations(){
+ const r=await fetch('./mesoscale/sounding_locations.json?ts='+Date.now(),{cache:'no-store'});
+ if(!r.ok)throw new Error('CWA location registry HTTP '+r.status);
+ const registry=await r.json();locationRegistry=registry.regions||[];
+ const cwa=$('cwa');cwa.innerHTML='';
+ locationRegistry.forEach(region=>{const o=document.createElement('option');o.value=region.cwa;o.textContent=region.cwa+' · '+region.name;cwa.appendChild(o);});
+ populateLocations();
 }
 function populateHours(){
  const select=$('forecastHour');select.innerHTML='';
@@ -174,8 +174,8 @@ async function applyAdjustments(){
 function reset(){$('tempOffset').value=0;$('dewOffset').value=0;$('offsetDepth').value=1000;$('mixDepth').value=0;updateOutputs();modifiedResult=null;render();$('apiStatus').textContent='Adjustments reset. Original model profile and original SHARPpy diagnostics restored.';$('apiStatus').style.color='var(--muted)';}
 $('tempOffset').addEventListener('input',updateOutputs);$('dewOffset').addEventListener('input',updateOutputs);$('offsetDepth').addEventListener('input',updateOutputs);$('mixDepth').addEventListener('input',updateOutputs);
 $('apply').addEventListener('click',applyAdjustments);$('reset').addEventListener('click',reset);$('checkApi').addEventListener('click',checkApi);
-$('location').addEventListener('change',()=>loadProfile().catch(e=>$('dataStatus').textContent='Profile unavailable: '+e.message));
+$('cwa').addEventListener('change',()=>{populateLocations();loadProfile().catch(e=>$('dataStatus').textContent='Profile unavailable: '+e.message);});\n$('location').addEventListener('change',()=>loadProfile().catch(e=>$('dataStatus').textContent='Profile unavailable: '+e.message));
 $('forecastHour').addEventListener('change',()=>loadProfile().catch(e=>$('dataStatus').textContent='Profile unavailable: '+e.message));
-(async()=>{populateLocations();updateOutputs();try{await loadManifest();await loadProfile();}catch(e){$('dataStatus').textContent='Verified RAP profile archive unavailable: '+e.message;$('dataStatus').style.color='var(--amber)';}})();
+(async()=>{updateOutputs();try{await loadLocations();await loadManifest();await loadProfile();}catch(e){$('dataStatus').textContent='Verified RAP profile archive unavailable: '+e.message;$('dataStatus').style.color='var(--amber)';}})();
 </script>
 </body></html>
