@@ -240,7 +240,22 @@ function renderDiagnostics(){
  $("suiteStatus").innerHTML="<span>Diagnostics</span><b>"+(orig.library||"Archive")+"</b><b>"+(mod?.profile_class||"Not recalculated")+"</b>";
 }
 function render(){renderSkew();renderHodo();renderDiagnostics()}
-async function boot(){try{await loadSiteCoordinates();await loadRegistry();setStatus("BUFKIT archive catalog loaded · initialize browser Python to decode a real model sounding.","ready");log("Archive catalog loaded: "+Object.keys(catalog.models).join(", "));}catch(error){setStatus("Data initialization failed: "+error.message,"error");log("DATA ERROR: "+(error.stack||error.message))}}
+async function boot(){
+ try{
+  await loadSiteCoordinates();
+  await loadRegistry();
+  log("Archive catalog loaded: "+Object.keys(catalog.models).join(", "));
+  $("initEngine").disabled=true;
+  $("initEngine").textContent="Loading sounding engine…";
+  setStatus("Archive ready · automatically starting browser SHARPpy and loading the default sounding…","loading");
+  await initializeEngine();
+ }catch(error){
+  $("initEngine").disabled=false;
+  $("initEngine").textContent="Initialize browser Python";
+  setStatus("Data initialization failed: "+error.message,"error");
+  log("DATA ERROR: "+(error.stack||error.message));
+ }
+}
 $("initEngine").addEventListener("click",initializeEngine);
 $("model").addEventListener("change",populateCycles);
 $("cycle").addEventListener("change",populateStations);
