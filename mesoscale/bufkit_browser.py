@@ -95,6 +95,10 @@ def _to_contract(profile):
 def decode_bufkit_file(path: str, expected_station: str, expected_cycle: str, model: str) -> dict:
     """Decode every forecast time in a BUFKIT file with SHARPpy's BufDecoder."""
     from sharppy.io.buf_decoder import BufDecoder
+    from sharppy.io.decoder import Decoder
+    # SHARPpy passes a removed cafile keyword to urllib.request.urlopen.
+    # Browser mode only reads a local Pyodide file, so use a local reader.
+    Decoder._downloadFile = lambda self: open(self._file_name, "rb").read().decode("utf-8")
 
     with open(path, "r", encoding="ascii", errors="replace") as stream:
         headers = _headers(stream.read())
