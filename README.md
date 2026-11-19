@@ -32,7 +32,7 @@ GitHub Pages is deployed after successful model ingestion and interface changes.
 - A live read-only smoke run ([43351175252](https://github.com/nwsmatthewclay/BTV-Mesoscale-Detective/actions/runs/43351175252)) retrieved and ecCodes-decoded four bounded messages from the 00Z 3-km subhourly F001 product: 2-m temperature/dewpoint and 10-m U/V wind. It verified HTTP 206/Content-Range, complete GRIB boundaries, matching 00Z reference time and 1,905,141 finite values in each field; 7,174,900 bytes were transferred.
 - The decoded Lambert grid is 1,799 × 1,059. Its coordinate mask found 12,006 grid points inside the padded BTV rectangle (-75.2 to -71.2 longitude, 42.3 to 45.3 latitude). The report explicitly records `publication: false`: this is geographic coverage validation, not a cropped BTV grid, multi-hour archive, or published RRFS field layer. The RRFS map option remains disabled.
 
-The model selector now enables HRRR for its verified surface archive and exposes only the supported HRRR map parameters. Soundings, hodographs, cross-sections and station Time Evolution remain RAP-only because the HRRR archive contains no vertical profiles. Do not interpret model discovery as proof of decoded data.
+The main map viewer enables HRRR only for its verified surface archive. Its archived soundings, hodographs, cross-sections and station Time Evolution remain RAP-only because that HRRR grid archive contains no vertical profiles. The separate Forecast Sounding Workbench can retrieve full-column BUFKIT soundings for HRRR and other models from the upstream BUFKIT feed; this is a distinct data path and is labeled with its own model cycle and source provenance. Do not interpret model discovery as proof of decoded data.
 
 ## Interface controls
 
@@ -42,6 +42,22 @@ The model selector now enables HRRR for its verified surface archive and exposes
 - Explore Environment, Soundings, Kinematics & Forcing, Cross-Sections, Model Compare and Time Evolution.
 - Plot verified RAP station diagnostics across the published forecast hours in Time Evolution; custom points are not assigned nearby-station values.
 - The model manifest reader distinguishes discovered products from decoded and published fields.
+
+## Forecast Sounding Workbench
+
+[Open the Forecast Sounding Workbench](https://nwsmatthewclay.github.io/BTV-Mesoscale-Detective/sounding.html)
+
+A standalone interactive Skew-T and hodograph workbench is being built around SHARPpy 1.4.0 `ConvectiveProfile`.
+
+- Select BTV CWA locations, model, BUFKIT forecast hour and model cycle.
+- Live BUFKIT acquisition is on demand from the Penn State BUFKIT Data Distribution System; the Python API uses SHARPpy's native `BufDecoder`, caches files briefly and decodes all forecast profiles in the selected station file.
+- Initial model feed options: RAP, HRRR, GFS, NAM, NAM Nest, RRFS and HIRESW. Upstream availability and freshness vary by model/station; old cycles are explicitly flagged. SREF remains deferred until ensemble-member selection is supported.
+- Modify low-level temperature/dewpoint, adjustment depth and boundary-layer mixing depth. The mixing experiment conservatively averages potential temperature, water-vapor mixing ratio and horizontal momentum with pressure-layer mass weights, so the wind profile and hodograph respond to mixing-depth changes.
+- Original model profiles are immutable. Adjusted profiles are labeled experimental and recalculated through SHARPpy; no browser-side substitute diagnostics are used.
+- Full ConvectiveProfile output includes parcel, effective inflow, kinematic, thermodynamic, severe, winter/precipitation, fire-weather, SARS and trajectory diagnostics. Optional BUFKIT omega is carried into SHARPpy's winter calculations.
+- The API can run locally or in the included Cloudflare Container scaffold. Production deployment requires the Workers Paid plan and an authenticated Cloudflare account; protect the API with Access and/or rate limiting before broader use.
+
+The static RAP archive remains available as a no-API fallback. The full ConvectiveProfile refresh and all modified-sounding calculations require the SHARPpy API service to be reachable.
 
 ## Data safety
 
