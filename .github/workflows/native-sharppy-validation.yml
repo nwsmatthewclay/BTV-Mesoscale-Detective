@@ -26,6 +26,8 @@ jobs:
             requests
             python-dateutil
           cache-environment: true
+      - name: Check Worker JavaScript syntax
+        run: node --check native-sharppy/worker/src/index.js
       - name: Validate native SHARPpy data-source integration
         shell: micromamba-shell {0}
         run: python native-sharppy/test_native_config.py
