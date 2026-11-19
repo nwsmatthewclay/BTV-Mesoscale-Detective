@@ -43,6 +43,10 @@ try:
         print("DECODED PROFILE:", profile_meta)
         if "RRFS BUFKIT" not in profile_meta or "SHARPpy BufDecoder" not in profile_meta:
             raise RuntimeError("Profile did not come from archived RRFS BUFKIT: " + profile_meta)
+        parcel_traces = page.locator("#skewt").evaluate("(el) => (el.data || []).map(trace => trace.name)")
+        print("SKEW-T TRACES:", parcel_traces)
+        if not any(name in parcel_traces for name in ("SFC parcel", "ML parcel", "MU parcel")):
+            raise RuntimeError("Native SHARPpy parcel ascent traces were not plotted: " + str(parcel_traces))
         page.locator("#temp").evaluate("(el) => { el.value='2'; el.dispatchEvent(new Event('input',{bubbles:true})); }")
         page.wait_for_function(
             "() => document.querySelector('#calcStatus').innerText.includes('SHARPpy recalculated') || document.querySelector('#runtimeStatus').dataset.state==='error'",
