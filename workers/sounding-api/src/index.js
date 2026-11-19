@@ -10,11 +10,11 @@ export class SharpPyContainer extends Container {
     BUFKIT_CACHE_TTL_SECONDS: "300",
   };
 
-  override onStart() {
+  onStart() {
     console.log("BTV SHARPpy API container started");
   }
 
-  override onError(error) {
+  onError(error) {
     console.error("BTV SHARPpy API container error:", error);
     throw error;
   }
