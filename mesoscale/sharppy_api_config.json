@@ -1,0 +1,7 @@
+{
+  "service_url": "",
+  "service": "BTV SHARPpy Python Container API",
+  "engine": "SHARPpy",
+  "required_health_engine": "SHARPpy",
+  "notes": "Populate service_url with the deployed workers.dev origin after Cloudflare Container deployment. Do not point this at a browser-side substitute."
+}
