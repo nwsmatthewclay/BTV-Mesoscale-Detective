@@ -8,6 +8,8 @@ on:
       - "mesoscale/browser_adjustments.py"
       - "mesoscale/sharppy_service.py"
       - "mesoscale/bufkit_feed.py"
+      - "mesoscale/archive_bufkit.py"
+      - "mesoscale/bufkit_sites.json"
       - "mesoscale/tests/test_sharppy_*.py"
       - "mesoscale/tests/test_browser_adjustments.py"
       - "mesoscale/tests/test_bufkit_feed.py"
