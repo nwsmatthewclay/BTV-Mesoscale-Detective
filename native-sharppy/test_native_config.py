@@ -5,7 +5,7 @@ from pathlib import Path
 import tempfile
 import xml.etree.ElementTree as ET
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parent
 XML = ROOT / "btv_cwa.xml"
 CSV = ROOT / "btv_cwa.csv"
 
