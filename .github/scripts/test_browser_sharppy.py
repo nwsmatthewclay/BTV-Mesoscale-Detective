@@ -95,7 +95,7 @@ try:
         for panel in ("skewt", "hodo", "parcelTable", "thermoTable", "kinTable", "severeTable"):
             if nsharp.locator("#" + panel).count() != 1:
                 raise RuntimeError("NSHARP panel missing: " + panel)
-        if nsharp.locator("#skewt .js-plotly-plot").count() != 1 or nsharp.locator("#hodo .js-plotly-plot").count() != 1:
+        if nsharp.locator("#skewt.js-plotly-plot").count() != 1 or nsharp.locator("#hodo.js-plotly-plot").count() != 1:
             raise RuntimeError("NSHARP Skew-T or hodograph did not render")
         print("NSHARP WEB SMOKE TEST PASSED: actual SHARPpy, Skew-T, hodograph, and diagnostic panels")
         browser.close()
