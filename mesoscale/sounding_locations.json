@@ -10,7 +10,6 @@
           {"id":"KMPV","name":"Montpelier","lat":44.2035,"lon":-72.5623},
           {"id":"KRUT","name":"Rutland","lat":43.5294,"lon":-72.9496},
           {"id":"KEFK","name":"Newport","lat":44.8888,"lon":-72.2292},
-          {"id":"KVSF","name":"Springfield","lat":43.3436,"lon":-72.5173},
           {"id":"1V4","name":"St. Johnsbury","lat":44.4193,"lon":-72.0194}
         ]},
         {"name":"Northern New York","stations":[
