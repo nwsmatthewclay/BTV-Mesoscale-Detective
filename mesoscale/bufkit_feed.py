@@ -158,7 +158,9 @@ def fetch_and_parse_bufkit(model: str, station: str, cache_dir: str | Path | Non
         content = response.content
         if len(content) < 1024 or b"STID" not in content[:20000]:
             raise ValueError("BUFKIT provider response is not a valid sounding file")
-        temporary = cache_file.with_suffix(".buf.tmp")
+        temporary = cache_file.with_name(
+            cache_file.name + f".{os.getpid()}.{time.time_ns()}.tmp"
+        )
         temporary.write_bytes(content)
         temporary.replace(cache_file)
         metadata = {
