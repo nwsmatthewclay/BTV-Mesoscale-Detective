@@ -7,6 +7,7 @@ on:
       - "sounding-browser.html"
       - "mesoscale/browser_adjustments.py"
       - "mesoscale/sharppy_adapter.py"
+      - "mesoscale/vendor/sharppy-1.4.0-browser.zip"
       - "mesoscale/data/fields/forecast/**"
       - ".github/scripts/test_browser_sharppy.py"
       - ".github/workflows/browser-sharppy-validation.yml"
