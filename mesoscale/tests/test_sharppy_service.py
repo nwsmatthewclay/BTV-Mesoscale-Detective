@@ -19,6 +19,7 @@ def profile():
         "dewpoint_k": td.tolist(), "height_agl_m": z.tolist(),
         "u_ms": np.linspace(2, 20, len(p)).tolist(),
         "v_ms": np.linspace(-2, 8, len(p)).tolist(),
+        "location": "KBTV", "latitude": 44.47, "date": "2026-11-19T12:00:00Z",
     }
 
 
