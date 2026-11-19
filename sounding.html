@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Forecast Sounding Workbench · BTV Mesoscale Detective</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#07111d;--panel:#0d1e2e;--panel2:#11283b;--line:#24445c;--text:#eaf2f8;--muted:#9ab0c2;--cyan:#61d1d2;--blue:#54aee8;--red:#f07878;--amber:#f2c16d;--green:#63d6a0}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,rgba(34,93,128,.22),transparent 44%),var(--bg);color:var(--text);font:14px/1.45 Inter,"Segoe UI",Arial,sans-serif}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 24px;border-bottom:1px solid var(--line);background:rgba(7,18,30,.94)}.brand{display:flex;align-items:center;gap:13px}.mark{width:44px;height:44px;border:1px solid #4c9ca7;border-radius:13px;display:grid;place-items:center;background:#12334a;color:#b6f3ef;font-weight:800}.brand h1{font-size:19px;margin:0}.brand p{margin:3px 0 0;color:var(--muted);font-size:10px;letter-spacing:.1em;text-transform:uppercase}.headerlinks{display:flex;gap:9px;align-items:center}.btn,a.btn{border:1px solid #34536b;border-radius:8px;background:#132c41;color:#d5e5f0;padding:8px 11px;font-size:11px;font-weight:650;text-decoration:none;cursor:pointer}.btn.primary{border-color:#347da9;background:linear-gradient(135deg,#17618d,#174a70);color:#fff}
+main{max-width:1800px;margin:auto;padding:16px 20px 30px}.intro{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:4px 2px 14px}.eyebrow{color:var(--cyan);font-size:10px;font-weight:750;letter-spacing:.13em;text-transform:uppercase}.intro h2{font-size:23px;margin:4px 0}.intro p{color:var(--muted);margin:0;font-size:12px}.status{max-width:520px;padding:8px 11px;border:1px solid rgba(242,193,109,.35);border-radius:8px;background:rgba(242,193,109,.07);color:var(--amber);font-size:10px}
+.panel{min-width:0;border:1px solid var(--line);border-radius:13px;background:linear-gradient(180deg,rgba(15,33,50,.98),rgba(11,27,42,.98));box-shadow:0 14px 36px rgba(0,0,0,.22);overflow:hidden}.controls{display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr 2fr;gap:12px;padding:14px;margin-bottom:14px}.field label{display:block;margin-bottom:6px;color:#a8bdcc;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}select,input[type=text]{width:100%;min-height:39px;padding:8px 10px;border:1px solid #34536b;border-radius:8px;background:#091a29;color:var(--text)}.field small{display:block;color:var(--muted);font-size:9px;margin-top:5px}
+.workspace{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(330px,.85fr);gap:14px}.charts{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(300px,.75fr);gap:12px;padding:12px}.chartbox{min-width:0;border:1px solid rgba(100,147,176,.2);border-radius:9px;background:#0b1a29;overflow:hidden}.charttitle{padding:10px 12px;border-bottom:1px solid rgba(100,147,176,.16);font-size:11px;font-weight:700;color:#dceaf4}.chart{height:630px}.hodograph{height:630px}.right{display:flex;flex-direction:column;gap:14px}.panelhead{padding:12px 14px;border-bottom:1px solid rgba(100,147,176,.16);font-size:12px;font-weight:750;letter-spacing:.04em}.adjustments{padding:13px 14px}.control{padding:10px 0;border-bottom:1px solid rgba(119,157,184,.13)}.control:last-child{border-bottom:0}.controltop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}.controltop label{color:#c4d5e1;font-size:11px;font-weight:650}.controltop output{color:var(--cyan);font-size:13px;font-weight:750;font-variant-numeric:tabular-nums}input[type=range]{width:100%;accent-color:var(--cyan)}.rangeends{display:flex;justify-content:space-between;color:#7894a8;font-size:9px}.explain{margin:10px 0 0;padding:10px;border:1px solid rgba(84,174,232,.22);border-radius:8px;background:rgba(19,54,78,.25);color:#a9c2d3;font-size:10px;line-height:1.55}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.apirow{padding:12px 14px;border-top:1px solid rgba(119,157,184,.13)}.apirow label{display:block;margin-bottom:6px;color:var(--muted);font-size:10px}.apirow .inline{display:flex;gap:7px}.apirow input{min-width:0;flex:1}.apiStatus{font-size:10px;color:var(--amber);margin-top:7px;line-height:1.45}
+.metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:12px}.metric{padding:10px 8px;border:1px solid rgba(99,150,184,.19);border-radius:8px;background:linear-gradient(145deg,rgba(19,48,70,.82),rgba(9,27,42,.9));text-align:center}.metric span{display:block;color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}.metric strong{display:block;margin:4px 0;color:#f1f7fb;font-size:19px;font-variant-numeric:tabular-nums}.metric small{color:#8ea8bb;font-size:9px}.diagsection{padding:0 12px 12px}.diagsection h3{margin:4px 0 8px;font-size:10px;color:var(--cyan);letter-spacing:.1em;text-transform:uppercase}.diagrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:7px 0;border-bottom:1px solid rgba(119,157,184,.12);font-size:10px}.diagrow span:first-child{color:var(--muted)}.diagrow b{text-align:right;font-variant-numeric:tabular-nums}.diagrow .delta{text-align:right;color:var(--cyan)}.provenance{padding:11px 14px;border-top:1px solid rgba(119,157,184,.13);color:var(--muted);font-size:10px;line-height:1.6}.notice{margin-top:14px;padding:11px 13px;border:1px solid rgba(242,193,109,.25);border-radius:9px;background:rgba(242,193,109,.06);color:#d8c08f;font-size:10px;line-height:1.55}
+@media(max-width:1120px){.controls{grid-template-columns:repeat(3,minmax(0,1fr))}.workspace{grid-template-columns:1fr}.right{display:grid;grid-template-columns:1fr 1fr}.right .panel:last-child{grid-column:1/-1}}
+@media(max-width:760px){header{padding:12px}.intro{display:block}.status{margin-top:10px}.controls{grid-template-columns:1fr 1fr}.charts{grid-template-columns:1fr}.chart,.hodograph{height:470px}.right{display:flex}.right .panel:last-child{grid-column:auto}main{padding:12px}}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="mark">BTV</div><div><h1>Forecast Sounding Workbench</h1><p>SHARPpy · Interactive model profile analysis</p></div></div><div class="headerlinks"><a class="btn" href="./index.html">← Model Workstation</a><span class="btn primary">SHARPpy 1.4.0</span></div></header>
+<main>
+<div class="intro"><div><div class="eyebrow">Vertical analysis laboratory</div><h2>Explore the model atmosphere. Modify the boundary layer.</h2><p>Original model profiles remain immutable. Experimental changes are recalculated independently with SHARPpy.</p></div><div class="status" id="dataStatus">Loading verified RAP sounding archive…</div></div>
+<section class="panel controls">
+ <div class="field"><label for="cwa">Forecast office / CWA</label><select id="cwa"><option value="BTV">BTV · Burlington</option></select><small>Location groups are CWA-aware.</small></div>
+ <div class="field"><label for="model">Model</label><select id="model"><option value="RAP">RAP · 13 km hybrid</option><option disabled>HRRR · full-column profile not yet archived</option><option disabled>RRFS · not yet published</option><option disabled>NAM · BUFKIT feed pending</option><option disabled>GFS · BUFKIT feed pending</option></select><small>Only verified full-column sources enabled.</small></div>
+ <div class="field"><label for="location">Sounding location</label><select id="location"><optgroup label="Vermont"><option>KBTV</option></optgroup></select><small id="locationDetail">Burlington International</small></div>
+ <div class="field"><label for="forecastHour">Forecast hour</label><select id="forecastHour"><option>F00</option></select><small id="validTime">Valid time pending</small></div>
+ <div class="field"><label for="cycle">Model initialization</label><select id="cycle"><option>Latest verified cycle</option></select><small id="cycleDetail">Cycle and valid time are read from the archive manifest.</small></div>
+</section>
+<div class="workspace">
+ <section class="panel">
+  <div class="charts">
+   <div class="chartbox"><div class="charttitle">Skew-T log-P · original and modified profiles</div><div id="skewt" class="chart"></div></div>
+   <div class="chartbox"><div class="charttitle">Hodograph · original and modified winds</div><div id="hodo" class="hodograph"></div></div>
+  </div>
+  <div class="provenance" id="profileMeta">Source, cycle, forecast hour, valid time, native vertical levels and SHARPpy version will appear here.</div>
+ </section>
+ <aside class="right">
+  <section class="panel">
+   <div class="panelhead">Environmental modifications</div>
+   <div class="adjustments">
+    <div class="control"><div class="controltop"><label for="tempOffset">Low-level temperature offset</label><output id="tempOut">0°C</output></div><input id="tempOffset" type="range" min="-8" max="8" step=".5" value="0"><div class="rangeends"><span>−8°C</span><span>0</span><span>+8°C</span></div></div>
+    <div class="control"><div class="controltop"><label for="dewOffset">Low-level dewpoint offset</label><output id="dewOut">0°C</output></div><input id="dewOffset" type="range" min="-8" max="8" step=".5" value="0"><div class="rangeends"><span>−8°C</span><span>0</span><span>+8°C</span></div></div>
+    <div class="control"><div class="controltop"><label for="mixDepth">Boundary-layer mixing depth</label><output id="mixOut">0 m</output></div><input id="mixDepth" type="range" min="0" max="3000" step="100" value="0"><div class="rangeends"><span>Off</span><span>1.5 km</span><span>3 km AGL</span></div></div>
+    <div class="explain"><b>Mixing experiment:</b> within the selected depth, the service mixes potential temperature, water-vapor mixing ratio and horizontal momentum using pressure-layer mass weighting. This can transport stronger winds toward the surface. It is an idealized sensitivity experiment, not a forecast model PBL scheme.</div>
+    <div class="actions"><button class="btn primary" id="apply">Apply adjustments · recalculate SHARPpy</button><button class="btn" id="reset">Reset</button></div>
+   </div>
+   <div class="apirow"><label for="apiBase">SHARPpy calculation service</label><div class="inline"><input id="apiBase" type="text" value="http://127.0.0.1:8000"><button class="btn" id="checkApi">Check</button></div><div class="apiStatus" id="apiStatus">Connect to the Python SHARPpy service to recalculate modified profiles. Original archive diagnostics are available without the service.</div></div>
+  </section>
+  <section class="panel">
+   <div class="panelhead">SHARPpy diagnostics · original vs modified</div>
+   <div class="metrics" id="metricCards"></div>
+   <div class="diagsection"><h3>Parcel / kinematic comparison</h3><div id="diagRows"><div class="diagrow"><span>Parameter</span><b>Original</b><b>Modified</b></div></div></div>
+   <div class="provenance" id="diagStatus">Original diagnostics are read from the archived SHARPpy result. Modified diagnostics require a successful SHARPpy service response.</div>
+  </section>
+ </aside>
+</div>
+<div class="notice"><b>Operational safeguards:</b> this is a research and forecast-exploration tool, not an operationally approved decision aid. Original model data are never overwritten. Modified results are labeled experimental and must not be confused with model guidance. HRRR is currently surface-only in this archive and is intentionally not offered as a sounding.</div>
+</main>
+<script>
+const stations = [
+ {id:'KBTV',name:'Burlington International',region:'Vermont'},
+ {id:'KMPV',name:'Montpelier',region:'Vermont'},
+ {id:'KRUT',name:'Rutland',region:'Vermont'},
+ {id:'KEFK',name:'Newport',region:'Vermont'},
+ {id:'KVSF',name:'Springfield',region:'Vermont'},
+ {id:'1V4',name:'St. Johnsbury',region:'Vermont'},
+ {id:'KPBG',name:'Plattsburgh',region:'Northern New York'},
+ {id:'KMSS',name:'Massena',region:'Northern New York'},
+ {id:'KSLK',name:'Saranac Lake',region:'Northern New York'}
+];
+let manifest=null, sourceProfile=null, sourceRecord=null, modifiedResult=null, apiReady=false;
+const $=id=>document.getElementById(id);
+const fmt=(v,d=0)=>Number.isFinite(Number(v))?Number(v).toFixed(d):'—';
+function populateLocations(){
+ const select=$('location');select.innerHTML='';
+ for(const region of ['Vermont','Northern New York']){
+  const group=document.createElement('optgroup');group.label=region;
+  stations.filter(s=>s.region===region).forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent=s.id+' · '+s.name;group.appendChild(o);});
+  select.appendChild(group);
+ }
+}
+function populateHours(){
+ const select=$('forecastHour');select.innerHTML='';
+ (manifest?.hours||[]).forEach(h=>{const o=document.createElement('option');o.value=String(h.forecast_hour);o.textContent='F'+String(h.forecast_hour).padStart(2,'0');select.appendChild(o);});
+}
+async function loadManifest(){
+ const r=await fetch('./mesoscale/data/fields/forecast/forecast_manifest.json?ts='+Date.now(),{cache:'no-store'});
+ if(!r.ok)throw new Error('RAP manifest HTTP '+r.status);
+ const m=await r.json();
+ if(m.model!=='RAP'||m.quality?.status!=='passed'||!Array.isArray(m.hours)||!m.hours.length)throw new Error('RAP archive is not marked verified');
+ manifest=m;
+ const c=$('cycle');c.innerHTML='';const o=document.createElement('option');o.value=m.model_cycle_utc;o.textContent=m.model_cycle_utc+' · latest archive';c.appendChild(o);
+ populateHours();$('forecastHour').value=String(m.hours.find(h=>Number(h.forecast_hour)===0)?.forecast_hour??m.hours[0].forecast_hour);
+}
+async function loadProfile(){
+ const hour=Number($('forecastHour').value),station=$('location').value;
+ const entry=manifest.hours.find(h=>Number(h.forecast_hour)===hour);
+ if(!entry)throw new Error('Selected forecast hour is not in the verified archive');
+ const url='./mesoscale/data/fields/forecast/'+entry.station_file;
+ const r=await fetch(url+'?ts='+Date.now(),{cache:'no-store'});
+ if(!r.ok)throw new Error('Station profile HTTP '+r.status+' · '+url);
+ const collection=await r.json();
+ if(collection.model!=='RAP'||collection.model_cycle_utc!==manifest.model_cycle_utc||Number(collection.forecast_hour)!==hour||collection.valid_time_utc!==entry.valid_time_utc)throw new Error('Profile provenance does not match selected cycle/hour');
+ const record=collection.stations?.[station];
+ if(!record)throw new Error('No verified profile for '+station+' at F'+String(hour).padStart(2,'0'));
+ if(record.sharppy?.status!=='passed')throw new Error('SHARPpy diagnostics were not passed for '+station);
+ sourceRecord=record;sourceProfile=record.profile;modifiedResult=null;
+ $('validTime').textContent='Valid '+record.valid_time_utc;
+ $('locationDetail').textContent=stations.find(s=>s.id===station)?.name||station;
+ $('cycleDetail').textContent='Initialized '+record.model_cycle_utc;
+ $('dataStatus').textContent='Verified RAP profile loaded · SHARPpy '+record.sharppy.diagnostics.library_version;
+ $('dataStatus').style.color='var(--green)';
+ $('profileMeta').textContent='RAP '+record.model_cycle_utc+' · '+station+' · F'+String(hour).padStart(2,'0')+' · valid '+record.valid_time_utc+' · '+record.quality.levels+' vertical levels · source '+record.source_file+' · SHARPpy '+record.sharppy.diagnostics.library_version+'.';
+ render();
+}
+function originalDiagnostics(){return sourceRecord?.sharppy?.diagnostics||{};}
+function modifiedDiagnostics(){return modifiedResult?.diagnostics||null;}
+function skewX(tempC,p){return tempC+35*Math.log(1000/p);}
+function plotSkew(){
+ const p=sourceProfile.pressure_hpa,origT=sourceProfile.temperature_k.map((v,i)=>skewX(v-273.15,p[i])),origD=sourceProfile.dewpoint_k.map((v,i)=>skewX(v-273.15,p[i]));
+ const traces=[];
+ const pp=[1050,1000,900,800,700,600,500,400,300,250,200,150,100];
+ [-40,-30,-20,-10,0,10,20,30,40,50].forEach(t=>traces.push({x:pp.map(v=>skewX(t,v)),y:pp,mode:'lines',hoverinfo:'skip',showlegend:false,line:{color:'#29445b',width:1,dash:'dot'}}));
+ [-30,-20,-10,0,10,20,30,40,50].forEach(theta=>traces.push({x:pp.map(v=>skewX((theta+273.15)*Math.pow(v/1000,.2854)-273.15,v)),y:pp,mode:'lines',hoverinfo:'skip',showlegend:false,line:{color:'#35516a',width:1}}));
+ traces.push({x:origT,y:p,mode:'lines+markers',name:'Original T',line:{color:'#f07878',width:2.6},marker:{size:3},hovertemplate:'Original T %{customdata:.1f}°C<br>%{y:.1f} hPa<extra></extra>',customdata:sourceProfile.temperature_k.map(v=>v-273.15)});
+ traces.push({x:origD,y:p,mode:'lines+markers',name:'Original Td',line:{color:'#53d1d8',width:2.6},marker:{size:3},customdata:sourceProfile.dewpoint_k.map(v=>v-273.15),hovertemplate:'Original Td %{customdata:.1f}°C<br>%{y:.1f} hPa<extra></extra>'});
+ const z=modifiedResult?.adjusted_profile;
+ if(z){traces.push({x:z.temperature_k.map((v,i)=>skewX(v-273.15,z.pressure_hpa[i])),y:z.pressure_hpa,mode:'lines',name:'Modified T',line:{color:'#ffb45e',width:2.3,dash:'dash'}});
+ traces.push({x:z.dewpoint_k.map((v,i)=>skewX(v-273.15,z.pressure_hpa[i])),y:z.pressure_hpa,mode:'lines',name:'Modified Td',line:{color:'#7ee0ad',width:2.3,dash:'dash'}});}
+ Plotly.react('skewt',traces,{paper_bgcolor:'#0b1a29',plot_bgcolor:'#0b1a29',margin:{l:55,r:15,t:18,b:48},xaxis:{title:'Temperature (°C) · skewed',color:'#9cb2c5',gridcolor:'#24435e',tickvals:[-40,-30,-20,-10,0,10,20,30,40,50],ticktext:['−40','−30','−20','−10','0','10','20','30','40','50']},yaxis:{title:'Pressure (hPa)',type:'log',range:[Math.log10(1050),Math.log10(100)],autorange:'reversed',color:'#9cb2c5',gridcolor:'#24435e'},legend:{font:{color:'#dceaf4',size:10},orientation:'h',y:1.12},hovermode:'closest'},{responsive:true,displaylogo:false});
+}
+function plotHodo(){
+ const z=modifiedResult?.adjusted_profile||sourceProfile,km=sourceProfile.height_agl_m.map(v=>v/1000),u=sourceProfile.u_ms.map(v=>v*1.943844),v=sourceProfile.v_ms.map(v=>v*1.943844);
+ const traces=[{x:u,y:v,mode:'lines+markers',name:'Original',line:{color:'#8bc7ff',width:2.5},marker:{size:5,color:km,colorscale:'Turbo',showscale:true,colorbar:{title:'km',tickfont:{color:'#9cb2c5'},titlefont:{color:'#9cb2c5'}}},text:km.map(x=>x.toFixed(1)+' km'),hovertemplate:'Original<br>U %{x:.1f} kt<br>V %{y:.1f} kt<br>%{text}<extra></extra>'}];
+ if(modifiedResult?.adjusted_profile){const a=modifiedResult.adjusted_profile;traces.push({x:a.u_ms.map(v=>v*1.943844),y:a.v_ms.map(v=>v*1.943844),mode:'lines',name:'Modified',line:{color:'#ffb45e',width:2.3,dash:'dash'},hovertemplate:'Modified<br>U %{x:.1f} kt<br>V %{y:.1f} kt<extra></extra>'});}
+ Plotly.react('hodo',traces,{paper_bgcolor:'#0b1a29',plot_bgcolor:'#0b1a29',margin:{l:50,r:55,t:18,b:48},xaxis:{title:'U wind (kt)',zeroline:true,zerolinecolor:'#7892a8',color:'#9cb2c5',gridcolor:'#24435e'},yaxis:{title:'V wind (kt)',zeroline:true,zerolinecolor:'#7892a8',color:'#9cb2c5',gridcolor:'#24435e',scaleanchor:'x',scaleratio:1},legend:{font:{color:'#dceaf4',size:10}}},{responsive:true,displaylogo:false});
+}
+function diagValue(d,key){return d?.[key]??null;}
+function buildDiagnostics(){
+ const orig=originalDiagnostics(),mod=modifiedDiagnostics();
+ const op=orig.parcels||{},mp=mod?.parcels||{},ok=orig.kinematics||{},mk=mod?.kinematics||{};
+ const values=[
+  ['SBCAPE','surface','cape_jkg','J/kg'],['SBCIN','surface','cin_jkg','J/kg'],
+  ['MLCAPE','mixed_layer','cape_jkg','J/kg'],['MLCIN','mixed_layer','cin_jkg','J/kg'],
+  ['MUCAPE','most_unstable','cape_jkg','J/kg'],['MUCIN','most_unstable','cin_jkg','J/kg']
+ ];
+ $('metricCards').innerHTML=values.slice(0,4).map(([label,parcel,key,unit])=>'<div class="metric"><span>'+label+'</span><strong>'+fmt(op[parcel]?.[key],1)+'</strong><small>'+unit+' · SHARPpy original</small></div>').join('');
+ const rows=[['Parameter','Original','Modified'],...values.map(([label,parcel,key,unit])=>[label,fmt(op[parcel]?.[key],1)+' '+unit,mod?fmt(mp[parcel]?.[key],1)+' '+unit:'—']),['0–6 km bulk shear',fmt(ok.bulk_shear_0_6km_kt,1)+' kt',mod?fmt(mk.bulk_shear_0_6km_kt,1)+' kt':'—'],['0–1 km SRH',fmt(ok.srh_0_1km_m2s2,1)+' m²/s²',mod?fmt(mk.srh_0_1km_m2s2,1)+' m²/s²':'—'],['LCL · surface',fmt(op.surface?.lcl_height_agl_m,0)+' m',mod?fmt(mp.surface?.lcl_height_agl_m,0)+' m':'—']];
+ $('diagRows').innerHTML=rows.map((r,i)=>'<div class="diagrow"><span>'+r[0]+'</span><b>'+r[1]+'</b><b class="delta">'+r[2]+'</b></div>').join('');
+ $('diagStatus').textContent=mod?'Modified results recalculated by SHARPpy '+(mod.library_version||'')+'. Source profile remains unchanged.':'Original parcel, Bunkers, shear and SRH diagnostics are from SHARPpy '+orig.library_version+'. Apply adjustments to request a new SHARPpy calculation.';
+}
+function render(){plotSkew();plotHodo();buildDiagnostics();}
+function updateOutputs(){$('tempOut').textContent=Number($('tempOffset').value)>0?'+':''+$('tempOffset').value+'°C';$('dewOut').textContent=Number($('dewOffset').value)>0?'+':''+$('dewOffset').value+'°C';$('mixOut').textContent=$('mixDepth').value+' m';}
+async function checkApi(){
+ const base=$('apiBase').value.trim().replace(/\/$/,'');
+ try{const r=await fetch(base+'/health');if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();if(j.engine!=='SHARPpy')throw new Error('Endpoint did not identify SHARPpy');apiReady=true;$('apiStatus').textContent='Connected · SHARPpy '+j.version+' · ready to recalculate adjusted profiles.';$('apiStatus').style.color='var(--green)';}
+ catch(e){apiReady=false;$('apiStatus').textContent='SHARPpy service unavailable: '+e.message+'. Start mesoscale.sharppy_service with Uvicorn; the original profile remains available.';$('apiStatus').style.color='var(--amber)';}
+}
+async function applyAdjustments(){
+ if(!sourceRecord)return;
+ const base=$('apiBase').value.trim().replace(/\/$/,'');
+ const adjustments={temperature_offset_c:Number($('tempOffset').value),dewpoint_offset_c:Number($('dewOffset').value),mixing_depth_m:Number($('mixDepth').value)};
+ if(!adjustments.temperature_offset_c&&!adjustments.dewpoint_offset_c&&!adjustments.mixing_depth_m){modifiedResult=null;render();$('apiStatus').textContent='No modifications active · showing original model profile.';return;}
+ $('apply').disabled=true;$('apply').textContent='Calculating with SHARPpy…';
+ try{
+  const response=await fetch(base+'/diagnose',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({profile:sourceProfile,adjustments})});
+  const result=await response.json();if(!response.ok)throw new Error(result.detail||'HTTP '+response.status);
+  if(result.engine!=='SHARPpy'||result.quality?.status!=='passed')throw new Error('SHARPpy did not return a passed calculation');
+  modifiedResult=result;render();$('apiStatus').textContent='Modified profile recalculated successfully with SHARPpy. '+(result.quality.warnings||[]).join(' ');$('apiStatus').style.color='var(--green)';
+ }catch(e){modifiedResult=null;render();$('apiStatus').textContent='Adjustment calculation failed: '+e.message+'. Original sounding is still displayed; no substitute calculation was used.';$('apiStatus').style.color='var(--amber)';}
+ finally{$('apply').disabled=false;$('apply').textContent='Apply adjustments · recalculate SHARPpy';}
+}
+function reset(){['tempOffset','dewOffset','mixDepth'].forEach(id=>$(id).value=0);updateOutputs();modifiedResult=null;render();$('apiStatus').textContent='Adjustments reset. Original model profile and original SHARPpy diagnostics restored.';$('apiStatus').style.color='var(--muted)';}
+$('tempOffset').addEventListener('input',updateOutputs);$('dewOffset').addEventListener('input',updateOutputs);$('mixDepth').addEventListener('input',updateOutputs);
+$('apply').addEventListener('click',applyAdjustments);$('reset').addEventListener('click',reset);$('checkApi').addEventListener('click',checkApi);
+$('location').addEventListener('change',()=>loadProfile().catch(e=>$('dataStatus').textContent='Profile unavailable: '+e.message));
+$('forecastHour').addEventListener('change',()=>loadProfile().catch(e=>$('dataStatus').textContent='Profile unavailable: '+e.message));
+(async()=>{populateLocations();updateOutputs();try{await loadManifest();await loadProfile();}catch(e){$('dataStatus').textContent='Verified RAP profile archive unavailable: '+e.message;$('dataStatus').style.color='var(--amber)';}})();
+</script>
+</body></html>
