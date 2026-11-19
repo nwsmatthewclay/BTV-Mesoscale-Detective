@@ -2,10 +2,6 @@ name: Deploy Native SHARPpy BUFKIT Worker
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - "native-sharppy/worker/**"
-      - ".github/workflows/deploy-native-sharppy-worker.yml"
 
 jobs:
   deploy:
