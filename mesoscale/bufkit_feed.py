@@ -25,7 +25,6 @@ MODEL_PRODUCTS = {
     "NAM": ("NAM", "nam"),
     "NAMNEST": ("NAMNEST", "namnest"),
     "RRFS": ("RRFS", "rrfs"),
-    "SREF": ("SREF", "sref"),
     "HIRESW": ("HIRESW", "hiresw"),
 }
 CACHE_TTL_SECONDS = int(os.getenv("BUFKIT_CACHE_TTL_SECONDS", "300"))
