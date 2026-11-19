@@ -1,18 +1,19 @@
-"""Optional SHARPpy diagnostics adapter for verified model soundings.
+"""Full SHARPpy ConvectiveProfile adapter for forecast soundings.
 
-SHARPpy expects pressure (hPa), height (m), temperature/dewpoint (C), and
-wind components (kt). The model profile contract in this project stores
-temperature in K and wind components in m/s, so all conversions are explicit.
+Input contract: pressure (hPa), height (m AGL), temperature/dewpoint (K),
+and horizontal wind components (m/s). All conversions into SHARPpy's native
+hPa/m/C/kt units are explicit. ConvectiveProfile runs the same broad NSHARP
+diagnostic families used by SHARPpy's operational-style GUI.
 """
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from importlib.metadata import PackageNotFoundError, version
 
 import numpy as np
 
 
 def _finite(value):
-    """Convert a SHARPpy scalar/masked scalar to JSON-safe float or None."""
     if value is None or np.ma.is_masked(value):
         return None
     try:
@@ -22,14 +23,37 @@ def _finite(value):
     return number if np.isfinite(number) else None
 
 
+def _json_safe(value):
+    """Recursively convert SHARPpy scalars, masked arrays, and tuples to JSON."""
+    if value is None or np.ma.is_masked(value):
+        return None
+    if isinstance(value, (str, bool, int)):
+        return value
+    if isinstance(value, np.ma.MaskedArray):
+        data = np.asarray(value.data)
+        mask = np.ma.getmaskarray(value)
+        return [_json_safe(None if mask[i] else data[i]) for i in range(data.shape[0])]
+    if isinstance(value, np.ndarray):
+        return [_json_safe(item) for item in value.tolist()]
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(item) for item in value]
+    number = _finite(value)
+    if number is not None:
+        return number
+    return str(value)
+
+
+def _get(obj, name, default=None):
+    try:
+        return getattr(obj, name)
+    except Exception:
+        return default
+
+
 def _profile_arrays(profile: dict) -> tuple[np.ndarray, ...]:
     required = (
-        "pressure_hpa",
-        "temperature_k",
-        "dewpoint_k",
-        "height_agl_m",
-        "u_ms",
-        "v_ms",
+        "pressure_hpa", "temperature_k", "dewpoint_k",
+        "height_agl_m", "u_ms", "v_ms",
     )
     arrays = []
     for key in required:
@@ -55,135 +79,272 @@ def _profile_arrays(profile: dict) -> tuple[np.ndarray, ...]:
         raise ValueError("Temperature values are not plausible Kelvin values")
     if np.any((dewpoint_k < 130) | (dewpoint_k > 330)):
         raise ValueError("Dewpoint values are not plausible Kelvin values")
-
+    if np.any(dewpoint_k > temperature_k):
+        raise ValueError("Dewpoint cannot exceed temperature")
     return arrays
 
 
+def _parcel_summary(parcel) -> dict:
+    return {
+        "cape_jkg": _finite(_get(parcel, "bplus")),
+        "cin_jkg": _finite(_get(parcel, "bminus")),
+        "lcl_pressure_hpa": _finite(_get(parcel, "lclpres")),
+        "lcl_height_agl_m": _finite(_get(parcel, "lclhght")),
+        "lfc_pressure_hpa": _finite(_get(parcel, "lfcpres")),
+        "lfc_height_agl_m": _finite(_get(parcel, "lfchght")),
+        "equilibrium_level_pressure_hpa": _finite(_get(parcel, "elpres")),
+        "equilibrium_level_agl_m": _finite(_get(parcel, "elhght")),
+        "maximum_parcel_level_pressure_hpa": _finite(_get(parcel, "mplpres")),
+        "maximum_parcel_level_agl_m": _finite(_get(parcel, "mplhght")),
+        "parcel_start_pressure_hpa": _finite(_get(parcel, "pres")),
+        "parcel_start_temperature_c": _finite(_get(parcel, "tmpc")),
+        "parcel_start_dewpoint_c": _finite(_get(parcel, "dwpc")),
+    }
+
+
+def _magnitude(vector):
+    if vector is None:
+        return None
+    try:
+        values = np.asarray(vector, dtype=float).reshape(-1)
+        if values.size < 2 or not np.all(np.isfinite(values[:2])):
+            return None
+        return float(np.hypot(values[0], values[1]))
+    except Exception:
+        return None
+
+
+def _pair(value):
+    if value is None:
+        return None
+    try:
+        values = list(value)
+        return [_finite(values[0]), _finite(values[1])] if len(values) >= 2 else None
+    except Exception:
+        return None
+
+
 def calculate_sharppy_diagnostics(profile: dict) -> dict:
-    """Calculate SHARPpy parcel, Bunkers, shear, and SRH diagnostics.
-
-    Args:
-        profile: Profile mapping with pressure_hpa, temperature_k,
-            dewpoint_k, height_agl_m, u_ms, and v_ms arrays.
-
-    Returns:
-        A JSON-serializable dictionary with independent SHARPpy provenance.
-    """
+    """Run the full SHARPpy ConvectiveProfile diagnostic suite."""
     pressure, temperature_k, dewpoint_k, height, u_ms, v_ms = _profile_arrays(profile)
 
     try:
-        from sharppy.sharptab import interp, params, profile as sharp_profile, winds
+        from sharppy.sharptab import profile as sharp_profile
     except ImportError as exc:
         raise ImportError(
-            "SHARPpy is optional; create the mesoscale/environment-sharppy.yml "
-            "conda environment to enable SHARPpy sounding diagnostics"
+            "SHARPpy is required; use mesoscale/environment-sharppy.yml "
+            "or mesoscale/environment-sharppy-api.yml"
         ) from exc
 
-    # SHARPpy's BasicProfile API requires Celsius and knots.
-    sounding = sharp_profile.create_profile(
-        profile="default",
-        pres=pressure.copy(),
-        hght=height.copy(),
-        tmpc=temperature_k - 273.15,
-        dwpc=dewpoint_k - 273.15,
-        u=u_ms * 1.9438444924406,
-        v=v_ms * 1.9438444924406,
-        strictQC=False,
-    )
+    location = str(profile.get("location") or "KBTV").upper()
+    latitude = float(profile.get("latitude", 44.47))
+    date_text = profile.get("date") or profile.get("valid_time_utc")
+    if isinstance(date_text, datetime):
+        valid_date = date_text
+    elif date_text:
+        valid_date = datetime.fromisoformat(str(date_text).replace("Z", "+00:00"))
+    else:
+        valid_date = datetime.now(timezone.utc)
+    if valid_date.tzinfo is None:
+        valid_date = valid_date.replace(tzinfo=timezone.utc)
 
-    parcels = {}
-    parcel_flags = {"surface": 1, "most_unstable": 3, "mixed_layer": 4}
-    for name, flag in parcel_flags.items():
-        try:
-            parcel = params.parcelx(sounding, flag=flag)
-            parcels[name] = {
-                "cape_jkg": _finite(parcel.bplus),
-                "cin_jkg": _finite(parcel.bminus),
-                "lcl_height_agl_m": _finite(parcel.lclhght),
-                "lfc_height_agl_m": _finite(parcel.lfchght),
-                "equilibrium_level_agl_m": _finite(parcel.elhght),
-                "parcel_pressure_hpa": _finite(parcel.pres),
-                "parcel_temperature_c": _finite(parcel.tmpc),
-                "parcel_dewpoint_c": _finite(parcel.dwpc),
-            }
-        except Exception as exc:
-            parcels[name] = {
-                "cape_jkg": None,
-                "cin_jkg": None,
-                "warning": f"{type(exc).__name__}: {exc}",
-            }
+    kwargs = {
+        "profile": "convective",
+        "pres": pressure.copy(),
+        "hght": height.copy(),
+        "tmpc": temperature_k - 273.15,
+        "dwpc": dewpoint_k - 273.15,
+        "u": u_ms * 1.9438444924406,
+        "v": v_ms * 1.9438444924406,
+        "strictQC": False,
+        "location": location,
+        "latitude": latitude,
+        "date": valid_date,
+    }
+    omega_values = profile.get("omega_pa_s")
+    if omega_values is not None:
+        omega = np.asarray(
+            [np.nan if value is None else float(value) for value in omega_values],
+            dtype=float,
+        )
+        if omega.size == pressure.size and np.any(np.isfinite(omega)):
+            kwargs["omeg"] = np.ma.masked_invalid(omega)
 
-    mu_parcel = None
-    if parcels["most_unstable"].get("cape_jkg") is not None:
-        try:
-            mu_parcel = params.parcelx(sounding, flag=3)
-        except Exception:
-            mu_parcel = None
+    # ConvectiveProfile invokes SHARPpy's parcels, thermo, kinematics, severe,
+    # precip/winter, fire, SARS, PWV-climo, trajectory, and watch routines.
+    sounding = sharp_profile.create_profile(**kwargs)
 
-    bunkers = None
-    srh_0_1km = None
-    if mu_parcel is not None:
-        try:
-            motion = params.bunkers_storm_motion(sounding, mupcl=mu_parcel)
-            if len(motion) >= 4:
-                right_u, right_v, left_u, left_v = (_finite(x) for x in motion[:4])
-                if right_u is not None and right_v is not None:
-                    bunkers = {
-                        "right_mover_u_kt": right_u,
-                        "right_mover_v_kt": right_v,
-                        "left_mover_u_kt": left_u,
-                        "left_mover_v_kt": left_v,
-                    }
-                    srh = winds.helicity(
-                        sounding, 0, 1000, stu=right_u, stv=right_v, exact=True
-                    )
-                    srh_0_1km = _finite(srh[0])
-        except Exception:
-            bunkers = None
-            srh_0_1km = None
+    parcel_objects = {
+        "surface": _get(sounding, "sfcpcl"),
+        "most_unstable": _get(sounding, "mupcl"),
+        "mixed_layer": _get(sounding, "mlpcl"),
+        "forecast_surface": _get(sounding, "fcstpcl"),
+        "effective": _get(sounding, "effpcl"),
+    }
+    parcels = {
+        name: _parcel_summary(parcel) if parcel is not None else {}
+        for name, parcel in parcel_objects.items()
+    }
 
-    shear_0_6km = None
-    try:
-        surface_pressure = _finite(sounding.pres[sounding.sfc])
-        six_km_pressure = _finite(interp.pres(sounding, interp.to_msl(sounding, 6000)))
-        if surface_pressure is not None and six_km_pressure is not None:
-            du, dv = winds.wind_shear(
-                sounding, pbot=surface_pressure, ptop=six_km_pressure
-            )
-            du, dv = _finite(du), _finite(dv)
-            if du is not None and dv is not None:
-                shear_0_6km = float(np.hypot(du, dv))
-    except Exception:
-        shear_0_6km = None
+    shear_1km = _get(sounding, "sfc_1km_shear")
+    shear_3km = _get(sounding, "sfc_3km_shear")
+    shear_6km = _get(sounding, "sfc_6km_shear")
+    shear_8km = _get(sounding, "sfc_8km_shear")
+    shear_9km = _get(sounding, "sfc_9km_shear")
+    bunkers = _get(sounding, "bunkers")
+    right_esrh = _get(sounding, "right_esrh")
+    left_esrh = _get(sounding, "left_esrh")
+    srh_1km = _get(sounding, "srh1km")
+    srh_3km = _get(sounding, "srh3km")
+
+    kinematics = {
+        "bunkers_motion_kt": _json_safe(bunkers),
+        "right_mover_u_kt": _finite(bunkers[0]) if bunkers is not None else None,
+        "right_mover_v_kt": _finite(bunkers[1]) if bunkers is not None else None,
+        "left_mover_u_kt": _finite(bunkers[2]) if bunkers is not None else None,
+        "left_mover_v_kt": _finite(bunkers[3]) if bunkers is not None else None,
+        "bulk_shear_0_1km_kt": _magnitude(shear_1km),
+        "bulk_shear_0_3km_kt": _magnitude(shear_3km),
+        "bulk_shear_0_6km_kt": _magnitude(shear_6km),
+        "bulk_shear_0_8km_kt": _magnitude(shear_8km),
+        "bulk_shear_0_9km_kt": _magnitude(shear_9km),
+        "effective_bulk_shear_kt": _finite(_get(sounding, "ebwspd")),
+        "srh_0_1km_m2s2": _finite(srh_1km[0]) if srh_1km is not None else None,
+        "srh_0_3km_m2s2": _finite(srh_3km[0]) if srh_3km is not None else None,
+        "effective_srh_right_m2s2": _finite(right_esrh[0]) if right_esrh is not None else None,
+        "effective_srh_left_m2s2": _finite(left_esrh[0]) if left_esrh is not None else None,
+        "effective_layer_bottom_hpa": _finite(_get(sounding, "ebottom")),
+        "effective_layer_top_hpa": _finite(_get(sounding, "etop")),
+        "effective_layer_bottom_agl_m": _finite(_get(sounding, "ebotm")),
+        "effective_layer_top_agl_m": _finite(_get(sounding, "etopm")),
+        "surface_1km_shear_vector_kt": _pair(shear_1km),
+        "surface_3km_shear_vector_kt": _pair(shear_3km),
+        "surface_6km_shear_vector_kt": _pair(shear_6km),
+        "mean_wind_0_1km": _json_safe(_get(sounding, "mean_1km")),
+        "mean_wind_0_3km": _json_safe(_get(sounding, "mean_3km")),
+        "mean_wind_0_6km": _json_safe(_get(sounding, "mean_6km")),
+        "mean_wind_0_8km": _json_safe(_get(sounding, "mean_8km")),
+        "mean_wind_effective_layer": _json_safe(_get(sounding, "mean_eff")),
+    }
+
+    thermodynamics = {
+        "precipitable_water_in": _finite(_get(sounding, "pwat")),
+        "k_index": _finite(_get(sounding, "k_idx")),
+        "totals_totals": _finite(_get(sounding, "totals_totals")),
+        "lapse_rate_0_3km_c_km": _finite(_get(sounding, "lapserate_3km")),
+        "lapse_rate_3_6km_c_km": _finite(_get(sounding, "lapserate_3_6km")),
+        "lapse_rate_850_500_c_km": _finite(_get(sounding, "lapserate_850_500")),
+        "lapse_rate_700_500_c_km": _finite(_get(sounding, "lapserate_700_500")),
+        "maximum_lapse_rate_2_6km_c_km": _finite(_get(sounding, "max_lapse_rate_2_6")),
+        "convective_temperature_f": _finite(_get(sounding, "convT")),
+        "maximum_temperature_f": _finite(_get(sounding, "maxT")),
+        "mean_mixing_ratio_gkg": _finite(_get(sounding, "mean_mixr")),
+        "low_level_mean_rh_pct": _finite(_get(sounding, "low_rh")),
+        "mid_level_mean_rh_pct": _finite(_get(sounding, "mid_rh")),
+        "inferred_temperature_advection": _finite(_get(sounding, "inf_temp_adv")),
+        "boundary_layer_height_agl_m": _finite(_get(sounding, "pbl_h")),
+        "surface_relative_humidity_pct": _finite(_get(sounding, "sfc_rh")),
+        "mean_rh_0_1km_pct": _finite(_get(sounding, "rh01km")),
+        "mean_rh_boundary_layer_pct": _finite(_get(sounding, "pblrh")),
+        "mean_wind_0_1km_components_kt": _json_safe(_get(sounding, "meanwind01km")),
+        "mean_wind_boundary_layer_components_kt": _json_safe(_get(sounding, "meanwindpbl")),
+        "maximum_boundary_layer_wind_components_kt": _json_safe(_get(sounding, "pblmaxwind")),
+    }
+
+    winter = {
+        "precipitation_type": _json_safe(_get(sounding, "precip_type")),
+        "initial_phase": _json_safe(_get(sounding, "phase")),
+        "initial_phase_pressure_hpa": _finite(_get(sounding, "plevel")),
+        "initial_phase_temperature_c": _finite(_get(sounding, "tmp")),
+        "initial_phase_state": _json_safe(_get(sounding, "st")),
+        "dendritic_growth_zone_bottom_hpa": _finite(_get(sounding, "dgz_pbot")),
+        "dendritic_growth_zone_top_hpa": _finite(_get(sounding, "dgz_ptop")),
+        "dendritic_growth_zone_mean_rh_pct": _finite(_get(sounding, "dgz_meanrh")),
+        "dendritic_growth_zone_precipitable_water_in": _finite(_get(sounding, "dgz_pw")),
+        "dendritic_growth_zone_mean_mixing_ratio": _finite(_get(sounding, "dgz_meanq")),
+        "dendritic_growth_zone_mean_omega_microbar_s": _finite(_get(sounding, "dgz_meanomeg")),
+        "overlap_precip_rh_omega": _finite(_get(sounding, "ophr")),
+        "positive_temperature_layers": _json_safe(_get(sounding, "tpos")),
+        "negative_temperature_layers": _json_safe(_get(sounding, "tneg")),
+        "positive_wetbulb_layers": _json_safe(_get(sounding, "wpos")),
+        "negative_wetbulb_layers": _json_safe(_get(sounding, "wneg")),
+        "temperature_layer_top_bottom_hpa": [_finite(_get(sounding, "ttop")), _finite(_get(sounding, "tbot"))],
+        "wetbulb_layer_top_bottom_hpa": [_finite(_get(sounding, "wtop")), _finite(_get(sounding, "wbot"))],
+    }
+
+    severe = {
+        "supercell_composite_right": _finite(_get(sounding, "right_scp")),
+        "supercell_composite_left": _finite(_get(sounding, "left_scp")),
+        "significant_tornado_parameter_fixed_right": _finite(_get(sounding, "right_stp_fixed")),
+        "significant_tornado_parameter_fixed_left": _finite(_get(sounding, "left_stp_fixed")),
+        "significant_tornado_parameter_effective_right": _finite(_get(sounding, "right_stp_cin")),
+        "significant_tornado_parameter_effective_left": _finite(_get(sounding, "left_stp_cin")),
+        "significant_hail_parameter": _finite(_get(sounding, "ship")),
+        "significant_severe_parameter": _finite(_get(sounding, "sig_severe")),
+        "sherb": _finite(_get(sounding, "sherbe")),
+        "enhanced_sig_tornado_parameter": _finite(_get(sounding, "esp")),
+        "microburst_parameter": _finite(_get(sounding, "mburst")),
+        "wind_damage_parameter": _finite(_get(sounding, "wndg")),
+        "tei": _finite(_get(sounding, "tei")),
+        "dcape_jkg": _finite(_get(sounding, "dcape")),
+        "downburst_max_temperature_f": _finite(_get(sounding, "drush")),
+        "watch_type": _json_safe(_get(sounding, "watch_type")),
+    }
+
+    fire = {
+        "fosberg_fire_weather_index": _finite(_get(sounding, "fosberg")),
+        "haines_index_low": _finite(_get(sounding, "haines_low")),
+        "haines_index_mid": _finite(_get(sounding, "haines_mid")),
+        "haines_index_high": _finite(_get(sounding, "haines_high")),
+    }
+
+    thermodynamic_profiles = {
+        "wetbulb_c": _json_safe(_get(sounding, "wetbulb")),
+        "potential_temperature_k": _json_safe(_get(sounding, "theta")),
+        "equivalent_potential_temperature_k": _json_safe(_get(sounding, "thetae")),
+        "water_vapor_mixing_ratio_gkg": _json_safe(_get(sounding, "wvmr")),
+        "relative_humidity_pct": _json_safe(_get(sounding, "relh")),
+    }
 
     try:
         library_version = version("SHARPpy")
     except PackageNotFoundError:
         library_version = None
 
+    warnings = []
+    if not any(value is not None for value in (thermodynamics["precipitable_water_in"], thermodynamics["k_index"])):
+        warnings.append("Some SHARPpy thermodynamic diagnostics were unavailable.")
+    if not any(value is not None for value in (kinematics["bulk_shear_0_6km_kt"], kinematics["srh_0_1km_m2s2"])):
+        warnings.append("Some SHARPpy kinematic diagnostics were unavailable.")
+
     return {
         "library": "SHARPpy",
         "library_version": library_version,
+        "profile_class": "ConvectiveProfile",
+        "location": location,
+        "latitude": latitude,
+        "valid_time_utc": valid_date.isoformat().replace("+00:00", "Z"),
         "units": {
-            "cape": "J/kg",
-            "cin": "J/kg",
-            "height": "m AGL",
-            "wind": "kt",
-            "srh": "m2/s2",
+            "cape": "J/kg", "cin": "J/kg", "height": "m AGL",
+            "wind": "kt", "srh": "m2/s2", "precipitable_water": "in",
+            "lapse_rate": "C/km", "dcape": "J/kg",
         },
         "parcels": parcels,
-        "kinematics": {
-            "bunkers_motion": bunkers,
-            "srh_0_1km_m2s2": srh_0_1km,
-            "bulk_shear_0_6km_kt": shear_0_6km,
+        "kinematics": kinematics,
+        "thermodynamics": thermodynamics,
+        "winter": winter,
+        "severe": severe,
+        "fire": fire,
+        "thermodynamic_profiles": thermodynamic_profiles,
+        "sars": {
+            "hail_matches": _json_safe(_get(sounding, "matches")),
+            "supercell_matches": _json_safe(_get(sounding, "supercell_matches")),
         },
         "quality": {
             "input_levels": int(pressure.size),
             "pressure_decreases_upward": True,
             "height_increases_upward": True,
-            "warnings": [
-                name for name, result in parcels.items()
-                if result.get("cape_jkg") is None
-            ],
+            "profile_class": "ConvectiveProfile",
+            "warnings": warnings,
         },
     }
