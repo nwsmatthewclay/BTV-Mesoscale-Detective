@@ -59,7 +59,7 @@ main{max-width:1800px;margin:auto;padding:16px 20px 30px}.intro{display:flex;ali
 <div class="notice"><b>Operational safeguards:</b> this is a research and forecast-exploration tool, not an operationally approved decision aid. Original model data are never overwritten. Modified results are labeled experimental and must not be confused with model guidance. HRRR is currently surface-only in this archive and is intentionally not offered as a sounding.</div>
 </main>
 <script>
-let stations=[], locationRegistry=[], manifest=null, sourceProfile=null, sourceRecord=null, modifiedResult=null, apiReady=false, bufkitProfiles=[], bufkitKey='';
+let stations=[], locationRegistry=[], manifest=null, sourceProfile=null, sourceRecord=null, modifiedResult=null, apiReady=false, bufkitProfiles=[], bufkitKey='', bufkitFeed=null;
 const $=id=>document.getElementById(id);
 const fmt=(v,d=0)=>Number.isFinite(Number(v))?Number(v).toFixed(d):'—';
 function populateLocations(){
@@ -121,7 +121,7 @@ async function loadBufkitProfiles(){
  const r=await fetch(base+'/bufkit/'+encodeURIComponent(model)+'/'+encodeURIComponent(station));
  const data=await r.json();if(!r.ok)throw new Error(data.detail||'BUFKIT provider HTTP '+r.status);
  if(data.model!==model||data.station!==station||!Array.isArray(data.profiles)||!data.profiles.length)throw new Error('BUFKIT response failed model/station/profile validation');
- bufkitProfiles=data.profiles;bufkitKey=model+'|'+station;
+ bufkitProfiles=data.profiles;bufkitKey=model+'|'+station;bufkitFeed=data;
  populateHours();
  const first=bufkitProfiles.find(p=>Number(p.forecast_hour)===0)||bufkitProfiles[0];
  $('forecastHour').value=String(first.forecast_hour);
@@ -134,9 +134,11 @@ async function loadBufkitSelectedProfile(){
  $('validTime').textContent='Valid '+record.valid_time_utc;
  $('locationDetail').textContent=stations.find(s=>s.id===record.station)?.name||record.station;
  $('cycleDetail').textContent='Initialized '+record.model_cycle_utc;
- $('profileMeta').textContent=record.model+' BUFKIT · '+record.model_cycle_utc+' · '+record.station+' · F'+record.forecast_hour+' · valid '+record.valid_time_utc+' · '+record.quality.levels+' vertical levels · native SHARPpy BufDecoder · '+(record.source_url||'Penn State BUFKIT')+'.';
- $('dataStatus').textContent=record.model+' BUFKIT profile decoded · '+record.quality.levels+' levels · SHARPpy BufDecoder';
- $('dataStatus').style.color='var(--green)';
+ const ageHours=(Date.now()-Date.parse(record.model_cycle_utc))/3600000;
+ const ageText=Number.isFinite(ageHours)?' · cycle age '+Math.max(0,ageHours).toFixed(1)+' h':'';
+ $('profileMeta').textContent=record.model+' BUFKIT · '+record.model_cycle_utc+' · '+record.station+' · F'+record.forecast_hour+' · valid '+record.valid_time_utc+' · '+record.quality.levels+' vertical levels · native SHARPpy BufDecoder · '+(bufkitFeed?.source_url||'Penn State BUFKIT')+' · retrieved '+(bufkitFeed?.download?.downloaded_at_utc||'cache')+'.';
+ $('dataStatus').textContent=record.model+' BUFKIT profile decoded · '+record.quality.levels+' levels · SHARPpy BufDecoder'+ageText;
+ $('dataStatus').style.color=Number.isFinite(ageHours)&&ageHours>36?'var(--amber)':'var(--green)';
  render();
  const base=$('apiBase').value.trim().replace(/\/$/,'');
  try{
