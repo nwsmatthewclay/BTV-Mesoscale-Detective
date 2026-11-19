@@ -9,6 +9,8 @@ on:
       - "mesoscale/sharppy_adapter.py"
       - "mesoscale/vendor/sharppy-1.4.0-browser.zip"
       - "mesoscale/data/fields/forecast/**"
+      - "mesoscale/data/bufkit/**"
+      - "bufkit-archive.html"
       - ".github/scripts/test_browser_sharppy.py"
       - ".github/workflows/browser-sharppy-validation.yml"
 
