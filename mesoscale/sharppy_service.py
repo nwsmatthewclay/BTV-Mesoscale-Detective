@@ -116,6 +116,10 @@ def adjust_profile(profile: dict[str, Any], adjustments: dict[str, Any]) -> tupl
     elif depth > 0:
         warnings.append("Selected mixing depth contains fewer than two native model levels; no mixing applied.")
 
+    if np.any((t < 150) | (t > 350)) or np.any((td < 130) | (td > 330)):
+        raise ValueError("Adjusted temperature/dewpoint profile is outside plausible Kelvin bounds")
+    if np.any(td > t):
+        raise ValueError("Adjusted dewpoint exceeds temperature after mixing")
     adjusted = {key: value.tolist() for key, value in arrays.items()}
     return adjusted, warnings
 
