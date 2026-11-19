@@ -315,12 +315,18 @@ def calculate_sharppy_diagnostics(profile: dict) -> dict:
         "haines_index_high": _finite(_get(sounding, "haines_high")),
     }
 
+    def profile_method(method_name, attribute_name):
+        try:
+            return _json_safe(getattr(sounding, method_name)())
+        except Exception:
+            return _json_safe(_get(sounding, attribute_name))
+
     thermodynamic_profiles = {
-        "wetbulb_c": _json_safe(_get(sounding, "wetbulb")),
-        "potential_temperature_k": _json_safe(_get(sounding, "theta")),
-        "equivalent_potential_temperature_k": _json_safe(_get(sounding, "thetae")),
-        "water_vapor_mixing_ratio_gkg": _json_safe(_get(sounding, "wvmr")),
-        "relative_humidity_pct": _json_safe(_get(sounding, "relh")),
+        "wetbulb_c": profile_method("get_wetbulb_profile", "wetbulb"),
+        "potential_temperature_k": profile_method("get_theta_profile", "theta"),
+        "equivalent_potential_temperature_k": profile_method("get_thetae_profile", "thetae"),
+        "water_vapor_mixing_ratio_gkg": profile_method("get_wvmr_profile", "wvmr"),
+        "relative_humidity_pct": profile_method("get_rh_profile", "relh"),
     }
 
     try:
