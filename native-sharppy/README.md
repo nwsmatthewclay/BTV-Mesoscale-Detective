@@ -38,15 +38,33 @@ The SHARPpy Data Sources menu receives four BTV-specific entries:
 
 Each source uses SHARPpy's native BUFKIT decoder and native sounding picker, Skew-T, hodograph, and diagnostic windows. The CSV currently includes 25 nearby stations with coordinates drawn from SHARPpy's published RAP station inventory and the project's BTV station inventory.
 
-## Important limitation in this first integration pass
+## Archive adapter deployment (one-time)
 
-The PSU BUFKIT endpoint used here exposes a `latest` file path. SHARPpy's standard data-source calendar models cycle availability using a URL/time schedule, so this first pass is intended to verify native installation, station selection, file retrieval, and native plotting—not to claim that the BTV local multi-cycle archive is already browsable inside SHARPpy. The next integration step is a small free HTTPS BUFKIT archive adapter that maps SHARPpy's cycle/station URL template to the versioned BTV archive and returns uncompressed BUFKIT text.
+The native data sources now point to a small Cloudflare Worker that serves the exact archived BUFKIT cycle requested by SHARPpy. The Worker reads the repository's catalog, retrieves the matching `.buf.gz` object, decompresses it, and returns plain BUFKIT text. A missing cycle or station returns HTTP 404; it never substitutes a newer run.
 
-The local archive currently retains multiple cycles and compressed files. The adapter must preserve exact model cycle and valid-time provenance and return 404 for missing combinations; it must never silently substitute the latest cycle.
+The Worker is designed for Cloudflare's free Workers tier. To deploy it:
 
+1. Install Node.js and run `npx wrangler login` in a terminal.
+2. From this folder, run:
+
+```bash
+cd worker
+npx wrangler deploy
+```
+
+3. Copy the hostname from the deployment output (for example `btv-sharppy-bufkit.YOUR-SUBDOMAIN.workers.dev`).
+4. Run the workstation installer. It asks for that hostname and writes the correct URL into `~/.sharppy/datasources/btv_cwa.xml`.
+
+The Worker source is in [worker/src/index.js](worker/src/index.js). Its configuration is in [worker/wrangler.toml](worker/wrangler.toml). The deployment needs your Cloudflare login; I can prepare and validate the code, but cannot deploy into your account without that authorization.
+
+## Alpha scope
+
+The alpha is intended to cover the four archived model feeds and the 25-station inventory. The live repository catalog controls which cycle/station combinations are actually available. Sounding-picker availability is constrained by each model's configured archive retention and forecast range.
+
+`BTV CWA RRFS`, `GFS`, `RAP`, and `HRRR` use the native SHARPpy BUFKIT decoder. This is not a fork of SHARPpy and does not replace its native plotting or diagnostic tools.
 ## Data source configuration
 
-SHARPpy's own documentation specifies a separate XML file plus station CSV under `~/.sharppy/datasources`. This installer copies those files without modifying SHARPpy's `standard.xml`.
+SHARPpy's own documentation specifies a separate XML file plus station CSV under `~/.sharppy/datasources`. The installer writes these files without modifying SHARPpy's `standard.xml`, and substitutes the Worker hostname you provide.
 
 Official documentation:
 - https://sharppy.github.io/SHARPpy/install.html
