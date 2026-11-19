@@ -2,7 +2,7 @@
 FROM --platform=linux/amd64 mambaorg/micromamba:1.5.8
 
 WORKDIR /app
-COPY mesoscale/environment-sharppy.yml /tmp/environment-sharppy.yml
+COPY mesoscale/environment-sharppy-api.yml /tmp/environment-sharppy.yml
 RUN micromamba create -y -n btv-sharppy -f /tmp/environment-sharppy.yml \
     && micromamba clean --all --yes
 
@@ -13,4 +13,4 @@ ENV BUFKIT_CACHE_DIR=/tmp/bufkit-cache
 ENV BUFKIT_CACHE_TTL_SECONDS=300
 EXPOSE 8000
 
-CMD ["micromamba", "run", "-n", "btv-sharppy", "uvicorn", "mesoscale.sharppy_service:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["micromamba", "run", "-n", "btv-sharppy-api", "uvicorn", "mesoscale.sharppy_service:app", "--host", "0.0.0.0", "--port", "8000"]
