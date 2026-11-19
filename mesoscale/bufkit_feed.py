@@ -227,4 +227,6 @@ def fetch_and_parse_bufkit(model: str, station: str, cache_dir: str | Path | Non
         "profiles": profiles,
     }
     _PARSED_CACHE[(model, station)] = (file_signature, result)
+    if len(_PARSED_CACHE) > 64:
+        _PARSED_CACHE.pop(next(iter(_PARSED_CACHE)))
     return result
