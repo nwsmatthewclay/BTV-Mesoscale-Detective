@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<sourcelist>
+  <!-- Direct Penn State latest-cycle BUFKIT feeds: no Cloudflare Worker required. -->
+  <datasource name="BTV CWA RRFS (Latest)" ensemble="false" observed="false">
+    <outlet name="Penn State BUFKIT" url="https://www.meteo.psu.edu/data/weather/bufkit/RRFS/latest/rrfs_{srcid}.buf" format="bufkit">
+      <time first="0" range="84" delta="1" offset="0" delay="2" cycle="1" archive="24" start="-" end="-"/>
+      <points csv="btv_cwa.csv"/>
+    </outlet>
+  </datasource>
+  <datasource name="BTV CWA GFS (Latest)" ensemble="false" observed="false">
+    <outlet name="Penn State BUFKIT" url="https://www.meteo.psu.edu/data/weather/bufkit/GFS/latest/gfs3_{srcid}.buf" format="bufkit">
+      <time first="0" range="180" delta="1" offset="0" delay="5" cycle="6" archive="24" start="-" end="-"/>
+      <points csv="btv_cwa.csv"/>
+    </outlet>
+  </datasource>
+  <datasource name="BTV CWA RAP (Latest)" ensemble="false" observed="false">
+    <outlet name="Penn State BUFKIT" url="https://www.meteo.psu.edu/data/weather/bufkit/RAP/latest/rap_{srcid}.buf" format="bufkit">
+      <time first="0" range="21" delta="1" offset="0" delay="2" cycle="1" archive="24" start="-" end="-"/>
+      <points csv="btv_cwa.csv"/>
+    </outlet>
+  </datasource>
+  <datasource name="BTV CWA HRRR (Latest)" ensemble="false" observed="false">
+    <outlet name="Penn State BUFKIT" url="https://www.meteo.psu.edu/data/weather/bufkit/HRRR/latest/hrrr_{srcid}.buf" format="bufkit">
+      <time first="0" range="48" delta="1" offset="0" cycle="1" archive="24" start="-" end="-"/>
+      <points csv="btv_cwa.csv"/>
+    </outlet>
+  </datasource>
+</sourcelist>
