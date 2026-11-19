@@ -25,16 +25,20 @@ def _finite(value):
 
 def _json_safe(value):
     """Recursively convert SHARPpy scalars, masked arrays, and tuples to JSON."""
-    if value is None or np.ma.is_masked(value):
+    if value is None:
         return None
-    if isinstance(value, (str, bool, int)):
-        return value
     if isinstance(value, np.ma.MaskedArray):
         data = np.asarray(value.data)
         mask = np.ma.getmaskarray(value)
+        if data.ndim == 0:
+            return None if bool(mask) else _json_safe(data.item())
         return [_json_safe(None if mask[i] else data[i]) for i in range(data.shape[0])]
     if isinstance(value, np.ndarray):
         return [_json_safe(item) for item in value.tolist()]
+    if np.ma.is_masked(value):
+        return None
+    if isinstance(value, (str, bool, int)):
+        return value
     if isinstance(value, (list, tuple)):
         return [_json_safe(item) for item in value]
     number = _finite(value)
@@ -115,11 +119,20 @@ def _magnitude(vector):
 
 
 def _pair(value):
-    if value is None:
+    if value is None or np.ma.is_masked(value):
         return None
     try:
         values = list(value)
         return [_finite(values[0]), _finite(values[1])] if len(values) >= 2 else None
+    except Exception:
+        return None
+
+
+def _at(value, index):
+    if value is None:
+        return None
+    try:
+        return _finite(value[index])
     except Exception:
         return None
 
@@ -199,20 +212,20 @@ def calculate_sharppy_diagnostics(profile: dict) -> dict:
 
     kinematics = {
         "bunkers_motion_kt": _json_safe(bunkers),
-        "right_mover_u_kt": _finite(bunkers[0]) if bunkers is not None else None,
-        "right_mover_v_kt": _finite(bunkers[1]) if bunkers is not None else None,
-        "left_mover_u_kt": _finite(bunkers[2]) if bunkers is not None else None,
-        "left_mover_v_kt": _finite(bunkers[3]) if bunkers is not None else None,
+        "right_mover_u_kt": _at(bunkers, 0),
+        "right_mover_v_kt": _at(bunkers, 1),
+        "left_mover_u_kt": _at(bunkers, 2),
+        "left_mover_v_kt": _at(bunkers, 3),
         "bulk_shear_0_1km_kt": _magnitude(shear_1km),
         "bulk_shear_0_3km_kt": _magnitude(shear_3km),
         "bulk_shear_0_6km_kt": _magnitude(shear_6km),
         "bulk_shear_0_8km_kt": _magnitude(shear_8km),
         "bulk_shear_0_9km_kt": _magnitude(shear_9km),
         "effective_bulk_shear_kt": _finite(_get(sounding, "ebwspd")),
-        "srh_0_1km_m2s2": _finite(srh_1km[0]) if srh_1km is not None else None,
-        "srh_0_3km_m2s2": _finite(srh_3km[0]) if srh_3km is not None else None,
-        "effective_srh_right_m2s2": _finite(right_esrh[0]) if right_esrh is not None else None,
-        "effective_srh_left_m2s2": _finite(left_esrh[0]) if left_esrh is not None else None,
+        "srh_0_1km_m2s2": _at(srh_1km, 0),
+        "srh_0_3km_m2s2": _at(srh_3km, 0),
+        "effective_srh_right_m2s2": _at(right_esrh, 0),
+        "effective_srh_left_m2s2": _at(left_esrh, 0),
         "effective_layer_bottom_hpa": _finite(_get(sounding, "ebottom")),
         "effective_layer_top_hpa": _finite(_get(sounding, "etop")),
         "effective_layer_bottom_agl_m": _finite(_get(sounding, "ebotm")),
