@@ -159,10 +159,6 @@ def main() -> int:
         print(f"{model}: {len(successes)} successful station files; {len(failures)} unavailable/failed; cycles={sorted(cycles_seen)}")
         for failure in failures:
             print(f"  {failure['station']}: {failure['error']}")
-    if not args.dry_run:
-        manifest_path = ROOT / "data" / "bufkit" / "manifest.json"
-        manifest_path.parent.mkdir(parents=True, exist_ok=True)
-        manifest_path.write_text(json.dumps(summary, indent=2)+"\n", encoding="utf-8")
     # Publish a compact index of every retained model cycle and station file.
     catalog = {"schema_version": 1, "provider": BASE, "retention_cycles": config["retention_cycles"], "models": {}}
     for model in config["models"]:
