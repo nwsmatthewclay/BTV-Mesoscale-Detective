@@ -1,0 +1,28 @@
+name: SHARPpy Sounding Validation
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "mesoscale/sharppy_adapter.py"
+      - "mesoscale/sharppy_service.py"
+      - "mesoscale/tests/test_sharppy_*.py"
+      - "mesoscale/environment-sharppy.yml"
+      - ".github/workflows/sharppy-validation.yml"
+
+jobs:
+  sharppy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: mesoscale/environment-sharppy.yml
+          environment-name: btv-sharppy
+          cache-environment: true
+          init-shell: bash
+      - name: Validate SHARPpy adapter and sounding adjustments
+        shell: micromamba-shell {0}
+        run: |
+          python -m compileall -q mesoscale
+          pytest -q mesoscale/tests/test_sharppy_adapter.py mesoscale/tests/test_sharppy_service.py
