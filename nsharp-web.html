@@ -306,7 +306,6 @@ $("hour").addEventListener("change",()=>loadProfile().catch(showProfileError));
 $("reset").addEventListener("click",()=>{["temp","dew","mixDepth"].forEach(id=>$(id).value=0);$("offsetDepth").value=1000;updateLabels();modified=null;render();if(engineReady)calculateModified()});
 updateLabels();boot();
 </script>
-</body></html>
 <script>
 const _renderDiagnosticsBase=renderDiagnostics;
 renderDiagnostics=function(){
@@ -328,6 +327,7 @@ renderDiagnostics=function(){
 };
 </script>
 <script>
+
 
 </script>
 </body></html>
