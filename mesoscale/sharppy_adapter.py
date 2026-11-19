@@ -110,8 +110,11 @@ def _magnitude(vector):
     if vector is None:
         return None
     try:
-        values = np.asarray(vector, dtype=float).reshape(-1)
-        if values.size < 2 or not np.all(np.isfinite(values[:2])):
+        masked = np.ma.asarray(vector, dtype=float).reshape(-1)
+        if masked.size < 2 or np.any(np.ma.getmaskarray(masked)[:2]):
+            return None
+        values = np.asarray(masked.data, dtype=float)
+        if not np.all(np.isfinite(values[:2])):
             return None
         return float(np.hypot(values[0], values[1]))
     except Exception:
