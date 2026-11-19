@@ -236,17 +236,35 @@ function buildDiagnostics(){
  $('diagRows').innerHTML=rows.map((r,i)=>'<div class="diagrow"><span>'+r[0]+'</span><b>'+r[1]+'</b><b class="delta">'+r[2]+'</b></div>').join('');
  const extended=[
   ['PWAT','thermodynamics','precipitable_water_in',' in'],
+  ['K-index','thermodynamics','k_index',''],
+  ['Totals totals','thermodynamics','totals_totals',''],
   ['0–3 km lapse rate','thermodynamics','lapse_rate_0_3km_c_km',' °C/km'],
   ['3–6 km lapse rate','thermodynamics','lapse_rate_3_6km_c_km',' °C/km'],
+  ['850–500 mb lapse rate','thermodynamics','lapse_rate_850_500_c_km',' °C/km'],
+  ['700–500 mb lapse rate','thermodynamics','lapse_rate_700_500_c_km',' °C/km'],
   ['PBL height','thermodynamics','boundary_layer_height_agl_m',' m'],
+  ['Convective temperature','thermodynamics','convective_temperature_f',' °F'],
+  ['Maximum temperature','thermodynamics','maximum_temperature_f',' °F'],
+  ['Low-level mean RH','thermodynamics','low_level_mean_rh_pct','%'],
+  ['Mid-level mean RH','thermodynamics','mid_level_mean_rh_pct','%'],
   ['DGZ mean RH','winter','dendritic_growth_zone_mean_rh_pct','%'],
   ['DGZ mean omega','winter','dendritic_growth_zone_mean_omega_microbar_s',' µbar/s'],
+  ['DGZ bottom / top','winter','dendritic_growth_zone_bottom_hpa',' hPa'],
   ['Precipitation type','winter','precipitation_type',''],
+  ['Initial precip phase','winter','initial_phase',''],
   ['Right SCP','severe','supercell_composite_right',''],
+  ['Fixed-layer STP','severe','significant_tornado_parameter_fixed_right',''],
   ['Effective STP','severe','significant_tornado_parameter_effective_right',''],
   ['SHIP','severe','significant_hail_parameter',''],
+  ['SHERBE','severe','sherb',''],
   ['DCAPE','severe','dcape_jkg',' J/kg'],
-  ['Low Haines','fire','haines_index_low','']
+  ['Microburst parameter','severe','microburst_parameter',''],
+  ['Wind damage parameter','severe','wind_damage_parameter',''],
+  ['Watch type','severe','watch_type',''],
+  ['Fosberg index','fire','fosberg_fire_weather_index',''],
+  ['Low Haines','fire','haines_index_low',''],
+  ['Mid Haines','fire','haines_index_mid',''],
+  ['High Haines','fire','haines_index_high','']
  ];
  const display=(v,unit)=>v===null||v===undefined?'—':(typeof v==='number'?fmt(v,1)+unit:String(v));
  $('extendedRows').innerHTML=extended.map(([label,section,key,unit])=>'<div class="diagrow"><span>'+label+'</span><b>'+display(orig[section]?.[key],unit)+'</b><b class="delta">'+display(mod?.[section]?.[key],unit)+'</b></div>').join('');
