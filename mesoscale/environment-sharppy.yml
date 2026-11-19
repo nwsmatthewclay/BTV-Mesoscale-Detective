@@ -4,10 +4,14 @@ channels:
 dependencies:
   - python=3.10
   - numpy<2
-  - sharppy
+  - sharppy=1.4.0
   - metpy
   - xarray
   - cfgrib
   - eccodes
   - requests
   - pytest
+  - pip
+  - pip:
+      - fastapi
+      - uvicorn[standard]
