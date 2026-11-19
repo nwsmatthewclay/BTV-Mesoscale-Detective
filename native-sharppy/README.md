@@ -55,7 +55,7 @@ npx wrangler deploy
 3. Copy the hostname from the deployment output (for example `btv-sharppy-bufkit.YOUR-SUBDOMAIN.workers.dev`).
 4. Run the workstation installer. It asks for that hostname and writes the correct URL into `~/.sharppy/datasources/btv_cwa.xml`.
 
-The Worker source is in [worker/src/index.js](worker/src/index.js). Its configuration is in [worker/wrangler.toml](worker/wrangler.toml). The deployment needs your Cloudflare login; I can prepare and validate the code, but cannot deploy into your account without that authorization.
+The Worker source is in [worker/src/index.js](worker/src/index.js). Its configuration is in [worker/wrangler.toml](worker/wrangler.toml). The repository also includes an optional GitHub Actions deployment workflow. Add a Cloudflare API token as the repository Actions secret `CLOUDFLARE_API_TOKEN`, then run **Deploy Native SHARPpy BUFKIT Worker** from the Actions tab. This avoids needing Wrangler installed locally. The deployment still needs your Cloudflare authorization.
 
 ## Alpha scope
 
