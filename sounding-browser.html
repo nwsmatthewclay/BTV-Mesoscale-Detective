@@ -7,7 +7,7 @@
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 <style>
 :root{color-scheme:dark;--bg:#070a10;--panel:#0c121c;--line:#202d3d;--text:#e7edf5;--muted:#8796a8;--cyan:#55d6e8;--blue:#66aaff;--orange:#ffad66;--red:#ff777e;--green:#69d7a5;--amber:#e9bd68}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#070a10;color:var(--text);font:13px/1.5 Inter,"Segoe UI",Arial,sans-serif}button,select,input{font:inherit}header{height:66px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-bottom:1px solid var(--line);background:#090e16}.brand{display:flex;align-items:center;gap:12px}.mark{width:38px;height:38px;display:grid;place-items:center;border:1px solid #255a6a;border-radius:10px;background:#0c202b;color:var(--cyan);font-weight:850}.brand h1{font-size:15px;margin:0}.brand p{margin:2px 0 0;color:#74869a;font-size:9px;letter-spacing:.16em;text-transform:uppercase}.header-actions{display:flex;gap:8px}.btn{border:1px solid #29394d;border-radius:7px;padding:8px 11px;background:#111b29;color:#dce7f2;text-decoration:none;font-size:10px;font-weight:700;cursor:pointer}.btn.primary{background:#102b39;border-color:#246477;color:#8de7f1}.btn:disabled{opacity:.45;cursor:not-allowed}main{max-width:1800px;margin:auto;padding:18px 20px 32px}.topline{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:14px}.eyebrow{color:var(--cyan);font-size:9px;font-weight:800;letter-spacing:.18em;text-transform:uppercase}.topline h2{font-size:22px;line-height:1.2;margin:5px 0}.topline p{margin:0;color:var(--muted);font-size:11px}.runtime{min-width:310px;max-width:520px;padding:10px 12px;border:1px solid #26364a;border-radius:8px;background:#0c131e;color:var(--amber);font-size:10px}.runtime[data-state=ready]{border-color:#245c4b;color:var(--green)}.runtime[data-state=error]{border-color:#64343b;color:var(--red)}.panel{border:1px solid var(--line);border-radius:10px;background:#0c121c;min-width:0;overflow:hidden}.selector{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;padding:12px;margin-bottom:12px}.field label{display:block;margin-bottom:5px;color:#9aaabc;font-size:9px;font-weight:750;letter-spacing:.12em;text-transform:uppercase}.field select{width:100%;height:36px;padding:6px 9px;border:1px solid #2a394b;border-radius:6px;background:#090f18;color:var(--text)}.layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(340px,.85fr);gap:12px}.charts{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr);gap:9px;padding:10px}.chartbox{border:1px solid #1c2b3c;border-radius:7px;background:#090f18;overflow:hidden}.charttitle{padding:9px 11px;border-bottom:1px solid #1b2938;color:#aebed0;font-size:10px;font-weight:750;letter-spacing:.06em;text-transform:uppercase}.chart{height:580px}.hodo{height:580px}.meta{padding:9px 12px;border-top:1px solid #1c2a39;color:#8293a6;font-size:9px;overflow-wrap:anywhere}.rail{display:flex;flex-direction:column;gap:12px}.sectionhead{padding:11px 13px;border-bottom:1px solid #1c2a39;color:#dce6f1;font-size:11px;font-weight:800;letter-spacing:.04em}.adjust{padding:10px 13px}.control{padding:9px 0;border-bottom:1px solid #1b2938}.control:last-child{border-bottom:0}.controltop{display:flex;justify-content:space-between;gap:10px;margin-bottom:6px}.controltop label{font-size:10px;color:#bdc9d7;font-weight:650}.controltop output{font-size:11px;color:var(--cyan);font-weight:800;font-variant-numeric:tabular-nums}input[type=range]{width:100%;accent-color:var(--cyan)}.rangeends{display:flex;justify-content:space-between;color:#687b90;font-size:8px}.enginebar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;border-top:1px solid #1c2a39}.enginebar small{color:#8293a6;font-size:9px}.metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:10px}.metric{border:1px solid #1d2b3b;border-radius:7px;background:#0a111b;padding:9px;text-align:center}.metric span{display:block;color:#8292a5;font-size:8px;font-weight:800;letter-spacing:.1em}.metric strong{display:block;color:#edf4fa;font-size:18px;margin:3px 0;font-variant-numeric:tabular-nums}.metric small{color:#71849a;font-size:8px}.diag{padding:0 11px 11px}.diag h3{margin:5px 0 7px;color:var(--cyan);font-size:9px;letter-spacing:.13em;text-transform:uppercase}.diagrow{display:grid;grid-template-columns:1.15fr .8fr .8fr;gap:5px;padding:6px 0;border-bottom:1px solid #1b2938;font-size:9px}.diagrow span{color:#8d9eb0}.diagrow b{text-align:right;font-variant-numeric:tabular-nums}.diagrow b:last-child{color:#9de4c5}.details{padding:0 11px 11px}.details summary{cursor:pointer;color:#91a6bb;font-size:9px;font-weight:750}.details pre{max-height:280px;overflow:auto;background:#070c13;border:1px solid #1b2938;border-radius:6px;padding:9px;color:#b5c5d5;font:9px/1.45 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.log{margin-top:12px;padding:11px 13px;background:#0b111a;border:1px solid #1d2a39;border-radius:8px;color:#8394a7;font:9px/1.6 ui-monospace,monospace;white-space:pre-wrap;max-height:180px;overflow:auto}.footnote{margin-top:12px;padding:10px 12px;border:1px solid #4a3b25;border-radius:8px;background:#15120d;color:#c6ad80;font-size:9px;line-height:1.55}.footnote strong{color:#f0d39c}@media(max-width:1120px){.layout{grid-template-columns:1fr}.rail{display:grid;grid-template-columns:1fr 1fr}.rail .panel:last-child{grid-column:1/-1}}@media(max-width:760px){header{padding:0 12px}.brand p{display:none}.header-actions .btn:first-child{display:none}main{padding:12px}.topline{display:block}.runtime{margin-top:10px;max-width:none;min-width:0}.selector{grid-template-columns:1fr 1fr}.charts{grid-template-columns:1fr}.chart,.hodo{height:450px}.rail{display:flex}}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#070a10;color:var(--text);font:13px/1.5 Inter,"Segoe UI",Arial,sans-serif}button,select,input{font:inherit}header{height:66px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-bottom:1px solid var(--line);background:#090e16}.brand{display:flex;align-items:center;gap:12px}.mark{width:38px;height:38px;display:grid;place-items:center;border:1px solid #255a6a;border-radius:10px;background:#0c202b;color:var(--cyan);font-weight:850}.brand h1{font-size:15px;margin:0}.brand p{margin:2px 0 0;color:#74869a;font-size:9px;letter-spacing:.16em;text-transform:uppercase}.header-actions{display:flex;gap:8px}.btn{border:1px solid #29394d;border-radius:7px;padding:8px 11px;background:#111b29;color:#dce7f2;text-decoration:none;font-size:10px;font-weight:700;cursor:pointer}.btn.primary{background:#102b39;border-color:#246477;color:#8de7f1}.btn:disabled{opacity:.45;cursor:not-allowed}main{max-width:1800px;margin:auto;padding:18px 20px 32px}.topline{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:14px}.eyebrow{color:var(--cyan);font-size:9px;font-weight:800;letter-spacing:.18em;text-transform:uppercase}.topline h2{font-size:22px;line-height:1.2;margin:5px 0}.topline p{margin:0;color:var(--muted);font-size:11px}.runtime{min-width:310px;max-width:520px;padding:10px 12px;border:1px solid #26364a;border-radius:8px;background:#0c131e;color:var(--amber);font-size:10px}.runtime[data-state=ready]{border-color:#245c4b;color:var(--green)}.runtime[data-state=error]{border-color:#64343b;color:var(--red)}.panel{border:1px solid var(--line);border-radius:10px;background:#0c121c;min-width:0;overflow:hidden}.selector{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;gap:10px;padding:12px;margin-bottom:12px}.field label{display:block;margin-bottom:5px;color:#9aaabc;font-size:9px;font-weight:750;letter-spacing:.12em;text-transform:uppercase}.field select{width:100%;height:36px;padding:6px 9px;border:1px solid #2a394b;border-radius:6px;background:#090f18;color:var(--text)}.layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(340px,.85fr);gap:12px}.charts{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr);gap:9px;padding:10px}.chartbox{border:1px solid #1c2b3c;border-radius:7px;background:#090f18;overflow:hidden}.charttitle{padding:9px 11px;border-bottom:1px solid #1b2938;color:#aebed0;font-size:10px;font-weight:750;letter-spacing:.06em;text-transform:uppercase}.chart{height:580px}.hodo{height:580px}.meta{padding:9px 12px;border-top:1px solid #1c2a39;color:#8293a6;font-size:9px;overflow-wrap:anywhere}.rail{display:flex;flex-direction:column;gap:12px}.sectionhead{padding:11px 13px;border-bottom:1px solid #1c2a39;color:#dce6f1;font-size:11px;font-weight:800;letter-spacing:.04em}.adjust{padding:10px 13px}.control{padding:9px 0;border-bottom:1px solid #1b2938}.control:last-child{border-bottom:0}.controltop{display:flex;justify-content:space-between;gap:10px;margin-bottom:6px}.controltop label{font-size:10px;color:#bdc9d7;font-weight:650}.controltop output{font-size:11px;color:var(--cyan);font-weight:800;font-variant-numeric:tabular-nums}input[type=range]{width:100%;accent-color:var(--cyan)}.rangeends{display:flex;justify-content:space-between;color:#687b90;font-size:8px}.enginebar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;border-top:1px solid #1c2a39}.enginebar small{color:#8293a6;font-size:9px}.metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:10px}.metric{border:1px solid #1d2b3b;border-radius:7px;background:#0a111b;padding:9px;text-align:center}.metric span{display:block;color:#8292a5;font-size:8px;font-weight:800;letter-spacing:.1em}.metric strong{display:block;color:#edf4fa;font-size:18px;margin:3px 0;font-variant-numeric:tabular-nums}.metric small{color:#71849a;font-size:8px}.diag{padding:0 11px 11px}.diag h3{margin:5px 0 7px;color:var(--cyan);font-size:9px;letter-spacing:.13em;text-transform:uppercase}.diagrow{display:grid;grid-template-columns:1.15fr .8fr .8fr;gap:5px;padding:6px 0;border-bottom:1px solid #1b2938;font-size:9px}.diagrow span{color:#8d9eb0}.diagrow b{text-align:right;font-variant-numeric:tabular-nums}.diagrow b:last-child{color:#9de4c5}.details{padding:0 11px 11px}.details summary{cursor:pointer;color:#91a6bb;font-size:9px;font-weight:750}.details pre{max-height:280px;overflow:auto;background:#070c13;border:1px solid #1b2938;border-radius:6px;padding:9px;color:#b5c5d5;font:9px/1.45 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.log{margin-top:12px;padding:11px 13px;background:#0b111a;border:1px solid #1d2a39;border-radius:8px;color:#8394a7;font:9px/1.6 ui-monospace,monospace;white-space:pre-wrap;max-height:180px;overflow:auto}.footnote{margin-top:12px;padding:10px 12px;border:1px solid #4a3b25;border-radius:8px;background:#15120d;color:#c6ad80;font-size:9px;line-height:1.55}.footnote strong{color:#f0d39c}@media(max-width:1120px){.layout{grid-template-columns:1fr}.rail{display:grid;grid-template-columns:1fr 1fr}.rail .panel:last-child{grid-column:1/-1}}@media(max-width:760px){header{padding:0 12px}.brand p{display:none}.header-actions .btn:first-child{display:none}main{padding:12px}.topline{display:block}.runtime{margin-top:10px;max-width:none;min-width:0}.selector{grid-template-columns:1fr 1fr}.charts{grid-template-columns:1fr}.chart,.hodo{height:450px}.rail{display:flex}}
 </style>
 </head>
 <body>
@@ -15,9 +15,10 @@
 <main>
 <div class="topline"><div><div class="eyebrow">In-browser scientific runtime experiment</div><h2>Modify the atmosphere. Recalculate with SHARPpy.</h2><p>Python executes inside this browser tab. No local install, API server, or GitHub Action is used for profile adjustments.</p></div><div class="runtime" id="runtimeStatus" data-state="loading">Loading verified RAP archive…</div></div>
 <section class="panel selector">
+ <div class="field"><label for="model">Model</label><select id="model"></select></div>
+ <div class="field"><label for="cycle">Initialization cycle (UTC)</label><select id="cycle"></select></div>
  <div class="field"><label for="station">Sounding location</label><select id="station"></select></div>
  <div class="field"><label for="hour">Forecast hour</label><select id="hour"></select></div>
- <div class="field"><label>Source</label><select disabled><option>Verified RAP full-column archive</option></select></div>
  <div style="display:flex;align-items:end"><button class="btn primary" id="initEngine">Initialize browser Python</button></div>
 </section>
 <div class="layout">
@@ -41,35 +42,99 @@
 <script>
 const PYODIDE_VERSION="0.26.4",PYODIDE_BASE="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/",SHARPPY_ARCHIVE="./mesoscale/vendor/sharppy-1.4.0-browser.zip";
 const $=id=>document.getElementById(id);
-let manifest=null,stations=[],profile=null,record=null,original=null,modified=null,pyodide=null,engineReady=false,calcTimer=null,calcSerial=0;
+let catalog=null,siteNames={},selectedCycle=null,stations=[],profile=null,record=null,original=null,modified=null,pyodide=null,engineReady=false,calcTimer=null,calcSerial=0,decodedCache=new Map();
 const log=message=>{$("log").textContent+="\n"+new Date().toISOString().slice(11,19)+" "+message;$("log").scrollTop=$("log").scrollHeight};
 const setStatus=(message,state="loading")=>{$("runtimeStatus").textContent=message;$("runtimeStatus").dataset.state=state};
 const fmt=(v,d=0)=>v===null||v===undefined||!Number.isFinite(Number(v))?"—":Number(v).toFixed(d);
 const formatHour=v=>"F"+String(Math.round(Number(v))).padStart(2,"0");
 async function loadRegistry(){
- const r=await fetch("./mesoscale/sounding_locations.json",{cache:"no-store"});if(!r.ok)throw new Error("Location registry HTTP "+r.status);
- const regions=(await r.json()).regions||[];const select=$("station");select.innerHTML="";
- regions.forEach(region=>(region.subregions||[]).forEach(group=>{const optgroup=document.createElement("optgroup");optgroup.label=region.cwa+" · "+group.name;(group.stations||[]).forEach(s=>{stations.push(s);const o=document.createElement("option");o.value=s.id;o.textContent=s.id+" · "+s.name;optgroup.appendChild(o)});select.appendChild(optgroup)}));
+ const [catalogResponse,sitesResponse]=await Promise.all([
+  fetch("./mesoscale/data/bufkit/catalog.json",{cache:"no-store"}),
+  fetch("./mesoscale/bufkit_sites.json",{cache:"no-store"})
+ ]);
+ if(!catalogResponse.ok)throw new Error("BUFKIT archive catalog HTTP "+catalogResponse.status);
+ if(!sitesResponse.ok)throw new Error("BUFKIT station inventory HTTP "+sitesResponse.status);
+ catalog=await catalogResponse.json();
+ const siteData=await sitesResponse.json();
+ siteNames=Object.fromEntries((siteData.stations||[]).map(s=>[s.id,s.name||s.id]));
+ const models=Object.keys(catalog.models||{}).filter(m=>(catalog.models[m]||[]).length);
+ if(!models.length)throw new Error("No retained BUFKIT model cycles are available");
+ $("model").innerHTML=models.map(m=>'<option value="'+m+'">'+m+'</option>').join("");
+ $("model").value=models.includes("RAP")?"RAP":models[0];
+ populateCycles();
 }
-async function loadManifest(){
- const r=await fetch("./mesoscale/data/fields/forecast/forecast_manifest.json",{cache:"no-store"});if(!r.ok)throw new Error("RAP manifest HTTP "+r.status);
- manifest=await r.json();if(manifest.model!=="RAP"||manifest.quality?.status!=="passed"||!manifest.hours?.length)throw new Error("No verified RAP forecast archive is published");
- $("hour").innerHTML="";manifest.hours.forEach(h=>{const o=document.createElement("option");o.value=h.forecast_hour;o.textContent=formatHour(h.forecast_hour)+" · "+(h.valid_time_utc||"");$("hour").appendChild(o)});
- $("hour").value=String(manifest.hours.find(h=>Number(h.forecast_hour)===0)?.forecast_hour??manifest.hours[0].forecast_hour);
+function populateCycles(){
+ const model=$("model").value,cycles=catalog.models[model]||[];
+ $("cycle").innerHTML=cycles.map(c=>'<option value="'+c.cycle_key+'">'+c.model_cycle_utc.replace("T"," ").replace(":00Z","Z")+'</option>').join("");
+ selectedCycle=cycles.find(c=>c.cycle_key===$("cycle").value)||null;
+ populateStations();
+}
+function populateStations(){
+ selectedCycle=(catalog.models[$("model").value]||[]).find(c=>c.cycle_key===$("cycle").value)||null;
+ const entries=selectedCycle?.stations||[];
+ $("station").innerHTML=entries.map(st=>'<option value="'+st.station+'">'+st.station+' · '+(siteNames[st.station]||st.station)+'</option>').join("");
+ populateHours();
+}
+function populateHours(){
+ const entry=selectedCycle?.stations?.find(st=>st.station===$("station").value);
+ const hours=entry?.forecast_hours||[];
+ $("hour").innerHTML=hours.map(h=>'<option value="'+h+'">'+formatHour(h)+'</option>').join("");
+ $("hour").value=String(hours.includes(0)?0:(hours[0]??""));
+ if(engineReady&&entry)loadProfile().catch(showProfileError);
+ else{
+  profile=null;record=null;original=null;modified=null;render();
+  $("profileMeta").textContent=entry?$("model").value+" · "+selectedCycle.model_cycle_utc+" · "+$("station").value+" · "+hours.length+" forecast periods available. Initialize browser Python to decode the selected BUFKIT file.":"No BUFKIT file is available for this station and cycle.";
+  $("calcStatus").textContent="Initialize browser Python to decode BUFKIT and run SHARPpy.";
+  setStatus(entry?"BUFKIT file available · waiting for browser SHARPpy.":"No station file in selected cycle.","loading");
+ }
+}
+async function decompressGzip(buffer){
+ if(typeof DecompressionStream==="undefined")throw new Error("This browser does not support gzip decompression streams.");
+ const stream=new Blob([buffer]).stream().pipeThrough(new DecompressionStream("gzip"));
+ return await new Response(stream).text();
+}
+function showProfileError(error){
+ setStatus("BUFKIT/SHARPpy profile load failed: "+error.message,"error");
+ $("calcStatus").textContent="No sounding was decoded; no substitute profile was used.";
+ log("BUFKIT PROFILE ERROR: "+(error.stack||error.message));
 }
 async function loadProfile(){
- const hour=Number($("hour").value),station=$("station").value,entry=manifest.hours.find(h=>Number(h.forecast_hour)===hour);if(!entry)throw new Error("Forecast hour missing from manifest");
- const r=await fetch("./mesoscale/data/fields/forecast/"+entry.station_file,{cache:"no-store"});if(!r.ok)throw new Error("Station archive HTTP "+r.status);
- const collection=await r.json();if(collection.model!=="RAP"||collection.model_cycle_utc!==manifest.model_cycle_utc||Number(collection.forecast_hour)!==hour||collection.valid_time_utc!==entry.valid_time_utc)throw new Error("Profile provenance mismatch");
- record=collection.stations?.[station];if(!record)throw new Error("No archived "+station+" profile at "+formatHour(hour));
- if(record.sharppy?.status!=="passed")throw new Error("Archived SHARPpy profile status is not passed");
- profile={...record.profile,location:station,latitude:stations.find(s=>s.id===station)?.lat??44.47,date:record.valid_time_utc,valid_time_utc:record.valid_time_utc};
- original=record.sharppy?.diagnostics||null;modified=null;render();
- $("profileMeta").textContent="RAP · "+manifest.model_cycle_utc+" · "+station+" · "+formatHour(hour)+" · valid "+record.valid_time_utc+" · "+(record.sharppy?.diagnostics?.quality?.input_levels||record.profile.pressure_hpa.length)+" levels · source "+record.source_file;
- $("raw").textContent=JSON.stringify({archived_original:original},null,2);
- $("calcStatus").textContent=engineReady?"Profile loaded · browser SHARPpy ready.":"Profile loaded · initialize browser Python to recalculate.";
- setStatus("Verified "+station+" profile loaded · "+profile.pressure_hpa.length+" levels","ready");
- if(engineReady)await calculateBaseline();
+ const model=$("model").value,cycleKey=$("cycle").value,station=$("station").value,hour=Number($("hour").value);
+ selectedCycle=(catalog.models[model]||[]).find(c=>c.cycle_key===cycleKey);
+ const entry=selectedCycle?.stations?.find(st=>st.station===station);
+ if(!entry)throw new Error("No archived BUFKIT file for "+model+" "+station+" "+cycleKey);
+ if(!engineReady){populateHours();return}
+ const cacheKey=[model,cycleKey,station].join("/");
+ let decoded=decodedCache.get(cacheKey);
+ if(!decoded){
+  setStatus("Downloading archived BUFKIT file…");log("Fetching "+model+" "+cycleKey+" "+station+".");
+  const url="./mesoscale/data/bufkit/"+entry.file;
+  const response=await fetch(url,{cache:"no-store"});
+  if(!response.ok)throw new Error("Archived BUFKIT file HTTP "+response.status);
+  const text=await decompressGzip(await response.arrayBuffer());
+  if(!text.includes("STID")||text.length<1000)throw new Error("Downloaded archive file is not valid BUFKIT text");
+  pyodide.FS.writeFile("/tmp/selected.buf",text);
+  const code="import json\\n_decoded=decode_bufkit_file('/tmp/selected.buf',"+pyString(station)+","+pyString(selectedCycle.model_cycle_utc)+","+pyString(model)+")\\njson.dumps(_decoded,allow_nan=False)";
+  decoded=JSON.parse(await pyodide.runPythonAsync(code));
+  decodedCache.set(cacheKey,decoded);
+  log("SHARPpy BufDecoder decoded "+decoded.profiles.length+" forecast times for "+station+".");
+ }
+ record=decoded.profiles.find(p=>Number(p.forecast_hour)===hour);
+ if(!record)throw new Error("Forecast hour F"+hour+" is not present in the decoded BUFKIT file");
+ profile={...record.profile,location:station,latitude:siteDataLatitude(station),date:record.valid_time_utc,valid_time_utc:record.valid_time_utc};
+ original=null;modified=null;render();
+ $("profileMeta").textContent=model+" BUFKIT · "+selectedCycle.model_cycle_utc+" · "+station+" · "+formatHour(hour)+" · valid "+record.valid_time_utc+" · "+record.quality.levels+" levels · SHARPpy BufDecoder · "+entry.source_url;
+ $("raw").textContent=JSON.stringify({bufkit_quality:record.quality,source:entry.source_url},null,2);
+ $("calcStatus").textContent="BUFKIT decoded · running SHARPpy ConvectiveProfile…";
+ setStatus("Verified BUFKIT profile decoded · "+profile.pressure_hpa.length+" levels","ready");
+ await calculateBaseline();
+}
+function siteDataLatitude(station){
+ const site=(window.__btvSites||[]).find(s=>s.id===station);
+ return site?.lat??44.47;
+}
+async function loadSiteCoordinates(){
+ try{const r=await fetch("./mesoscale/bufkit_sites.json");const d=await r.json();window.__btvSites=d.stations||[]}catch(_){window.__btvSites=[]}
 }
 async function initializeEngine(){
  if(engineReady)return;$("initEngine").disabled=true;setStatus("Starting Pyodide "+PYODIDE_VERSION+"…");log("Loading CPython/WebAssembly runtime.");
@@ -79,13 +144,13 @@ async function initializeEngine(){
   setStatus("Downloading SHARPpy 1.4.0 source…");log("Fetching pinned upstream SHARPpy v1.4.0 source archive.");
   const archiveResponse=await fetch(SHARPPY_ARCHIVE);if(!archiveResponse.ok)throw new Error("SHARPpy source download HTTP "+archiveResponse.status);
   pyodide.FS.mkdir("/tmp/sharppy-src");await pyodide.unpackArchive(await archiveResponse.arrayBuffer(),"zip",{extractDir:"/tmp/sharppy-src"});
-  const [adapterResponse,adjustResponse]=await Promise.all([fetch("./mesoscale/sharppy_adapter.py"),fetch("./mesoscale/browser_adjustments.py")]);
-  if(!adapterResponse.ok||!adjustResponse.ok)throw new Error("Could not load repository SHARPpy adapter or adjustment module");
-  pyodide.FS.writeFile("/tmp/sharppy_adapter.py",await adapterResponse.text());pyodide.FS.writeFile("/tmp/browser_adjustments.py",await adjustResponse.text());
-  await pyodide.runPythonAsync("import glob, os, sys\nroots=glob.glob('/tmp/sharppy-src/*')\nsharppy_root=next((root for root in roots if os.path.isdir(os.path.join(root,'sharppy'))),None)\nif sharppy_root is None: raise RuntimeError('SHARPpy source archive did not contain the sharppy package')\nsys.path.insert(0,sharppy_root)\nsys.path.insert(0,'/tmp')\nimport numpy\nfrom sharppy.sharptab import profile as sharp_profile\nfrom sharppy_adapter import calculate_sharppy_diagnostics\nfrom browser_adjustments import adjust_profile");
-  log("SHARPpy source imports succeeded with NumPy "+numpyVersion+".");engineReady=true;
-  $("initEngine").textContent="Python engine ready";$("initEngine").classList.remove("primary");$("calcStatus").textContent="Browser SHARPpy initialized · recalculation runs locally in this tab.";
-  await calculateBaseline();
+  const [adapterResponse,adjustResponse,decoderResponse]=await Promise.all([fetch("./mesoscale/sharppy_adapter.py"),fetch("./mesoscale/browser_adjustments.py"),fetch("./mesoscale/bufkit_browser.py")]);
+  if(!adapterResponse.ok||!adjustResponse.ok||!decoderResponse.ok)throw new Error("Could not load repository SHARPpy adapter, BUFKIT decoder, or adjustment module");
+  pyodide.FS.writeFile("/tmp/sharppy_adapter.py",await adapterResponse.text());pyodide.FS.writeFile("/tmp/browser_adjustments.py",await adjustResponse.text());pyodide.FS.writeFile("/tmp/bufkit_browser.py",await decoderResponse.text());
+  await pyodide.runPythonAsync("import glob, os, sys\nroots=glob.glob('/tmp/sharppy-src/*')\nsharppy_root=next((root for root in roots if os.path.isdir(os.path.join(root,'sharppy'))),None)\nif sharppy_root is None: raise RuntimeError('SHARPpy source archive did not contain the sharppy package')\nsys.path.insert(0,sharppy_root)\nsys.path.insert(0,'/tmp')\nimport numpy\nfrom sharppy.sharptab import profile as sharp_profile\nfrom sharppy_adapter import calculate_sharppy_diagnostics\nfrom browser_adjustments import adjust_profile\nfrom bufkit_browser import decode_bufkit_file");
+  log("SHARPpy source and native BufDecoder imports succeeded with NumPy "+numpyVersion+".");engineReady=true;
+  $("initEngine").textContent="Python engine ready";$("initEngine").classList.remove("primary");$("calcStatus").textContent="Browser SHARPpy initialized · decoding archived BUFKIT.";
+  await loadProfile();
  }catch(error){engineReady=false;setStatus("Browser SHARPpy initialization failed: "+error.message,"error");$("calcStatus").textContent="No browser calculation engine available. Archived baseline remains visible.";log("ENGINE ERROR: "+(error.stack||error.message));$("initEngine").disabled=false}
 }
 function pyString(value){return JSON.stringify(JSON.stringify(value))}
@@ -132,8 +197,12 @@ function renderDiagnostics(){
  $("suiteStatus").innerHTML="<span>Diagnostics</span><b>"+(orig.library||"Archive")+"</b><b>"+(mod?.profile_class||"Not recalculated")+"</b>";
 }
 function render(){renderSkew();renderHodo();renderDiagnostics()}
-async function boot(){try{await loadRegistry();await loadManifest();await loadProfile();setStatus("Ready · archived baseline loaded. Initialize browser Python to test SHARPpy.","ready")}catch(error){setStatus("Data initialization failed: "+error.message,"error");log("DATA ERROR: "+(error.stack||error.message))}}
-$("initEngine").addEventListener("click",initializeEngine);$("station").addEventListener("change",loadProfile);$("hour").addEventListener("change",loadProfile);
+async function boot(){try{await loadSiteCoordinates();await loadRegistry();setStatus("BUFKIT archive catalog loaded · initialize browser Python to decode a real model sounding.","ready");log("Archive catalog loaded: "+Object.keys(catalog.models).join(", "));}catch(error){setStatus("Data initialization failed: "+error.message,"error");log("DATA ERROR: "+(error.stack||error.message))}}
+$("initEngine").addEventListener("click",initializeEngine);
+$("model").addEventListener("change",()=>{populateCycles();if(engineReady)loadProfile().catch(showProfileError)});
+$("cycle").addEventListener("change",()=>{populateStations();if(engineReady)loadProfile().catch(showProfileError)});
+$("station").addEventListener("change",()=>{populateHours();if(engineReady)loadProfile().catch(showProfileError)});
+$("hour").addEventListener("change",()=>loadProfile().catch(showProfileError));
 ["temp","dew","offsetDepth","mixDepth"].forEach(id=>$(id).addEventListener("input",scheduleCalculation));
 $("reset").addEventListener("click",()=>{["temp","dew","mixDepth"].forEach(id=>$(id).value=0);$("offsetDepth").value=1000;updateLabels();modified=null;render();if(engineReady)calculateModified()});
 updateLabels();boot();
