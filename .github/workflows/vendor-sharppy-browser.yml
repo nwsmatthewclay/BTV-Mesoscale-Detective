@@ -1,0 +1,33 @@
+name: Vendor SHARPpy Browser Source
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/vendor-sharppy-browser.yml"
+      - ".github/scripts/build_sharppy_browser_bundle.py"
+
+permissions:
+  contents: write
+
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build pinned SHARPpy browser source bundle
+        run: python .github/scripts/build_sharppy_browser_bundle.py
+      - name: Commit same-origin browser bundle
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mesoscale/vendor/sharppy-1.4.0-browser.zip
+          if git diff --cached --quiet; then
+            echo "SHARPpy browser bundle is already current."
+            exit 0
+          fi
+          git commit -m "Vendor SHARPpy 1.4.0 browser calculation source"
+          git push
