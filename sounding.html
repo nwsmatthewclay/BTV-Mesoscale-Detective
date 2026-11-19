@@ -105,7 +105,7 @@ async function loadArchiveProfile(){
  const record=collection.stations?.[station];
  if(!record)throw new Error('No verified profile for '+station+' at F'+String(hour).padStart(2,'0'));
  if(record.sharppy?.status!=='passed')throw new Error('SHARPpy diagnostics were not passed for '+station);
- sourceRecord=record;sourceProfile=record.profile;modifiedResult=null;
+ sourceRecord=record;const stationMeta=stations.find(s=>s.id===station);sourceProfile={...record.profile,location:station,latitude:stationMeta?.lat??44.47,date:record.valid_time_utc,valid_time_utc:record.valid_time_utc};modifiedResult=null;
  $('validTime').textContent='Valid '+record.valid_time_utc;
  $('locationDetail').textContent=stations.find(s=>s.id===station)?.name||station;
  $('cycleDetail').textContent='Initialized '+record.model_cycle_utc;
@@ -130,7 +130,7 @@ async function loadBufkitProfiles(){
 async function loadBufkitSelectedProfile(){
  const hour=Number($('forecastHour').value),record=bufkitProfiles.find(p=>Math.abs(Number(p.forecast_hour)-hour)<0.001);
  if(!record)throw new Error('Selected forecast hour is not present in this BUFKIT file');
- sourceRecord=record;sourceProfile=record.profile;modifiedResult=null;
+ sourceRecord=record;const stationMeta=stations.find(s=>s.id===record.station);sourceProfile={...record.profile,location:record.station,latitude:stationMeta?.lat??44.47,date:record.valid_time_utc,valid_time_utc:record.valid_time_utc};modifiedResult=null;
  $('validTime').textContent='Valid '+record.valid_time_utc;
  $('locationDetail').textContent=stations.find(s=>s.id===record.station)?.name||record.station;
  $('cycleDetail').textContent='Initialized '+record.model_cycle_utc;
