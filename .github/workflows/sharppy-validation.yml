@@ -11,6 +11,7 @@ on:
       - "mesoscale/tests/test_sharppy_*.py"
       - "mesoscale/tests/test_browser_adjustments.py"
       - "mesoscale/tests/test_bufkit_feed.py"
+      - "mesoscale/tests/test_bufkit_archive.py"
       - "mesoscale/environment-sharppy.yml"
       - ".github/workflows/sharppy-validation.yml"
 
@@ -29,4 +30,4 @@ jobs:
         shell: micromamba-shell {0}
         run: |
           python -m compileall -q mesoscale
-          pytest -q mesoscale/tests/test_sharppy_adapter.py mesoscale/tests/test_sharppy_service.py mesoscale/tests/test_bufkit_feed.py mesoscale/tests/test_browser_adjustments.py
+          pytest -q mesoscale/tests/test_sharppy_adapter.py mesoscale/tests/test_sharppy_service.py mesoscale/tests/test_bufkit_feed.py mesoscale/tests/test_browser_adjustments.py mesoscale/tests/test_bufkit_archive.py
