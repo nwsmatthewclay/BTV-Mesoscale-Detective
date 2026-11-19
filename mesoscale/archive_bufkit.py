@@ -7,6 +7,7 @@ The archive is organized by model initialization cycle and station ID.
 from __future__ import annotations
 
 import argparse
+import gzip
 from datetime import datetime, timezone
 import json
 from pathlib import Path
@@ -117,17 +118,18 @@ def main() -> int:
                     raise ValueError(f"Requested {station}, file header says {file_station}")
                 cycle_key = cycle.replace("-", "").replace(":", "").replace("T", "_").replace("Z", "")
                 target_dir = ARCHIVE / model / cycle_key
-                target = target_dir / f"{station.lower()}.buf"
+                target = target_dir / f"{station.lower()}.buf.gz"
                 if not args.dry_run:
                     target_dir.mkdir(parents=True, exist_ok=True)
-                    temporary = target.with_suffix(".buf.tmp")
-                    temporary.write_bytes(content)
+                    temporary = target.with_name(target.name + ".tmp")
+                    with gzip.open(temporary, "wb", compresslevel=6) as compressed:
+                        compressed.write(content)
                     temporary.replace(target)
                     metadata = {
                         "model": model, "station": station.upper(),
                         "model_cycle_utc": cycle, "source_url": source_url,
                         "downloaded_at_utc": datetime.now(timezone.utc).isoformat(),
-                        "bytes": len(content), "forecast_hours": [r["forecast_hour"] for r in records],
+                        "bytes": target.stat().st_size, "source_bytes": len(content), "forecast_hours": [r["forecast_hour"] for r in records],
                         "valid_times_utc": [r["valid_time_utc"] for r in records],
                     }
                     target.with_suffix(".json").write_text(json.dumps(metadata, indent=2)+"\n", encoding="utf-8")
@@ -160,7 +162,7 @@ def main() -> int:
                 for meta_path in sorted(cycle_dir.glob("*.json")):
                     try:
                         meta = json.loads(meta_path.read_text(encoding="utf-8"))
-                        buf_path = meta_path.with_suffix(".buf")
+                        buf_path = meta_path.with_suffix(".buf.gz")
                         if buf_path.exists():
                             stations_in_cycle.append({
                                 "station": meta["station"], "file": str(buf_path.relative_to(ROOT / "data" / "bufkit")),
