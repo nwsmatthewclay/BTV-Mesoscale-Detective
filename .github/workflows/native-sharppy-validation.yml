@@ -9,6 +9,10 @@ on:
       - "mesoscale/bufkit_feed.py"
       - "mesoscale/tests/test_sharppy_*.py"
       - "mesoscale/tests/test_bufkit_feed.py"
+      - "workers/sounding-api/**"
+      - "Dockerfile.sharppy"
+      - "mesoscale/environment-sharppy-api.yml"
+      - "nsharp.html"
       - ".github/workflows/native-sharppy-validation.yml"
   pull_request:
     paths:
@@ -34,18 +38,35 @@ jobs:
             numpy<2
             sharppy=1.4.0
             pyside2
+            qtpy
             requests
             python-dateutil
             pytest
             fastapi
           cache-environment: true
+      - name: Install headless Qt display dependencies
+        run: sudo apt-get update && sudo apt-get install -y xvfb openbox
       - name: Check Worker JavaScript syntax
-        run: node --check native-sharppy/worker/src/index.js
+        run: |
+          node --check native-sharppy/worker/src/index.js
+          node --check workers/sounding-api/src/index.js
+          bash -n workers/sounding-api/start-sharppy-desktop.sh
       - name: Test archived BUFKIT Worker behavior
         run: node native-sharppy/worker/test-worker.mjs
       - name: Validate native SHARPpy data-source integration
         shell: micromamba-shell {0}
         run: python native-sharppy/test_native_config.py
+      - name: Smoke-test the official SHARPpy desktop launch
+        shell: micromamba-shell {0}
+        run: |
+          set +e
+          timeout 20s xvfb-run -a env QT_QPA_PLATFORM=xcb sharppy > /tmp/sharppy-gui.log 2>&1
+          code=$?
+          cat /tmp/sharppy-gui.log
+          if [ "$code" -ne 124 ]; then
+            echo "SHARPpy GUI exited before the smoke-test timeout (exit $code)."
+            exit 1
+          fi
       - name: Run actual SHARPpy adapter and service tests
         shell: micromamba-shell {0}
         run: python -m pytest -q mesoscale/tests/test_sharppy_adapter.py mesoscale/tests/test_sharppy_service.py mesoscale/tests/test_bufkit_feed.py
