@@ -62,6 +62,7 @@ main{max-width:1800px;margin:auto;padding:16px 20px 30px}.intro{display:flex;ali
 let stations=[], locationRegistry=[], manifest=null, sourceProfile=null, sourceRecord=null, modifiedResult=null, apiReady=false, bufkitProfiles=[], bufkitKey='', bufkitFeed=null;
 const $=id=>document.getElementById(id);
 const fmt=(v,d=0)=>Number.isFinite(Number(v))?Number(v).toFixed(d):'—';
+function formatForecastHour(value){const n=Number(value);return 'F'+(Number.isInteger(n)?String(n).padStart(2,'0'):n.toFixed(1));}
 function populateLocations(){
  const cwa=$('cwa').value, region=locationRegistry.find(x=>x.cwa===cwa), select=$('location');
  select.innerHTML='';stations=[];
@@ -82,7 +83,7 @@ async function loadLocations(){
 }
 function populateHours(){
  const select=$('forecastHour');select.innerHTML='';
- (String($('model').value)==='RAP_ARCHIVE'?(manifest?.hours||[]):bufkitProfiles).forEach(h=>{const o=document.createElement('option');o.value=String(h.forecast_hour);o.textContent='F'+String(h.forecast_hour).padStart(2,'0')+(h.valid_time_utc?' · '+h.valid_time_utc.replace('T',' ').slice(0,16)+'Z':'');select.appendChild(o);});
+ (String($('model').value)==='RAP_ARCHIVE'?(manifest?.hours||[]):bufkitProfiles).forEach(h=>{const o=document.createElement('option');o.value=String(h.forecast_hour);o.textContent=formatForecastHour(h.forecast_hour)+(h.valid_time_utc?' · '+h.valid_time_utc.replace('T',' ').slice(0,16)+'Z':'');select.appendChild(o);});
 }
 async function loadManifest(){
  const r=await fetch('./mesoscale/data/fields/forecast/forecast_manifest.json?ts='+Date.now(),{cache:'no-store'});
@@ -151,7 +152,7 @@ async function loadBufkitSelectedProfile(){
  $('cycleDetail').textContent='Initialized '+record.model_cycle_utc;
  const ageHours=(Date.now()-Date.parse(record.model_cycle_utc))/3600000;
  const ageText=Number.isFinite(ageHours)?' · cycle age '+Math.max(0,ageHours).toFixed(1)+' h':'';
- $('profileMeta').textContent=record.model+' BUFKIT · '+record.model_cycle_utc+' · '+record.station+' · F'+record.forecast_hour+' · valid '+record.valid_time_utc+' · '+record.quality.levels+' vertical levels · native SHARPpy BufDecoder · '+(bufkitFeed?.source_url||'Penn State BUFKIT')+' · retrieved '+(bufkitFeed?.download?.downloaded_at_utc||'cache')+'.';
+ $('profileMeta').textContent=record.model+' BUFKIT · '+record.model_cycle_utc+' · '+record.station+' · '+formatForecastHour(record.forecast_hour)+' · valid '+record.valid_time_utc+' · '+record.quality.levels+' vertical levels · native SHARPpy BufDecoder · '+(bufkitFeed?.source_url||'Penn State BUFKIT')+' · retrieved '+(bufkitFeed?.download?.downloaded_at_utc||'cache')+'.';
  $('dataStatus').textContent=record.model+' BUFKIT profile decoded · '+record.quality.levels+' levels · SHARPpy BufDecoder'+ageText;
  $('dataStatus').style.color=Number.isFinite(ageHours)&&ageHours>36?'var(--amber)':'var(--green)';
  render();
