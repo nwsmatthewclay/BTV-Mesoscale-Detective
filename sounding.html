@@ -112,7 +112,7 @@ async function loadArchiveProfile(){
  $('cycleDetail').textContent='Initialized '+record.model_cycle_utc;
  $('dataStatus').textContent='Verified RAP archive profile loaded · SHARPpy '+record.sharppy.diagnostics.library_version;
  $('dataStatus').style.color='var(--green)';
- $('profileMeta').textContent='RAP archive · '+record.model_cycle_utc+' · '+station+' · F'+String(hour).padStart(2,'0')+' · valid '+record.valid_time_utc+' · '+record.quality.levels+' vertical levels · source '+record.source_file+' · archived SHARPpy '+record.sharppy.diagnostics.library_version+'.';
+ $('profileMeta').textContent='RAP archive · '+record.model_cycle_utc+' · '+station+' · F'+String(hour).padStart(2,'0')+' · valid '+record.valid_time_utc+' · '+(record.sharppy?.diagnostics?.quality?.input_levels||record.profile.pressure_hpa.length)+' vertical levels · source '+record.source_file+' · archived SHARPpy '+record.sharppy.diagnostics.library_version+'.';
  render();
  // Refresh the full NSHARP-style diagnostic suite with the ConvectiveProfile
  // engine; retain the archived baseline if the API is not connected.
