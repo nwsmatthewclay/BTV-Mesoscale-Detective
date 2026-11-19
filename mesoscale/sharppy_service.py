@@ -90,7 +90,7 @@ def adjust_profile(profile: dict[str, Any], adjustments: dict[str, Any]) -> tupl
 
         theta = t[idx] * (1000.0 / p_layer) ** 0.2854
         mean_theta = float(np.sum(theta * weights))
-        mixing_ratio = mpcalc.mixing_ratio_from dewpoint(
+        mixing_ratio = mpcalc.mixing_ratio_from_dewpoint(
             p_layer * units.hPa, td[idx] * units.kelvin
         ).to("dimensionless").magnitude
         mean_ratio = float(np.sum(np.asarray(mixing_ratio) * weights))
