@@ -1,0 +1,8 @@
+{
+  "name": "btv-sharppy-bufkit-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node test-worker.mjs"
+  }
+}
