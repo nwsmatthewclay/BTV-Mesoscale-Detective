@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import gzip
+import hashlib
 from datetime import datetime, timezone
 import json
 from pathlib import Path
@@ -121,18 +122,29 @@ def main() -> int:
                 target = target_dir / f"{station.lower()}.buf.gz"
                 if not args.dry_run:
                     target_dir.mkdir(parents=True, exist_ok=True)
-                    temporary = target.with_name(target.name + ".tmp")
-                    with gzip.open(temporary, "wb", compresslevel=6) as compressed:
-                        compressed.write(content)
-                    temporary.replace(target)
-                    metadata = {
-                        "model": model, "station": station.upper(),
-                        "model_cycle_utc": cycle, "source_url": source_url,
-                        "downloaded_at_utc": datetime.now(timezone.utc).isoformat(),
-                        "bytes": target.stat().st_size, "source_bytes": len(content), "forecast_hours": [r["forecast_hour"] for r in records],
-                        "valid_times_utc": [r["valid_time_utc"] for r in records],
-                    }
-                    target.with_suffix(".json").write_text(json.dumps(metadata, indent=2)+"\n", encoding="utf-8")
+                    digest = hashlib.sha256(content).hexdigest()
+                    metadata_path = target.with_suffix(".json")
+                    previous = {}
+                    if metadata_path.exists():
+                        try:
+                            previous = json.loads(metadata_path.read_text(encoding="utf-8"))
+                        except (OSError, ValueError):
+                            previous = {}
+                    if not target.exists() or previous.get("sha256") != digest:
+                        temporary = target.with_name(target.name + ".tmp")
+                        with gzip.open(temporary, "wb", compresslevel=6) as compressed:
+                            compressed.write(content)
+                        temporary.replace(target)
+                        metadata = {
+                            "model": model, "station": station.upper(),
+                            "model_cycle_utc": cycle, "source_url": source_url,
+                            "downloaded_at_utc": datetime.now(timezone.utc).isoformat(),
+                            "sha256": digest,
+                            "bytes": target.stat().st_size, "source_bytes": len(content),
+                            "forecast_hours": [r["forecast_hour"] for r in records],
+                            "valid_times_utc": [r["valid_time_utc"] for r in records],
+                        }
+                        metadata_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
                 cycles_seen.add(cycle)
                 successes.append({"station":station.upper(),"cycle":cycle,"bytes":len(content),"forecast_hours":len(records)})
             except Exception as exc:
@@ -152,7 +164,7 @@ def main() -> int:
         manifest_path.parent.mkdir(parents=True, exist_ok=True)
         manifest_path.write_text(json.dumps(summary, indent=2)+"\n", encoding="utf-8")
     # Publish a compact index of every retained model cycle and station file.
-    catalog = {"schema_version": 1, "updated_at_utc": summary["created_at_utc"], "provider": BASE, "retention_cycles": config["retention_cycles"], "models": {}}
+    catalog = {"schema_version": 1, "provider": BASE, "retention_cycles": config["retention_cycles"], "models": {}}
     for model in config["models"]:
         model_dir = ARCHIVE / model
         entries = []
@@ -174,6 +186,10 @@ def main() -> int:
                 if stations_in_cycle:
                     entries.append({"cycle_key": cycle_dir.name, "model_cycle_utc": json.loads((cycle_dir / (stations_in_cycle[0]["station"].lower()+".json")).read_text(encoding="utf-8"))["model_cycle_utc"], "stations": stations_in_cycle})
         catalog["models"][model] = entries
+    catalog["updated_at_utc"] = max(
+        (entry["model_cycle_utc"] for cycles in catalog["models"].values() for entry in cycles),
+        default=None,
+    )
     catalog_path = ROOT / "data" / "bufkit" / "catalog.json"
     catalog_path.write_text(json.dumps(catalog, indent=2)+"\\n", encoding="utf-8")
     print(json.dumps({m:{k:v for k,v in d.items() if k not in ("successes","failures")} for m,d in summary["models"].items()},indent=2))
