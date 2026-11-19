@@ -25,5 +25,8 @@ with zipfile.ZipFile(OUT, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9
             target.writestr(name, b"")
         else:
             target.writestr(name, source.read(name))
+    license_name = next((name for name in source.namelist() if name.endswith("/LICENSE.rst")), None)
+    if license_name:
+        target.writestr("SHARPpy-1.4.0/LICENSE.rst", source.read(license_name))
 
 print(f"Created {OUT} ({OUT.stat().st_size:,} bytes) from {len(matches)} package entries")
