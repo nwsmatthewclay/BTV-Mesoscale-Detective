@@ -1,16 +1,27 @@
 # syntax=docker/dockerfile:1
 FROM --platform=linux/amd64 mambaorg/micromamba:1.5.8
 
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      xvfb x11vnc openbox novnc websockify dbus-x11 xauth \
+      libxcb-xinerama0 libxkbcommon-x11-0 libegl1 libgl1 libdbus-1-3 \
+      fonts-dejavu-core ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 COPY mesoscale/environment-sharppy-api.yml /tmp/environment-sharppy-api.yml
 RUN micromamba create -y -n btv-sharppy-api -f /tmp/environment-sharppy-api.yml \
     && micromamba clean --all --yes
 
-COPY mesoscale/sharppy_adapter.py mesoscale/sharppy_service.py mesoscale/bufkit_feed.py mesoscale/browser_adjustments.py /app/mesoscale/
-RUN mkdir -p /tmp/bufkit-cache && chmod 777 /tmp/bufkit-cache
+COPY --chown=$MAMBA_USER:$MAMBA_USER mesoscale/sharppy_adapter.py mesoscale/sharppy_service.py mesoscale/bufkit_feed.py mesoscale/browser_adjustments.py /app/mesoscale/
+COPY --chown=$MAMBA_USER:$MAMBA_USER workers/sounding-api/start-sharppy-desktop.sh /app/start-sharppy-desktop.sh
+RUN chmod 755 /app/start-sharppy-desktop.sh && mkdir -p /tmp/bufkit-cache && chmod 777 /tmp/bufkit-cache
 
+USER $MAMBA_USER
 ENV BUFKIT_CACHE_DIR=/tmp/bufkit-cache
 ENV BUFKIT_CACHE_TTL_SECONDS=300
-EXPOSE 8000
+ENV DISPLAY=:99
+ENV QT_QPA_PLATFORM=xcb
+EXPOSE 8000 6080
 
-CMD ["micromamba", "run", "-n", "btv-sharppy-api", "uvicorn", "mesoscale.sharppy_service:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["/app/start-sharppy-desktop.sh"]
