@@ -1,0 +1,26 @@
+icao,iata,synop,name,state,country,lat,lon,elev,priority,srcid
+KBTV,BTV,72617,Burlington Intl,VT,US,44.48,-73.15,105,1,kbtv
+KPBG,PBG,,Plattsburgh Intl,NY,US,44.651,-73.468,72,1,kpbg
+KMPV,MPV,,Montpelier/Knapp,VT,US,44.21,-72.57,343,1,kmpv
+KEFK,EFK,,Newport State,VT,US,44.89,-72.23,232,1,kefk
+KRUT,RUT,,Rutland,VT,US,43.54,-72.95,240,1,rut
+KMSS,MSS,,Massena/Richards,NY,US,44.94,-74.85,66,1,kmss
+KSLK,SLK,,Saranac Lake/Adirondack Regnl,NY,US,44.39,-74.21,498,1,kslk
+KMVL,MVL,,Morrisville,VT,US,44.53,-72.61,234,1,kmvl
+KVSF,VSF,,Springfield St,VT,US,43.34,-72.52,175,1,vsf
+KOGS,OGS,,Ogdensburg,NY,US,44.69,-75.40,91,1,ogs
+KJAY,JAY,,Jay Peak,VT,US,44.97,-72.56,355,1,jayv
+KALB,ALB,72518,Albany County,NY,US,42.76,-73.80,92,1,kalb
+KBGR,BGR,72607,Bangor Intl,ME,US,44.81,-68.83,57,1,kbgr
+KBHB,BHB,,Bar Harbor,ME,US,44.46,-68.37,26,1,kbhb
+KCAR,CAR,72712,Caribou,ME,US,46.88,-68.02,191,1,kcar
+KFVE,FVE,,Frenchville,ME,US,47.29,-68.32,301,1,kfve
+KGFL,GFL,,Glens Falls,NY,US,43.36,-73.62,103,1,kgfl
+KHUL,HUL,,Houlton,ME,US,46.14,-67.78,150,1,khul
+KLEB,LEB,72611,Lebanon Muni,NH,US,43.63,-72.30,171,1,kleb
+KPOU,POU,,Poughkeepsie,NY,US,41.64,-73.88,46,1,kpou
+KPQI,PQI,72713,Presque Isle,ME,US,46.69,-68.05,146,1,kpqi
+KPSF,PSF,,Pittsfield Muni,MA,US,42.43,-73.29,355,1,kpsf
+K1V4,1V4,72614,St. Johnsbury,VT,US,44.42,-72.02,210,1,1v4
+CWTA,WTA,71612,McTavish,QC,CA,45.46,-73.61,29,1,mcgl
+KGTB,GTB,74370,Fort Drum/Wheeler,NY,US,44.05,-75.74,207,1,gtb
