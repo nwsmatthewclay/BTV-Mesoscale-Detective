@@ -26,8 +26,10 @@ try:
         )
         initial = page.locator("#runtimeStatus").inner_text()
         print("ARCHIVE:", initial)
-        if "Verified" not in initial and "Ready" not in initial:
-            raise RuntimeError("Verified RAP profile did not load: " + initial)
+        if "BUFKIT archive catalog loaded" not in initial:
+            raise RuntimeError("BUFKIT archive catalog did not load: " + initial)
+        page.locator("#model").select_option("RRFS")
+        page.locator("#station").select_option("KBTV")
         page.locator("#initEngine").click()
         page.wait_for_function(
             "() => { const s=document.querySelector('#runtimeStatus'); return s.dataset.state==='error' || s.innerText.includes('ConvectiveProfile passed'); }",
@@ -36,7 +38,11 @@ try:
         engine_status = page.locator("#runtimeStatus").inner_text()
         print("ENGINE:", engine_status)
         if "ConvectiveProfile passed" not in engine_status:
-            raise RuntimeError("Browser SHARPpy did not pass its baseline: " + engine_status)
+            raise RuntimeError("Browser SHARPpy did not decode and diagnose archived BUFKIT: " + engine_status)
+        profile_meta = page.locator("#profileMeta").inner_text()
+        print("DECODED PROFILE:", profile_meta)
+        if "RRFS BUFKIT" not in profile_meta or "SHARPpy BufDecoder" not in profile_meta:
+            raise RuntimeError("Profile did not come from archived RRFS BUFKIT: " + profile_meta)
         page.locator("#temp").evaluate("(el) => { el.value='2'; el.dispatchEvent(new Event('input',{bubbles:true})); }")
         page.wait_for_function(
             "() => document.querySelector('#calcStatus').innerText.includes('SHARPpy recalculated') || document.querySelector('#runtimeStatus').dataset.state==='error'",
