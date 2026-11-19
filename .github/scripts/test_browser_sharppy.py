@@ -83,6 +83,23 @@ try:
         if archive.locator("#station option").count() != 32:
             raise RuntimeError("Expected all 32 BUFKIT stations in RRFS archive")
         print("BUFKIT ARCHIVE SMOKE TEST PASSED: four models, 32 RRFS stations")
+        nsharp = browser.new_page(viewport={"width": 1600, "height": 1000})
+        nsharp.on("pageerror", lambda error: print("NSHARP PAGE ERROR:", error))
+        nsharp.goto(f"http://127.0.0.1:{PORT}/nsharp-web.html", wait_until="domcontentloaded", timeout=60000)
+        nsharp.wait_for_function(
+            "() => ['ready','error'].includes(document.querySelector('#runtimeStatus').dataset.state)",
+            timeout=300000,
+        )
+        nsharp_status = nsharp.locator("#runtimeStatus").inner_text()
+        print("NSHARP WEB:", nsharp_status)
+        if "ConvectiveProfile passed" not in nsharp_status:
+            raise RuntimeError("NSHARP web page did not initialize the actual SHARPpy engine: " + nsharp_status)
+        for panel in ("skewt", "hodo", "parcelTable", "thermoTable", "kinTable", "severeTable"):
+            if nsharp.locator("#" + panel).count() != 1:
+                raise RuntimeError("NSHARP panel missing: " + panel)
+        if nsharp.locator("#skewt .js-plotly-plot").count() != 1 or nsharp.locator("#hodo .js-plotly-plot").count() != 1:
+            raise RuntimeError("NSHARP Skew-T or hodograph did not render")
+        print("NSHARP WEB SMOKE TEST PASSED: actual SHARPpy, Skew-T, hodograph, and diagnostic panels")
         browser.close()
 finally:
     server.terminate()
