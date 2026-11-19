@@ -41,6 +41,7 @@ main{max-width:1800px;margin:auto;padding:16px 20px 30px}.intro{display:flex;ali
    <div class="adjustments">
     <div class="control"><div class="controltop"><label for="tempOffset">Low-level temperature offset</label><output id="tempOut">0°C</output></div><input id="tempOffset" type="range" min="-8" max="8" step=".5" value="0"><div class="rangeends"><span>−8°C</span><span>0</span><span>+8°C</span></div></div>
     <div class="control"><div class="controltop"><label for="dewOffset">Low-level dewpoint offset</label><output id="dewOut">0°C</output></div><input id="dewOffset" type="range" min="-8" max="8" step=".5" value="0"><div class="rangeends"><span>−8°C</span><span>0</span><span>+8°C</span></div></div>
+    <div class="control"><div class="controltop"><label for="offsetDepth">Thermodynamic adjustment depth</label><output id="offsetDepthOut">1000 m</output></div><input id="offsetDepth" type="range" min="0" max="3000" step="100" value="1000"><div class="rangeends"><span>Off</span><span>1.5 km</span><span>3 km AGL</span></div></div>
     <div class="control"><div class="controltop"><label for="mixDepth">Boundary-layer mixing depth</label><output id="mixOut">0 m</output></div><input id="mixDepth" type="range" min="0" max="3000" step="100" value="0"><div class="rangeends"><span>Off</span><span>1.5 km</span><span>3 km AGL</span></div></div>
     <div class="explain"><b>Mixing experiment:</b> within the selected depth, the service mixes potential temperature, water-vapor mixing ratio and horizontal momentum using pressure-layer mass weighting. This can transport stronger winds toward the surface. It is an idealized sensitivity experiment, not a forecast model PBL scheme.</div>
     <div class="actions"><button class="btn primary" id="apply">Apply adjustments · recalculate SHARPpy</button><button class="btn" id="reset">Reset</button></div>
@@ -63,7 +64,6 @@ const stations = [
  {id:'KMPV',name:'Montpelier',region:'Vermont'},
  {id:'KRUT',name:'Rutland',region:'Vermont'},
  {id:'KEFK',name:'Newport',region:'Vermont'},
- {id:'KVSF',name:'Springfield',region:'Vermont'},
  {id:'1V4',name:'St. Johnsbury',region:'Vermont'},
  {id:'KPBG',name:'Plattsburgh',region:'Northern New York'},
  {id:'KMSS',name:'Massena',region:'Northern New York'},
@@ -151,7 +151,7 @@ function buildDiagnostics(){
  $('diagStatus').textContent=mod?'Modified results recalculated by SHARPpy '+(mod.library_version||'')+'. Source profile remains unchanged.':'Original parcel, Bunkers, shear and SRH diagnostics are from SHARPpy '+orig.library_version+'. Apply adjustments to request a new SHARPpy calculation.';
 }
 function render(){plotSkew();plotHodo();buildDiagnostics();}
-function updateOutputs(){$('tempOut').textContent=Number($('tempOffset').value)>0?'+':''+$('tempOffset').value+'°C';$('dewOut').textContent=Number($('dewOffset').value)>0?'+':''+$('dewOffset').value+'°C';$('mixOut').textContent=$('mixDepth').value+' m';}
+function updateOutputs(){$('offsetDepthOut').textContent=$('offsetDepth').value+' m';$('tempOut').textContent=Number($('tempOffset').value)>0?'+':''+$('tempOffset').value+'°C';$('dewOut').textContent=Number($('dewOffset').value)>0?'+':''+$('dewOffset').value+'°C';$('mixOut').textContent=$('mixDepth').value+' m';}
 async function checkApi(){
  const base=$('apiBase').value.trim().replace(/\/$/,'');
  try{const r=await fetch(base+'/health');if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();if(j.engine!=='SHARPpy')throw new Error('Endpoint did not identify SHARPpy');apiReady=true;$('apiStatus').textContent='Connected · SHARPpy '+j.version+' · ready to recalculate adjusted profiles.';$('apiStatus').style.color='var(--green)';}
@@ -160,7 +160,7 @@ async function checkApi(){
 async function applyAdjustments(){
  if(!sourceRecord)return;
  const base=$('apiBase').value.trim().replace(/\/$/,'');
- const adjustments={temperature_offset_c:Number($('tempOffset').value),dewpoint_offset_c:Number($('dewOffset').value),mixing_depth_m:Number($('mixDepth').value)};
+ const adjustments={temperature_offset_c:Number($('tempOffset').value),dewpoint_offset_c:Number($('dewOffset').value),low_level_depth_m:Number($('offsetDepth').value),mixing_depth_m:Number($('mixDepth').value)};
  if(!adjustments.temperature_offset_c&&!adjustments.dewpoint_offset_c&&!adjustments.mixing_depth_m){modifiedResult=null;render();$('apiStatus').textContent='No modifications active · showing original model profile.';return;}
  $('apply').disabled=true;$('apply').textContent='Calculating with SHARPpy…';
  try{
@@ -171,8 +171,8 @@ async function applyAdjustments(){
  }catch(e){modifiedResult=null;render();$('apiStatus').textContent='Adjustment calculation failed: '+e.message+'. Original sounding is still displayed; no substitute calculation was used.';$('apiStatus').style.color='var(--amber)';}
  finally{$('apply').disabled=false;$('apply').textContent='Apply adjustments · recalculate SHARPpy';}
 }
-function reset(){['tempOffset','dewOffset','mixDepth'].forEach(id=>$(id).value=0);updateOutputs();modifiedResult=null;render();$('apiStatus').textContent='Adjustments reset. Original model profile and original SHARPpy diagnostics restored.';$('apiStatus').style.color='var(--muted)';}
-$('tempOffset').addEventListener('input',updateOutputs);$('dewOffset').addEventListener('input',updateOutputs);$('mixDepth').addEventListener('input',updateOutputs);
+function reset(){$('tempOffset').value=0;$('dewOffset').value=0;$('offsetDepth').value=1000;$('mixDepth').value=0;updateOutputs();modifiedResult=null;render();$('apiStatus').textContent='Adjustments reset. Original model profile and original SHARPpy diagnostics restored.';$('apiStatus').style.color='var(--muted)';}
+$('tempOffset').addEventListener('input',updateOutputs);$('dewOffset').addEventListener('input',updateOutputs);$('offsetDepth').addEventListener('input',updateOutputs);$('mixDepth').addEventListener('input',updateOutputs);
 $('apply').addEventListener('click',applyAdjustments);$('reset').addEventListener('click',reset);$('checkApi').addEventListener('click',checkApi);
 $('location').addEventListener('change',()=>loadProfile().catch(e=>$('dataStatus').textContent='Profile unavailable: '+e.message));
 $('forecastHour').addEventListener('change',()=>loadProfile().catch(e=>$('dataStatus').textContent='Profile unavailable: '+e.message));
