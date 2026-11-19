@@ -114,7 +114,7 @@ async function loadProfile(){
   const text=await decompressGzip(await response.arrayBuffer());
   if(!text.includes("STID")||text.length<1000)throw new Error("Downloaded archive file is not valid BUFKIT text");
   pyodide.FS.writeFile("/tmp/selected.buf",text);
-  const code="import json\\n_decoded=decode_bufkit_file('/tmp/selected.buf',"+pyString(station)+","+pyString(selectedCycle.model_cycle_utc)+","+pyString(model)+")\\njson.dumps(_decoded,allow_nan=False)";
+  const code="import json\n_decoded=decode_bufkit_file('/tmp/selected.buf',"+JSON.stringify(station)+","+JSON.stringify(selectedCycle.model_cycle_utc)+","+JSON.stringify(model)+")\njson.dumps(_decoded,allow_nan=False)";
   decoded=JSON.parse(await pyodide.runPythonAsync(code));
   decodedCache.set(cacheKey,decoded);
   log("SHARPpy BufDecoder decoded "+decoded.profiles.length+" forecast times for "+station+".");
