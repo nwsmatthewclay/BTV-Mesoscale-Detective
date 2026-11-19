@@ -193,8 +193,10 @@ def fetch_and_parse_bufkit(model: str, station: str, cache_dir: str | Path | Non
             collection.advanceTime(1)
         current = collection.getCurrentProfs()
         member = collection.getHighlightedMemberName()
+        if member not in current and len(current) == 1:
+            member = next(iter(current))
         if member not in current:
-            raise ValueError(f"SHARPpy BUFKIT decoder did not return profile {index}")
+            raise ValueError(f"SHARPpy BUFKIT decoder did not return a selectable profile at time index {index}")
         profile = current[member]
         if header["station_id"] not in (station.upper(), " "):
             raise ValueError(
