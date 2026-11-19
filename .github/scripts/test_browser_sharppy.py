@@ -26,8 +26,8 @@ try:
         )
         initial = page.locator("#runtimeStatus").inner_text()
         print("ARCHIVE:", initial)
-        if "BUFKIT archive catalog loaded" not in initial:
-            raise RuntimeError("BUFKIT archive catalog did not load: " + initial)
+        if "ConvectiveProfile passed" not in initial:
+            raise RuntimeError("Browser SHARPpy did not automatically initialize: " + initial)
         page.locator("#model").select_option("RRFS")
         page.locator("#station").select_option("KBTV")
         page.locator("#initEngine").click()
