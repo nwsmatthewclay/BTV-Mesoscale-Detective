@@ -31,6 +31,7 @@ jobs:
           environment-name: sharppy-ci
           create-args: >-
             python=3.10
+            numpy<2
             sharppy=1.4.0
             pyside2
             requests
