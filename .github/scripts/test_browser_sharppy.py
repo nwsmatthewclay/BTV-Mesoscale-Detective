@@ -52,7 +52,15 @@ try:
         print("MODIFIED:", modified_status)
         if "SHARPpy recalculated" not in modified_status:
             raise RuntimeError("Modified profile was not recalculated: " + modified_status)
-        print("BROWSER SHARPpy SMOKE TEST PASSED")
+        for model in ("GFS", "RAP", "HRRR", "RRFS"):
+            page.locator("#model").select_option(model)
+            page.wait_for_function(
+                "(m) => document.querySelector('#profileMeta').innerText.includes(m + ' BUFKIT') && document.querySelector('#runtimeStatus').innerText.includes('ConvectiveProfile passed')",
+                arg=model,
+                timeout=120000,
+            )
+            print("MODEL SHARPpy PASSED:", model, page.locator("#profileMeta").inner_text())
+        print("BROWSER SHARPpy SMOKE TEST PASSED: all four BUFKIT models decoded and diagnosed")
         archive = browser.new_page()
         archive.goto(f"http://127.0.0.1:{PORT}/bufkit-archive.html", wait_until="domcontentloaded", timeout=60000)
         archive.wait_for_function(
