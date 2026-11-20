@@ -2,7 +2,13 @@ from pathlib import Path
 import gzip
 import tempfile
 
-from portable_sharppy.bufkit_archive import parse_headers, scan_archive
+import importlib.util
+
+module_path = Path(__file__).resolve().parents[1] / "bufkit_archive.py"
+spec = importlib.util.spec_from_file_location("bufkit_archive", module_path)
+bufkit_archive = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(bufkit_archive)
+parse_headers, scan_archive = bufkit_archive.parse_headers, bufkit_archive.scan_archive
 
 SAMPLE = """STID = KBTV
 TIME = 261120/1200
