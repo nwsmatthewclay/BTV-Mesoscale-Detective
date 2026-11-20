@@ -88,7 +88,7 @@ def main() -> int:
     full_gui.Main._Main__initUI = branded_init_ui
     import importlib
     spc_module = importlib.import_module("sharppy.viz.SPCWindow")
-    original_spc_ui = spc_module.SPCWindow.__initUI
+    original_spc_ui = spc_module.SPCWindow._SPCWindow__initUI
     def branded_analysis_ui(self, **kwargs):
         original_spc_ui(self, **kwargs)
         self.setWindowTitle("BTV NSHARP  |  SOUNDING ANALYSIS")
@@ -97,7 +97,7 @@ def main() -> int:
             if action.text().strip().lower() == "profiles":
                 action.setVisible(False)
         self.statusBar().showMessage("BTV NSHARP · SHARPpy diagnostics · sounding workstation")
-    spc_module.SPCWindow.__initUI = branded_analysis_ui
+    spc_module.SPCWindow._SPCWindow__initUI = branded_analysis_ui
     full_gui.main()
     return 0
 
