@@ -23,6 +23,10 @@ def configure_btv_qt():
     from qtpy.QtWidgets import QApplication
     from qtpy.QtGui import QPalette, QColor, QFont
     from qtpy.QtCore import Qt
+    # Qt application attributes must be configured before QApplication exists.
+    if QApplication.instance() is None:
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+        QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     app = QApplication.instance() or QApplication([])
     app.setApplicationName("BTV NSHARP")
     app.setApplicationDisplayName("BTV NSHARP · Mesoscale Detective")
@@ -107,6 +111,36 @@ def main() -> int:
                 action.setVisible(False)
         self.statusBar().showMessage("BTV NSHARP · SHARPpy diagnostics · sounding workstation")
     spc_module.SPCWindow._SPCWindow__initUI = branded_analysis_ui
+    # Operational picker behavior: always request forecast hour 0. Hide the
+    # forecast-hour list because it is not a user-selectable dimension here.
+    original_complete_name = full_gui.Picker.complete_name
+    def load_f000(self):
+        if self.loc is None:
+            return
+        try:
+            fcst_hours = self.data_sources[self.model].getForecastHours()
+            if not fcst_hours:
+                raise RuntimeError("No forecast hours are available for the selected source.")
+            self.prof_idx = [fcst_hours.index(0)] if 0 in fcst_hours else [0]
+            self.skewApp(ntry=0)
+        except Exception as exc:
+            import logging
+            from qtpy.QtWidgets import QMessageBox
+            logging.exception("Sounding load failed for model=%s location=%s", self.model, self.loc)
+            QMessageBox.critical(self, "Sounding Retrieval Failed",
+                "Unable to retrieve or decode the F000 sounding.\\n\\n"
+                + str(exc) + "\\n\\nSee ~/.sharppy/sharppy.log for details.")
+    full_gui.Picker.complete_name = load_f000
+
+    # Keep the forecast-hour widget out of the selection workflow.
+    def f000_only_update_list(self):
+        self.profile_list.clear()
+        self.profile_list.setDisabled(True)
+        self.all_profs.setDisabled(True)
+        self.date_label.setDisabled(True)
+        self.select_flag = False
+    full_gui.Picker.update_list = f000_only_update_list
+
     full_gui.main()
     return 0
 
