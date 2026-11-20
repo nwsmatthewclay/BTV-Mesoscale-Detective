@@ -1,4 +1,4 @@
-"""Portable launcher for the official SHARPpy desktop application."""
+"""Portable BTV-branded SHARPpy launcher (native Qt styling)."""
 from __future__ import annotations
 import os, shutil, sys
 from pathlib import Path
@@ -18,10 +18,66 @@ def install_btv_data_sources() -> None:
             raise FileNotFoundError(f"Bundled BTV data-source file is missing: {src}")
         shutil.copy2(src, destination / name)
 
+def configure_btv_qt() -> None:
+    os.environ.setdefault("QT_API", "pyside2")
+    from qtpy.QtWidgets import QApplication
+    from qtpy.QtGui import QPalette, QColor, QFont
+    from qtpy.QtCore import Qt
+    app = QApplication.instance() or QApplication([])
+    app.setApplicationName("BTV NSHARP")
+    app.setApplicationDisplayName("BTV NSHARP · Mesoscale Detective")
+    app.setStyle("Fusion")
+    palette = QPalette()
+    palette.setColor(QPalette.Window, QColor("#080d12"))
+    palette.setColor(QPalette.WindowText, QColor("#e6edf5"))
+    palette.setColor(QPalette.Base, QColor("#05090d"))
+    palette.setColor(QPalette.AlternateBase, QColor("#101820"))
+    palette.setColor(QPalette.ToolTipBase, QColor("#101820"))
+    palette.setColor(QPalette.ToolTipText, QColor("#e6edf5"))
+    palette.setColor(QPalette.Text, QColor("#e6edf5"))
+    palette.setColor(QPalette.Button, QColor("#13202b"))
+    palette.setColor(QPalette.ButtonText, QColor("#e6edf5"))
+    palette.setColor(QPalette.Highlight, QColor("#087c91"))
+    palette.setColor(QPalette.HighlightedText, QColor("#ffffff"))
+    palette.setColor(QPalette.Disabled, QPalette.Text, QColor("#6b7885"))
+    app.setPalette(palette)
+    app.setFont(QFont("Segoe UI", 9))
+    app.setStyleSheet("""
+        QMainWindow, QWidget { background:#080d12; color:#e6edf5; }
+        QMenuBar { background:#071018; border-bottom:1px solid #344858; }
+        QMenuBar::item { padding:5px 9px; }
+        QMenu { background:#101a23; border:1px solid #3d596a; }
+        QMenu::item:selected { background:#126d80; }
+        QToolBar { background:#071018; border-bottom:1px solid #304654; spacing:5px; }
+        QToolButton, QPushButton { background:#13202b; color:#e6edf5; border:1px solid #3d596a; padding:4px 7px; }
+        QToolButton:hover, QPushButton:hover { border-color:#45d5ee; background:#193140; }
+        QComboBox, QLineEdit, QSpinBox, QDoubleSpinBox { background:#05090d; color:#e6edf5; border:1px solid #3d596a; padding:3px; }
+        QComboBox QAbstractItemView { background:#101a23; color:#e6edf5; selection-background-color:#126d80; }
+        QTabWidget::pane { border:1px solid #3d596a; }
+        QTabBar::tab { background:#101a23; color:#9fb5c5; padding:5px 9px; border:1px solid #334856; }
+        QTabBar::tab:selected { color:#45d5ee; background:#132733; }
+        QTableView, QTableWidget, QTreeView, QListView { background:#05090d; alternate-background-color:#101820; gridline-color:#2b3b49; }
+        QHeaderView::section { background:#101a23; color:#9fb5c5; border:1px solid #2b3b49; padding:3px; }
+        QGroupBox { border:1px solid #3d596a; margin-top:8px; padding-top:5px; }
+        QGroupBox::title { color:#45d5ee; subcontrol-origin:margin; left:7px; }
+        QStatusBar { background:#071018; border-top:1px solid #344858; }
+        QScrollBar:vertical { background:#080d12; width:12px; }
+        QScrollBar::handle:vertical { background:#314b5d; min-height:20px; }
+    """)
+    return app
+
 def main() -> int:
     install_btv_data_sources()
-    from runsharp.full_gui import main as sharppy_main
-    sharppy_main()
+    app = configure_btv_qt()
+    import runsharp.full_gui as full_gui
+    # Keep the upstream SHARPpy workflow/calculation windows, but brand the
+    # launcher window so this portable build is recognizable as BTV NSHARP.
+    original_init_ui = full_gui.Main.__initUI
+    def branded_init_ui(self):
+        original_init_ui(self)
+        self.setWindowTitle("BTV NSHARP · Sounding Workstation")
+    full_gui.Main.__initUI = branded_init_ui
+    full_gui.main()
     return 0
 
 if __name__ == "__main__":
