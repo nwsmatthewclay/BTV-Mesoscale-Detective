@@ -14,7 +14,6 @@ on:
       - "mesoscale/sounding_locations.json"
       - "mesoscale/bufkit_sites.json"
       - "mesoscale/sharppy_api_config.json"
-      - ".github/workflows/deploy_pages.yml"
       # Only browser entry points and published model data affect this site.
       # Backend diagnostics/ingestion code is not a Pages asset.
       - "mesoscale/data/**"
