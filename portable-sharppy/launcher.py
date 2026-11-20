@@ -81,11 +81,11 @@ def main() -> int:
     install_btv_data_sources()
     app = configure_btv_qt()
     import runsharp.full_gui as full_gui
-    original_init_ui = full_gui.Main.__initUI
+    original_init_ui = full_gui.Main._Main__initUI
     def branded_init_ui(self):
         original_init_ui(self)
         self.setWindowTitle("BTV NSHARP · Sounding Workstation")
-    full_gui.Main.__initUI = branded_init_ui
+    full_gui.Main._Main__initUI = branded_init_ui
     import importlib
     spc_module = importlib.import_module("sharppy.viz.SPCWindow")
     original_spc_ui = spc_module.SPCWindow.__initUI
