@@ -1,0 +1,9 @@
+icao,iata,synop,name,state,country,lat,lon,elev,priority,srcid
+KBTV,BTV,72617,Burlington Intl,VT,US,44.48,-73.15,105,1,BTV
+KALB,ALB,72518,Albany County,NY,US,42.76,-73.80,92,1,ALB
+KBUF,BUF,72528,Buffalo,NY,US,42.94,-78.73,211,1,BUF
+KCAR,CAR,72712,Caribou,ME,US,46.88,-68.02,191,1,CAR
+KGYX,GYX,74389,Gray,ME,US,43.90,-70.25,125,1,GYX
+KPIT,PIT,72520,Pittsburgh,PA,US,40.51,-80.22,357,1,PIT
+KIAD,IAD,72403,Washington Dulles,VA,US,38.96,-77.45,93,1,IAD
+KCHH,CHH,74494,Chatham,MA,US,41.68,-69.97,16,1,CHH
