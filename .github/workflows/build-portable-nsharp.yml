@@ -53,8 +53,6 @@ jobs:
           Copy-Item portable-sharppy/START_SHARPpy.bat $package/START_SHARPpy.bat
           Copy-Item portable-sharppy/README.md $package/README.txt
           Copy-Item native-sharppy $package/native-sharppy -Recurse -Force
-          & "$runtime/python.exe" $package/launcher.py --smoke-test
-          if ($LASTEXITCODE -ne 0) { throw "Relocated runtime smoke test failed" }
           & "$runtime/Scripts/conda-unpack.exe"
           if ($LASTEXITCODE -ne 0) { throw "conda-unpack failed" }
           & "$runtime/python.exe" $package/launcher.py --smoke-test
