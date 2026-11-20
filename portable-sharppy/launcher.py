@@ -18,7 +18,7 @@ def install_btv_data_sources() -> None:
             raise FileNotFoundError(f"Bundled BTV data-source file is missing: {src}")
         shutil.copy2(src, destination / name)
 
-def configure_btv_qt() -> None:
+def configure_btv_qt():
     os.environ.setdefault("QT_API", "pyside2")
     from qtpy.QtWidgets import QApplication
     from qtpy.QtGui import QPalette, QColor, QFont
@@ -66,18 +66,26 @@ def configure_btv_qt() -> None:
     """)
     return app
 
+def smoke_test() -> int:
+    # This is run against the frozen executable in CI to catch missing DLLs.
+    import numpy
+    import sharppy
+    import runsharp.full_gui
+    from PySide2 import QtCore
+    print(f"Frozen import smoke test OK: NumPy {numpy.__version__}; Qt {QtCore.__version__}")
+    return 0
+
 def main() -> int:
+    if "--smoke-test" in sys.argv:
+        return smoke_test()
     install_btv_data_sources()
     app = configure_btv_qt()
     import runsharp.full_gui as full_gui
-    # Keep the upstream SHARPpy workflow/calculation windows, but brand the
-    # launcher window so this portable build is recognizable as BTV NSHARP.
     original_init_ui = full_gui.Main.__initUI
     def branded_init_ui(self):
         original_init_ui(self)
         self.setWindowTitle("BTV NSHARP · Sounding Workstation")
     full_gui.Main.__initUI = branded_init_ui
-    # Brand and streamline the analysis window without replacing SHARPpy's engine.
     import importlib
     spc_module = importlib.import_module("sharppy.viz.SPCWindow")
     original_spc_ui = spc_module.SPCWindow.__initUI
