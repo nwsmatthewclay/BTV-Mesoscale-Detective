@@ -48,10 +48,15 @@ def parse_headers(text: str) -> list[dict[str, Any]]:
 def _model_from_path(path: Path) -> str:
     parts = [p.lower() for p in path.parts]
     filename = path.name.lower()
+    # Prefer the filename's model identifier over a parent folder: archives
+    # commonly group files by cycle while storing several model feeds together.
     for model, aliases in MODEL_ALIASES.items():
         for alias in aliases:
-            if filename.startswith(alias + "_") or filename.startswith(alias + ".") or alias in parts:
+            if filename.startswith(alias + "_") or filename.startswith(alias + "."):
                 return model
+    for model, aliases in MODEL_ALIASES.items():
+        if any(alias in parts for alias in aliases):
+            return model
     return "UNKNOWN"
 
 def iter_bufkit_files(root: Path) -> Iterable[Path]:
