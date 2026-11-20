@@ -25,4 +25,15 @@
       <points csv="btv_cwa.csv"/>
     </outlet>
   </datasource>
+  <!-- Required SHARPpy Observed source, narrowed to regional sounding stations. -->
+  <datasource name="Observed" ensemble="false" observed="true">
+    <outlet name="SPC" url="https://www.spc.noaa.gov/exper/soundings/{date}{cycle}_OBS/{srcid}.txt" format="spc">
+      <time first="0" range="0" delta="0" offset="0" delay="1" cycle="12" archive="168" start="-" end="-"/>
+      <points csv="btv_observed.csv"/>
+    </outlet>
+    <outlet name="SHARP" url="http://sharp.weather.ou.edu/soundings/archive/{year}/{month}/{day}/{cycle}/{srcid}.txt" format="spc">
+      <time first="0" range="0" delta="0" offset="0" delay="1" cycle="12" archive="168" start="1946/01/01" end="now"/>
+      <points csv="btv_observed.csv"/>
+    </outlet>
+  </datasource>
 </sourcelist>
