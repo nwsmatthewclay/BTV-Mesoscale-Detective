@@ -36,7 +36,7 @@ jobs:
       - name: Package portable Windows application with Conda DLLs
         shell: pwsh
         run: |
-          $argsList = @('--noconfirm','--clean','--windowed','--name','BTV-NSHARP','--distpath','dist','--workpath','build','--specpath','build','--collect-all','sharppy','--collect-all','runsharp','--collect-all','qtpy','--collect-all','PySide2','--exclude-module','PySide2.QtWebEngine','--exclude-module','PySide2.QtWebEngineCore','--exclude-module','PySide2.QtWebEngineWidgets','--collect-all','numpy','--collect-binaries','numpy','--collect-all','dateutil','--add-data',"${env:GITHUB_WORKSPACE}/native-sharppy;native-sharppy")
+          $argsList = @('--noconfirm','--clean','--windowed','--name','BTV-NSHARP','--distpath','dist','--workpath','build','--specpath','build','--collect-all','sharppy','--collect-all','runsharp','--collect-all','qtpy','--collect-all','PySide2','--exclude-module','PySide2.QtWebEngine','--exclude-module','PySide2.QtWebEngineCore','--exclude-module','PySide2.QtWebEngineWidgets','--collect-all','numpy','--collect-binaries','numpy','--collect-all','certifi','--collect-all','dateutil','--add-data',"${env:GITHUB_WORKSPACE}/native-sharppy;native-sharppy")
           # Conda NumPy depends on DLLs in Library/bin not always discovered by PyInstaller.
           $dllDirs = @("${env:CONDA_PREFIX}/Library/bin", "${env:CONDA_PREFIX}/Library/lib", "${env:CONDA_PREFIX}/Lib/site-packages/numpy.libs")
           foreach ($dir in $dllDirs) {
