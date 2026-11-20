@@ -12,7 +12,7 @@ def install_btv_data_sources() -> None:
     source = bundle_root() / "native-sharppy"
     destination = Path(os.environ.get("APPDATA", Path.home())) / ".sharppy" / "datasources"
     destination.mkdir(parents=True, exist_ok=True)
-    for name in ("btv_cwa_latest.xml", "btv_cwa.csv"):
+    for name in ("btv_cwa_latest.xml", "btv_cwa.csv", "btv_observed.csv"):
         src = source / name
         if not src.is_file():
             raise FileNotFoundError(f"Bundled BTV data-source file is missing: {src}")
