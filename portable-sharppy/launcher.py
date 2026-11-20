@@ -72,11 +72,13 @@ def smoke_test() -> int:
     import sharppy
     import runsharp.full_gui
     import sharppy.viz.SPCWindow as spc_module
+    import certifi
     from PySide2 import QtCore
     # Verify the private UI hooks used by the branding layer exist in this SHARPpy build.
     assert hasattr(runsharp.full_gui.Main, "_Main__initUI"), "SHARPpy Main UI hook missing"
     assert hasattr(spc_module.SPCWindow, "_SPCWindow__initUI"), "SHARPpy SPCWindow UI hook missing"
-    print(f"Frozen import/UI-hook smoke test OK: NumPy {numpy.__version__}; Qt {QtCore.__version__}")
+    assert os.path.isfile(certifi.where()), "Bundled CA certificate file missing"
+    print(f"Frozen import/UI-hook/certifi smoke test OK: NumPy {numpy.__version__}; Qt {QtCore.__version__}")
     return 0
 
 def main() -> int:
@@ -85,6 +87,9 @@ def main() -> int:
     install_btv_data_sources()
     app = configure_btv_qt()
     import runsharp.full_gui as full_gui
+    # SHARPpy's release checker is not operationally required and can crash a
+    # frozen app when TLS certificates or network access are unavailable.
+    full_gui.check_latest = lambda: (True, None)
     original_init_ui = full_gui.Main._Main__initUI
     def branded_init_ui(self):
         original_init_ui(self)
