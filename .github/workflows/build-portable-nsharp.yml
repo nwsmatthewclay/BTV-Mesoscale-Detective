@@ -13,7 +13,6 @@ on:
 
 permissions:
   contents: write
-
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -21,7 +20,6 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
-
       - name: Set up Miniforge
         uses: conda-incubator/setup-miniconda@v4
         with:
@@ -29,21 +27,31 @@ jobs:
           environment-file: portable-sharppy/environment-windows.yml
           activate-environment: btv-nsharp-build
           auto-activate-base: false
-
       - name: Verify official SHARPpy and BTV data sources
         shell: pwsh
         run: |
           python -c "import sharppy, runsharp.full_gui, PySide2, numpy; print('SHARPpy import OK; NumPy', numpy.__version__)"
           python -c "from pathlib import Path; import xml.etree.ElementTree as ET; p=Path('native-sharppy/btv_cwa_latest.xml'); root=ET.parse(p).getroot(); assert len(root.findall('datasource')) == 4; print('Four BTV model feeds validated')"
           python -c "import csv; rows=list(csv.DictReader(open('native-sharppy/btv_cwa.csv', newline='', encoding='utf-8'))); assert len(rows) >= 20; assert any(r['icao']=='KBTV' for r in rows); print(len(rows), 'BTV CWA sites validated')"
-
-      - name: Package portable Windows application
+      - name: Package portable Windows application with Conda DLLs
         shell: pwsh
         run: |
-          pyinstaller --noconfirm --clean --windowed --name BTV-NSHARP --distpath dist --workpath build --specpath build --collect-all sharppy --collect-all runsharp --collect-all qtpy --collect-all PySide2 --exclude-module PySide2.QtWebEngine --exclude-module PySide2.QtWebEngineCore --exclude-module PySide2.QtWebEngineWidgets --collect-all numpy --collect-all dateutil --add-data "${env:GITHUB_WORKSPACE}/native-sharppy;native-sharppy" portable-sharppy/launcher.py
+          $argsList = @('--noconfirm','--clean','--windowed','--name','BTV-NSHARP','--distpath','dist','--workpath','build','--specpath','build','--collect-all','sharppy','--collect-all','runsharp','--collect-all','qtpy','--collect-all','PySide2','--exclude-module','PySide2.QtWebEngine','--exclude-module','PySide2.QtWebEngineCore','--exclude-module','PySide2.QtWebEngineWidgets','--collect-all','numpy','--collect-binaries','numpy','--collect-all','dateutil','--add-data',"${env:GITHUB_WORKSPACE}/native-sharppy;native-sharppy")
+          # Conda NumPy depends on DLLs in Library/bin not always discovered by PyInstaller.
+          $dllDirs = @("${env:CONDA_PREFIX}/Library/bin", "${env:CONDA_PREFIX}/Library/lib", "${env:CONDA_PREFIX}/Lib/site-packages/numpy.libs")
+          foreach ($dir in $dllDirs) {
+            if (Test-Path $dir) {
+              Get-ChildItem $dir -Filter *.dll -File -ErrorAction SilentlyContinue | ForEach-Object {
+                $argsList += @('--add-binary', "$($_.FullName);.")
+              }
+            }
+          }
+          $argsList += 'portable-sharppy/launcher.py'
+          pyinstaller @argsList
           if (!(Test-Path "dist/BTV-NSHARP/BTV-NSHARP.exe")) { throw "PyInstaller did not produce BTV-NSHARP.exe" }
+          & "dist/BTV-NSHARP/BTV-NSHARP.exe" --smoke-test
+          if ($LASTEXITCODE -ne 0) { throw "Frozen executable smoke test failed with exit code $LASTEXITCODE" }
           Compress-Archive -Path "dist/BTV-NSHARP" -DestinationPath "BTV-NSHARP-Windows-Portable.zip" -Force
-
       - name: Upload portable application artifact
         uses: actions/upload-artifact@v4
         with:
@@ -51,7 +59,6 @@ jobs:
           path: BTV-NSHARP-Windows-Portable.zip
           if-no-files-found: error
           retention-days: 30
-
       - name: Attach package to published release
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
