@@ -6,7 +6,7 @@ from pathlib import Path
 def bundle_root() -> Path:
     if getattr(sys, "frozen", False):
         return Path(getattr(sys, "_MEIPASS", Path(sys.executable).resolve().parent))
-    return Path(__file__).resolve().parent.parent
+    return Path(__file__).resolve().parent
 
 def install_btv_data_sources() -> None:
     source = bundle_root() / "native-sharppy"
