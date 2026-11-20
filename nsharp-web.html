@@ -26,7 +26,7 @@ button,select,input{font:inherit;color:#eee;background:#090909;border:1px solid 
 .tablepanel{display:flex;flex-direction:column}.tablecontent{padding:5px;overflow:auto;font:10px/1.25 ui-monospace,monospace}
 .data-table{width:100%;border-collapse:collapse;font-size:10px}.data-table th,.data-table td{padding:3px 4px;border-bottom:1px solid #333;text-align:right;white-space:nowrap}.data-table th:first-child,.data-table td:first-child{text-align:left}.data-table th{color:#aaa;font-weight:normal}.data-table td{color:#eee}.data-table .hot{color:#ff5353}.data-table .cool{color:#4eeaff}
 .metricline{display:flex;justify-content:space-between;gap:5px;border-bottom:1px dotted #444;padding:3px 0}.metricline span{color:#aaa}.metricline b{color:#fff;font-weight:normal}
-.controls{display:flex;gap:5px;align-items:center}.controls label{color:#aaa;font-size:10px}.controls input{width:70px}
+.controls{display:flex;gap:5px;align-items:center}.edit-toggle{width:100%;padding:7px 9px;margin-bottom:8px;border:1px solid #355166;background:#101b26;color:#9fb8c9;font-weight:bold;cursor:pointer}.edit-toggle.active{border-color:#e7bd62;background:#302817;color:#ffe49a}.edit-note{font:10px/1.35 Arial;color:#9aa8b5;margin:5px 0 8px}.edit-controls[hidden]{display:none}.controls label{color:#aaa;font-size:10px}.controls input{width:70px}
 #metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:5px}.metric{border:1px solid #444;padding:4px;text-align:center}.metric span{display:block;color:#aaa;font-size:9px}.metric strong{display:block;font-size:17px;color:#fff}
 #rows .diagrow{display:grid;grid-template-columns:1fr .7fr .7fr;gap:4px;padding:3px 0;border-bottom:1px solid #333;font:10px ui-monospace,monospace}#rows .diagrow span{color:#aaa}#rows .diagrow b{text-align:right;font-weight:normal}
 #raw{display:none}#log{display:none}#profileMeta{display:none}#suiteStatus{display:none}
@@ -72,12 +72,12 @@ button,select,input{font:inherit;color:#eee;background:#090909;border:1px solid 
   <section class="panel tablepanel"><div class="paneltitle">I · Kinematics</div><div class="tablecontent" id="kinTable">Awaiting SHARPpy diagnostics</div></section>
   <section class="panel tablepanel"><div class="paneltitle">J · Severe Parameters</div><div class="tablecontent" id="severeTable">Awaiting SHARPpy diagnostics</div></section>
   <section class="panel tablepanel"><div class="paneltitle">K · SHARPpy Summary</div><div id="metrics"></div><div class="tablecontent" id="rows"></div></section>
-  <section class="panel tablepanel"><div class="paneltitle">L · Profile Adjustments</div><div class="tablecontent">
+  <section class="panel tablepanel"><div class="paneltitle">L · Sounding Editor</div><div class="tablecontent"><button id="editToggle" class="edit-toggle" type="button" aria-pressed="false">✎ EDIT SOUNDING · OFF</button><p id="editNote" class="edit-note">Sounding is locked. Enable editing to make temporary modifications.</p><div id="editControls" class="edit-controls" hidden>
    <div class="controls"><label>Temp</label><input id="temp" type="range" min="-8" max="8" step=".5" value="0"><span id="tempOut">0.0 °C</span></div>
    <div class="controls"><label>Dewpoint</label><input id="dew" type="range" min="-8" max="8" step=".5" value="0"><span id="dewOut">0.0 °C</span></div>
    <div class="controls"><label>Depth</label><input id="offsetDepth" type="range" min="0" max="4000" step="100" value="1000"><span id="offsetOut">1000 m</span></div>
    <div class="controls"><label>Mix</label><input id="mixDepth" type="range" min="0" max="4000" step="100" value="0"><span id="mixOut">0 m</span></div>
-   <p id="calcStatus">Initializing browser Python…</p>
+   </div><p id="calcStatus">Initializing browser Python…</p>
    <p id="profileMeta"></p><pre id="raw"></pre><div id="suiteStatus"></div><div id="log"></div>
   </div></section>
  </section>
@@ -366,6 +366,7 @@ $("cycle").addEventListener("change",populateStations);
 $("station").addEventListener("change",populateHours);
 $("hour").addEventListener("change",()=>loadProfile().catch(showProfileError));
 ["temp","dew","offsetDepth","mixDepth"].forEach(id=>$(id).addEventListener("input",scheduleCalculation));
+$("editToggle").addEventListener("click",()=>{const on=$("editToggle").getAttribute("aria-pressed")!=="true";$("editToggle").setAttribute("aria-pressed",String(on));$("editToggle").classList.toggle("active",on);$("editToggle").textContent=on?"✎ EDIT SOUNDING · ON":"✎ EDIT SOUNDING · OFF";$("editControls").hidden=!on;$("editNote").textContent=on?"Editing enabled. Profile adjustment controls are unlocked. Direct mandatory/significant-level editing is planned for the native editor.":"Sounding is locked. Enable editing to make temporary modifications.";});
 $("reset").addEventListener("click",()=>{["temp","dew","mixDepth"].forEach(id=>$(id).value=0);$("offsetDepth").value=1000;updateLabels();modified=null;render();if(engineReady)calculateModified()});
 // Restore manual Skew-T zoom between page visits.
 try{const saved=JSON.parse(localStorage.getItem("btv-nsharp-skew-zoom-v2")||"null");if(saved&&Array.isArray(saved.x)&&Array.isArray(saved.y))window.__nsharpSkewZoom=saved}catch(_){}
