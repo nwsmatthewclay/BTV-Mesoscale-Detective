@@ -7,6 +7,7 @@ on:
       - "portable-sharppy/**"
       - "native-sharppy/btv_cwa_latest.xml"
       - "native-sharppy/btv_cwa.csv"
+      - "native-sharppy/btv_observed.csv"
       - ".github/workflows/build-portable-nsharp.yml"
   release:
     types: [published]
@@ -31,8 +32,9 @@ jobs:
         shell: pwsh
         run: |
           python -c "import sharppy, runsharp.full_gui, PySide2, numpy; print('SHARPpy import OK; NumPy', numpy.__version__)"
-          python -c "from pathlib import Path; import xml.etree.ElementTree as ET; p=Path('native-sharppy/btv_cwa_latest.xml'); root=ET.parse(p).getroot(); assert len(root.findall('datasource')) == 4; print('Four BTV model feeds validated')"
+          python -c "from pathlib import Path; import xml.etree.ElementTree as ET; p=Path('native-sharppy/btv_cwa_latest.xml'); root=ET.parse(p).getroot(); sources=root.findall('datasource'); assert len(sources) == 5; assert any(s.attrib.get('name')=='Observed' and s.attrib.get('observed')=='true' for s in sources); assert Path('native-sharppy/btv_observed.csv').is_file(); print('Four model feeds plus required Observed source validated')"
           python -c "import csv; rows=list(csv.DictReader(open('native-sharppy/btv_cwa.csv', newline='', encoding='utf-8'))); assert len(rows) >= 20; assert any(r['icao']=='KBTV' for r in rows); print(len(rows), 'BTV CWA sites validated')"
+          python -c "import csv; rows=list(csv.DictReader(open('native-sharppy/btv_observed.csv', newline='', encoding='utf-8'))); assert len(rows)>=8; assert any(r['srcid']=='BTV' for r in rows); print(len(rows), 'regional observed sounding stations validated')"
       - name: Package portable Windows application with Conda DLLs
         shell: pwsh
         run: |
