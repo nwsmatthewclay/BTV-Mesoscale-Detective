@@ -40,7 +40,7 @@ jobs:
       - name: Package portable Windows application
         shell: pwsh
         run: |
-          pyinstaller --noconfirm --clean --windowed --name BTV-NSHARP --distpath dist --workpath build --specpath build --collect-all sharppy --collect-all runsharp --collect-all qtpy --collect-all PySide2 --collect-all numpy --collect-all dateutil --add-data "native-sharppy;native-sharppy" portable-sharppy/launcher.py
+          pyinstaller --noconfirm --clean --windowed --name BTV-NSHARP --distpath dist --workpath build --specpath build --collect-all sharppy --collect-all runsharp --collect-all qtpy --collect-all PySide2 --collect-all numpy --collect-all dateutil --add-data "$PWD/native-sharppy;native-sharppy" portable-sharppy/launcher.py
           if (!(Test-Path "dist/BTV-NSHARP/BTV-NSHARP.exe")) { throw "PyInstaller did not produce BTV-NSHARP.exe" }
           Compress-Archive -Path "dist/BTV-NSHARP" -DestinationPath "BTV-NSHARP-Windows-Portable.zip" -Force
 
