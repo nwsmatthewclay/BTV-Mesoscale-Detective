@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <sourcelist>
-  <!-- Direct Penn State latest-cycle BUFKIT feeds: no Cloudflare Worker required. -->
+  <!-- Direct Penn State BUFKIT feeds. These sources are fetched from the public PSU server. -->
   <datasource name="BTV CWA RRFS (Latest)" ensemble="false" observed="false">
     <outlet name="Penn State BUFKIT" url="https://www.meteo.psu.edu/data/weather/bufkit/RRFS/latest/rrfs_{srcid}.buf" format="bufkit">
       <time first="0" range="84" delta="1" offset="0" delay="2" cycle="1" archive="24" start="-" end="-"/>
@@ -13,19 +13,12 @@
       <points csv="btv_cwa.csv"/>
     </outlet>
   </datasource>
-  <datasource name="BTV CWA RAP (Latest)" ensemble="false" observed="false">
-    <outlet name="Penn State BUFKIT" url="https://www.meteo.psu.edu/data/weather/bufkit/RAP/latest/rap_{srcid}.buf" format="bufkit">
-      <time first="0" range="21" delta="1" offset="0" delay="2" cycle="1" archive="24" start="-" end="-"/>
-      <points csv="btv_cwa.csv"/>
-    </outlet>
-  </datasource>
   <datasource name="BTV CWA HRRR (Latest)" ensemble="false" observed="false">
     <outlet name="Penn State BUFKIT" url="https://www.meteo.psu.edu/data/weather/bufkit/HRRR/latest/hrrr_{srcid}.buf" format="bufkit">
       <time first="0" range="48" delta="1" offset="0" cycle="1" archive="24" start="-" end="-"/>
       <points csv="btv_cwa.csv"/>
     </outlet>
   </datasource>
-  <!-- Required SHARPpy Observed source, narrowed to regional sounding stations. -->
   <datasource name="Observed" ensemble="false" observed="true">
     <outlet name="SPC" url="https://www.spc.noaa.gov/exper/soundings/{date}{cycle}_OBS/{srcid}.txt" format="spc">
       <time first="0" range="0" delta="0" offset="0" delay="1" cycle="12" archive="168" start="-" end="-"/>
