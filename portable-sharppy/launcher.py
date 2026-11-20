@@ -71,8 +71,12 @@ def smoke_test() -> int:
     import numpy
     import sharppy
     import runsharp.full_gui
+    import sharppy.viz.SPCWindow as spc_module
     from PySide2 import QtCore
-    print(f"Frozen import smoke test OK: NumPy {numpy.__version__}; Qt {QtCore.__version__}")
+    # Verify the private UI hooks used by the branding layer exist in this SHARPpy build.
+    assert hasattr(runsharp.full_gui.Main, "_Main__initUI"), "SHARPpy Main UI hook missing"
+    assert hasattr(spc_module.SPCWindow, "_SPCWindow__initUI"), "SHARPpy SPCWindow UI hook missing"
+    print(f"Frozen import/UI-hook smoke test OK: NumPy {numpy.__version__}; Qt {QtCore.__version__}")
     return 0
 
 def main() -> int:
