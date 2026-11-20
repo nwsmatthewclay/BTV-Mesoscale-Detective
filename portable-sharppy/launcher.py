@@ -8,8 +8,9 @@ from pathlib import Path
 
 
 def bundle_root() -> Path:
+    # In PyInstaller one-folder builds, bundled data lives under _MEIPASS.
     if getattr(sys, "frozen", False):
-        return Path(sys.executable).resolve().parent
+        return Path(getattr(sys, "_MEIPASS", Path(sys.executable).resolve().parent))
     return Path(__file__).resolve().parent.parent
 
 
