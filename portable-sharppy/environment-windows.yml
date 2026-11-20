@@ -9,6 +9,5 @@ dependencies:
   - qtpy
   - requests
   - python-dateutil
-  - pip
-  - pip:
-      - pyinstaller==6.11.1
+  - certifi
+  - conda-pack
