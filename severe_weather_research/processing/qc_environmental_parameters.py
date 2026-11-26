@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Phase 3 QC summaries and plots for ERA5 environmental diagnostics."""
 from pathlib import Path
-import argparse, json
+import argparse, json, math
 import numpy as np
 import pandas as pd
 
@@ -66,6 +66,6 @@ def main():
  pd.DataFrame(group_rows).to_csv(args.out_dir/"case_parameter_summary.csv",index=False)
  pd.DataFrame(flags).to_csv(args.out_dir/"qc_flags.csv",index=False)
  report={"row_count":len(df),"duplicate_key_rows":duplicate_count,"case_count":int(df.case_id.nunique()),"site_count":int(df.site.nunique()),"timestamp_parse_failures":int(df.valid_time_utc.isna().sum()),"parameter_summary":summary,"flag_count":len(flags),"flag_types":pd.Series([f.get("flag") for f in flags]).value_counts().to_dict()}
- (args.out_dir/"qc_report.json").write_text(json.dumps(report,indent=2))
+ (args.out_dir/"qc_report.json").write_text(json.dumps(json_safe(report),indent=2,allow_nan=False))
  print(json.dumps({"rows":len(df),"duplicates":duplicate_count,"flags":len(flags),"summary_file":"parameter_qc_summary.csv","case_file":"case_parameter_summary.csv"},indent=2))
 if __name__=="__main__": main()
