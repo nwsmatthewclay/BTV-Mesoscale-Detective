@@ -1,0 +1,39 @@
+name: ERA5 First Five Cases
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "severe_weather_research/**"
+      - ".github/workflows/acquire_era5_first_five.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install CDS API
+        run: python -m pip install --upgrade pip cdsapi
+      - name: Download ERA5 cases
+        env:
+          CDS_API_KEY: ${{ secrets.CDS_API_KEY }}
+        run: python severe_weather_research/acquisition/download_era5_cases.py
+      - name: Upload ERA5 GRIBs and acquisition log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: btv-era5-first-five
+          path: |
+            severe_weather_research/data/raw/
+            severe_weather_research/data/metadata/acquisition_log.csv
+          retention-days: 30
+          if-no-files-found: warn
