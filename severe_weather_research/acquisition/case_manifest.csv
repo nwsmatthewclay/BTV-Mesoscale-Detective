@@ -1,6 +1,31 @@
 case_id,event_date_utc,description
-BTV001,2011-05-26,Report-rich hail and wind event
-BTV002,2008-06-10,Report-rich wind event
-BTV003,2010-07-21,Report-rich multi-hazard event
-BTV004,2012-05-29,Hail tornado and wind event
-BTV005,2011-07-06,Report-rich wind event
+BTV001,2011-05-26,Report-rich hail and wind event (original pilot)
+BTV002,2008-06-10,Report-rich wind event (original pilot)
+BTV003,2010-07-21,Report-rich multi-hazard event (original pilot)
+BTV004,2012-05-29,Hail tornado and wind event (original pilot)
+BTV005,2011-07-06,Report-rich wind event (original pilot)
+BTV006,2025-05-17,Large hail and flash flooding event (provisional hail-focused)
+BTV007,2019-10-01,Large hail and minor flooding event (provisional hail-focused)
+BTV008,2013-09-11,Golf ball hail and damaging wind event (provisional hail-focused)
+BTV009,2012-07-23,Large hail and damaging wind event (provisional hail-focused)
+BTV010,2014-05-27,Isolated supercell event (provisional hail-focused)
+BTV011,2007-08-16,Supercell thunderstorms (provisional hail-focused)
+BTV012,2007-07-09,Severe weather and flash flooding event (provisional hail-focused; multi-day event start)
+BTV013,2004-07-01,Large hail across northern New York and Vermont (provisional hail-focused)
+BTV014,2004-06-09,Thunderstorm wind damage and large hail with tornadoes (provisional hail-focused)
+BTV015,2003-06-29,Thunderstorm wind damage and large hail (provisional hail-focused)
+BTV016,2022-08-30,Widespread wind damage in the Champlain Valley (provisional wind-focused)
+BTV017,2022-07-21,Widespread severe event across Vermont (provisional wind-focused)
+BTV018,2022-07-12,Damaging storms across Rutland and Windsor Counties (provisional wind-focused)
+BTV019,2019-07-30,Severe weather with significant North Hero wind gust (provisional wind-focused)
+BTV020,2017-05-18,Two microburst event (provisional wind-focused)
+BTV021,2017-05-01,Bow echo and northern New York wind damage (provisional wind-focused)
+BTV022,2014-07-08,Widespread damaging wind event across northern New York and Vermont (provisional wind-focused)
+BTV023,2013-07-19,Widespread severe thunderstorm damaging wind event (provisional wind-focused)
+BTV024,2004-05-18,Straight-line wind damage in Rutland County (provisional wind-focused)
+BTV025,2008-07-18,Severe storms and North Cambridge tornado (provisional wind-focused)
+BTV026,2022-07-18,Addison County tornado event (provisional mixed/complex)
+BTV027,2018-06-18,Severe weather with Waitsfield wet microburst (provisional mixed/complex)
+BTV028,2018-05-04,Severe high wind and hydro event (provisional mixed/complex)
+BTV029,2013-06-02,Damaging wind and large hail event (provisional mixed/complex)
+BTV030,2012-07-04,Independence Day severe weather event (provisional mixed/complex)
