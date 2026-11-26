@@ -1,0 +1,7 @@
+# ERA5 pilot processing dependencies
+numpy
+pandas
+xarray
+cfgrib
+eccodes
+metpy
