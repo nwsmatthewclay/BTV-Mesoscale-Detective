@@ -11,7 +11,7 @@ META = ROOT / "data" / "metadata"
 MANIFEST = Path(__file__).with_name("case_manifest.csv")
 LOG = META / "acquisition_log.csv"
 AREA = [46.0, -76.5, 41.5, -70.5]  # N, W, S, E; padded BTV region
-PRESSURE_LEVELS = ["1000", "925", "850", "700", "500", "300", "250"]
+PRESSURE_LEVELS = ["1000", "975", "950", "925", "900", "875", "850", "825", "800", "775", "750", "700", "650", "600", "550", "500", "450", "400", "350", "300", "250", "200", "150", "100", "70", "50", "30", "20", "10"]
 PRESSURE_VARIABLES = ["geopotential", "temperature", "u_component_of_wind",
                        "v_component_of_wind", "relative_humidity"]
 SINGLE_VARIABLES = ["2m_temperature", "2m_dewpoint_temperature",
@@ -63,7 +63,7 @@ def main():
     for case in cases:
         case_id, date = case["case_id"], case["event_date_utc"]
         for dataset, variables, suffix, extra in [
-            ("reanalysis-era5-pressure-levels", PRESSURE_VARIABLES, "pressure_levels.grib",
+            ("reanalysis-era5-pressure-levels", PRESSURE_VARIABLES, "pressure_levels_full.grib",
              {"pressure_level": PRESSURE_LEVELS}),
             ("reanalysis-era5-single-levels", SINGLE_VARIABLES, "single_levels.grib", None),
         ]:
