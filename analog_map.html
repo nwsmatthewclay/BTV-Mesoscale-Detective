@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BTV Severe Weather Analog Explorer</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#08111f;--panel:#101d2e;--panel2:#14243a;--text:#e8f0fb;--muted:#91a7c3;--line:#263951;--hail:#f6c453;--wind:#ff647c;--mixed:#b18cff;--accent:#56d4e8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}
+header{padding:18px 22px;background:linear-gradient(120deg,#122640,#091421);border-bottom:1px solid var(--line)}
+h1{font-size:clamp(20px,3vw,29px);margin:0 0 5px}header p{margin:0;color:var(--muted);font-size:13px}
+.app{display:grid;grid-template-columns:350px 1fr;min-height:calc(100vh - 80px)}aside{padding:15px;border-right:1px solid var(--line);background:var(--panel);overflow:auto;max-height:calc(100vh - 80px)}
+#map{height:calc(100vh - 80px);min-height:540px;background:#17283b}
+.statrow{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px}.stat{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px}.stat strong{font-size:21px;display:block}.stat span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 13px}.filter{border:1px solid var(--line);background:#132338;color:var(--muted);border-radius:20px;padding:7px 10px;cursor:pointer;font-size:12px}.filter.active{color:white;border-color:var(--accent);background:#123347}
+.case-list{display:flex;flex-direction:column;gap:7px}.case{padding:10px;border:1px solid var(--line);border-radius:10px;background:#0c1929;cursor:pointer;transition:.15s}.case:hover,.case.selected{border-color:var(--accent);background:#142b41}.casehead{display:flex;justify-content:space-between;gap:8px;align-items:center}.caseid{font-weight:700;font-size:12px}.date{font-size:11px;color:var(--muted)}.tag{font-size:10px;border-radius:20px;padding:3px 7px;white-space:nowrap}.hail{background:#5d4819;color:#ffe39b}.wind{background:#572433;color:#ffb3c2}.mixed{background:#392d59;color:#d6c4ff}.desc{font-size:11px;color:#b8c7da;line-height:1.4;margin-top:5px}
+.legend{display:flex;flex-direction:column;gap:7px;margin:13px 0;color:var(--muted);font-size:12px}.legendline{display:flex;gap:8px;align-items:center}.dot{width:10px;height:10px;border-radius:50%}
+.note{font-size:11px;line-height:1.5;color:#f0c779;border:1px solid #665027;background:#2b2417;padding:10px;border-radius:9px;margin:12px 0}
+.detail{background:#0b1726;border:1px solid var(--line);border-radius:10px;padding:12px;margin:12px 0}.detail h3{margin:0 0 7px;font-size:14px}.detail p{margin:5px 0;color:#c3d2e4;font-size:12px;line-height:1.5}
+.leaflet-popup-content{color:#182334;font-size:13px}.mapkey{position:absolute;z-index:500;bottom:18px;right:18px;background:#0c1829ee;color:#e9f2fb;padding:11px 14px;border:1px solid #334c66;border-radius:12px;font-size:12px;box-shadow:0 8px 28px #0005}
+@media(max-width:800px){.app{grid-template-columns:1fr}aside{max-height:none;border-right:0;border-bottom:1px solid var(--line)}#map{height:55vh;min-height:420px}}
+</style>
+</head>
+<body>
+<header><h1>⚡ BTV Severe Weather Analog Explorer</h1><p>Geographic case browser · 30-case ERA5 research sample · Vermont & northern New York</p></header>
+<div class="app"><aside>
+<div class="statrow"><div class="stat"><strong>30</strong><span>Cases</span></div><div class="stat"><strong>6</strong><span>ERA5 sites</span></div><div class="stat"><strong>2003–25</strong><span>Study period</span></div></div>
+<div style="font-weight:700;font-size:13px">Filter case types</div><div class="filters"><button class="filter active" data-filter="all">All cases</button><button class="filter" data-filter="hail">Hail</button><button class="filter" data-filter="wind">Wind</button><button class="filter" data-filter="mixed">Mixed</button></div>
+<div id="selected" class="detail"><h3>Explore the map</h3><p>Select a case marker or case below to view its details.</p></div>
+<div class="note">📍 Case markers are approximate event-area representations based on manifest descriptions—not individual storm reports or verified event centroids.</div>
+<div class="legend"><div class="legendline"><span class="dot" style="background:var(--hail)"></span> Hail-dominant</div><div class="legendline"><span class="dot" style="background:var(--wind)"></span> Wind-dominant</div><div class="legendline"><span class="dot" style="background:var(--mixed)"></span> Mixed / complex</div><div class="legendline"><span class="dot" style="background:#56d4e8;border:2px solid white"></span> ERA5 analysis sites</div></div>
+<div id="cases" class="case-list"></div>
+</aside><div style="position:relative"><div id="map"></div><div class="mapkey">Case markers = event areas (approx.)<br>Blue circles = ERA5 analysis sites</div></div></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const cases=[
+{id:'BTV001',date:'2011-05-26',type:'hail',desc:'Report-rich hail and wind event (original pilot)',loc:'BTV CWA / broad regional placement',lat:44.15,lon:-73.15},
+{id:'BTV002',date:'2008-06-10',type:'wind',desc:'Report-rich wind event (original pilot)',loc:'BTV CWA / broad regional placement',lat:44.45,lon:-73.35},
+{id:'BTV003',date:'2010-07-21',type:'mixed',desc:'Report-rich multi-hazard event (original pilot)',loc:'BTV CWA / broad regional placement',lat:44.05,lon:-72.85},
+{id:'BTV004',date:'2012-05-29',type:'hail',desc:'Hail, tornado and wind event',loc:'BTV CWA / broad regional placement',lat:44.25,lon:-73.05},
+{id:'BTV005',date:'2011-07-06',type:'wind',desc:'Report-rich wind event (original pilot)',loc:'BTV CWA / broad regional placement',lat:44.35,lon:-73.25},
+{id:'BTV006',date:'2025-05-17',type:'hail',desc:'Large hail and flash flooding event (provisional)',loc:'BTV CWA / approximate regional center',lat:44.05,lon:-72.95},
+{id:'BTV007',date:'2019-10-01',type:'hail',desc:'Large hail and minor flooding event (provisional)',loc:'BTV CWA / approximate regional center',lat:44.4,lon:-73.25},
+{id:'BTV008',date:'2013-09-11',type:'hail',desc:'Golf ball hail and damaging wind event (provisional)',loc:'BTV CWA / approximate regional center',lat:44.2,lon:-73.0},
+{id:'BTV009',date:'2012-07-23',type:'hail',desc:'Large hail and damaging wind event (provisional)',loc:'BTV CWA / approximate regional center',lat:44.45,lon:-73.15},
+{id:'BTV010',date:'2014-05-27',type:'hail',desc:'Isolated supercell event (provisional)',loc:'BTV CWA / approximate regional center',lat:44.35,lon:-72.95},
+{id:'BTV011',date:'2007-08-16',type:'hail',desc:'Supercell thunderstorms (provisional)',loc:'BTV CWA / approximate regional center',lat:44.05,lon:-73.35},
+{id:'BTV012',date:'2007-07-09',type:'hail',desc:'Severe weather and flash flooding event; multi-day start (provisional)',loc:'BTV CWA / approximate regional center',lat:44.25,lon:-72.75},
+{id:'BTV013',date:'2004-07-01',type:'hail',desc:'Large hail across northern New York and Vermont (provisional)',loc:'Northern NY / Vermont region',lat:44.65,lon:-73.65},
+{id:'BTV014',date:'2004-06-09',type:'hail',desc:'Thunderstorm wind damage and large hail with tornadoes (provisional)',loc:'BTV CWA / approximate regional center',lat:44.15,lon:-72.95},
+{id:'BTV015',date:'2003-06-29',type:'hail',desc:'Thunderstorm wind damage and large hail (provisional)',loc:'BTV CWA / approximate regional center',lat:44.35,lon:-73.05},
+{id:'BTV016',date:'2022-08-30',type:'wind',desc:'Widespread wind damage in the Champlain Valley (provisional)',loc:'Champlain Valley',lat:44.15,lon:-73.25},
+{id:'BTV017',date:'2022-07-21',type:'wind',desc:'Widespread severe event across Vermont (provisional)',loc:'Vermont statewide',lat:44.05,lon:-72.7},
+{id:'BTV018',date:'2022-07-12',type:'wind',desc:'Damaging storms across Rutland and Windsor Counties (provisional)',loc:'Rutland / Windsor County area',lat:43.65,lon:-72.85},
+{id:'BTV019',date:'2019-07-30',type:'wind',desc:'Severe weather with significant North Hero wind gust (provisional)',loc:'North Hero / Lake Champlain',lat:44.85,lon:-73.3},
+{id:'BTV020',date:'2017-05-18',type:'wind',desc:'Two microburst event (provisional)',loc:'BTV CWA / approximate regional center',lat:44.25,lon:-73.05},
+{id:'BTV021',date:'2017-05-01',type:'wind',desc:'Bow echo and northern New York wind damage (provisional)',loc:'Northern New York',lat:44.75,lon:-74.0},
+{id:'BTV022',date:'2014-07-08',type:'wind',desc:'Widespread damaging wind event across northern New York and Vermont (provisional)',loc:'Northern NY / Vermont region',lat:44.55,lon:-73.55},
+{id:'BTV023',date:'2013-07-19',type:'wind',desc:'Widespread severe thunderstorm damaging wind event (provisional)',loc:'BTV CWA / approximate regional center',lat:44.25,lon:-72.9},
+{id:'BTV024',date:'2004-05-18',type:'wind',desc:'Straight-line wind in Rutland County (provisional)',loc:'Rutland County',lat:43.65,lon:-73.0},
+{id:'BTV025',date:'2008-07-18',type:'wind',desc:'Severe storms and North Cambridge tornado (provisional)',loc:'North Cambridge, Vermont',lat:44.75,lon:-73.05},
+{id:'BTV026',date:'2022-07-18',type:'mixed',desc:'Addison County tornado event (provisional)',loc:'Addison County',lat:44.0,lon:-73.25},
+{id:'BTV027',date:'2018-06-18',type:'mixed',desc:'Severe weather with Waitsfield wet microburst (provisional)',loc:'Waitsfield / Mad River Valley',lat:44.2,lon:-72.83},
+{id:'BTV028',date:'2018-05-04',type:'mixed',desc:'Severe high wind and hydro event (provisional)',loc:'BTV CWA / approximate regional center',lat:44.25,lon:-72.95},
+{id:'BTV029',date:'2013-06-02',type:'mixed',desc:'Damaging wind and large hail (provisional)',loc:'BTV CWA / approximate regional center',lat:44.25,lon:-73.0},
+{id:'BTV030',date:'2012-07-04',type:'mixed',desc:'Independence Day severe weather event (provisional)',loc:'BTV CWA / approximate regional center',lat:44.35,lon:-72.95}
+];
+const sites=[['KBTV',44.4719,-73.1533],['KPBG',44.6509,-73.4681],['KMSS',44.9358,-74.8456],['KSLK',44.3853,-74.2062],['KMPV',44.2035,-72.5623],['KRUT',43.5294,-72.9496]];
+const map=L.map('map',{preferCanvas:true}).setView([44.25,-73.25],8);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap contributors &copy; CARTO'}).addTo(map);
+const colors={hail:'#f6c453',wind:'#ff647c',mixed:'#b18cff'};
+let layer=L.layerGroup().addTo(map);
+function selectCase(c){document.getElementById('selected').innerHTML='<h3>'+c.id+' · '+c.date+'</h3><p><b>Category:</b> '+({hail:'Hail-dominant',wind:'Wind-dominant',mixed:'Mixed / complex'}[c.type])+'</p><p><b>Approximate area:</b> '+c.loc+'</p><p>'+c.desc+'</p><p style="color:#f0c779">Location is an approximate map placement; report-level coordinates have not yet been verified.</p>';document.querySelectorAll('.case').forEach(el=>el.classList.toggle('selected',el.dataset.id===c.id));map.flyTo([c.lat,c.lon],9,{duration:.4})}
+function draw(filter='all'){layer.clearLayers();cases.filter(c=>filter==='all'||c.type===filter).forEach(c=>{const m=L.circleMarker([c.lat,c.lon],{radius:8,color:'#eaf2ff',weight:1,fillColor:colors[c.type],fillOpacity:.88}).addTo(layer);m.bindTooltip('<b>'+c.id+'</b><br>'+c.date+'<br>'+c.desc);m.on('click',()=>selectCase(c))});sites.forEach(s=>L.circleMarker([s[1],s[2]],{radius:5,color:'#fff',weight:2,fillColor:'#56d4e8',fillOpacity:1}).bindTooltip('<b>'+s[0]+'</b> · ERA5 analysis site').addTo(layer))}
+function renderList(filter='all'){document.getElementById('cases').innerHTML=cases.filter(c=>filter==='all'||c.type===filter).map(c=>'<div class="case" data-id="'+c.id+'" onclick="selectCase(cases.find(x=>x.id===\''+c.id+'\'))"><div class="casehead"><span class="caseid">'+c.id+'</span><span class="date">'+c.date+'</span></div><span class="tag '+c.type+'">'+({hail:'Hail',wind:'Wind',mixed:'Mixed'}[c.type])+'</span><div class="desc">'+c.desc+'</div></div>').join('')}
+document.querySelectorAll('.filter').forEach(btn=>btn.onclick=()=>{document.querySelectorAll('.filter').forEach(b=>b.classList.remove('active'));btn.classList.add('active');draw(btn.dataset.filter);renderList(btn.dataset.filter)});
+draw();renderList();
+</script></body></html>
