@@ -5,6 +5,22 @@ import argparse, json, math
 import numpy as np
 import pandas as pd
 
+def json_safe(value):
+    """Convert NumPy/Pandas scalars and non-finite floats to strict JSON values."""
+    if isinstance(value, dict):
+        return {str(k): json_safe(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [json_safe(v) for v in value]
+    if isinstance(value, (np.integer,)):
+        return int(value)
+    if isinstance(value, (np.floating,)):
+        value = float(value)
+    if isinstance(value, float):
+        return value if math.isfinite(value) else None
+    if pd.isna(value):
+        return None
+    return value
+
 PARAMS = {
  "sbcape_jkg": ("CAPE", "J/kg", 0, 5000),
  "mlcape_100hpa_jkg": ("MLCAPE", "J/kg", 0, 5000),
