@@ -25,9 +25,9 @@ After downloading the workflow artifact ZIP, unpack it so its `raw/` folder matc
 python severe_weather_research/processing/validate_era5_pilot.py --raw-dir severe_weather_research/data/raw
 ```
 
-The validator checks all ten expected files for existence, nonzero size, GRIB signature, and pilot file-size consistency. Optional `--decode` attempts metadata decoding using `cfgrib`/ecCodes; install `processing/requirements.txt` first. It writes a JSON report under `data/metadata/`.
+The validator checks all ten expected files for existence, nonzero size, GRIB signature, and the single-level pilot file-size consistency. It expects the expanded `pressure_levels_full.grib` profile. Optional `--decode` attempts metadata decoding using `cfgrib`/ecCodes; install `processing/requirements.txt` first. It writes a JSON report under `data/metadata/`.
 
-**Scientific note:** the initial pilot uses only seven pressure levels (1000, 925, 850, 700, 500, 300, 250 hPa). This is adequate for a first acquisition smoke test and coarse diagnostics, but too sparse for trustworthy full-profile parcel calculations, CAPE/CIN, or detailed hail-growth-layer analysis. The next acquisition should expand to a much denser pressure-level set before we treat derived sounding parameters as research results.
+**Scientific note:** the first smoke-test artifact contained only seven pressure levels, which is too sparse for trustworthy full-profile parcel calculations. The downloader has now been expanded to request 30 pressure levels from 1000 to 10 hPa, with a new filename (`pressure_levels_full.grib`) so it will not mistakenly reuse the earlier sparse file. This denser profile is the basis for the next parameter-extraction step.
 
 ## Processing dependencies
 Install optional scientific packages:
