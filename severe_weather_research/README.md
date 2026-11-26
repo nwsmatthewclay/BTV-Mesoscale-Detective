@@ -35,3 +35,26 @@ Install optional scientific packages:
 ```bash
 python -m pip install -r severe_weather_research/processing/requirements.txt
 ```
+
+## First environmental analog ranking
+
+The 30-case validation workflow now creates an exploratory analog reference dataset from case-mean environmental diagnostics at all available sites and hours. It is included in the workflow artifact under `analog_reference_output/`.
+
+The initial ranking script uses a weighted standardized distance:
+- Robust scale is the feature IQR; standard deviation is used if IQR is unavailable/zero.
+- The distance is weighted RMS across shared valid features.
+- A display similarity score is `100 * exp(-distance)`; this is **not a probability**.
+- Forecast input is a JSON object using the diagnostic column names.
+
+Example (after downloading/extracting the workflow artifact so diagnostics CSV is available):
+
+```bash
+python severe_weather_research/processing/analog_ranker.py \
+  --diagnostics diagnostics_output/hourly_environmental_parameters.csv \
+  --forecast severe_weather_research/processing/forecast_environment_example.json \
+  --output analog_output/ranked_analogs.csv
+```
+
+Outputs: ranked analog CSV and adjacent JSON method/report file.
+
+**Research limitations:** The case means pool all ERA5 sites and hourly samples, so they are not storm-time matched. No storm-report time linkage is implemented. The expanded case set and event labels remain provisional and analog results should be treated as exploratory.
