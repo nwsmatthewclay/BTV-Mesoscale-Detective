@@ -1,0 +1,42 @@
+name: Phase 5 Pilot Evaluation
+on:
+  workflow_dispatch:
+    inputs:
+      diagnostics_run_id:
+        description: GitHub Actions run ID containing btv-era5-environmental-diagnostics
+        required: true
+        type: string
+permissions:
+  actions: read
+  contents: read
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download Phase 2 diagnostics
+        uses: actions/download-artifact@v4
+        with:
+          name: btv-era5-environmental-diagnostics
+          run-id: ${{ inputs.diagnostics_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: diagnostics
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install evaluation dependencies
+        run: python -m pip install pandas numpy matplotlib
+      - name: Run Phase 5 pilot evaluation
+        run: |
+          python severe_weather_research/processing/phase5_pilot_evaluation.py \
+            --input diagnostics/hourly_environmental_parameters.csv \
+            --out-dir phase5_output
+      - name: Upload Phase 5 results
+        uses: actions/upload-artifact@v4
+        with:
+          name: btv-era5-phase5-pilot-evaluation
+          path: phase5_output/
+          retention-days: 30
