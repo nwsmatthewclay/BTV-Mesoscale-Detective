@@ -1,0 +1,16 @@
+{
+  "sbcape_jkg": 500,
+  "mlcape_100hpa_jkg": 400,
+  "mucape_300hpa_jkg": 700,
+  "sbcin_jkg": -50,
+  "mlcin_100hpa_jkg": -25,
+  "pwat_mm": 25,
+  "lcl_pressure_hpa": 850,
+  "shear_0_1km_kt": 10,
+  "shear_0_3km_kt": 20,
+  "shear_0_6km_kt": 35,
+  "lapse_0_3km_c_per_km": 7.0,
+  "lapse_700_500_c_per_km": 6.5,
+  "freezing_level_agl_m": 3000,
+  "hail_growth_layer_10_to_30c_depth_m": 2500
+}
