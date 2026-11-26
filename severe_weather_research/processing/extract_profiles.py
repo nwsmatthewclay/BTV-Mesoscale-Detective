@@ -39,7 +39,9 @@ def make_skewt(p,t,td,u,v,path,title):
     fig=plt.figure(figsize=(8,8)); skew=SkewT(fig,rotation=45)
     skew.plot(p*units.hPa,t*units.degC,"r",linewidth=2)
     skew.plot(p*units.hPa,td*units.degC,"g",linewidth=2)
-    skew.plot_barbs(p*units.hPa,u*units("m/s"),v*units("m/s"),barbcolor="black",skip=3)
+    # Thin wind barbs manually; MetPy plot_barbs does not accept a skip kwarg.
+    idx=np.arange(0,len(p),3)
+    skew.plot_barbs(p[idx]*units.hPa,u[idx]*units("m/s"),v[idx]*units("m/s"),barbcolor="black")
     skew.ax.set_ylim(1000,100); skew.ax.set_xlim(-40,45)
     skew.plot_dry_adiabats(alpha=.25); skew.plot_moist_adiabats(alpha=.25); skew.plot_mixing_lines(alpha=.25)
     skew.ax.set_title(title); fig.savefig(path,dpi=140,bbox_inches="tight"); plt.close(fig)
