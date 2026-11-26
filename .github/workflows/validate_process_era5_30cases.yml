@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - ".github/workflows/validate_process_era5_30cases.yml"
+      - "severe_weather_research/processing/qc_environmental_parameters.py"
   workflow_dispatch:
     inputs:
       acquisition_run_id:
