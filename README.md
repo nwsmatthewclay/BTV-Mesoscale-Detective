@@ -105,3 +105,12 @@ See [mesoscale/README.md](mesoscale/README.md) for pipeline details.
 - Preserve source model, cycle, forecast hour, valid time, units and quality metadata.
 - Validate every field and vertical profile before publishing.
 - Keep this project separate from the operational SA Dashboard until it has completed its own validation.
+
+
+## Severe-weather ERA5 research pipeline (pilot)
+
+- Five report-rich Vermont/northern New York cases are acquired from ERA5 pressure-level and single-level GRIB data.
+- `extract_profiles.py` decodes pressure-level files into nearest-grid hourly profiles at KBTV, KPBG, KMSS, KSLK, KMPV and KRUT. The pilot contains 20,880 rows (24 times × 29 pressure levels × 6 sites × 5 cases); Skew-T figures are produced for KBTV and KPBG at 12, 15, 18 and 21 UTC.
+- `calculate_parameters.py` builds hourly diagnostics: surface-, 100-hPa mixed-layer-, and 300-hPa most-unstable CAPE/CIN; LCL; precipitable water; approximate 0–1, 0–3 and 0–6 km bulk shear; 0–3 km and 700–500 hPa lapse rates; freezing-level height; and -10 to -30°C hail-growth-layer depth.
+- The diagnostics workflow is manual and consumes the profile artifact from a prior Actions run. Outputs are a CSV and JSON report artifact.
+- Important caveat: ERA5 pressure-level profiles use the lowest available pressure level as the parcel base. Height and shear calculations use a hypsometric approximation relative to that level; these are research diagnostics, not station-based observed soundings or operational parameters. QC and scientific validation precede interpretation.
