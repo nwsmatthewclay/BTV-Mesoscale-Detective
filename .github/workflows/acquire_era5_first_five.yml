@@ -1,15 +1,12 @@
 name: ERA5 First Five Cases
-
 on:
   workflow_dispatch:
   push:
     paths:
-      - "severe_weather_research/**"
+      - "severe_weather_research/acquisition/**"
       - ".github/workflows/acquire_era5_first_five.yml"
-
 permissions:
   contents: read
-
 jobs:
   acquire:
     runs-on: ubuntu-latest
