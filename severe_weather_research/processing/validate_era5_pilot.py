@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "acquisition" / "case_manifest.csv"
 EXPECTED = {
-    "pressure_levels.grib": 888720,
+    "pressure_levels_full.grib": None,  # Full vertical profile; size varies with request.
     "single_levels.grib": 152352,
 }
 
@@ -63,7 +63,7 @@ def main():
                 signature = grib_signature(path)
                 item.update(status="ok" if size > 0 and signature else "invalid",
                             bytes=size, expected_bytes=expected_size, grib_signature=signature,
-                            size_matches_pilot= size == expected_size)
+                            size_matches_pilot=(size == expected_size if expected_size is not None else None))
                 if size <= 0 or not signature:
                     failures.append(f"{case_id}: invalid GRIB file {filename}")
                 if args.decode:
