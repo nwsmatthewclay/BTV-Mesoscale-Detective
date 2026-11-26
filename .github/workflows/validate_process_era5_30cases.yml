@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/validate_process_era5_30cases.yml"
       - "severe_weather_research/processing/qc_environmental_parameters.py"
+      - "severe_weather_research/processing/analog_ranker.py"
   workflow_dispatch:
     inputs:
       acquisition_run_id:
@@ -52,6 +53,7 @@ jobs:
           python -m py_compile severe_weather_research/processing/qc_environmental_parameters.py
           python -m py_compile severe_weather_research/processing/phase4_environmental_comparison.py
           python -m py_compile severe_weather_research/processing/phase5_pilot_evaluation.py
+          python -m py_compile severe_weather_research/processing/analog_ranker.py
 
       - name: Audit case manifest and acquired files
         run: |
@@ -162,6 +164,21 @@ jobs:
             --input diagnostics_output/hourly_environmental_parameters.csv \
             --out-dir phase5_output
 
+      - name: Build analog reference dataset (case means)
+        run: |
+          python - <<'PY'
+          import pandas as pd, json
+          from pathlib import Path
+          src=pd.read_csv("diagnostics_output/hourly_environmental_parameters.csv")
+          means=src.groupby("case_id").mean(numeric_only=True).reset_index()
+          Path("analog_reference_output").mkdir(exist_ok=True)
+          means.to_csv("analog_reference_output/case_environment_means.csv",index=False)
+          features=[c for c in means.columns if c not in ("case_id","date","grid_lat","grid_lon")]
+          report={"cases":int(means.case_id.nunique()),"features":features,"method":"Mean across available sites and hourly samples for each case","limitations":["Not storm-time matched; event report times are not linked to ERA5 hourly values.","Exploratory reference data, not a validated analog climatology.","Most expanded-case selections/classifications remain provisional."]}
+          Path("analog_reference_output/reference_dataset_report.json").write_text(json.dumps(report,indent=2))
+          print(json.dumps(report,indent=2))
+          PY
+
       - name: Upload full 30-case validation and processing results
         if: always()
         uses: actions/upload-artifact@v4
@@ -174,5 +191,6 @@ jobs:
             qc_output/
             phase4_output/
             phase5_output/
+            analog_reference_output/
           retention-days: 30
           if-no-files-found: warn
