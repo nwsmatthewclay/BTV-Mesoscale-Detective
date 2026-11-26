@@ -39,7 +39,8 @@ jobs:
         run: |
           python severe_weather_research/processing/calculate_parameters.py \
             --profiles profile_artifact/hourly_profiles.csv \
-            --out-dir diagnostics_output
+            --out-dir diagnostics_output \
+            --fail-on-errors
       - name: Upload diagnostics and report
         if: always()
         uses: actions/upload-artifact@v4
