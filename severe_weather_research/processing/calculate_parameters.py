@@ -35,7 +35,7 @@ def safe_float(value):
     except Exception: return np.nan
 
 def diagnostics(group):
-    from metpy.calc import parcel_profile, cape_cin, mixed_layer, most_unstable, lcl, precipitable_water
+    from metpy.calc import surface_based_cape_cin, mixed_layer_cape_cin, most_unstable_cape_cin, lcl, precipitable_water
     from metpy.units import units
     g=group.sort_values('pressure_hpa',ascending=False)
     p=g.pressure_hpa.to_numpy(float); t=g.temperature_c.to_numpy(float); td=g.dewpoint_c.to_numpy(float)
