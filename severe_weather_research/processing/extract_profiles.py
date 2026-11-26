@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Decode pilot ERA5 GRIBs and export hourly nearest-grid profiles plus Skew-T plots."""
 from __future__ import annotations
-import argparse, csv, json
+import argparse, csv, json, traceback, sys
 from pathlib import Path
 from datetime import datetime, timezone
 import numpy as np
@@ -84,6 +84,8 @@ def main():
             ds.close(); record["status"]="ok"
         except Exception as exc:
             record["status"]="processing_error"; record["error"]=repr(exc)
+            print(f"ERROR processing {cid} ({date}): {exc!r}", file=sys.stderr, flush=True)
+            traceback.print_exc()
         statuses.append(record)
     if rows: pd.DataFrame(rows).to_csv(args.output_dir/"hourly_profiles.csv",index=False)
     report={"created_utc":datetime.now(timezone.utc).isoformat(),"cases":statuses,"rows_written":len(rows),"sites":list(SITES),"skewt_sites":["KBTV","KPBG"],"skewt_hours_utc":list(PLOT_HOURS)}
