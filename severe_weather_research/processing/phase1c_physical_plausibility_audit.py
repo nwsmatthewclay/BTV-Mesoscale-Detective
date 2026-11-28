@@ -36,6 +36,22 @@ EXPECTED_SITES = {"KBTV", "KPBG", "KMSS", "KSLK", "KMPV", "KRUT"}
 def add_flag(flags, level, key, field, value, code, detail):
     flags.append({"severity": level, **key, "field": field, "value": value, "flag": code, "detail": detail})
 
+def markdown_table(df):
+    """Render a small Markdown table without optional tabulate dependency."""
+    if df.empty:
+        return "_No flags recorded._"
+    columns = [str(c) for c in df.columns]
+    lines = ["| " + " | ".join(columns) + " |", "| " + " | ".join(["---"] * len(columns)) + " |"]
+    for _, row in df.iterrows():
+        values = []
+        for value in row.tolist():
+            if pd.isna(value):
+                values.append("")
+            else:
+                values.append(str(value).replace("|", "\\|").replace("\\n", " "))
+        lines.append("| " + " | ".join(values) + " |")
+    return "\\n".join(lines)
+
 def num(series):
     return pd.to_numeric(series, errors="coerce")
 
