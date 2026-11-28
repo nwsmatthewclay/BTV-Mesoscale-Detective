@@ -48,9 +48,9 @@ def markdown_table(df):
             if pd.isna(value):
                 values.append("")
             else:
-                values.append(str(value).replace("|", "\\|").replace("\\n", " "))
+                values.append(str(value).replace("|", "\\|").replace(chr(10), " "))
         lines.append("| " + " | ".join(values) + " |")
-    return "\\n".join(lines)
+    return chr(10).join(lines)
 
 def num(series):
     return pd.to_numeric(series, errors="coerce")
