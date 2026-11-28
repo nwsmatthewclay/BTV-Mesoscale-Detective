@@ -96,7 +96,7 @@ def main():
     missing = int((comparisons.status=="missing_value").sum())
     mismatches = int((comparisons.status=="mismatch").sum())
     unmatched = int((comparisons.record_match==False).sum())
-    overall = "PASS" if mismatches==0 and missing==0 and unmatched==0 and all(record_counts.values()) else ("WARN" if mismatches or missing or unmatched else "FAIL")
+    overall = "PASS" if mismatches==0 and missing==0 and both_missing==0 and unmatched==0 and all(record_counts.values()) else ("WARN" if mismatches or missing or both_missing or unmatched else "FAIL")
     report = {
         "phase":"phase1b_met_calculation_reproducibility_audit",
         "audit_scope":"Recalculation from archived profile CSV using the same MetPy-based calculation routine; not fully independent method validation.",
