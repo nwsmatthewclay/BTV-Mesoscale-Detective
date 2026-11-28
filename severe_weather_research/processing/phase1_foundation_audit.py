@@ -73,7 +73,7 @@ def audit_profiles(profile_csv):
     keys=set(); counts={}
     for row in rows:
         key=(row["case_id"],row["site"],row["valid_time_utc"],row["pressure_hpa"])
-        if key in keys: flags.append({"flag":"duplicate_profile_key","case_id":row["case_id"],"site":row["site"],"time":row["valid_time_utc"],"pressure_hpa":row["pressure_hpa"})
+        if key in keys: flags.append({"flag":"duplicate_profile_key","case_id":row["case_id"],"site":row["site"],"time":row["valid_time_utc"],"pressure_hpa":row["pressure_hpa"]})
         keys.add(key)
         counts[(row["case_id"],row["site"])]=counts.get((row["case_id"],row["site"]),0)+1
     case_ids=sorted({r["case_id"] for r in rows})
