@@ -44,49 +44,55 @@ def audit_manifest(manifest_path):
     return cases, findings
 
 def audit_raw(raw_dir, cases):
-    rows=[]
-    missing=[]
+    """Locate raw GRIBs recursively so artifact packaging/layout changes do not break auditing."""
+    rows=[]; missing=[]
     for case in cases:
         cid,date=case.get("case_id",""),case.get("event_date_utc","")
-        folder=raw_dir/cid/date
         for filename in EXPECTED_FILES:
-            p=folder/filename
-            exists=p.is_file()
+            candidates=[p for p in raw_dir.rglob(filename) if cid in p.parts and date in p.parts]
+            p=candidates[0] if candidates else None
+            exists=bool(p and p.is_file())
             size=p.stat().st_size if exists else 0
             sig=False
             if exists and size>=4:
                 with p.open("rb") as f: sig=f.read(4)==b"GRIB"
             status="ok" if exists and size>0 and sig else ("missing" if not exists else "invalid")
-            if status!="ok": missing.append({"case_id":cid,"date":date,"file":filename,"status":status})
-            rows.append({"case_id":cid,"date":date,"file":filename,"path":str(p),
-                         "exists":exists,"bytes":size,"grib_signature_ok":sig,"status":status})
+            if status!="ok": missing.append({"case_id":cid,"date":date,"file":filename,"status":status,"candidate_count":len(candidates)})
+            rows.append({"case_id":cid,"date":date,"file":filename,"path":str(p) if p else "",
+                         "candidate_count":len(candidates),"exists":exists,"bytes":size,"grib_signature_ok":sig,"status":status})
     return rows, missing
 
-def audit_profiles(profile_csv):
+def audit_profiles(profile_csv, cases):
     if not profile_csv or not profile_csv.exists():
-        return {"available":False,"reason":"profile CSV not supplied or not found"}, []
+        return {"available":False,"reason":"profile CSV not supplied or not found"}, [], []
     rows=read_csv(profile_csv)
     required=("case_id","date","site","valid_time_utc","pressure_hpa","temperature_c","dewpoint_c","u_ms","v_ms")
     missing_cols=[c for c in required if rows and c not in rows[0]]
     flags=[]
-    if missing_cols: return {"available":True,"row_count":len(rows),"missing_columns":missing_cols}, flags
-    keys=set(); counts={}
+    if missing_cols: return {"available":True,"row_count":len(rows),"missing_columns":missing_cols}, flags, []
+    keys=set(); dup_count=0
+    pair_times={}; pair_levels={}
     for row in rows:
         key=(row["case_id"],row["site"],row["valid_time_utc"],row["pressure_hpa"])
-        if key in keys: flags.append({"flag":"duplicate_profile_key","case_id":row["case_id"],"site":row["site"],"time":row["valid_time_utc"],"pressure_hpa":row["pressure_hpa"]})
+        if key in keys:
+            dup_count+=1
+            flags.append({"flag":"duplicate_profile_key","case_id":row["case_id"],"site":row["site"],"time":row["valid_time_utc"],"pressure_hpa":row["pressure_hpa"]})
         keys.add(key)
-        counts[(row["case_id"],row["site"])]=counts.get((row["case_id"],row["site"]),0)+1
-    case_ids=sorted({r["case_id"] for r in rows})
-    sites=sorted({r["site"] for r in rows})
-    expected_per_case_site=EXPECTED_HOURS*30
-    coverage=[{"case_id":c,"site":s,"rows":counts.get((c,s),0),
-               "expected_rows":expected_per_case_site,"coverage_pct":round(100*counts.get((c,s),0)/expected_per_case_site,1)}
-              for c in case_ids for s in sites]
+        pair=(row["case_id"],row["site"])
+        pair_times.setdefault(pair,set()).add(row["valid_time_utc"])
+        pair_levels.setdefault(pair,set()).add(row["pressure_hpa"])
+    case_ids=sorted({r["case_id"] for r in rows}); sites=sorted({r["site"] for r in rows})
+    expected_cases=sorted({c.get("case_id","") for c in cases})
+    coverage=[{"case_id":c,"site":s,"unique_times":len(pair_times.get((c,s),set())),"expected_hours":EXPECTED_HOURS,
+               "time_coverage_pct":round(100*len(pair_times.get((c,s),set()))/EXPECTED_HOURS,1),
+               "pressure_levels":len(pair_levels.get((c,s),set())),"row_count":sum(1 for r in rows if r["case_id"]==c and r["site"]==s)}
+              for c in expected_cases for s in EXPECTED_SITES]
     return {"available":True,"row_count":len(rows),"case_count":len(case_ids),"cases":case_ids,
             "site_count":len(sites),"sites":sites,"expected_sites":list(EXPECTED_SITES),
-            "missing_cases":sorted(set(c["case_id"] for c in cases)-set(case_ids)),
+            "missing_cases":sorted(set(expected_cases)-set(case_ids)),
             "missing_sites":sorted(set(EXPECTED_SITES)-set(sites)),
-            "duplicate_profile_keys":len(flags),"coverage_records":len(coverage)}, flags, coverage
+            "duplicate_profile_keys":dup_count,"unique_times_total":sum(len(v) for v in pair_times.values()),
+            "coverage_records":len(coverage)}, flags, coverage
 
 def main():
     ap=argparse.ArgumentParser()
@@ -102,9 +108,7 @@ def main():
     profile_audit={"available":False,"reason":"profile CSV not supplied"}
     profile_flags=[]; coverage=[]
     if args.profiles:
-        result=audit_profiles(args.profiles)
-        if len(result)==3: profile_audit,profile_flags,coverage=result
-        else: profile_audit,profile_flags=result
+        profile_audit,profile_flags,coverage=audit_profiles(args.profiles,cases)
     diag_audit={"available":False,"reason":"diagnostics CSV not supplied"}
     if args.diagnostics and args.diagnostics.exists():
         rows=read_csv(args.diagnostics)
