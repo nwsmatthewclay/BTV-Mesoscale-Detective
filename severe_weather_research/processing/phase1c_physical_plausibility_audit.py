@@ -166,7 +166,7 @@ def main():
         f"- Profile groups without diagnostics: {len(pkeys-dkeys)}",f"- Diagnostic groups without profiles: {len(dkeys-pkeys)}",
         f"- Profile flags: {len(pflags)}",f"- Diagnostic flags: {len(dflags)}",f"- Integrity findings: {len(integrity)}",
         f"- Missing profile values detailed: {len(missing_value_detail)}","",
-        "## Flag summary","",flag_summary.to_markdown(index=False),"",
+        "## Flag summary","",markdown_table(flag_summary),"",
         "## Scope and caveats","",report["audit_scope"],"",*[f"- {n}" for n in report["notes"]]]
     (args.out_dir/"phase1c_audit.md").write_text("\n".join(md),encoding="utf-8")
     print(json.dumps({"status":status,**counts,"output_dir":str(args.out_dir)},indent=2))
