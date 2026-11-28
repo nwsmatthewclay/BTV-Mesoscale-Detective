@@ -41,12 +41,14 @@ jobs:
       - name: Locate required artifact files
         id: files
         run: |
-          profile_file=$(find era5_artifact -type f -name hourly_profiles.csv -print -quit)
-          diagnostic_file=$(find era5_artifact -type f -name hourly_environmental_parameters.csv -print -quit)
+          profile_file=$(find "${GITHUB_WORKSPACE}/era5_artifact" -type f -name hourly_profiles.csv -print -quit)
+          diagnostic_file=$(find "${GITHUB_WORKSPACE}/era5_artifact" -type f -name hourly_environmental_parameters.csv -print -quit)
           test -n "$profile_file"
           test -n "$diagnostic_file"
           echo "profiles=$profile_file" >> "$GITHUB_OUTPUT"
           echo "diagnostics=$diagnostic_file" >> "$GITHUB_OUTPUT"
+          echo "Found profiles: $profile_file"
+          echo "Found diagnostics: $diagnostic_file"
 
       - name: Syntax check audit and calculation modules
         run: |
