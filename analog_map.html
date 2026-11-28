@@ -66,8 +66,8 @@ const cases=[
 {id:'BTV030',date:'2012-07-04',type:'mixed',desc:'Independence Day severe weather event (provisional)',loc:'BTV CWA / approximate regional center',lat:44.35,lon:-72.95}
 ];
 const sites=[['KBTV',44.4719,-73.1533],['KPBG',44.6509,-73.4681],['KMSS',44.9358,-74.8456],['KSLK',44.3853,-74.2062],['KMPV',44.2035,-72.5623],['KRUT',43.5294,-72.9496]];
-const map=L.map('map',{preferCanvas:true}).setView([44.25,-73.25],8);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap contributors &copy; CARTO'}).addTo(map);
+const map=L.map('map',{preferCanvas:true}).setView([44.25,-73.25],7.5);
+const osm=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'});\nconst cartoLight=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:20,attribution:'&copy; OpenStreetMap contributors &copy; CARTO'});\nosm.addTo(map);\nL.control.layers({'OpenStreetMap':osm,'Clean light map':cartoLight},null,{collapsed:false,position:'topright'}).addTo(map);
 const colors={hail:'#f6c453',wind:'#ff647c',mixed:'#b18cff'};
 let layer=L.layerGroup().addTo(map);
 function selectCase(c){document.getElementById('selected').innerHTML='<h3>'+c.id+' · '+c.date+'</h3><p><b>Category:</b> '+({hail:'Hail-dominant',wind:'Wind-dominant',mixed:'Mixed / complex'}[c.type])+'</p><p><b>Approximate area:</b> '+c.loc+'</p><p>'+c.desc+'</p><p style="color:#f0c779">Location is an approximate map placement; report-level coordinates have not yet been verified.</p>';document.querySelectorAll('.case').forEach(el=>el.classList.toggle('selected',el.dataset.id===c.id));map.flyTo([c.lat,c.lon],9,{duration:.4})}
