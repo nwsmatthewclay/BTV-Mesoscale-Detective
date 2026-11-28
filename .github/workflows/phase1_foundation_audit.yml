@@ -7,10 +7,6 @@ on:
         description: GitHub Actions run ID containing the 30-case ERA5 raw-data artifact
         required: true
         type: string
-      profile_artifact_run_id:
-        description: Optional run ID containing hourly_profiles.csv or diagnostics CSV artifact
-        required: false
-        type: string
 
 permissions:
   actions: read
@@ -45,7 +41,6 @@ jobs:
           if [ -n "$diagnostic_file" ]; then args+=(--diagnostics "$diagnostic_file"); fi
           echo "Artifact contents:"
           find era5_artifact -maxdepth 4 -type f | sort
-          python severe_weather_research/processing/phase1_foundation_audit.py "${args[@]}"
           python severe_weather_research/processing/phase1_foundation_audit.py "${args[@]}"
 
       - name: Upload Phase 1 audit
