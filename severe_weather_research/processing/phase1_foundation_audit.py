@@ -67,7 +67,7 @@ def audit_profiles(profile_csv, cases):
         return {"available":False,"reason":"profile CSV not supplied or not found"}, [], []
     rows=read_csv(profile_csv)
     required=("case_id","date","site","valid_time_utc","pressure_hpa","temperature_c","dewpoint_c","u_ms","v_ms")
-    missing_cols=[c for c in required if rows and c not in rows[0]]
+    missing_cols=list(required) if not rows else [c for c in required if c not in rows[0]]
     flags=[]
     if missing_cols: return {"available":True,"row_count":len(rows),"missing_columns":missing_cols}, flags, []
     keys=set(); dup_count=0
