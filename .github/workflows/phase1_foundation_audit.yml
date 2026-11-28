@@ -26,19 +26,10 @@ jobs:
       - name: Download ERA5 raw artifact
         uses: actions/download-artifact@v4
         with:
-          name: btv-era5-first-five
+          name: btv-era5-30case-validation-and-processing
           run-id: ${{ inputs.acquisition_run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: era5_artifact
-
-      - name: Download optional processed profile artifact
-        if: ${{ inputs.profile_artifact_run_id != '' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: btv-era5-30case-validation-and-processing
-          run-id: ${{ inputs.profile_artifact_run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path: processed_artifact
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -47,13 +38,14 @@ jobs:
 
       - name: Run foundation audit
         run: |
-          args=(--out-dir phase1_output --raw-dir era5_artifact/raw)
-          if [ -f processed_artifact/profile_output/hourly_profiles.csv ]; then
-            args+=(--profiles processed_artifact/profile_output/hourly_profiles.csv)
-          fi
-          if [ -f processed_artifact/diagnostics_output/hourly_environmental_parameters.csv ]; then
-            args+=(--diagnostics processed_artifact/diagnostics_output/hourly_environmental_parameters.csv)
-          fi
+          args=(--out-dir phase1_output --raw-dir era5_artifact)
+          profile_file=$(find era5_artifact -type f -name hourly_profiles.csv -print -quit)
+          diagnostic_file=$(find era5_artifact -type f -name hourly_environmental_parameters.csv -print -quit)
+          if [ -n "$profile_file" ]; then args+=(--profiles "$profile_file"); fi
+          if [ -n "$diagnostic_file" ]; then args+=(--diagnostics "$diagnostic_file"); fi
+          echo "Artifact contents:"
+          find era5_artifact -maxdepth 4 -type f | sort
+          python severe_weather_research/processing/phase1_foundation_audit.py "${args[@]}"
           python severe_weather_research/processing/phase1_foundation_audit.py "${args[@]}"
 
       - name: Upload Phase 1 audit
