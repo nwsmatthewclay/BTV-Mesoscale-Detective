@@ -148,7 +148,7 @@ def main():
     flag_summary.to_csv(args.out_dir/"phase1c_flag_summary.csv",index=False)
     counts={"profile_flags":len(pflags),"diagnostic_flags":len(dflags),"integrity_findings":len(integrity),
             "profile_groups":len(pkeys),"diagnostic_groups":len(dkeys),"cases":len(cases),"sites":sites,
-            "profile_diagnostic_key_overlap":len(pkeys&dkeys),"profile_only_keys":len(pkeys-dkeys),"diagnostic_only_keys":len(dkeys-dkeys),
+            "profile_diagnostic_key_overlap":len(pkeys&dkeys),"profile_only_keys":len(pkeys-dkeys),"diagnostic_only_keys":len(dkeys-pkeys),
             "missing_profile_values":len(missing_value_detail),"negative_cape_flags":sum(x["flag"]=="negative_cape" for x in dflags)}
     status="PASS" if len(pflags)==0 and len(dflags)==0 and not any(x.get("status")=="FAIL" for x in integrity) else "REVIEW"
     report={"phase":"phase1c_physical_plausibility_and_cross_file_audit","overall_status":status,
